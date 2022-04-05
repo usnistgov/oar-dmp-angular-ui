@@ -1,0 +1,37 @@
+<div class="dmpSection">
+  <div class="header">Technical Requirements</div> 
+  <table >
+    <tr>
+      <td class="description">Estimated Data Size</td>
+      <td>
+        <input type="text" placeholder="Numeric value">
+        <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" >
+          <option [value]="item.id" *ngFor="let item of dataUnits">
+              {{item.size}}
+          </option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="description" >Technical Resources</td>
+      <td style="width: 400px;">  
+        <ul class="list">
+          <li *ngFor="let item of techRsrc">{{ item }}</li>
+        </ul>
+    
+        <div class="add-list-container">
+          <input
+            #techRsrcInput
+            type="text"
+            (input)="techRsrcOnInput(techRsrcInput.value)"
+            [value]="newTechRsrc"
+            placeholder="equipment needed/used e.g. microscope"
+          />
+          <button (click)="techRsrcOnClick()">Add</button>&nbsp;
+          <button (click)="techRsrcOnClickClear()">Clear</button>
+        </div>
+        <p *ngIf="techRsrcErr" class="error-msg">{{ techRsrcErr }}</p>
+      </td>
+    </tr>
+  </table>
+</div>

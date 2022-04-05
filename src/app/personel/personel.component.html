@@ -1,0 +1,171 @@
+
+<div class="dmpSection">
+  <div class="header">Personnel</div>
+  <table>
+    <tr>
+      <td class="description">Primary NIST Contact</td>
+      <td>
+        
+        <select 
+          name="primContact" 
+          [(ngModel)]="primNistContact"
+          (change)="selPrimNistContact()"
+        >
+            <option [value]="contact.id" *ngFor="let contact of nistContacts">
+                {{contact.firstName + ' ' + contact.lastName}}
+            </option>
+        </select>
+        <!-- <table>
+          <tr>
+            <td>Primary Contact's Group</td>
+            <td><input type="text" value={{crntNistContactGrp}} disabled="true"></td>
+          </tr>
+        </table> -->
+        
+      </td>
+    </tr>
+    <tr>
+      <td class="description">NIST DMP Reviewer</td>
+      <td>
+        <select name="dmpReviewer" [(ngModel)]="dmpReviewer" (change)="selDmpReviewer()">
+          <option [value]="contact.id" *ngFor="let contact of nistContacts">
+            {{contact.firstName + ' ' + contact.lastName}}
+        </option>
+      </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="description">Contributor</td>
+      <td>
+        <div>
+          <input 
+            type="radio" 
+            id="contributorNIST" 
+            name="contributor" 
+            value="NIST" 
+            (click)="setContributor('NIST')"
+            (change)="onContributorChange($event.target)"
+          >
+          <label for="contributorNIST">NIST employe / associate</label>
+        </div>
+        
+        <div *ngIf="selectedContributor('NIST')">
+          <table>
+            <tr>
+              <td>Select NIST Contributor</td>
+              <td>
+                <select
+                  name="nistContributor"
+                  [(ngModel)]="nistContributor"
+                  (change)="selNistContributor()"
+                >
+                  <option [value]="contact.id" *ngFor="let contact of nistContacts">
+                      {{contact.firstName + ' ' + contact.lastName}}
+                  </option>
+
+                </select>
+
+              </td>
+            </tr>
+            <tr>
+              <td>Contributor Role</td>
+              <td>
+                <select
+                  name="contributorRole"
+                  [(ngModel)]="contributorRole"
+                  (change)="selContributorRole()"
+                >
+                  <option [value]="role.id" *ngFor="let role of contributorRoles">
+                      {{role.value}}
+                  </option>
+
+                </select>
+              </td>
+            </tr>
+
+          </table>
+          
+          
+        </div>
+
+        <div>
+          <input 
+            type="radio" 
+            id="contributorExternal" 
+            name="contributor" 
+            value="External" 
+            (click)="setContributor('External')"
+            (change)="onContributorChange($event.target)"
+          >
+          <label for="contributorExternal">External Colaborator</label>
+          <div *ngIf="selectedContributor('External')">
+            <table>
+              <tr>
+                <td>First Name</td>
+                <td><input type="text" [(ngModel)]="externalContributor.firstName"></td>
+              </tr>
+              <tr>
+                <td>Last Name</td>
+                <td><input type="text" [(ngModel)]="externalContributor.lastName"></td>
+              </tr>
+              <tr>
+                <td class="description">Institution / Affiliation</td>
+                <td><input type="text" [(ngModel)]="externalContributor.instituion"></td>
+              </tr>
+              <tr>
+                <td>Role</td>
+                <td>
+                  <select
+                    name="contributorRole"
+                    [(ngModel)]="contributorRole"
+                    (change)="selContributorRole()"
+                  >
+                    <option [value]="role.id" *ngFor="let role of contributorRoles">
+                        {{role.value}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>e-mail</td>
+                <td><input type="text" [(ngModel)]="externalContributor.e_mail"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <button type="button" [disabled]="!btnAddContrib" (click)="addContributor(crntContribRole)">Add</button>
+      </td>
+    </tr>
+    
+  </table>
+  <div class="container">
+    <div class="centered-div">
+      <div class="sub-category">Contributors</div>
+      <table style="width: 100%;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Institution</th>
+            <th>Role</th>
+            <th>e-mail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let contributor of  contributors">
+            <td>{{contributor.firstName + " " + contributor.lastName}}</td>
+            <td>{{contributor.instituion}}</td>
+            <td>{{contributor.role}}</td>
+            <td>{{contributor.e_mail}}</td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <table>
+    
+  </table>
+
+  
+</div>

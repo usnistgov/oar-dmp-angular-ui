@@ -1,0 +1,19 @@
+<div class="dmpSection">
+  <div class="header">Keywords</div> 
+  <ul class="list">
+    <li *ngFor="let keyWord of keyWords">{{ keyWord }}</li>
+  </ul>
+
+  <div class="add-list-container">
+    <input
+      #keyWordsInput
+      type="text"
+      (input)="onInput(keyWordsInput.value)"
+      [value]="newKeyWordText"
+      placeholder="Keywords / Phrases"
+    />
+    <button (click)="onClick()">Add</button>&nbsp;
+    <button (click)="onClickClear()">Clear</button>
+  </div>
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+</div>

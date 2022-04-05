@@ -1,1 +1,96 @@
-/* You can add global styles to this file, and also import other style files */
+$font-stack: Helvetica, sans-serif;
+$primary-color: #333;
+
+body {
+  font: 100% $font-stack;
+  color: $primary-color;
+}
+.dmpSection {
+  border: none;
+  border-bottom: 0.1rem solid rgba(128, 128, 128, 0.418);
+  margin-right: 0.5rem;
+  width: 600px;
+}
+div{
+  
+  .header{
+    padding: {
+      top: 5px;
+      bottom: 5px;
+      right: 0px;
+      left: 0px;
+    };
+    text-align: center;
+    background: #1a7bbc;
+    color: white;
+    font-size: larger;
+    
+  }
+  .sub-category{
+    padding: {
+      top: 2px;
+      bottom: 2px;
+      right: 0px;
+      left: 0px
+    };
+    text-align: center;
+    background: #6a6d6e;
+    color: white;
+    font-size: medium;
+  }
+  table{
+    .hidden-row{
+      visibility:collapse;
+    }
+    .description {
+      vertical-align: top;
+    }
+  }
+}
+
+.container{
+  width: 100%;
+  /* center a div insie another div*/
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.centered-div{
+  width: 90%;
+}
+
+.list {
+  padding: 1rem;
+  width: 50%;
+  height: 6rem;
+  border: 0.1rem solid grey;
+  overflow: auto;
+}
+
+.add-list-container{
+  input {
+    border: none;
+    border-bottom: 0.1rem solid rgba(128, 128, 128, 0.418);
+    margin-right: 0.5rem;
+    width: 98%;
+    display: flex;
+  }
+  button{
+    width: 100px;
+    border: none;
+    color: white;
+    font-weight: 400;
+    cursor: pointer;
+    background-color: rgb(0, 53, 139);
+    margin-top: 0.5rem;
+  }
+}
+.error-msg {
+  color: red;
+}
+
+
+
