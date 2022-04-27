@@ -1,4 +1,6 @@
-# DmpUi2
+# NIST Data Management Pan User Interface
+
+The Data Management Planning Component provides a tool that allows a NIST researcher to plan out how data will managed throughout the lifecycle of a research project. 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.6.
 
