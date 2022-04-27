@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PersonelService } from '../personel.service';
-import { NIST_CONTACTS } from '../mock-nist-contacts';
 import { ROLES } from '../mock-roles';
 import { Contributor } from '../contributor';
+import { DmpAPIService } from '../dmp-api.service';
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
@@ -11,8 +11,11 @@ import { Contributor } from '../contributor';
 export class PersonelComponent implements OnInit {
 
   constructor(
-    private personelService: PersonelService
-  ) { }
+    private personelService: PersonelService,
+    private apiService: DmpAPIService
+  ) { 
+    this.getgetAllFromAPI();
+  }
 
   ngOnInit(): void {
   }  
@@ -22,11 +25,26 @@ export class PersonelComponent implements OnInit {
   contributors: Contributor[]=[];
 
   //List of all nist contacts from NIST directory
-  nistContacts = NIST_CONTACTS;
+  nistContacts: any = null;
+
+  getgetAllFromAPI(){
+    this.apiService.getAll().subscribe(
+      {
+        next: (v) => {
+          console.log(v); 
+          this.nistContacts = v;
+        },
+        error: (e) => console.error(e),
+        complete: () => console.info('complete') 
+      }
+    );
+  }
 
   //current selection string on dropdown option
   //for Primary NIST Contact
   primNistContact: string = "";
+
+
   
   crntNistContactGrp: string = "";
   crntNistContactName: string = "";
