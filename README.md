@@ -1,6 +1,9 @@
 # NIST Data Management Pan User Interface
 
-The Data Management Planning Component provides a tool that allows a NIST researcher to plan out how data will managed throughout the lifecycle of a research project. 
+The Data Management Planning Component provides a tool that allows a NIST researcher to plan out how data will managed throughout the lifecycle of a research project.
+
+###Build Status
+This is a testing build that interacts with a Python API which queries a MongoDB instance
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.6.
 
