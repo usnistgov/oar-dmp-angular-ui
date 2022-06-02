@@ -2,9 +2,143 @@
 <!-- <div *ngFor="let person of nistPeople">
   <p>{{person.firstName}}</p>
 </div> -->
-<app-basic-info></app-basic-info>
-<app-personel></app-personel>
-<app-keywords></app-keywords>
-<app-storage-needs></app-storage-needs>
-<app-ethical-issues></app-ethical-issues>
-<app-data-categories></app-data-categories>
+<table>
+  <tr>
+    <td>
+      <app-basic-info></app-basic-info>
+      <app-personel></app-personel>
+      <app-keywords></app-keywords>
+      <app-storage-needs></app-storage-needs>
+      <app-ethical-issues></app-ethical-issues>
+      <app-data-categories></app-data-categories>
+    </td>
+    <td>
+      <!-- <div class="opt_container">
+        <div class="cell">
+          <span>Storage</span>
+          <div>
+            <ul>
+              <li>Coffee</li>
+              <li>Tea</li>
+              <li>Milk</li>
+            </ul>
+          </div>
+        </div>
+      </div> -->
+      <div class="grid-container">
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Storage</span>
+            <div>
+              <ul>
+                <li>AWS Cloud Storage</li>
+                <li>OU Storage Request (Local NAS,  Central)</li>
+                <li>Google Drive</li>
+                <li>Box</li>
+                <li>Central Storage On-Prem (CFS2E, CFS2W)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Computing Resources</span>
+            <div>
+              <ul>
+                <li>OU HPC (ITL,  CTCMS,  other)</li>
+                <li>Central HPC (Raritan,  Enki)</li>
+                <li>ENKI GPU Cluster</li>
+                <li>Central VM (On-Prem)</li>
+                <li>AWS Compute</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Network Support</span>
+            <div>
+              <ul>
+                <li>Research Equipment Network (REN) - Instrument => ITSO</li>
+                <li>10Gb - high speed</li>
+                <li>Firewall - ITAC</li>
+                <li>DNS - ITAC</li>
+              </ul>
+            </div>
+          </div>
+        </div>  
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Web Server</span>
+            <div>
+              <ul>
+                <li>Hosting</li>
+                
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Database</span>
+            <div>
+              <ul>
+                <li>Licensing</li>
+                <li>Resources at NIST</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">AWS Cloud</span>
+            <div>
+              <ul>
+                <li>Services</li>
+                <li>Server</li>
+                <li>Storage</li>
+              </ul>
+            </div>
+          </div>
+        </div>  
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Collaboration Tools</span>
+            <div>
+              <ul>
+                <li>NIST-Wide Available</li>
+                <li>OU Approved</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Software Tools</span>
+            <div>
+              <ul>
+                <li>Gitlab Repository - Internal</li>
+                <li>Github (Public and Private Repository)</li>
+                <li>Science Software</li>
+               
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-item">
+          <div class="cell">
+            <span class="header_span">Data Science</span>
+            <div>
+              <ul>
+                <li>Informatics - Semantic</li>
+                <li>LIMS at NIST</li>
+                <li>Standards</li>
+                
+              </ul>
+            </div>
+          </div>
+        </div>  
+      </div>
+    </td>
+  </tr>
+</table>
