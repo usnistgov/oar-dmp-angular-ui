@@ -10,6 +10,7 @@ import { KeywordsComponent } from './keywords/keywords.component';
 import { StorageNeedsComponent } from './storage-needs/storage-needs.component';
 import { EthicalIssuesComponent } from './ethical-issues/ethical-issues.component';
 import { DataCategoriesComponent } from './data-categories/data-categories.component';
+import { ResourceOptionsComponent } from './resource-options/resource-options.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { DataCategoriesComponent } from './data-categories/data-categories.compo
     KeywordsComponent,
     StorageNeedsComponent,
     EthicalIssuesComponent,
-    DataCategoriesComponent
+    DataCategoriesComponent,
+    ResourceOptionsComponent
     
   ],
   imports: [
