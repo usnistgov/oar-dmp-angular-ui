@@ -34,6 +34,10 @@ export class StorageNeedsComponent implements OnInit {
 
   selDataSize(){
     this.dataSetSize = this.personelService.getDropDownText(this.dataSize, this.dataUnits)[0].group;
+    const myDiv1 = document.getElementById("myDiv1");
+    const span = document.createElement("span")
+    span.textContent= this.dataSetSize;
+    myDiv1?.appendChild(span);
   }
 
   techRsrc: string[] = [];
