@@ -1,11 +1,6 @@
 <div class="dmpSection">
   <div class="header">Technical Requirements</div> 
-  <div *ngFor="let item of dataUnits">
-    <p [ngClass]="{'cMB':item.size==='MB',
-                    'cTB':item.size==='TB',
-                    'cGB':item.size=='GB'}">{{item.size}}</p>
-  </div>
-  <div id="myDiv1">mydiv1</div>
+  <div id="myDiv1" [ngClass]="{'cMB':dataSetSize==='MB',  'cTB':dataSetSize==='TB',  'cGB':dataSetSize=='GB'}">{{message}}</div>
   
   <table >
     <tr>

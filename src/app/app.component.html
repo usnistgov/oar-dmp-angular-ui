@@ -2,7 +2,13 @@
 <!-- <div *ngFor="let person of nistPeople">
   <p>{{person.firstName}}</p>
 </div> -->
-<div class="sticky"><app-resource-options></app-resource-options></div>
+<div class="sticky">
+  <!-- 
+    Here child component called resource-options expects the property named "data"
+    whose value is stored in the "resourceCompMessage" variable
+  -->
+  <app-resource-options [data]="resourceCompMessage"></app-resource-options>
+</div>
 <table>
   <tr>
     <td>

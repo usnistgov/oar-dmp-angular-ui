@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PersonelService } from '../personel.service';
+//resources service to talk between two components
+import { ResourcesService } from '../shared/resources.service';
 
 @Component({
   selector: 'app-storage-needs',
@@ -8,12 +10,16 @@ import { PersonelService } from '../personel.service';
 })
 export class StorageNeedsComponent implements OnInit {
 
+  message:any
   constructor(
-    private personelService: PersonelService
+    private personelService: PersonelService,
+    private shared: ResourcesService
   ) { }
 
   ngOnInit(): void {
+    this.message=this.shared.getMessage()
   }
+  
   dataSize = "3";
   dataSetSize: any;
 
@@ -33,11 +39,11 @@ export class StorageNeedsComponent implements OnInit {
   ];
 
   selDataSize(){
-    this.dataSetSize = this.personelService.getDropDownText(this.dataSize, this.dataUnits)[0].group;
-    const myDiv1 = document.getElementById("myDiv1");
-    const span = document.createElement("span")
-    span.textContent= this.dataSetSize;
-    myDiv1?.appendChild(span);
+    // Get the size selection for the estimated data size [MB, GB, TB]
+    // assign the value to dataSetSize variable that is further used
+    //in HTML partion of the component for changing the class name
+    // of myDiv1
+    this.dataSetSize = this.personelService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
   }
 
   techRsrc: string[] = [];
