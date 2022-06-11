@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PersonelService } from '../personel.service';
+import { DropDownSelectService } from '../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../shared/resources.service';
 
@@ -12,7 +12,7 @@ export class StorageNeedsComponent implements OnInit {
 
   message:any
   constructor(
-    private personelService: PersonelService,
+    private dropDownService: DropDownSelectService,
     private shared: ResourcesService
   ) { }
 
@@ -43,7 +43,7 @@ export class StorageNeedsComponent implements OnInit {
     // assign the value to dataSetSize variable that is further used
     //in HTML partion of the component for changing the class name
     // of myDiv1
-    this.dataSetSize = this.personelService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
+    this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
   }
 
   techRsrc: string[] = [];

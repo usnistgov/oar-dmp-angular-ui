@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { PersonelService } from '../personel.service';
 import { ROLES } from '../mock-roles';
 import { Contributor } from '../contributor';
 import { DmpAPIService } from '../dmp-api.service';
+import { DropDownSelectService } from '../shared/drop-down-select.service';
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
@@ -11,7 +11,7 @@ import { DmpAPIService } from '../dmp-api.service';
 export class PersonelComponent implements OnInit {
 
   constructor(
-    private personelService: PersonelService,
+    private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService
   ) { 
     this.getgetAllFromAPI();
@@ -50,8 +50,8 @@ export class PersonelComponent implements OnInit {
   crntNistContactName: string = "";
   selPrimNistContact() {
     //Select primary contact from a drop down list of NIST contacts
-    this.crntNistContactGrp = this.personelService.getDropDownText(this.primNistContact, this.nistContacts)[0].group;
-    this.crntNistContactName = this.personelService.getDropDownText(this.primNistContact, this.nistContacts)[0].name;
+    this.crntNistContactGrp = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts)[0].group;
+    this.crntNistContactName = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts)[0].name;
   }
 
   private contributorOption: string="false";
@@ -75,9 +75,9 @@ export class PersonelComponent implements OnInit {
   crntNistContribEmail: string = "";
   selNistContributor(){
     
-    this.crntNistContribName = this.personelService.getDropDownText(this.nistContributor, this.nistContacts)[0].firstName;
-    this.crntNistContribSurname = this.personelService.getDropDownText(this.nistContributor, this.nistContacts)[0].lastName;
-    this.crntNistContribEmail = this.personelService.getDropDownText(this.nistContributor, this.nistContacts)[0].e_mail;
+    this.crntNistContribName = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].firstName;
+    this.crntNistContribSurname = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].lastName;
+    this.crntNistContribEmail = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].e_mail;
   }
 
   private clearContributor():void{
@@ -91,7 +91,7 @@ export class PersonelComponent implements OnInit {
   crntContribRole:any;
   selContributorRole(){
     // select role for the contributors from a drop down list
-    this.crntContribRole = this.personelService.getDropDownText(this.contributorRole, this.contributorRoles)[0].value;
+    this.crntContribRole = this.dropDownService.getDropDownText(this.contributorRole, this.contributorRoles)[0].value;
   }
 
   // Default values of external contributor
@@ -133,8 +133,8 @@ export class PersonelComponent implements OnInit {
   crntReviewerSurname: string="";
   selDmpReviewer(){
     // select DMP reviewer from a drip down list
-    this.crntReviewerName = this.personelService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].firstName;
-    this.crntReviewerSurname = this.personelService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].lastName;
+    this.crntReviewerName = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].firstName;
+    this.crntReviewerSurname = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].lastName;
   }
 
 

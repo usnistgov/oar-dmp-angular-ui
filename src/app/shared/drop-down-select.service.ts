@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+//for selcting options from dropdown select
 import * as _ from 'lodash';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PersonelService {
+export class DropDownSelectService {
 
   constructor() { }
   getDropDownText(id: string, object: any){
