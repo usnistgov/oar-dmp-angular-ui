@@ -2,6 +2,7 @@
   <!-- data is the message sent from parent component to this child component 
   message: {{data}}
   -->
+  Message: {{receivedData}}
 </div>
 <div class="grid-container">
   
@@ -11,11 +12,11 @@
       <div>
         <table>
           <tr><th><span class="header_span">Storage</span></th></tr>
-          <tr><td class="selected">AWS Cloud Storage</td></tr>
-          <tr><td>OU Storage Request (Local NAS,  Central)</td></tr>
-          <tr><td>Google Drive</td></tr>
-          <tr><td>Box</td></tr>
-          <tr><td>Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
+          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">AWS Cloud Storage</td></tr>
+          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">OU Storage Request (Local NAS,  Central)</td></tr>
+          <tr><td [ngClass]="{'selected':receivedData==='MB'}">Google Drive</td></tr>
+          <tr><td [ngClass]="{'selected':receivedData==='GB'}">Box</td></tr>
+          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
         </table>
       </div>
     </div>

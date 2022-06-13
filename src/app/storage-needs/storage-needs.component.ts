@@ -10,14 +10,14 @@ import { ResourcesService } from '../shared/resources.service';
 })
 export class StorageNeedsComponent implements OnInit {
 
-  message:any
+  // message:any
   constructor(
     private dropDownService: DropDownSelectService,
-    private shared: ResourcesService
+    private sharedService: ResourcesService
   ) { }
 
   ngOnInit(): void {
-    this.message=this.shared.getMessage()
+    // this.message=this.sharedService.getMessage()
   }
   
   dataSize = "3";
@@ -44,6 +44,9 @@ export class StorageNeedsComponent implements OnInit {
     //in HTML partion of the component for changing the class name
     // of myDiv1
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
+    this.sharedService.setMessage(this.dataSetSize);
+    //send message to subscribed components
+    this.sharedService.subjectA$.next(this.dataSetSize)
   }
 
   techRsrc: string[] = [];

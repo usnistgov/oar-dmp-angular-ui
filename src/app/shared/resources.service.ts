@@ -6,6 +6,8 @@
 // Then we inject the service in the constructor.
 
 import { Injectable } from '@angular/core';
+//for sending messages between unrelated components
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,9 @@ export class ResourcesService {
   //Then we call these methods from the components.
 
   message:any
+  // create a proper ty subjectA to which we assign a new subject and define data that this 
+  //subject emits - in out case it's a string
+  subjectA$ = new Subject<string>();
   constructor() { }
 
   setMessage(data:any){
