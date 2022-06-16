@@ -41,7 +41,7 @@ export class StorageNeedsComponent implements OnInit {
   selDataSize(){
     // Get the size selection for the estimated data size [MB, GB, TB]
     // assign the value to dataSetSize variable that is further used
-    //in HTML partion of the component for changing the class name
+    // in HTML portion of the component for changing the class name
     // of myDiv1
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
     this.sharedService.setMessage(this.dataSetSize);

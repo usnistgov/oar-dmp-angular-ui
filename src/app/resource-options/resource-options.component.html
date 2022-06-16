@@ -2,9 +2,15 @@
   <!-- data is the message sent from parent component to this child component 
   message: {{data}}
   -->
-  Message: {{receivedData}}
+  <!--
+    receivedData is message coming from shared service called resources.service 
+    it is used to send messages ti resource-options component to dynalically determine 
+    options that will be highlighted in the resources grid
+    Message: {{receivedData}}
+  -->
+  
 </div>
-<div class="grid-container">
+<div class="resources-grid-container">
   
   <div class="grid-item">
     <div class="cell">
