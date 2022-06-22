@@ -17,9 +17,12 @@ export class ResourcesService {
   //Then we call these methods from the components.
 
   message:any
-  // create a proper ty subjectA to which we assign a new subject and define data that this 
+  // create a property subjectA to which we assign a new subject and define data that this 
   //subject emits - in out case it's a string
   subjectA$ = new Subject<string>();
+
+  //property for seting software options
+  subjectSoftware$ = new Subject<string>();
   constructor() { }
 
   setMessage(data:any){

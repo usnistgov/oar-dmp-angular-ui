@@ -20,6 +20,39 @@
       </td>
     </tr>
     <tr>
+      <td class="description">Software Development</td>
+      <td>
+        <input type="radio" id="softwareDevY" name="softwareDevelopment" value="yes" (click)="setSoftwareDev('yes')">
+        <label for="softwareDevY">Yes</label>
+
+        <input type="radio" id="softwareDevN" name="softwareDevelopment" value="no" (click)="setSoftwareDev('no')" [checked]='true'  >
+        <label for="softwareDevN">No</label>
+        <div *ngIf="selSoftwareDev('yes')">
+          <!-- display this div only if the software development radio button was set to yes  -->
+          <br>
+          Software developed for this project will be for:
+          <table>
+            <tr>
+              <td>
+                <input type="radio" id="softwareInternal" name="softwareUse" value="internal" (click)="setSoftwareUse('internal')">
+                <label for="softwareInternal">Internal NIST Use</label>
+              </td>
+              <td>
+                <input type="radio" id="softwareExternal" name="softwareUse" value="external" (click)="setSoftwareUse('external')">
+                <label for="softwareExternal">External Use</label>
+              </td>
+              <td>
+                <input type="radio" id="softwareIntExt" name="softwareUse" value="both" (click)="setSoftwareUse('both')">
+                <label for="softwareIntExt">Both</label>
+              </td>
+            </tr>
+          </table>
+
+
+        </div>
+      </td>
+    </tr>
+    <tr>
       <td class="description" >Technical Resources</td>
       <td style="width: 400px;">  
         <ul class="list">

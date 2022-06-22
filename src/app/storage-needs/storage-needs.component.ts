@@ -73,4 +73,26 @@ export class StorageNeedsComponent implements OnInit {
     this.techRsrcErr = '';
   }
 
+  // determines whether there is any software development planned for this DMP
+  private softwareDev: string="no";
+  setSoftwareDev(e: string): void {
+    this.softwareDev = e; 
+  }
+
+  //returns true or false to determine whether to display options for type of softwae
+  // that is being developed as part of a DMP
+  selSoftwareDev(name:string): boolean{
+    if (!this.softwareDev) { // if no radio button is selected, always return false so every nothing is shown  
+      return false;  
+    }  
+    return (this.softwareDev === name); // if current radio button is selected, return true, else return false 
+
+  }
+
+  // determines what is the intended audience for the software developmed within this DMP
+  private softwareUse: string="both";
+  setSoftwareUse(e: string): void {
+    this.softwareUse = e; 
+  }
+
 }
