@@ -3,10 +3,10 @@
   message: {{data}}
   -->
   <!--
-    receivedData is message coming from shared service called resources.service 
+    storageSelection is message coming from shared service called resources.service 
     it is used to send messages ti resource-options component to dynalically determine 
     options that will be highlighted in the resources grid
-    Message: {{receivedData}}
+    Message: {{storageSelection}}
   -->
   
 </div>
@@ -18,11 +18,11 @@
       <div>
         <table>
           <tr><th><span class="header_span">Storage</span></th></tr>
-          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">AWS Cloud Storage</td></tr>
-          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">OU Storage Request (Local NAS,  Central)</td></tr>
-          <tr><td [ngClass]="{'selected':receivedData==='MB'}">Google Drive</td></tr>
-          <tr><td [ngClass]="{'selected':receivedData==='GB'}">Box</td></tr>
-          <tr><td [ngClass]="{'selected':receivedData==='TB' || receivedData==='GB'}">Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
+          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">AWS Cloud Storage</td></tr>
+          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">OU Storage Request (Local NAS,  Central)</td></tr>
+          <tr><td [ngClass]="{'selected':storageSelection==='MB'}">Google Drive</td></tr>
+          <tr><td [ngClass]="{'selected':storageSelection==='GB'}">Box</td></tr>
+          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
         </table>
       </div>
     </div>

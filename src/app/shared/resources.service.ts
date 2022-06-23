@@ -16,29 +16,29 @@ export class ResourcesService {
   //we create methods in the service file which performs certain tasks for the components. 
   //Then we call these methods from the components.
 
-  message:any
-  // create a property subjectA to which we assign a new subject and define data that this 
+  storageMessage:any
+  // create a property storageSubject to which we assign a new subject and define data that this 
   //subject emits - in out case it's a string
-  subjectA$ = new Subject<string>();
+  storageSubject$ = new Subject<string>();
 
   //property for seting software options
-  subjectSoftware$ = new Subject<string>();
+  softwareSubject$ = new Subject<string>();
   softwareMessage:any
   constructor() { }
 
-  setMessage(data:any){
-    this.message = data
+  setStorageMessage(data:any){
+    this.storageMessage = data
   }
 
-  getMessage(){
-    return this.message
-  }
+  // getMessage(){
+  //   return this.message
+  // }
 
   setSoftwareMessage(data:any){
     this.softwareMessage = data
   }
 
-  getSoftwareMessage(){
-    return this.softwareMessage
-  }
+  // getSoftwareMessage(){
+  //   return this.softwareMessage
+  // }
 }

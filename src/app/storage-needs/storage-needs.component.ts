@@ -44,9 +44,9 @@ export class StorageNeedsComponent implements OnInit {
     // in HTML portion of the component for changing the class name
     // of myDiv1
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    this.sharedService.setMessage(this.dataSetSize);
+    this.sharedService.setStorageMessage(this.dataSetSize);
     //send message to subscribed components
-    this.sharedService.subjectA$.next(this.dataSetSize)
+    this.sharedService.storageSubject$.next(this.dataSetSize)
   }
 
   techRsrc: string[] = [];
@@ -82,7 +82,7 @@ export class StorageNeedsComponent implements OnInit {
       //to resource options to highlight correct row in the Software Tools table
       //located in resource-options compomnent 
       this.sharedService.setSoftwareMessage(this.softwareUse)
-      this.sharedService.subjectSoftware$.next(this.softwareUse)
+      this.sharedService.softwareSubject$.next(this.softwareUse)
     }
   }
 
@@ -105,7 +105,7 @@ export class StorageNeedsComponent implements OnInit {
     this.softwareUse = e;
     //send message to resource options to highlight correct row in the Software Tools table
     //located in resource-options compomnent 
-    this.sharedService.subjectSoftware$.next(this.softwareUse)
+    this.sharedService.softwareSubject$.next(this.softwareUse)
   }
 
 }

@@ -25,7 +25,7 @@ export class ResourceOptionsComponent implements OnInit {
   constructor(private sharedService:ResourcesService) { }
 
   // message : any
-  receivedData: string = "";
+  storageSelection: string = "";
   softwareSelection: string = "";
 
   ngOnInit(): void {
@@ -38,9 +38,9 @@ export class ResourceOptionsComponent implements OnInit {
   subscribe() {
     if (!this.subscription) {
       //subscribe if not already subscribed
-      this.subscription = this.sharedService.subjectA$.subscribe({
+      this.subscription = this.sharedService.storageSubject$.subscribe({
         next: (message) => {
-          this.receivedData = message;
+          this.storageSelection = message;
         }
       });
     }
@@ -50,7 +50,7 @@ export class ResourceOptionsComponent implements OnInit {
   softwareSubscribe() {
     if (!this.softwareSubscription) {
       //subscribe if not already subscribed
-      this.softwareSubscription = this.sharedService.subjectSoftware$.subscribe({
+      this.softwareSubscription = this.sharedService.softwareSubject$.subscribe({
         next: (message) => {
           this.softwareSelection = message;
         }
