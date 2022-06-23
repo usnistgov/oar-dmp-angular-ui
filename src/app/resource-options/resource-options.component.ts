@@ -28,9 +28,16 @@ export class ResourceOptionsComponent implements OnInit {
 
   // message : any
   storageSelection: string = "";
-  softwareSelection: string = "";
-  databaseSelection: string = "";
+  computingSelection: string = "";
+  networkSelection: string = "";
+  
   websiteSelection: string = "";
+  databaseSelection: string = "";  
+  awsSelection: string = "";
+
+  colaborationSelection: string = "";
+  softwareSelection: string = "";
+  dataSelection: string = "";
 
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()

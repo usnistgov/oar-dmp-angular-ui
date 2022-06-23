@@ -16,7 +16,7 @@
     <div class="cell">
       
       <div>
-        <table>
+        <table class="grid-table">
           <tr><th><span class="header_span">Storage</span></th></tr>
           <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">AWS Cloud Storage</td></tr>
           <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">OU Storage Request (Local NAS,  Central)</td></tr>
@@ -29,35 +29,36 @@
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Computing Resources</span>
       <div>
-        <ul>
-          <li>OU HPC (ITL,  CTCMS,  other)</li>
-          <li>Central HPC (Raritan,  Enki)</li>
-          <li>ENKI GPU Cluster</li>
-          <li>Central VM (On-Prem)</li>
-          <li>AWS Compute</li>
-        </ul>
+        <table class="grid-table">
+          <tr><th><span class="header_span">Computing Resources</span></th></tr>
+          <tr><td [ngClass]="{'selected':computingSelection==='TB'}">OU HPC (ITL,  CTCMS,  other)</td></tr>
+          <tr><td [ngClass]="{'selected':computingSelection==='TB'}">Central HPC (Raritan,  Enki)</td></tr>
+          <tr><td [ngClass]="{'selected':computingSelection==='MB'}">ENKI GPU Cluster</td></tr>
+          <tr><td [ngClass]="{'selected':computingSelection==='GB'}">Central VM (On-Prem)</td></tr>
+          <tr><td [ngClass]="{'selected':computingSelection==='TB'}">AWS Compute</td></tr>
+        </table>
       </div>
+
     </div>
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Network Support</span>
       <div>
-        <ul>
-          <li>Research Equipment Network (REN) - Instrument => ITSO</li>
-          <li>10Gb - high speed</li>
-          <li>Firewall - ITAC</li>
-          <li>DNS - ITAC</li>
-        </ul>
+        <table class="grid-table">
+          <tr><th><span class="header_span">Network Support</span></th></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">Research Equipment Network (REN) - Instrument => ITSO</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">10Gb - high speed</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='MB'}">Firewall - ITAC</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='GB'}">DNS - ITAC</td></tr>
+        </table>
       </div>
     </div>
   </div>  
   <div class="grid-item">
-    <div class="cell">
+    <div class="cell" style="width: auto;">
       <div>
-        <table>
+        <table class="grid-table">
           <tr><th><span class="header_span">Web Server</span></th></tr>
           <tr><td [ngClass]="{'selected':websiteSelection==='yes'}">Hosting</td></tr>
         </table>
@@ -67,7 +68,7 @@
   <div class="grid-item">
     <div class="cell">
       <div>
-        <table>
+        <table class="grid-table">
           <tr><th><span class="header_span">Database</span></th></tr>
           <tr><td [ngClass]="{'selected':databaseSelection==='yes'}">Licensing</td></tr>
           <tr><td [ngClass]="{'selected':databaseSelection==='yes'}">Resources at NIST</td></tr>
@@ -77,31 +78,31 @@
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">AWS Cloud</span>
       <div>
-        <ul>
-          <li>Services</li>
-          <li>Server</li>
-          <li>Storage</li>
-        </ul>
+        <table class="grid-table">
+          <tr><th><span class="header_span">AWS Cloud</span></th></tr>
+          <tr><td [ngClass]="{'selected':awsSelection==='TB'}">Services</td></tr>
+          <tr><td [ngClass]="{'selected':awsSelection==='TB'}">Server</td></tr>
+          <tr><td [ngClass]="{'selected':awsSelection==='MB'}">Storage</td></tr>
+        </table>
       </div>
     </div>
   </div>  
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Collaboration Tools</span>
       <div>
-        <ul>
-          <li>NIST-Wide Available</li>
-          <li>OU Approved</li>
-        </ul>
+        <table class="grid-table">
+          <tr><th><span class="header_span">Collaboration Tools</span></th></tr>
+          <tr><td [ngClass]="{'selected':colaborationSelection==='TB'}">NIST-Wide Available</td></tr>
+          <tr><td [ngClass]="{'selected':colaborationSelection==='TB'}">OU Approved</td></tr>
+        </table>
       </div>
     </div>
   </div>
   <div class="grid-item">
     <div class="cell">
       <div>
-        <table>
+        <table class="grid-table">
           <tr><th><span class="header_span">Software Tools</span></th></tr>
           <tr><td [ngClass]="{'selected':softwareSelection==='internal' || softwareSelection==='both'}">Gitlab Repository - Internal</td></tr>
           <tr><td [ngClass]="{'selected':softwareSelection==='internal' || softwareSelection==='external' || softwareSelection==='both'}">Github Repository - Public and Private</td></tr>
@@ -112,14 +113,13 @@
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Data Science</span>
       <div>
-        <ul>
-          <li>Informatics - Semantic</li>
-          <li>LIMS at NIST</li>
-          <li>Standards</li>
-          
-        </ul>
+        <table class="grid-table">
+          <tr><th><span class="header_span">Data Science</span></th></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">Informatics - Semantic</td></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">LIMS at NIST</td></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='MB'}">Standards</td></tr>
+        </table>
       </div>
     </div>
   </div>  
