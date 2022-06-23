@@ -67,12 +67,12 @@
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Database</span>
       <div>
-        <ul>
-          <li>Licensing</li>
-          <li>Resources at NIST</li>
-        </ul>
+        <table>
+          <tr><th><span class="header_span">Database</span></th></tr>
+          <tr><td [ngClass]="{'selected':databaseSelection==='yes'}">Licensing</td></tr>
+          <tr><td [ngClass]="{'selected':databaseSelection==='yes'}">Resources at NIST</td></tr>
+        </table>
       </div>
     </div>
   </div>

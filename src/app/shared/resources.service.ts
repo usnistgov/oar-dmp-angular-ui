@@ -24,6 +24,11 @@ export class ResourcesService {
   //property for seting software options
   softwareSubject$ = new Subject<string>();
   softwareMessage:any
+
+  //property for seting database options
+  databaseSubject$ = new Subject<string>();
+  databaseMessage:any
+
   constructor() { }
 
   setStorageMessage(data:any){
@@ -41,4 +46,10 @@ export class ResourcesService {
   // getSoftwareMessage(){
   //   return this.softwareMessage
   // }
+
+  setDatabaseMessage(data:any){
+    this.databaseMessage = data
+  }
+
+  
 }

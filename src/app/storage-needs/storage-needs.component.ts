@@ -21,7 +21,7 @@ export class StorageNeedsComponent implements OnInit {
   }
   
   dataSize = "3";
-  dataSetSize: any;
+  dataSetSize = "TB";
 
   dataUnits =[    
     {
@@ -47,6 +47,14 @@ export class StorageNeedsComponent implements OnInit {
     this.sharedService.setStorageMessage(this.dataSetSize);
     //send message to subscribed components
     this.sharedService.storageSubject$.next(this.dataSetSize)
+  }
+
+  setDataSize(e:any){
+    console.log(e.target.value)
+    //send message to subscribed components
+    this.sharedService.setStorageMessage(this.dataSetSize);    
+    this.sharedService.storageSubject$.next(this.dataSetSize)
+
   }
 
   techRsrc: string[] = [];
@@ -83,6 +91,9 @@ export class StorageNeedsComponent implements OnInit {
       //located in resource-options compomnent 
       this.sharedService.setSoftwareMessage(this.softwareUse)
       this.sharedService.softwareSubject$.next(this.softwareUse)
+
+      this.sharedService.setDatabaseMessage(this.databaseUse)
+      this.sharedService.databaseSubject$.next(this.databaseUse)
     }
   }
 
@@ -106,6 +117,16 @@ export class StorageNeedsComponent implements OnInit {
     //send message to resource options to highlight correct row in the Software Tools table
     //located in resource-options compomnent 
     this.sharedService.softwareSubject$.next(this.softwareUse)
+  }
+
+  // determines whether a database will be used for the softwre development
+  private databaseUse: string="no";
+  setDatabaseUse(sel: string){
+    this.databaseUse = sel;
+    //send message to resource options to highlight correct row in the Database table
+    //located in resource-options compomnent 
+    this.sharedService.databaseSubject$.next(this.databaseUse)
+
   }
 
 }
