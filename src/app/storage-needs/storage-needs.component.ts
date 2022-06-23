@@ -76,7 +76,14 @@ export class StorageNeedsComponent implements OnInit {
   // determines whether there is any software development planned for this DMP
   private softwareDev: string="no";
   setSoftwareDev(e: string): void {
-    this.softwareDev = e; 
+    this.softwareDev = e;
+    if (this.softwareDev === "yes") {
+      //if there is software development being done as part of a DMP send message
+      //to resource options to highlight correct row in the Software Tools table
+      //located in resource-options compomnent 
+      this.sharedService.setSoftwareMessage(this.softwareUse)
+      this.sharedService.subjectSoftware$.next(this.softwareUse)
+    }
   }
 
   //returns true or false to determine whether to display options for type of softwae
@@ -84,15 +91,21 @@ export class StorageNeedsComponent implements OnInit {
   selSoftwareDev(name:string): boolean{
     if (!this.softwareDev) { // if no radio button is selected, always return false so every nothing is shown  
       return false;  
+    }
+    else {      
+      return (this.softwareDev === name); // if current radio button is selected, return true, else return false 
     }  
-    return (this.softwareDev === name); // if current radio button is selected, return true, else return false 
+    
 
   }
 
   // determines what is the intended audience for the software developmed within this DMP
-  private softwareUse: string="both";
+  private softwareUse: string="internal";
   setSoftwareUse(e: string): void {
-    this.softwareUse = e; 
+    this.softwareUse = e;
+    //send message to resource options to highlight correct row in the Software Tools table
+    //located in resource-options compomnent 
+    this.sharedService.subjectSoftware$.next(this.softwareUse)
   }
 
 }

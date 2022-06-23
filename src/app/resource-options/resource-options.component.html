@@ -101,14 +101,13 @@
   </div>
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Software Tools</span>
       <div>
-        <ul>
-          <li>Gitlab Repository - Internal</li>
-          <li>Github (Public and Private Repository)</li>
-          <li>Science Software</li>
-        
-        </ul>
+        <table>
+          <tr><th><span class="header_span">Software Tools</span></th></tr>
+          <tr><td [ngClass]="{'selected':softwareSelection==='internal' || softwareSelection==='both'}">Gitlab Repository - Internal</td></tr>
+          <tr><td [ngClass]="{'selected':softwareSelection==='internal' || softwareSelection==='external' || softwareSelection==='both'}">Github Repository - Public and Private</td></tr>
+          <tr><td [ngClass]="{'selected':softwareSelection==='external' || softwareSelection==='both'}">Science Software</td></tr>
+        </table>
       </div>
     </div>
   </div>

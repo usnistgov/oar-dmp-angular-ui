@@ -23,13 +23,22 @@ export class ResourcesService {
 
   //property for seting software options
   subjectSoftware$ = new Subject<string>();
+  softwareMessage:any
   constructor() { }
 
   setMessage(data:any){
-    this.message= data
+    this.message = data
   }
 
   getMessage(){
     return this.message
+  }
+
+  setSoftwareMessage(data:any){
+    this.softwareMessage = data
+  }
+
+  getSoftwareMessage(){
+    return this.softwareMessage
   }
 }

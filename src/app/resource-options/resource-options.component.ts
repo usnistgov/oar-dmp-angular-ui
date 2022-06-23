@@ -15,6 +15,7 @@ import { ResourcesService } from '../shared/resources.service';
 export class ResourceOptionsComponent implements OnInit {
 
   subscription!: Subscription | null;
+  softwareSubscription!: Subscription | null;
 
   // to pass data from parent to this component we declare an input decorator along
   // with a property named data wich is of type string
@@ -23,21 +24,35 @@ export class ResourceOptionsComponent implements OnInit {
   // we inject shared service ResourcesService in the constructor.
   constructor(private sharedService:ResourcesService) { }
 
-  message : any
+  // message : any
   receivedData: string = "";
+  softwareSelection: string = "";
 
   ngOnInit(): void {
-    this.message = this.sharedService.getMessage()
+    // this.message = this.sharedService.getMessage()
     this.subscribe()
+    this.softwareSubscribe()
   }
 
-  //subscribe to the particular subject
+  //subscribe to a particular subject
   subscribe() {
     if (!this.subscription) {
       //subscribe if not already subscribed
       this.subscription = this.sharedService.subjectA$.subscribe({
         next: (message) => {
           this.receivedData = message;
+        }
+      });
+    }
+  }
+
+  //subscribe to a particular subject
+  softwareSubscribe() {
+    if (!this.softwareSubscription) {
+      //subscribe if not already subscribed
+      this.softwareSubscription = this.sharedService.subjectSoftware$.subscribe({
+        next: (message) => {
+          this.softwareSelection = message;
         }
       });
     }
