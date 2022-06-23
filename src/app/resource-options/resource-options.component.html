@@ -56,12 +56,11 @@
   </div>  
   <div class="grid-item">
     <div class="cell">
-      <span class="header_span">Web Server</span>
       <div>
-        <ul>
-          <li>Hosting</li>
-          
-        </ul>
+        <table>
+          <tr><th><span class="header_span">Web Server</span></th></tr>
+          <tr><td [ngClass]="{'selected':websiteSelection==='yes'}">Hosting</td></tr>
+        </table>
       </div>
     </div>
   </div>

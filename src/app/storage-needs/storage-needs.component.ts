@@ -94,6 +94,9 @@ export class StorageNeedsComponent implements OnInit {
 
       this.sharedService.setDatabaseMessage(this.databaseUse)
       this.sharedService.databaseSubject$.next(this.databaseUse)
+
+      this.sharedService.setWebsiteMessage(this.websiteUse)
+      this.sharedService.websiteSubject$.next(this.websiteUse)
     }
   }
 
@@ -126,6 +129,16 @@ export class StorageNeedsComponent implements OnInit {
     //send message to resource options to highlight correct row in the Database table
     //located in resource-options compomnent 
     this.sharedService.databaseSubject$.next(this.databaseUse)
+
+  }
+
+  // determines whether a website will be used for the softwre development
+  private websiteUse: string="no";
+  setWebsiteDev(sel: string){
+    this.websiteUse = sel;
+    //send message to resource options to highlight correct row in the Database table
+    //located in resource-options compomnent 
+    this.sharedService.websiteSubject$.next(this.websiteUse)
 
   }
 

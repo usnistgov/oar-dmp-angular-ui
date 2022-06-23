@@ -61,6 +61,20 @@
               </td>
             </tr>
           </table>
+          <br>
+          Will the software development produce a website interface?
+          <table>
+            <tr>
+              <td>
+                <input type="radio" id="websiteY" name="websiteDevelopment" value="internal" (click)="setWebsiteDev('yes')" >
+                <label for="websiteY">Yes</label>
+              </td>
+              <td>
+                <input type="radio" id="websiteN" name="websiteDevelopment" value="external" (click)="setWebsiteDev('no')" [checked]='true'>
+                <label for="websiteN">No</label>
+              </td>
+            </tr>
+          </table>
 
 
         </div>

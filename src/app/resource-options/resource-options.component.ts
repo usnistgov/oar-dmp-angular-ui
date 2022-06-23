@@ -17,6 +17,7 @@ export class ResourceOptionsComponent implements OnInit {
   subscription!: Subscription | null;
   softwareSubscription!: Subscription | null;
   databaseSubscription!: Subscription | null;
+  websiteSubscription!: Subscription | null;
 
   // to pass data from parent to this component we declare an input decorator along
   // with a property named data wich is of type string
@@ -29,12 +30,14 @@ export class ResourceOptionsComponent implements OnInit {
   storageSelection: string = "";
   softwareSelection: string = "";
   databaseSelection: string = "";
+  websiteSelection: string = "";
 
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
     this.subscribe()
     this.softwareSubscribe()
     this.databaseSubscribe()
+    this.websiteSubscribe()
   }
 
   //subscribe to a particular subject
@@ -67,6 +70,17 @@ export class ResourceOptionsComponent implements OnInit {
       this.databaseSubscription = this.sharedService.databaseSubject$.subscribe({
         next: (message) => {
           this.databaseSelection = message;
+        }
+      });
+    }
+  }
+
+  websiteSubscribe() {
+    if (!this.websiteSubscription) {
+      //subscribe if not already subscribed
+      this.websiteSubscription = this.sharedService.websiteSubject$.subscribe({
+        next: (message) => {
+          this.websiteSelection = message;
         }
       });
     }

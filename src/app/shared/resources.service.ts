@@ -29,6 +29,10 @@ export class ResourcesService {
   databaseSubject$ = new Subject<string>();
   databaseMessage:any
 
+  //property for seting website options
+  websiteSubject$ = new Subject<string>();
+  websiteMessage:any
+
   constructor() { }
 
   setStorageMessage(data:any){
@@ -48,6 +52,10 @@ export class ResourcesService {
   // }
 
   setDatabaseMessage(data:any){
+    this.databaseMessage = data
+  }
+
+  setWebsiteMessage(data:any){
     this.databaseMessage = data
   }
 
