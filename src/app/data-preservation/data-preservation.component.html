@@ -1,31 +1,73 @@
 <div class="dmpSection">
   <div class="header">Data Preservation</div>    
+  <div><b>Select categories of the data that will be generated</b></div>
+
   <table>
     <tr>
-      <td class="description">Select categories of the<br>data that will be generated</td>
+      <td rowspan="3" class="dark_shade">Must be stored in a location that is<br>backed up using a tested/automated proces</td>
       <td>
         <input type="checkbox" id="dataClassification1" name="dataClassification1" value="Public">
-        <label for="dataClassification1"> SRD </label><br>
-
+        <label for="dataClassification1"> SRD </label>
+      </td>            
+    </tr>
+    <tr>
+      <td>
         <input type="checkbox" id="dataClassification2" name="dataClassification2" value="Sensitive">
-        <label for="dataClassification2"> Reference Data </label><br>
-
+        <label for="dataClassification2"> Reference Data </label>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <input type="checkbox" id="dataClassification3" name="dataClassification3" value="Confidential">
-        <label for="dataClassification3"> Resource Data </label><br> 
+        <label for="dataClassification3"> Resource Data </label>
+      </td>
+    </tr>
 
+    <!-- =============================================================== -->
+
+    <tr>
+      <td rowspan="2" class="medium_shade">User may choose how they preserve data</td>
+      <td>
         <input type="checkbox" id="dataClassification4" name="dataClassification4" value="published">
-        <label for="dataClassification4"> Published Data </label><br> 
-
+        <label for="dataClassification4"> Published Data </label> 
+      </td>
+    </tr>
+    <tr>
+      <td>
         <input type="checkbox" id="dataClassification4" name="dataClassification4" value="published">
-        <label for="dataClassification4"> Publishable Data </label><br> 
+        <label for="dataClassification4"> Publishable Data </label>
+      </td>
+    </tr>
 
+    <!-- =============================================================== -->
+
+    <tr>
+      <td rowspan="2" class="light_shade">No data preservation requirements</td>
+      <td>
         <input type="checkbox" id="dataClassification4" name="dataClassification4" value="published">
         <label for="dataClassification4"> Working Data </label><br> 
-
+      </td>
+    </tr>
+    <tr>
+      <td>
         <input type="checkbox" id="dataClassification4" name="dataClassification4" value="published">
         <label for="dataClassification4"> Derived Data </label><br> 
       </td>
     </tr>
-
   </table>
+        
+
+
+
+
+
+
+      <!-- </td>
+    </tr>
+    <tr>
+      <td>Preservation Description</td>
+      <td><textarea name="dmpPreservationDescription" cols="40" rows="5" placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"></textarea></td>
+    </tr>
+
+  </table> -->
 </div>
