@@ -11,6 +11,7 @@ import { StorageNeedsComponent } from './storage-needs/storage-needs.component';
 import { EthicalIssuesComponent } from './ethical-issues/ethical-issues.component';
 import { DataCategoriesComponent } from './data-categories/data-categories.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
+import { DataPreservationComponent } from './data-preservation/data-preservation.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { ResourceOptionsComponent } from './resource-options/resource-options.co
     StorageNeedsComponent,
     EthicalIssuesComponent,
     DataCategoriesComponent,
-    ResourceOptionsComponent
+    ResourceOptionsComponent,
+    DataPreservationComponent
     
   ],
   imports: [
