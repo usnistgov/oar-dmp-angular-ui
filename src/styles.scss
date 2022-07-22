@@ -38,6 +38,18 @@ div{
     color: white;
     font-size: medium;
   }
+  .sub-header{
+    padding: {
+      top: 2px;
+      bottom: 2px;
+      right: 0px;
+      left: 0px
+    };
+    text-align: center;
+    background: #ededed;
+    color: rgb(0, 0, 0);
+    font-size:larger;
+  }
   table{
     .hidden-row{
       visibility:collapse;
@@ -45,6 +57,11 @@ div{
     .description {
       vertical-align: top;
     }
+
+    .instruction{
+      font-size: small;
+    }
+    
   }
 }
 
