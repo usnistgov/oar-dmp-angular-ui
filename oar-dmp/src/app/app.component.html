@@ -1,0 +1,38 @@
+<div>
+    <app-header appVersion="1.0"></app-header>
+</div>
+
+<p>DMP Plan</p>
+<!-- <div *ngFor="let person of nistPeople">
+  <p>{{person.firstName}}</p>
+</div> -->
+<div class="sticky">
+    <!-- 
+    Here child component called resource-options expects the property named "data"
+    whose value is stored in the "resourceCompMessage" variable
+  
+  <app-resource-options [data]="resourceCompMessage"></app-resource-options>
+  -->
+    <app-resource-options></app-resource-options>
+</div>
+<table>
+    <tr>
+        <td>
+            <app-basic-info></app-basic-info>
+            <app-personel></app-personel>
+            <app-keywords></app-keywords>
+            <app-storage-needs></app-storage-needs>
+            <app-ethical-issues></app-ethical-issues>
+            <app-data-categories></app-data-categories>
+            <app-data-preservation></app-data-preservation>
+        </td>
+        <td>
+
+
+
+        </td>
+    </tr>
+</table>
+<div>
+    <app-footer></app-footer>
+</div>

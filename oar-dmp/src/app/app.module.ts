@@ -12,6 +12,8 @@ import { EthicalIssuesComponent } from './ethical-issues/ethical-issues.componen
 import { DataCategoriesComponent } from './data-categories/data-categories.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
 import { DataPreservationComponent } from './data-preservation/data-preservation.component';
+import { OARngModule } from 'oarng';
+import { FrameModule } from 'oarng';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import { DataPreservationComponent } from './data-preservation/data-preservation
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    OARngModule,
+    FrameModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -27,6 +27,59 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
+### Building and Testing Using Native Tools
+
+The `npm` tool can be used in the standard way for [Angular projects](https://angular.io/docs) to
+build and test this software.
+
+Detail commands and instructions:
+
+1. Clone this repository and update Angular library
+    
+    After clone the repository, do the following:
+    
+```
+    cd oar-pdr-angular
+    git submodule update --init --recursive
+    cd lib
+    git checkout integration
+```
+
+Now lib folder should have the latest code of oar-lib-angular.
+    
+2. Install packages
+
+    Go to root folder, switch to initial-portal-setup02 branch, then do npm install:
+    
+```    
+    Note: make sure your npm version is 7.0.0 or higher. Use npm -v to check your version. 
+    If not, run npm install -g npm@latest.
+    
+    cd ..
+    git checkout oar-dmp-submodules
+    npm i 
+```    
+    
+4. Build the Angular library 
+
+```
+    npm run build-lib
+```
+    
+3. Build and run your application
+
+    
+```    
+    npm run build-oardmp
+    npm run start build-oardmp
+```
+
+4. Testing your app
+
+```
+    Browse: http://localhost:4201
+```
+
 #### Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
