@@ -39,7 +39,8 @@ Detail commands and instructions:
     After clone the repository, do the following:
     
 ```
-    cd oar-pdr-angular
+    cd oar-dmp-angular-ui
+    git checkout oar-dmp-submodules
     git submodule update --init --recursive
     cd lib
     git checkout integration
@@ -56,7 +57,6 @@ Now lib folder should have the latest code of oar-lib-angular.
     If not, run npm install -g npm@latest.
     
     cd ..
-    git checkout oar-dmp-submodules
     npm i 
 ```    
     
