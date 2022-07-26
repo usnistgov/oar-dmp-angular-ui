@@ -5,7 +5,7 @@
         "path": "./lib/tsconfig.ref.json"
       },
       {
-        "path": "./pdr-lps/wizard/tsconfig.ref.json"
+        "path": "./oar-dmp/tsconfig.ref.json"
       },
     ],
   }
