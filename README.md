@@ -71,7 +71,7 @@ Now lib folder should have the latest code of oar-lib-angular.
     
 ```    
     npm run build-oardmp
-    npm run start build-oardmp
+    npm run start-oardmp
 ```
 
 4. Testing your app
