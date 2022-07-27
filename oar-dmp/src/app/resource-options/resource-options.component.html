@@ -46,11 +46,10 @@
     <div class="cell">
       <div>
         <table class="grid-table">
-          <tr><th><span class="header_span">Network Support</span></th></tr>
-          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">Research Equipment Network (REN) - Instrument => ITSO</td></tr>
-          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">10Gb - high speed</td></tr>
-          <tr><td [ngClass]="{'selected':networkSelection==='MB'}">Firewall - ITAC</td></tr>
-          <tr><td [ngClass]="{'selected':networkSelection==='GB'}">DNS - ITAC</td></tr>
+          <tr><th><span class="header_span">Data Science</span></th></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">Informatics - Semantic</td></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">LIMS at NIST</td></tr>
+          <tr><td [ngClass]="{'selected':dataSelection==='MB'}">Standards</td></tr>
         </table>
       </div>
     </div>
@@ -111,14 +110,15 @@
       </div>
     </div>
   </div>
-  <div class="grid-item">
+  <div class="grid-item bottom_box">
     <div class="cell">
       <div>
         <table class="grid-table">
-          <tr><th><span class="header_span">Data Science</span></th></tr>
-          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">Informatics - Semantic</td></tr>
-          <tr><td [ngClass]="{'selected':dataSelection==='TB'}">LIMS at NIST</td></tr>
-          <tr><td [ngClass]="{'selected':dataSelection==='MB'}">Standards</td></tr>
+          <tr><th><span class="header_span">Network Support</span></th></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">Research Equipment Network (REN) - Instrument => ITSO</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='TB'}">10Gb - high speed</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='MB'}">Firewall - ITAC</td></tr>
+          <tr><td [ngClass]="{'selected':networkSelection==='GB'}">DNS - ITAC</td></tr>
         </table>
       </div>
     </div>

@@ -9,18 +9,23 @@
 
 .resources-grid-container {      
   display: grid;
-  grid-template-columns: auto auto auto;
+  // define two columns of 330px each
+  grid-template-columns:repeat(2, 290px);
   background-color: #d3d3d3;
   padding: 8px;
   border-radius: 10px;
 }
 .grid-item {
   background-color: #ffffffcc;
-  border: 1px solid #3535ff53;
+  border: 1px solid #00000053;
   padding: 5px;
   font-size: 12px;
   text-align: left;
   border-radius: 5px;
+}
+.bottom_box{
+  grid-column-start: 1;
+  grid-column-end: 3;
 }
 
 .cell {
