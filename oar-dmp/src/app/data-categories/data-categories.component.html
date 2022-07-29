@@ -31,19 +31,19 @@
     <tr>
       <td rowspan="3" class="dark_shade instruction">Must be stored in a location that is<br>backed up using a tested/automated proces</td>
       <td>
-        <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" value="SRD">
+        <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" value="SRD" (change)="dataCategoryChange($event)">
         <label for="dataCategorySRD"> SRD </label>
       </td>            
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" value="Reference">
+        <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" value="Reference" (change)="dataCategoryChange($event)">
         <label for="dataCategoryReference"> Reference Data </label>
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" value="Resource">
+        <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" value="Resource" (change)="dataCategoryChange($event)">
         <label for="dataCategoryResource"> Resource Data </label>
       </td>
     </tr>
@@ -53,13 +53,13 @@
     <tr>
       <td rowspan="2" class="medium_shade instruction">User may choose how they preserve data</td>
       <td>
-        <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" value="Published">
+        <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" value="Published" (change)="dataCategoryChange($event)">
         <label for="dataCategoryPublished"> Published Data </label> 
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" value="Publishable">
+        <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" value="Publishable" (change)="dataCategoryChange($event)">
         <label for="dataCategoryPublishable"> Publishable Data </label>
       </td>
     </tr>
@@ -69,13 +69,13 @@
     <tr>
       <td rowspan="2" class="light_shade instruction">No data preservation requirements</td>
       <td>
-        <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" value="Working">
+        <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" value="Working" (change)="dataCategoryChange($event)">
         <label for="dataCategoryWorking"> Working Data </label><br> 
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" value="Derived">
+        <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" value="Derived" (change)="dataCategoryChange($event)">
         <label for="dataCategoryDerived"> Derived Data </label><br> 
       </td>
     </tr>
