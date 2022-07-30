@@ -18,12 +18,45 @@
       <div>
         <table class="grid-table">
           <tr><th><span class="header_span">Storage</span></th></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">AWS Cloud Storage</td></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">OU Storage Request (Local NAS,  Central)</td></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='MB'}">Google Drive</td></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='GB'}">Box</td></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
-          <tr><td [ngClass]="{'selected':storageSelection==='TB' || storageSelection==='GB'}">OISM Tier 1 network (elwood, jake)</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='TB' || 
+            storageSelection==='GB' ||
+            storageSelection==='mid' ||
+            storageSelection==='low'
+          }">AWS Cloud Storage</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='TB' || 
+            storageSelection==='GB' ||
+            storageSelection==='mid' ||
+            storageSelection==='low'
+          }">OU Storage Request (Local NAS,  Central)</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='MB'  ||
+            storageSelection==='low'
+          }">Google Drive</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='GB'  ||
+            storageSelection==='low'
+          }">Box</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='GB' || 
+            storageSelection==='mid' ||
+            storageSelection==='low'
+          }">Local storage on a workstation with TMS backup</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='TB' || 
+            storageSelection==='GB' || 
+            storageSelection==='top' ||
+            storageSelection==='mid' ||
+            storageSelection==='low'
+          }">Central Storage On-Prem (CFS2E, CFS2W)</td></tr>
+          <tr><td [ngClass]="{'selected':
+            storageSelection==='TB' || 
+            storageSelection==='GB' || 
+            storageSelection==='top' ||
+            storageSelection==='mid' ||
+            storageSelection==='low'
+          }">OISM Tier 1 network (elwood, jake)</td></tr>
         </table>
       </div>
     </div>
