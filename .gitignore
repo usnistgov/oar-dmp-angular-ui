@@ -42,4 +42,10 @@ testem.log
 Thumbs.db
 
 #oar-dmp
-/oar-dmp/.angular
+oar-dmp/.angular
+
+oar-dmp/.vscode/*
+!oar-dmp/.vscode/settings.json
+!oar-dmp/.vscode/tasks.json
+!oar-dmp/.vscode/launch.json
+!oar-dmp/.vscode/extensions.json

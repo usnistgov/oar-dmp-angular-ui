@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DataCategoriesComponent } from './data-categories.component';
+import { DataCategoriesComponent } from './data-description.component';
 
 describe('DataCategoriesComponent', () => {
   let component: DataCategoriesComponent;

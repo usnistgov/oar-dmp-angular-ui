@@ -3,9 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { ResourcesService } from '../shared/resources.service';
 
 @Component({
-  selector: 'app-data-categories',
-  templateUrl: './data-categories.component.html',
-  styleUrls: ['./data-categories.component.scss']
+  selector: 'app-data-description',
+  templateUrl: './data-description.component.html',
+  styleUrls: ['./data-description.component.scss']
 })
 export class DataCategoriesComponent implements OnInit {
 
