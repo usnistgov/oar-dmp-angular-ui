@@ -4,9 +4,9 @@ import { DropDownSelectService } from '../shared/drop-down-select.service';
 import { ResourcesService } from '../shared/resources.service';
 
 @Component({
-  selector: 'app-storage-needs',
-  templateUrl: './storage-needs.component.html',
-  styleUrls: ['./storage-needs.component.scss']
+  selector: 'app-technical-requirements',
+  templateUrl: './technical-requirements.component.html',
+  styleUrls: ['./technical-requirements.component.scss']
 })
 export class StorageNeedsComponent implements OnInit {
 

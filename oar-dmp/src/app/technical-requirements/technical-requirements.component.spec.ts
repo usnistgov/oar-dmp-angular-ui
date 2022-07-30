@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StorageNeedsComponent } from './storage-needs.component';
+import { StorageNeedsComponent } from './technical-requirements.component';
 
 describe('StorageNeedsComponent', () => {
   let component: StorageNeedsComponent;
