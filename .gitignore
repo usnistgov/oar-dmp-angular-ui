@@ -43,6 +43,7 @@ Thumbs.db
 
 #oar-dmp
 oar-dmp/.angular
+oar-dmp/dist/*
 
 oar-dmp/.vscode/*
 !oar-dmp/.vscode/settings.json
