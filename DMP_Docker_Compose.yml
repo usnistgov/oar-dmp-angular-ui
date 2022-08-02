@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  dmp-ui:
+    #build from Dockerfile in current directory
+    build: .
+    ports:
+      - 8888:80
+    #sets name of the docker container
+    container_name: dmp-angular-ui
+    #to prevent the container from stopping for debugging purposes only
+    #tty: true
