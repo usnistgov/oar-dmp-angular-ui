@@ -40,7 +40,7 @@ Detail commands and instructions:
     
 ```
     cd oar-dmp-angular-ui
-    git checkout oar-dmp-submodules
+    git checkout master
     git submodule update --init --recursive
     cd lib
     git checkout integration
