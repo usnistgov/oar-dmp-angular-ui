@@ -50,7 +50,7 @@ Now lib folder should have the latest code of oar-lib-angular.
     
 2. Install packages
 
-    Go to root folder, switch to initial-portal-setup02 branch, then do npm install:
+    Go to root folder, then do npm install:
     
 ```    
     Note: make sure your npm version is 7.0.0 or higher. Use npm -v to check your version. 
