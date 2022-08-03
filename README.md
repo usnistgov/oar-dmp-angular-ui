@@ -60,13 +60,13 @@ Now lib folder should have the latest code of oar-lib-angular.
     npm i 
 ```    
     
-4. Build the Angular library 
+3. Build the Angular library 
 
 ```
     npm run build-lib
 ```
     
-3. Build and run your application
+4. Build and run your application
 
     
 ```    
@@ -74,10 +74,19 @@ Now lib folder should have the latest code of oar-lib-angular.
     npm run start-oardmp
 ```
 
-4. Testing your app
+5. Testing your app
 
 ```
     Browse: http://localhost:4201
+```
+
+6. Running with docker
+
+Docker container can be built after completing step 3
+
+```
+sudo docker-compose -f DMP_Docker_Compose.yml up -d --build
+
 ```
 
 #### Further help
