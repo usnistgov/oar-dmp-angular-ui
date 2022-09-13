@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // <-- NgModel lives here
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http'
 
@@ -33,7 +33,8 @@ import { FrameModule } from 'oarng';
     FormsModule,
     HttpClientModule,
     OARngModule,
-    FrameModule
+    FrameModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
