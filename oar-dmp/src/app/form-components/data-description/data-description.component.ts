@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 //resources service to talk between two components
-import { ResourcesService } from '../shared/resources.service';
+import { ResourcesService } from '../../shared/resources.service';
 
 @Component({
   selector: 'app-data-description',

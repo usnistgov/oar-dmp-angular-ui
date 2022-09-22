@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ROLES } from '../mock-roles';
-import { Contributor } from '../contributor';
-import { DmpAPIService } from '../dmp-api.service';
-import { DropDownSelectService } from '../shared/drop-down-select.service';
+import { ROLES } from '../../types/mock-roles';
+import { Contributor } from '../../types/contributor';
+import { DmpAPIService } from '../../dmp-api.service';
+import { DropDownSelectService } from '../../shared/drop-down-select.service';
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',

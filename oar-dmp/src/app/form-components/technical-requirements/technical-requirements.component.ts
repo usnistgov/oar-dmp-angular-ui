@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DropDownSelectService } from '../shared/drop-down-select.service';
+import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
-import { ResourcesService } from '../shared/resources.service';
+import { ResourcesService } from '../../shared/resources.service';
 
 @Component({
   selector: 'app-technical-requirements',
