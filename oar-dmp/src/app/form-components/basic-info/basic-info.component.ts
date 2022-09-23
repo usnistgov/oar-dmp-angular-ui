@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, ControlValueAccessor, NgControl, AbstractControl, FormControl} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP } from 'src/app/types/DMP.types';
 
@@ -13,7 +13,7 @@ export class BasicInfoComponent implements OnInit {
   // The component injects the FormBuilder and creates a new form group with their form controls, validators and any other configuration
   
 
-  basicInfoForm = this.fb.nonNullable.group({
+  basicInfoForm = this.fb.group({
     title: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
@@ -28,6 +28,9 @@ export class BasicInfoComponent implements OnInit {
   // observable with of() that emits the created form group and use it as an output.
   @Output()
   formReady = of(this.basicInfoForm);
+
+  @Input() abstractcontrol!: AbstractControl;
+  ngControl!: NgControl;
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 
@@ -74,7 +77,10 @@ export class BasicInfoComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {}
 
+  
+
   ngOnInit(): void {
+
   }
 
 }
