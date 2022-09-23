@@ -119,5 +119,8 @@
             }
         }
     },
-    "defaultProject": "dmp_ui2"
+    "defaultProject": "dmp_ui2",
+    "cli": {
+      "analytics": false
+    }
 }
