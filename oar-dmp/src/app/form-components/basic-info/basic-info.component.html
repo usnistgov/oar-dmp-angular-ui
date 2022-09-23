@@ -3,7 +3,7 @@
   <table>
     <tr>
       <td class="description">Title</td>
-      <td><input type="text" ></td>
+      <td><input type="text" [formControl]="basicInfoForm.controls.title"></td>
     </tr>
     <tr class="hidden-row">
       <td class="description">DMP Idntifier</td>
@@ -34,21 +34,21 @@
     </tr>
     <tr>
       <td class="description">Start Date</td>
-      <td><input type="date" ></td>
+      <td><input type="date" [formControl]="basicInfoForm.controls.startDate"></td>
     </tr>
     <tr>
       <td class="description">End Date</td>
-      <td><input type="date" ></td>
+      <td><input type="date" [formControl]="basicInfoForm.controls.endDate"></td>
     </tr>
     <tr>
       <td class="description">Make DMP searchable</td>
       <!-- move this into basic information section -->
       <td>
         <div>
-          <input type="radio" id="searchDMPY" name="searchDMP" value="yes" [checked]='true'>
+          <input type="radio" id="searchDMPY" name="searchDMP" value="yes" [checked]='true' [formControl]="basicInfoForm.controls.dmpSearchable">
           <label for="searchDMPY">Yes</label>
 
-          <input type="radio" id="searchDMPN" name="searchDMP" value="no" >
+          <input type="radio" id="searchDMPN" name="searchDMP" value="no" [formControl]="basicInfoForm.controls.dmpSearchable">
           <label for="searchDMPN">No</label>
         </div>          
       </td>
@@ -57,27 +57,32 @@
       <td class="description">Funding</td>
       <td>
         <div>
-          <input type="radio" id="operatingUnit" name="funding" value="OU" checked>
+          <input type="radio" id="operatingUnit" name="funding" value="Operating Unit" checked 
+          [formControl]="basicInfoForm.controls.funding">
           <label for="operatingUnit">Operating Unit</label>
         </div>
         <div>
-          <input type="radio" id="divProjTrkNum" name="funding" value="divProjTrkNum">
+          <input type="radio" id="divProjTrkNum" name="funding" value="Division Project Tracking Number" 
+          [formControl]="basicInfoForm.controls.funding">
           <label for="divProjTrkNum">Division Project Tracking Number</label>
         </div>
         <div>
-          <input type="radio" id="grantNum" name="funding" value="grantNum">
+          <input type="radio" id="grantNum" name="funding" value="Grant Number"
+          [formControl]="basicInfoForm.controls.funding">
           <label for="grantNum">Grant Number</label>
         </div>
         <div>
-          <input type="radio" id="contractNum" name="funding" value="contractNum">
+          <input type="radio" id="contractNum" name="funding" value="Contract Number"
+          [formControl]="basicInfoForm.controls.funding">
           <label for="contractNum">Contract Number</label>
         </div>
-        <input type="text" placeholder="Funding Number">
+        <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls.fundingNumber">
       </td>
     </tr>
     <tr>
       <td>Project Description</td>
-      <td><textarea name="projectDescription" cols="40" rows="5" placeholder="Description behind the science of the project"></textarea></td>
+      <td><textarea name="projectDescription" cols="40" rows="5" placeholder="Description behind the science of the project"
+        [formControl]="basicInfoForm.controls.projectDescription"></textarea></td>
     </tr>
   </table>
 </div>

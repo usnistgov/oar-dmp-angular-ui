@@ -14,6 +14,7 @@ import { ResourceOptionsComponent } from './resource-options/resource-options.co
 import { DataPreservationComponent } from './form-components/data-preservation/data-preservation.component';
 import { OARngModule } from 'oarng';
 import { FrameModule } from 'oarng';
+import { DmpFormComponent } from './dmp-form/dmp-form.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { FrameModule } from 'oarng';
     EthicalIssuesComponent,
     DataCategoriesComponent,
     ResourceOptionsComponent,
-    DataPreservationComponent
+    DataPreservationComponent,
+    DmpFormComponent
     
   ],
   imports: [

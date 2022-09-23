@@ -1,8 +1,9 @@
 export interface BasicInfo {
   title: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   dmpSearchable: string;
   funding: string;
   fundingNumber: string;
+  projectDescription: string;
 }

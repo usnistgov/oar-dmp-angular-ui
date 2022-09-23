@@ -7,7 +7,7 @@
 /bazel-out
 
 # Node
-/node_modules
+node_modules
 npm-debug.log
 yarn-error.log
 
@@ -44,6 +44,7 @@ Thumbs.db
 #oar-dmp
 oar-dmp/.angular
 oar-dmp/dist/*
+/oar-dmp/node_modules
 
 oar-dmp/.vscode/*
 !oar-dmp/.vscode/settings.json
