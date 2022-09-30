@@ -1,17 +1,17 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, Validators, ControlValueAccessor, NgControl, AbstractControl, FormControl} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-import { DMP } from 'src/app/types/DMP.types';
+import { DMP_Meta } from 'src/app/types/DMP.types';
 
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss']
 })
-export class BasicInfoComponent implements OnInit {
+export class BasicInfoComponent{
   // Let's start with a child component that is responsible for a part of the form. 
-  // The component injects the FormBuilder and creates a new form group with their form controls, validators and any other configuration
-  
+  // The component injects the FormBuilder and creates a new form group with their 
+  // form controls, validators and any other configuration
 
   basicInfoForm = this.fb.group({
     title: ['', Validators.required],
@@ -24,11 +24,6 @@ export class BasicInfoComponent implements OnInit {
 
   });
 
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
-  @Output()
-  formReady = of(this.basicInfoForm);
-
   @Input() abstractcontrol!: AbstractControl;
   ngControl!: NgControl;
 
@@ -36,7 +31,7 @@ export class BasicInfoComponent implements OnInit {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
-  set initialDMP(basic_info: DMP) {
+  set initialDMP_Meta(basic_info: DMP_Meta) {
     this.basicInfoForm.patchValue({
       title: basic_info.title,
       startDate: basic_info.startDate,
@@ -60,8 +55,8 @@ export class BasicInfoComponent implements OnInit {
     this.basicInfoForm.valueChanges.pipe(
       startWith(this.basicInfoForm.value),
       map(
-        (formValue): Partial<DMP> => ({           
-          // The observable emits a partial DMP object that only contains the properties related 
+        (formValue): Partial<DMP_Meta> => ({           
+          // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           title: formValue.title,
           startDate: formValue.startDate,
@@ -75,12 +70,11 @@ export class BasicInfoComponent implements OnInit {
     )
   );
 
+  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
+  // observable with of() that emits the created form group and use it as an output.
+  @Output()
+  formReady = of(this.basicInfoForm);
+
   constructor(private fb: FormBuilder) {}
-
-  
-
-  ngOnInit(): void {
-
-  }
 
 }

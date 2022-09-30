@@ -1,7 +1,35 @@
-<app-basic-info></app-basic-info>
-<app-personel></app-personel>
-<app-keywords></app-keywords>
-<app-technical-requirements></app-technical-requirements>
-<app-ethical-issues></app-ethical-issues>
-<app-data-description></app-data-description>
-<!-- <app-data-preservation></app-data-preservation> -->
+
+<form *ngIf="initialDMP" (ngSubmit)="onSubmit()">
+  
+  <!-- And in our template we can render all child components and register the formReady event. -->
+  <app-basic-info 
+    [initialDMP] ="initialDMP" 
+    (formReady)="addChildForm('basicInfoFormCpt', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-basic-info>
+  <app-personel></app-personel>
+  <app-keywords></app-keywords>
+  <app-technical-requirements></app-technical-requirements>
+  <app-ethical-issues></app-ethical-issues>
+  <app-data-description></app-data-description>
+  <!-- <app-data-preservation></app-data-preservation> -->
+
+  <div class="form-actions">
+    <button mat-button color="primary" type="button" (click)="form.reset()">
+      Reset
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="form.invalid"
+    >
+      Save
+    </button>
+  </div>
+  <div class="output">
+    <div>Current DMP Object:</div>
+    <pre>{{ dmp | json }}</pre>
+  </div>
+  
+</form>
