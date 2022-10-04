@@ -1,6 +1,6 @@
 export interface EthicalIssues {
-  issue: string
-  issueDescription: string
-  report: string
-  pii: string
+  ethicalIssue: string
+  ethicalIssueDescription: string
+  ethicalReport: string
+  ethicalPII: string
 }

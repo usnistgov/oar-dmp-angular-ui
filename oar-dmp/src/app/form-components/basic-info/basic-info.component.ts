@@ -24,8 +24,8 @@ export class BasicInfoComponent{
 
   });
 
-  @Input() abstractcontrol!: AbstractControl;
-  ngControl!: NgControl;
+  // @Input() abstractcontrol!: AbstractControl;
+  // ngControl!: NgControl;
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 

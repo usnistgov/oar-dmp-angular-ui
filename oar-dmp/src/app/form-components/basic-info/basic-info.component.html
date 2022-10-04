@@ -76,7 +76,11 @@
           [formControl]="basicInfoForm.controls['funding']">
           <label for="contractNum">Contract Number</label>
         </div>
-        <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['fundingNumber']">
+        <div>
+          Funding Number:&nbsp;
+          <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['fundingNumber']">
+        </div>
+        
       </td>
     </tr>
     <tr>

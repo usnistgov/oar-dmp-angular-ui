@@ -12,17 +12,20 @@ export class DmpService {
   // For demo purposes we just store the DmpRecord here in the service
   // In a real world application you would make a request to the backend
   private DmpRecord: DMP_Meta = {
-    title: 'initial val',
-    startDate: 'initial val',
-    endDate: 'initial val',
-    dmpSearchable: 'initial val',
-    funding: 'initial val',
-    fundingNumber: 'initial val',
-    projectDescription: 'initial val',
-    issue: 'initial val', 
-    issueDescription: 'initial val', 
-    report: 'initial val', 
-    pii: 'initial val'
+    //Basic Info Meta data
+    title:                    'Example Title',
+    startDate:                '2022-09-28',
+    endDate:                  '2023-09-28',
+    dmpSearchable:            'yes',
+    funding:                  'Grant Number',
+    fundingNumber:            '12345',
+    projectDescription:       'Example Project Description',
+    
+    // Ethical issues Meta data
+    ethicalIssue:             'yes', 
+    ethicalIssueDescription:  'When it comes to healthcare, ethical issues are a field of applied ethics concerned with the moral decision-making medical staff must apply when making decisions. Moral and ethical views in medicine tend to vary based on the country and culture.', 
+    ethicalReport:            'Healthcare practitioners must collaborate with patients to understand and balance their needs and desires. For example, would it be ethical to provide a blood transfusion to a Jehovah’s Witness even if it would save their life?', 
+    ethicalPII:               'yes'
   };
 
   fetchDMP(): Observable<DMP_Meta> {

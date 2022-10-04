@@ -2,16 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
+import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
 
 interface DMPForm {
-  basicInfoFormCpt?: ObservedValueOf<BasicInfoComponent["formReady"]>;
+  basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
+  ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
   
 }
 // In the example above we have a number of child components: 
 // BasicInfoComponent through ContactSubformComponent, 
-// which are combined into the main form group as basicInfoFormCpt through contact. 
+// which are combined into the main form group as basicInfo through contact. 
 // We define name and contact as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
 
@@ -53,7 +55,7 @@ export class DmpFormComponent implements OnInit {
   }
 
   // We need a method to register the child form groups. The method accepts a name 
-  // (here "basicInfoFormCpt" through "contact") and the form group. 
+  // (here "basicInfo" through "contact") and the form group. 
   // Thanks to TypeScript this is fully typed - the name and the group must match 
   // the form interface. Providing an invalid name or a form group that doesn't match 
   // the name would result in an error.
