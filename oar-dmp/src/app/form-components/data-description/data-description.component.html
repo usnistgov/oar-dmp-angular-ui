@@ -3,7 +3,14 @@
   <table>
     <tr>
       <td>Description Of Generated Data</td>
-      <td><textarea name="dmpDescription" cols="40" rows="5" placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"></textarea></td>
+      <td><textarea 
+        name="dmpDescription" 
+        cols="40" 
+        rows="5" 
+        placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"
+        [formControl]="dataDescriptionForm.controls['dataDescription']"
+        ></textarea>
+      </td>
     </tr>
     <!-- data category keep the terminology from the old one -->
     <!-- <tr>
@@ -31,20 +38,23 @@
     <tr>
       <td rowspan="3" class="dark_shade instruction">Must be stored in a location that is<br>backed up using a tested/automated proces</td>
       <td>
-        <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" value="SRD" (change)="dataCategoryChange($event)">
-        <label for="dataCategorySRD"> SRD </label>
+        <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" 
+        [value]="availableCategories[0].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategorySRD"> {{availableCategories[0].name}} </label>
       </td>            
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" value="Reference" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryReference"> Reference Data </label>
+        <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" 
+        [value]="availableCategories[1].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryReference"> {{availableCategories[1].name}} Data </label>
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" value="Resource" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryResource"> Resource Data </label>
+        <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" 
+        [value]="availableCategories[2].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryResource"> {{availableCategories[2].name}} Data </label>
       </td>
     </tr>
 
@@ -53,14 +63,16 @@
     <tr>
       <td rowspan="2" class="medium_shade instruction">User may choose how they preserve data</td>
       <td>
-        <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" value="Published" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryPublished"> Published Data </label> 
+        <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" 
+        [value]="availableCategories[3].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryPublished"> {{availableCategories[3].name}} Data </label> 
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" value="Publishable" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryPublishable"> Publishable Data </label>
+        <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" 
+        [value]="availableCategories[4].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryPublishable"> {{availableCategories[4].name}} Data </label>
       </td>
     </tr>
 
@@ -69,16 +81,23 @@
     <tr>
       <td rowspan="2" class="light_shade instruction">No data preservation requirements</td>
       <td>
-        <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" value="Working" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryWorking"> Working Data </label><br> 
+        <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" 
+        [value]="availableCategories[5].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryWorking"> {{availableCategories[5].name}} Data </label><br> 
       </td>
     </tr>
     <tr>
       <td>
-        <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" value="Derived" (change)="dataCategoryChange($event)">
-        <label for="dataCategoryDerived"> Derived Data </label><br> 
+        <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" 
+        [value]="availableCategories[6].name" (click)="dataCategoryChange($event)">
+        <label for="dataCategoryDerived"> {{availableCategories[6].name}} Data </label><br> 
       </td>
     </tr>
   </table>
+  prda
+  <div *ngFor="let category of availableCategories">
+    <input type="checkbox" [value]="category.id" /> {{category.name}}
+
+  </div>
 
 </div>

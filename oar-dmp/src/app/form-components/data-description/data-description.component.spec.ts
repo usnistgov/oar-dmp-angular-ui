@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DataCategoriesComponent } from './data-description.component';
+import { DataDescriptionComponent } from './data-description.component';
 
-describe('DataCategoriesComponent', () => {
-  let component: DataCategoriesComponent;
-  let fixture: ComponentFixture<DataCategoriesComponent>;
+describe('DataDescriptionComponent', () => {
+  let component: DataDescriptionComponent;
+  let fixture: ComponentFixture<DataDescriptionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DataCategoriesComponent ]
+      declarations: [ DataDescriptionComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DataCategoriesComponent);
+    fixture = TestBed.createComponent(DataDescriptionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,21 +1,72 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, OnInit } from '@angular/core';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
+import { FormBuilder } from '@angular/forms';
+import { defer, map, of, startWith } from 'rxjs';
+import { DMP_Meta } from 'src/app/types/DMP.types';
+import { DataCategories } from 'src/app/types/data-categories.type';
 
 @Component({
   selector: 'app-data-description',
   templateUrl: './data-description.component.html',
   styleUrls: ['./data-description.component.scss']
 })
-export class DataCategoriesComponent implements OnInit {
+export class DataDescriptionComponent implements OnInit {
+
+  availableCategories:DataCategories[]=[
+    { id: 0, name: 'SRD' },
+    { id: 1, name: 'Reference' },
+    { id: 2, name: 'Resource' },
+    { id: 3, name: 'Published' },
+    { id: 4, name: 'Publishable' },
+    { id: 5, name: 'Working' },
+    { id: 6, name: 'Derived' },
+
+  ]
+
+  dataDescriptionForm = this.fb.group({
+    dataDescription: [''],
+    dataCategories: this.fb.array([])
+
+  });
+
+  @Input()
+  set initialDMP_Meta(data_description: DMP_Meta) {
+    this.dataDescriptionForm.patchValue({
+      dataDescription:                data_description.dataDescription,
+      dataCategories:                 data_description.dataCategories
+    });
+  }
+
+  @Output()
+  valueChange = defer(() =>
+    this.dataDescriptionForm.valueChanges.pipe(
+      startWith(this.dataDescriptionForm.value),
+      map(
+        (formValue): Partial<DMP_Meta> => ({
+          dataDescription:    formValue.dataDescription,
+          dataCategories:     formValue.dataCategories,
+        })
+      )
+    )
+  );
+  
+  @Output()
+  formReady = of(this.dataDescriptionForm); 
 
   constructor(
-    //resources service to talk between two components
-    private sharedService: ResourcesService
+    //resources service to talk between two components 
+    // (DataDescriptionComponent and ResourceOptionsComponent)
+    private sharedService: ResourcesService,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
-    
+    // console.log(this.dataCategories);
+    for (let entry of this.dataDescriptionForm.controls['dataCategories'].value){
+      // console.log(entry);
+      this.dataCategories.set(entry,true);
+    }    
   }
 
   dataCategories = new Map([

@@ -2,11 +2,11 @@
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()">
   
   <!-- And in our template we can render all child components and register the formReady event. -->
-  <!-- <app-basic-info 
+  <app-basic-info 
     [initialDMP_Meta] ="initialDMP" 
     (formReady)="addChildForm('basicInfo', $event)"
     (valueChange)="patchDMP($event)"
-  ></app-basic-info> -->
+  ></app-basic-info>
   <app-personel></app-personel>
   <app-keywords></app-keywords>
   <app-technical-requirements></app-technical-requirements>
@@ -15,7 +15,11 @@
     (formReady)="addChildForm('ethicalIssues', $event)"
     (valueChange)="patchDMP($event)"
   ></app-ethical-issues>
-  <app-data-description></app-data-description>
+  <app-data-description
+    [initialDMP_Meta] ="initialDMP"   
+    (formReady)="addChildForm('dataDescription', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-data-description>
   <!-- <app-data-preservation></app-data-preservation> -->
 
   <div class="form-actions">

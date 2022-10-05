@@ -9,7 +9,7 @@ import { PersonelComponent } from './form-components/personel/personel.component
 import { KeywordsComponent } from './form-components/keywords/keywords.component';
 import { StorageNeedsComponent } from './form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from './form-components/ethical-issues/ethical-issues.component';
-import { DataCategoriesComponent } from './form-components/data-description/data-description.component';
+import { DataDescriptionComponent } from './form-components/data-description/data-description.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
 import { DataPreservationComponent } from './form-components/data-preservation/data-preservation.component';
 import { OARngModule } from 'oarng';
@@ -24,7 +24,7 @@ import { DmpFormComponent } from './dmp-form/dmp-form.component';
     KeywordsComponent,
     StorageNeedsComponent,
     EthicalIssuesComponent,
-    DataCategoriesComponent,
+    DataDescriptionComponent,
     ResourceOptionsComponent,
     DataPreservationComponent,
     DmpFormComponent

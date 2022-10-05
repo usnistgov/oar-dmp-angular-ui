@@ -21,11 +21,15 @@ export class DmpService {
     fundingNumber:            '12345',
     projectDescription:       'Example Project Description',
     
-    // Ethical issues Meta data
+    // Ethical Issues Meta data
     ethicalIssue:             'yes', 
     ethicalIssueDescription:  'When it comes to healthcare, ethical issues are a field of applied ethics concerned with the moral decision-making medical staff must apply when making decisions. Moral and ethical views in medicine tend to vary based on the country and culture.', 
     ethicalReport:            'Healthcare practitioners must collaborate with patients to understand and balance their needs and desires. For example, would it be ethical to provide a blood transfusion to a Jehovah’s Witness even if it would save their life?', 
-    ethicalPII:               'yes'
+    ethicalPII:               'yes',
+
+    // Data Description Meta data
+    dataDescription:          'Data Description Example',
+    dataCategories:           ['Working', 'Derived']
   };
 
   fetchDMP(): Observable<DMP_Meta> {
