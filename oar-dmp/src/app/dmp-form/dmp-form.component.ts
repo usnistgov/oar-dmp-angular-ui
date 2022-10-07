@@ -81,4 +81,31 @@ export class DmpFormComponent implements OnInit {
     });
   }
 
+  resetDmp(){
+    console.log ("reset DMP");
+    this.form.controls['basicInfo'].reset();
+    //this.form.controls['basicInfo'].s
+    
+    
+    //   title:                    '',
+    //   startDate:                '',
+    //   endDate:                  '',
+    //   dmpSearchable:            '',
+    //   funding:                  '',
+    //   fundingNumber:            '',
+    //   projectDescription:       '',
+      
+    //   // Ethical Issues Meta data
+    //   ethicalIssue:             '', 
+    //   ethicalIssueDescription:  '', 
+    //   ethicalReport:            '', 
+    //   ethicalPII:               '',
+
+    //   // Data Description Meta data
+    //   dataDescription:          '',
+    //   dataCategories:           []
+
+    // });
+  }
+
 }

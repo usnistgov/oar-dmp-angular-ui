@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { FormBuilder } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DataCategories } from 'src/app/types/data-categories.type';
@@ -12,6 +12,9 @@ import { DataCategories } from 'src/app/types/data-categories.type';
   styleUrls: ['./data-description.component.scss']
 })
 export class DataDescriptionComponent implements OnInit {
+
+  test_categories1 = new FormArray([]);
+  test_categories2 = this.fb.array([]);
 
   availableCategories:DataCategories[]=[
     { id: 0, name: 'SRD' },
@@ -24,14 +27,43 @@ export class DataDescriptionComponent implements OnInit {
 
   ]
 
+  initialCategories: string[] = [];
+
+  dataCategoriesMap = new Map([
+    ['SRD', false],
+    ['Reference', false],
+    ['Resource', false],
+    ['Published', false],
+    ['Publishable', false],
+    ['Working', false],
+    ['Derived', false]
+  ]);
+
   dataDescriptionForm = this.fb.group({
     dataDescription: [''],
-    dataCategories: this.fb.array([])
+    //dataCategories: this.fb.array([])
+    dataCategories: [[]]   
 
   });
 
   @Input()
   set initialDMP_Meta(data_description: DMP_Meta) {
+    console.log("inside @ input set initialDMP_Meta");
+
+    let dataFormGroups = data_description.dataCategories.map(cat => this.fb.group({'cat': new FormControl(cat)}));
+    let dataFormArray = this.fb.array(dataFormGroups); 
+    this.initialCategories = data_description.dataCategories;
+
+    // for (let category of data_description.dataCategories) {
+    //   console.log(category); 
+    //   console.log(this.dataCategories.get(category));
+    //   this.dataCategories.set(category,true);
+    // }
+
+    // this.dataDescriptionForm = this.fb.group({
+    //   dataDescription:                data_description.dataDescription,
+    //   dataCategories:                 dataFormArray
+    // });
     this.dataDescriptionForm.patchValue({
       dataDescription:                data_description.dataDescription,
       dataCategories:                 data_description.dataCategories
@@ -61,32 +93,21 @@ export class DataDescriptionComponent implements OnInit {
     private fb: FormBuilder
   ) { }
 
-  ngOnInit(): void {
-    // console.log(this.dataCategories);
-    for (let entry of this.dataDescriptionForm.controls['dataCategories'].value){
-      // console.log(entry);
-      this.dataCategories.set(entry,true);
-    }    
+  ngOnInit(): void {   
+    for (let category of this.initialCategories) {
+      // console.log(category); 
+      // console.log(this.dataCategories.get(category));
+      this.dataCategoriesMap.set(category,true);
+    }
   }
-
-  dataCategories = new Map([
-    ['SRD', false],
-    ['Reference', false],
-    ['Resource', false],
-    ['Published', false],
-    ['Publishable', false],
-    ['Working', false],
-    ['Derived', false]
-  ]);
-
 
   dataCategoryChange(e:any) {
     var storageTier: string = "";
-    this.dataCategories.set(e.target.defaultValue,e.target.checked)
-    console.log(this.dataCategories)
+    this.dataCategoriesMap.set(e.target.defaultValue,e.target.checked)
+    console.log(this.dataCategoriesMap)
 
     // Go through possibilities with tiers based on check box selections
-    for (let entry of this.dataCategories.entries()){
+    for (let entry of this.dataCategoriesMap.entries()){
       console.log(entry[0], entry[1]);
       if (entry[0] === "SRD" || entry[0] === "Reference" || entry[0] === "Resource" ){
         if(entry[1]){
@@ -110,12 +131,16 @@ export class DataDescriptionComponent implements OnInit {
     
     this.sharedService.setStorageMessage(storageTier);
     this.sharedService.storageSubject$.next(storageTier);
+    let ex = this.dataDescriptionForm.value['dataCategories'] as string[];
 
     if (e.target.checked){
-      console.log(e.target.defaultValue + " checked");      
+      console.log(e.target.defaultValue + " checked");  
+      
+      ex.push(e.target.defaultValue);
     }
     else{
-      console.log(e.target.defaultValue + " unchecked");
+      console.log(e.target.defaultValue + " unchecked");      
+      ex.forEach((value,index)=>{if(value === e.target.defaultValue) ex.splice(index,1)});
     }
 
     console.log(storageTier)

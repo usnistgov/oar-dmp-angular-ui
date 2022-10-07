@@ -39,21 +39,29 @@
       <td rowspan="3" class="dark_shade instruction">Must be stored in a location that is<br>backed up using a tested/automated proces</td>
       <td>
         <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" 
-        [value]="availableCategories[0].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[0].name" 
+        (click)="dataCategoryChange($event)" 
+        [checked]="dataCategoriesMap.get('SRD')"
+        
+        >
         <label for="dataCategorySRD"> {{availableCategories[0].name}} </label>
       </td>            
     </tr>
     <tr>
       <td>
         <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" 
-        [value]="availableCategories[1].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[1].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Reference')"
+        
+        >
         <label for="dataCategoryReference"> {{availableCategories[1].name}} Data </label>
       </td>
     </tr>
     <tr>
       <td>
         <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" 
-        [value]="availableCategories[2].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[2].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Resource')"
+        
+        >
         <label for="dataCategoryResource"> {{availableCategories[2].name}} Data </label>
       </td>
     </tr>
@@ -64,14 +72,18 @@
       <td rowspan="2" class="medium_shade instruction">User may choose how they preserve data</td>
       <td>
         <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" 
-        [value]="availableCategories[3].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[3].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Published')"
+        
+        >
         <label for="dataCategoryPublished"> {{availableCategories[3].name}} Data </label> 
       </td>
     </tr>
     <tr>
       <td>
         <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" 
-        [value]="availableCategories[4].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[4].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Publishable')"
+        
+        >
         <label for="dataCategoryPublishable"> {{availableCategories[4].name}} Data </label>
       </td>
     </tr>
@@ -82,14 +94,18 @@
       <td rowspan="2" class="light_shade instruction">No data preservation requirements</td>
       <td>
         <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" 
-        [value]="availableCategories[5].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[5].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Working')"
+        
+        >
         <label for="dataCategoryWorking"> {{availableCategories[5].name}} Data </label><br> 
       </td>
     </tr>
     <tr>
       <td>
         <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" 
-        [value]="availableCategories[6].name" (click)="dataCategoryChange($event)">
+        [value]="availableCategories[6].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Derived')"
+        
+        >
         <label for="dataCategoryDerived"> {{availableCategories[6].name}} Data </label><br> 
       </td>
     </tr>
