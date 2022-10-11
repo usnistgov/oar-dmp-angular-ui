@@ -69,9 +69,26 @@ export class DmpFormComponent implements OnInit {
     this.form.setControl(name, group);
   }
 
+  // Our parent component should listen to any value changes in the child components. 
+  // For that we create another dmp property (dmp?: DMP_Meta;) that will contain the 
+  // latest value and add a patchDMP() method to update the dmp.
   patchDMP(patch: Partial<DMP_Meta>) {
+    // Example of spread operatior (...)
+    // let arr1 = [0, 1, 2];
+    // const arr2 = [3, 4, 5];
+    // arr1 = [...arr1, ...arr2];
+    // arr1 is now [0, 1, 2, 3, 4, 5]
+    console.log("patchDMP")
+    console.log("patch")
+    console.log(patch)
+    console.log("DMP")
+    console.log(this.dmp)
+
     if (!this.dmp) throw new Error("Missing DMP in patch");
     this.dmp = { ...this.dmp, ...patch };
+    console.log("post patch")
+    console.log(this.dmp)
+    console.log("==============")
   }
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
@@ -84,28 +101,16 @@ export class DmpFormComponent implements OnInit {
   resetDmp(){
     console.log ("reset DMP");
     this.form.controls['basicInfo'].reset();
-    //this.form.controls['basicInfo'].s
+    this.form.controls['ethicalIssues'].reset();
+    this.form.controls['dataDescription'].reset();
+    // We have to set this one separately because it is an array
+    // so once form reset is done to it, new data can't be appended
+    // so we have to set it back to an empty array.
+    this.form.controls['dataDescription'].patchValue({
+      dataCategories: []
+    })
     
     
-    //   title:                    '',
-    //   startDate:                '',
-    //   endDate:                  '',
-    //   dmpSearchable:            '',
-    //   funding:                  '',
-    //   fundingNumber:            '',
-    //   projectDescription:       '',
-      
-    //   // Ethical Issues Meta data
-    //   ethicalIssue:             '', 
-    //   ethicalIssueDescription:  '', 
-    //   ethicalReport:            '', 
-    //   ethicalPII:               '',
-
-    //   // Data Description Meta data
-    //   dataDescription:          '',
-    //   dataCategories:           []
-
-    // });
   }
 
 }
