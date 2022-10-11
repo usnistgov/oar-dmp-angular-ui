@@ -52,7 +52,7 @@ export class DataDescriptionComponent implements OnInit {
     let dataFormGroups = data_description.dataCategories.map(cat => this.fb.group({'cat': new FormControl(cat)}));
     let dataFormArray = this.fb.array(dataFormGroups); 
     this.initialCategories = data_description.dataCategories;
-    
+
     this.dataDescriptionForm.patchValue({
       dataDescription:                data_description.dataDescription,
       dataCategories:                 data_description.dataCategories
@@ -82,11 +82,20 @@ export class DataDescriptionComponent implements OnInit {
     private fb: FormBuilder
   ) { }
 
+  resetCheckboxes(){
+    console.log("about to reset check boxes");
+    for (let category of this.dataCategoriesMap) {
+      // Fire off events to uncheck all checkboxes in Data Description part of the form
+      // and send message to highlight correct options in the Storage panel
+      this.setStorageTier(category[0],false);
+      // console.log(category);
+    }
+  }
+
   ngOnInit(): void {   
     for (let category of this.initialCategories) {
-      // console.log(category); 
-      // console.log(this.dataCategories.get(category));
-      // this.dataCategoriesMap.set(category,true);
+      // Fire off events to check selected checkboxes in Data Description part of the form
+      // and send message to highlight correct options in the Storage panel
       this.setStorageTier(category,true);
     }
   }

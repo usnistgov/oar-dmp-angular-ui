@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
@@ -25,6 +25,9 @@ interface DMPForm {
   styleUrls: ['./dmp-form.component.scss']
 })
 export class DmpFormComponent implements OnInit {
+  // get access tomethods in DataDescriptionComponent child.
+  // this is for the purpose of reseting checkboxes.
+  @ViewChild(DataDescriptionComponent) dataCategoriesCheckBoxes!:DataDescriptionComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -109,6 +112,7 @@ export class DmpFormComponent implements OnInit {
     this.form.controls['dataDescription'].patchValue({
       dataCategories: []
     })
+    this.dataCategoriesCheckBoxes.resetCheckboxes();
     
     
   }
