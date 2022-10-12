@@ -28,6 +28,8 @@ export class DmpFormComponent implements OnInit {
   // get access tomethods in DataDescriptionComponent child.
   // this is for the purpose of reseting checkboxes.
   @ViewChild(DataDescriptionComponent) dataCategoriesCheckBoxes!:DataDescriptionComponent;
+  // For reseting radio buttons to "no" and enabling hiding of text boxes
+  @ViewChild(EthicalIssuesComponent) ethicalIssuesRadioBtns!: EthicalIssuesComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -105,6 +107,11 @@ export class DmpFormComponent implements OnInit {
     console.log ("reset DMP");
     this.form.controls['basicInfo'].reset();
     this.form.controls['ethicalIssues'].reset();
+    this.form.controls['ethicalIssues'].patchValue({
+        ethicalIssue:"no",
+        ethicalPII:"no"
+    })
+    this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();
     // We have to set this one separately because it is an array
     // so once form reset is done to it, new data can't be appended
@@ -112,6 +119,7 @@ export class DmpFormComponent implements OnInit {
     this.form.controls['dataDescription'].patchValue({
       dataCategories: []
     })
+    // This sends signal to DataDescriptionComponent to reset checkboxes
     this.dataCategoriesCheckBoxes.resetCheckboxes();
     
     
