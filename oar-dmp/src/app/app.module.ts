@@ -15,6 +15,7 @@ import { DataPreservationComponent } from './form-components/data-preservation/d
 import { OARngModule } from 'oarng';
 import { FrameModule } from 'oarng';
 import { DmpFormComponent } from './dmp-form/dmp-form.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { DmpFormComponent } from './dmp-form/dmp-form.component';
     HttpClientModule,
     OARngModule,
     FrameModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
