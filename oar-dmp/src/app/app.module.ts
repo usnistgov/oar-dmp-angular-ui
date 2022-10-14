@@ -17,6 +17,14 @@ import { FrameModule } from 'oarng';
 import { DmpFormComponent } from './dmp-form/dmp-form.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatNativeDateModule } from '@angular/material/core';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -28,8 +36,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     DataDescriptionComponent,
     ResourceOptionsComponent,
     DataPreservationComponent,
-    DmpFormComponent
-    
+    DmpFormComponent    
   ],
   imports: [
     BrowserModule,
@@ -38,7 +45,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     OARngModule,
     FrameModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+
+    MatTableModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatCheckboxModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
