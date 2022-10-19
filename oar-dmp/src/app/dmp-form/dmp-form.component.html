@@ -8,7 +8,11 @@
     (valueChange)="patchDMP($event)"
   ></app-basic-info>
   <app-personel></app-personel>
-  <app-keywords></app-keywords>
+  <app-keywords
+    [initialDMP_Meta] ="initialDMP" 
+    (formReady)="addChildForm('ethicalIssues', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-keywords>
   <app-technical-requirements></app-technical-requirements>
   <app-ethical-issues
     [initialDMP_Meta] ="initialDMP" 

@@ -20,11 +20,14 @@ export class DmpService {
     funding:                  'Grant Number',
     fundingNumber:            '12345',
     projectDescription:       'Example Project Description',
+
+    //Keywords
+    keyWords:                 ['Keyword', 'Example'],
     
     // Ethical Issues Meta data
     ethicalIssue:             'yes', 
-    ethicalIssueDescription:  'When it comes to healthcare, ethical issues are a field of applied ethics concerned with the moral decision-making medical staff must apply when making decisions. Moral and ethical views in medicine tend to vary based on the country and culture.', 
-    ethicalReport:            'Healthcare practitioners must collaborate with patients to understand and balance their needs and desires. For example, would it be ethical to provide a blood transfusion to a Jehovah’s Witness even if it would save their life?', 
+    ethicalIssueDescription:  'Ethical Issues Description paragraph example', 
+    ethicalReport:            'Ethical Report paragraph example', 
     ethicalPII:               'yes',
 
     // Data Description Meta data

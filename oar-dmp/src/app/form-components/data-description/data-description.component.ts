@@ -13,9 +13,6 @@ import { DataCategories } from 'src/app/types/data-categories.type';
 })
 export class DataDescriptionComponent implements OnInit {
 
-  test_categories1 = new FormArray([]);
-  test_categories2 = this.fb.array([]);
-
   availableCategories:DataCategories[]=[
     { id: 0, name: 'SRD' },
     { id: 1, name: 'Reference' },
@@ -47,10 +44,10 @@ export class DataDescriptionComponent implements OnInit {
 
   @Input()
   set initialDMP_Meta(data_description: DMP_Meta) {
-    console.log("inside @ input set initialDMP_Meta");
+    // console.log("inside @ input set initialDMP_Meta");
 
-    let dataFormGroups = data_description.dataCategories.map(cat => this.fb.group({'cat': new FormControl(cat)}));
-    let dataFormArray = this.fb.array(dataFormGroups); 
+    // let dataFormGroups = data_description.dataCategories.map(cat => this.fb.group({'cat': new FormControl(cat)}));
+    // let dataFormArray = this.fb.array(dataFormGroups); 
     this.initialCategories = data_description.dataCategories;
 
     this.dataDescriptionForm.patchValue({
@@ -83,7 +80,7 @@ export class DataDescriptionComponent implements OnInit {
   ) { }
 
   resetCheckboxes(){
-    console.log("about to reset check boxes");
+    // console.log("about to reset check boxes");
     for (let category of this.dataCategoriesMap) {
       // Fire off events to uncheck all checkboxes in Data Description part of the form
       // and send message to highlight correct options in the Storage panel
@@ -113,11 +110,11 @@ export class DataDescriptionComponent implements OnInit {
   setStorageTier(category:string,checked:boolean){
     var storageTier: string = "";
     this.dataCategoriesMap.set(category,checked)
-    console.log(this.dataCategoriesMap)
+    // console.log(this.dataCategoriesMap)
 
     // Go through possibilities with tiers based on check box selections
     for (let entry of this.dataCategoriesMap.entries()){
-      console.log(entry[0], entry[1]);
+      // console.log(entry[0], entry[1]);
       if (entry[0] === "SRD" || entry[0] === "Reference" || entry[0] === "Resource" ){
         if(entry[1]){
             storageTier = "top";
@@ -150,12 +147,12 @@ export class DataDescriptionComponent implements OnInit {
     let dataCategories = this.dataDescriptionForm.value['dataCategories'] as string[];
 
     if (e.target.checked){
-      console.log(e.target.defaultValue + " checked");  
+      // console.log(e.target.defaultValue + " checked");  
       
       dataCategories.push(e.target.defaultValue);
     }
     else{
-      console.log(e.target.defaultValue + " unchecked");      
+      // console.log(e.target.defaultValue + " unchecked");      
       dataCategories.forEach((value,index)=>{
         if(value === e.target.defaultValue) 
           dataCategories.splice(index,1)

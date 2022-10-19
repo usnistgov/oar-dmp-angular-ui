@@ -2,13 +2,16 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
+import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
 
+
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
+  keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
   dataDescription?: ObservedValueOf<DataDescriptionComponent["formReady"]>;
   
@@ -83,17 +86,17 @@ export class DmpFormComponent implements OnInit {
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
     // arr1 is now [0, 1, 2, 3, 4, 5]
-    console.log("patchDMP")
-    console.log("patch")
-    console.log(patch)
-    console.log("DMP")
-    console.log(this.dmp)
+    // console.log("patchDMP")
+    // console.log("patch")
+    // console.log(patch)
+    // console.log("DMP")
+    // console.log(this.dmp)
 
     if (!this.dmp) throw new Error("Missing DMP in patch");
     this.dmp = { ...this.dmp, ...patch };
-    console.log("post patch")
-    console.log(this.dmp)
-    console.log("==============")
+    // console.log("post patch")
+    // console.log(this.dmp)
+    // console.log("==============")
   }
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
@@ -104,12 +107,15 @@ export class DmpFormComponent implements OnInit {
   }
 
   resetDmp(){
-    console.log ("reset DMP");
+    // console.log ("reset DMP");
     this.form.controls['basicInfo'].reset();
     this.form.controls['ethicalIssues'].reset();
     this.form.controls['ethicalIssues'].patchValue({
         ethicalIssue:"no",
         ethicalPII:"no"
+    })
+    this.form.controls['keyWordsAndPhrases'].patchValue({
+      keyWords: []
     })
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();

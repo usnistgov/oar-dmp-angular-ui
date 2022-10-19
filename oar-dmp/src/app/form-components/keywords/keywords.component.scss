@@ -1,6 +1,13 @@
+
 p {
-  font-family: Lato;
+  font-family: Lato; 
+
 }
+
+.instruction{
+  font-size: large; 
+}
+
 table {
   width: 90%;
   margin: auto;
@@ -25,7 +32,7 @@ h2 {
 }
 
 .button-add-row {
-  background: #1b9e1b;
+  background: #1b2f9e;
   color: #ffffff;
 }
 
@@ -45,4 +52,15 @@ h2 {
 
 .form-input {
   padding-right: 5px;
+}
+
+.mat-header-cell {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000000;
+}
+:disabled{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #575656;
 }

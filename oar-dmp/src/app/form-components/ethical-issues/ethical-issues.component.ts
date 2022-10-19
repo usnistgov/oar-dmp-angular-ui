@@ -89,9 +89,9 @@ export class EthicalIssuesComponent {
   }
 
   /**
-   * This function resets radio buttons to "no" - which is their inital state
-   * It also enavles hiding of ethical issues description and report text boxes
-   * since default valus are that there are no ethical issues.
+   * This function resets radio buttons to "no" - which is their initial state
+   * It also enables hiding of ethical issues description and report text boxes
+   * since default values are that there are no ethical issues.
    */
 
   resetRadioButtons (){

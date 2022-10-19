@@ -1,86 +1,170 @@
-import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, OnInit, Input, Output } from '@angular/core';
+import { FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { defer, map, of, startWith } from 'rxjs';
+import { DMP_Meta } from 'src/app/types/DMP.types';
 
-const USER_DATA = [
-  {"name": "John Smith", "occupation": "Advisor", "age": 36},
-  {"name": "Muhi Masri", "occupation": "Developer", "age": 28},
-  {"name": "Peter Adams", "occupation": "HR", "age": 20},
-  {"name": "Lora Bay", "occupation": "Marketing", "age": 43}
-];
+export interface KeyWord {
+  key_word: string;
+  id: number;
+  isEdit: boolean;
+}
 
 const COLUMNS_SCHEMA = [
   {
-    key: 'name',
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'key_word',
     type: 'text',
-    label: 'Full Name',
+    label: 'Keywords / Phrases',
   },
-  {
-    key: 'occupation',
-    type: 'text',
-    label: 'Occupation',
-  },
-  {
-    key: 'dateOfBirth',
-    type: 'date',
-    label: 'Date of Birth',
-  },
-  {
-    key: 'age',
-    type: 'number',
-    label: 'Age',
-  },
+  // Edit button column
   {
     key: 'isEdit',
     type: 'isEdit',
     label: '',
   },
-];
+]
 
 @Component({
   selector: 'app-keywords',
   templateUrl: './keywords.component.html',
   styleUrls: ['./keywords.component.scss']
 })
-export class KeywordsComponent implements OnInit {
+export class KeywordsComponent {
 
+  disableAdd:boolean = false;
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  dataSource = USER_DATA;
   columnsSchema: any = COLUMNS_SCHEMA;
+  keyWordSource: KeyWord[] = [];
 
-  constructor() { }
+  keyWordsForm = this.fb.group(
+    {
+      keyWords:[[]]
+    }
+  );
 
-  ngOnInit(): void {
+  constructor(private fb: FormBuilder) { 
+    
   }
 
-  keyWords: string[] = [];
-  newKeyWordText: string = '';
+  // We want to receive the initial data from the parent component and initialize 
+  // the form values. For that we create an input property with a setter that updates 
+  // the form. Here you could do any data transformation you need.
+  @Input()
+  set initialDMP_Meta(key_words: DMP_Meta){
+    // loop over keywords array sent fromt he server and populat local copy of 
+    // keywords aray to populate the table of keywords in the user interface
+    key_words.keyWords.forEach( 
+      (word, index) => {        
+        this.keyWordSource.push({id:index, key_word:word, isEdit:false})
+      }
+    );
+
+    // set initial value of keywords form to what has been sent from the server
+    this.keyWordsForm.patchValue({
+      keyWords: key_words.keyWords
+
+    })
+
+  }
+
+  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
+  // observable with of() that emits the created form group and use it as an output.
+  @Output()
+  formReady = of(this.keyWordsForm);
+
+  // We need to extract the form values and provide them to the parent component whenever 
+  // a value changes. And again we can provide an observable as @Output() instead of creating 
+  // an event emitter:
+  @Output()
+  valueChange = defer(() =>
+    // There are a few important things to note here: form.valueChanges will only emit when 
+    // the form value changes but not initially. That's why we use startWith to provide the 
+    // initial value. And we use defer() to use the latest form value for startWith() 
+    // whenever someone subscribes.
+    this.keyWordsForm.valueChanges.pipe(
+      startWith(this.keyWordsForm.value),
+      map(
+        (formValue): Partial<DMP_Meta> => ({           
+          // The observable emits a partial DMP_Meta object that only contains the properties related 
+          // to our part of the form 
+          keyWords: formValue.keyWords
+        })
+      )
+
+    )
+  );
+
+  
+  addRow() {
+    this.disableAdd=true;
+    const newRow = {
+      id: Date.now(),
+      key_word: '',
+      isEdit: true,
+    };
+    // create a new array using an existing array as one part of it 
+    // using the spread operator '...'
+    this.keyWordSource = [newRow, ...this.keyWordSource];
+
+  }
+
   errorMessage: string = '';
-
-  onInput(value: string) {
-    this.newKeyWordText = value;
-  }
-
-  onClick() {
-    if (!this.newKeyWordText.length) {
+  onDoneClick(e:any){
+    if (!e.key_word.length) {
       this.errorMessage = "Keywords / Phrases can't be empty";
       return;
     }
 
     this.errorMessage = '';
-    //split on ; character
-    var keywords = this.newKeyWordText.split(";");
+    this.resetKeyWordsForm();
+    this.keyWordSource.forEach((element)=>{
+        if(element.id === e.id){
+          element.isEdit = false;
+        }
+        // re populate keywords array
+        this.keyWordsForm.value['keyWords'].push(element.key_word);
+      }
+    )
     
-    for (var index in keywords){
-      //add all keywords / phrases delimited by ; character
-      this.keyWords.push(keywords[index]);
-    }
-    
-    this.newKeyWordText = '';
+    this.disableAdd=false;
+
   }
 
-  onClickClear(){
-    this.keyWords = [];
-    this.errorMessage = '';
+  removeRow(id:any) {
+    // select word from the specific id
+    var selWord = this.keyWordSource.filter((u) => u.id === id);    
+    this.keyWordsForm.value['keyWords'].forEach((value:string,index:number) =>{
+      selWord.forEach((word)=>{
+        if(value === word.key_word){
+          this.keyWordsForm.value['keyWords'].splice(index,1);
+        }
+      });
+    });
+
+    this.keyWordSource = this.keyWordSource.filter((u) => u.id !== id);
+  }
+  removeSelectedRows() {
+    this.keyWordSource = this.keyWordSource.filter((u: any) => !u.isSelected);
+    this.resetKeyWordsForm();
+    this.keyWordSource.forEach((element)=>{
+      // re populate keywords array
+      this.keyWordsForm.value['keyWords'].push(element.key_word);
+    }
+  )
+  }
+
+  resetKeyWordsForm(){
+    // reset the keywords array
+    this.keyWordsForm.setValue(
+      {
+        keyWords:[]
+      }
+    )
+
   }
 
 }

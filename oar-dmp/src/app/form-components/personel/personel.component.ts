@@ -111,7 +111,7 @@ export class PersonelComponent implements OnInit {
       );
     }
     else if (this.contributorRadioSel === "contributorExternal"){
-      console.log("adding contributorExternal");
+      // console.log("adding contributorExternal");
       this.externalContributor.role=this.crntContribRole
       this.contributors.push(this.externalContributor);
     }
@@ -123,7 +123,7 @@ export class PersonelComponent implements OnInit {
 
   private contributorRadioSel: string="";
   onContributorChange(value:any){
-    console.log(value.id);
+    // console.log(value.id);
     this.contributorRadioSel=value.id;
     this.btnAddContrib=true;
   }

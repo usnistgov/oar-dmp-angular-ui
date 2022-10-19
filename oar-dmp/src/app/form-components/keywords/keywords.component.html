@@ -1,81 +1,93 @@
 <div class="dmpSection">
-  <div class="header">Keywords</div> 
-  <ul class="list">
-    <li *ngFor="let keyWord of keyWords">{{ keyWord }}</li>
-  </ul>
-
-  <div class="add-list-container">
-    <input
-      #keyWordsInput
-      type="text"
-      (input)="onInput(keyWordsInput.value)"
-      [value]="newKeyWordText"
-      placeholder="Keywords / Phrases"
-    />
-    <button (click)="onClick()">Add</button>&nbsp;
-    <button (click)="onClickClear()">Clear</button>
-  </div>
+  <div class="header">Keywords</div>  
+  <p class="instruction"> Add / Remove keywords or phrases</p>
+  
+  <article class="table-header">
+    
+    <!-- 
+      set button type to 'button' to prevent it from acting like a submit button and triggering
+      updateDMP in dmp.services.ts 
+    -->
+    <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()">
+      Remove
+    </button>
+    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+  </article>
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+  
 
-  <table mat-table [dataSource]="dataSource">
+  <table mat-table [dataSource]="keyWordSource" class="mat-elevation-z8">
+  
+    <!-- 
+      iterate over columns 
+    -->
     <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
-      <th mat-header-cell *matHeaderCellDef>
-        {{ col.label }}
-      </th>
-      <td mat-cell *matCellDef="let element">
+      <!-- 
+        table headers 
+      -->
+      <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+      <!-- 
+        table cells 
+      -->
+      <td mat-cell *matCellDef="let element">  
+        <!-- table cell display default cell display -->
         <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+          <!-- Switch if the column isSelected to display the checkbox in the table cell -->
+          <ng-container *ngSwitchCase="'isSelected'">
+            <mat-checkbox
+              (change)="element.isSelected = $event.checked"
+            ></mat-checkbox>
+          </ng-container>
+
+          <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
           <div class="btn-edit" *ngSwitchCase="'isEdit'">
             <button mat-button (click)="element.isEdit = !element.isEdit">
               Edit
             </button>
+            <button
+              mat-button
+              class="button-remove"
+              (click)="removeRow(element.id)"
+            >
+              Delete
+            </button>
           </div>
-          <span *ngSwitchCase="'date'">
-            {{ element[col.key] | date: 'mediumDate' }}
-          </span>
+          
+          <!-- default cell -->
           <span *ngSwitchDefault>
             {{ element[col.key] }}
           </span>
         </div>
+
+        <!-- table cell display if edit button has been clicked -->
         <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+          <!-- no input for the selected checkbox column cell -->
+          <div *ngSwitchCase="'isSelected'"></div>
+          
+          <!-- Switch if the column isEdit to display the Done button in the table cell -->
           <div class="btn-edit" *ngSwitchCase="'isEdit'">
-            <button mat-button (click)="element.isEdit = !element.isEdit">
+            <button type="button" mat-button (click)="onDoneClick(element)">
               Done
             </button>
           </div>
-          <mat-form-field
-            class="form-input"
-            *ngSwitchCase="'date'"
-            appearance="fill"
-          >
-            <mat-label>Choose a date</mat-label>
-            <input
-              matInput
-              [matDatepicker]="picker"
-              [(ngModel)]="element[col.key]"
-            />
-            <mat-datepicker-toggle
-              matSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field class="form-input" *ngSwitchCase="'number'">
-            <input
-              type="number"
-              matInput
-              (ngModelChange)="element[col.key] = $event"
-              [ngModel]="element[col.key]"
-            />
-          </mat-form-field>
+
+          <!-- default column cell -->
           <mat-form-field class="form-input" *ngSwitchDefault>
             <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
           </mat-form-field>
+
         </div>
+
       </td>
     </ng-container>
+  
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+
+  
+  
+  
   
 
   
