@@ -1,17 +1,19 @@
 
 p {
   font-family: Lato; 
+  margin-left: 15px;
 
 }
 
 .instruction{
   font-size: large; 
+  
 }
 
 table {
   width: 90%;
   margin: auto;
-  margin-top: 25px;
+  margin-top: 5px;
 }
 .btn-edit {
   text-align: right;
@@ -25,7 +27,7 @@ h2 {
   width: 90%;
   margin: auto;
   text-align: right;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -36,9 +38,14 @@ h2 {
   color: #ffffff;
 }
 
+.button-clear-table {
+  background: #f82f2f;
+  color: #fffdfd;
+}
+
 .button-remove-rows {
-  background: red;
-  color: #ffffff;
+  background: #f5f5f5;
+  color: #c90000;
   margin-right: 5px;
 }
 

@@ -28,11 +28,14 @@ interface DMPForm {
   styleUrls: ['./dmp-form.component.scss']
 })
 export class DmpFormComponent implements OnInit {
-  // get access tomethods in DataDescriptionComponent child.
+  // get access to methods in DataDescriptionComponent child.
+
   // this is for the purpose of reseting checkboxes.
   @ViewChild(DataDescriptionComponent) dataCategoriesCheckBoxes!:DataDescriptionComponent;
   // For reseting radio buttons to "no" and enabling hiding of text boxes
   @ViewChild(EthicalIssuesComponent) ethicalIssuesRadioBtns!: EthicalIssuesComponent;
+  // For clearing the keywords / phrases table
+  @ViewChild(KeywordsComponent) keyWordsTable!: KeywordsComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -114,9 +117,10 @@ export class DmpFormComponent implements OnInit {
         ethicalIssue:"no",
         ethicalPII:"no"
     })
-    this.form.controls['keyWordsAndPhrases'].patchValue({
-      keyWords: []
-    })
+    this.keyWordsTable.clearKeywordsTable();
+    // this.form.controls['keyWordsAndPhrases'].patchValue({
+    //   keyWords: []
+    // })
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();
     // We have to set this one separately because it is an array

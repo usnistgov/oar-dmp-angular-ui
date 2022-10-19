@@ -36,6 +36,8 @@ const COLUMNS_SCHEMA = [
 export class KeywordsComponent {
 
   disableAdd:boolean = false;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
   keyWordSource: KeyWord[] = [];
@@ -59,8 +61,11 @@ export class KeywordsComponent {
     // keywords aray to populate the table of keywords in the user interface
     key_words.keyWords.forEach( 
       (word, index) => {        
-        this.keyWordSource.push({id:index, key_word:word, isEdit:false})
+        this.keyWordSource.push({id:index, key_word:word, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
       }
+      
     );
 
     // set initial value of keywords form to what has been sent from the server
@@ -100,7 +105,11 @@ export class KeywordsComponent {
 
   
   addRow() {
+    // Disable buttons while the user is inputing new row
     this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+    
     const newRow = {
       id: Date.now(),
       key_word: '',
@@ -129,8 +138,10 @@ export class KeywordsComponent {
         this.keyWordsForm.value['keyWords'].push(element.key_word);
       }
     )
-    
+    // Enable buttons once user entered new data into a row
     this.disableAdd=false;
+    this.disableClear=false;
+    this.disableRemove=false;
 
   }
 
@@ -151,10 +162,22 @@ export class KeywordsComponent {
     this.keyWordSource = this.keyWordSource.filter((u: any) => !u.isSelected);
     this.resetKeyWordsForm();
     this.keyWordSource.forEach((element)=>{
-      // re populate keywords array
-      this.keyWordsForm.value['keyWords'].push(element.key_word);
+        // re populate keywords array
+        this.keyWordsForm.value['keyWords'].push(element.key_word);
+    });
+    if (this.keyWordSource.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
     }
-  )
+  }
+  clearKeywordsTable(){
+    this.keyWordSource = [];
+    this.resetKeyWordsForm();
+     // If the table is empty disable clear and remove buttons
+    this.disableClear=true;
+    this.disableRemove=true;
+
   }
 
   resetKeyWordsForm(){
