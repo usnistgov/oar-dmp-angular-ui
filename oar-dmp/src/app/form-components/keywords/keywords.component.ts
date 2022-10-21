@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
-import { FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { Component, Input, Output } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 

@@ -36,7 +36,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     DataDescriptionComponent,
     ResourceOptionsComponent,
     DataPreservationComponent,
-    DmpFormComponent    
+    DmpFormComponent
   ],
   imports: [
     BrowserModule,

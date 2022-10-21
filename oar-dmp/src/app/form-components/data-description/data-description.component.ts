@@ -13,24 +13,27 @@ import { DataCategories } from 'src/app/types/data-categories.type';
 })
 export class DataDescriptionComponent implements OnInit {
 
+  pyramid: string = '/../../assets/images/pyramid.png'
+  alttext: string="Pyramid View of Data Categories"
+
   availableCategories:DataCategories[]=[
-    { id: 0, name: 'SRD' },
-    { id: 1, name: 'Reference' },
-    { id: 2, name: 'Resource' },
-    { id: 3, name: 'Published' },
-    { id: 4, name: 'Publishable' },
-    { id: 5, name: 'Working' },
-    { id: 6, name: 'Derived' },
+    { id: 0, name: 'Published Results and SRD' },
+    // { id: 1, name: 'Reference' },
+    // { id: 2, name: 'Resource' },
+    // { id: 3, name: 'Published' },
+    { id: 2, name: 'Publishable' },
+    { id: 3, name: 'Working' },
+    { id: 4, name: 'Derived' },
 
   ]
 
   initialCategories: string[] = [];
 
   dataCategoriesMap = new Map([
-    ['SRD', false],
-    ['Reference', false],
-    ['Resource', false],
-    ['Published', false],
+    ['Published Results and SRD', false],
+    // ['Reference', false],
+    // ['Resource', false],
+    // ['Published', false],
     ['Publishable', false],
     ['Working', false],
     ['Derived', false]
@@ -115,7 +118,7 @@ export class DataDescriptionComponent implements OnInit {
     // Go through possibilities with tiers based on check box selections
     for (let entry of this.dataCategoriesMap.entries()){
       // console.log(entry[0], entry[1]);
-      if (entry[0] === "SRD" || entry[0] === "Reference" || entry[0] === "Resource" ){
+      if (entry[0] === "Published Results and SRD" || entry[0] === "Reference" || entry[0] === "Resource" ){
         if(entry[1]){
             storageTier = "top";
             break;

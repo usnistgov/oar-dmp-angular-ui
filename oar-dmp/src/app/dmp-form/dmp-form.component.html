@@ -24,7 +24,8 @@
     (formReady)="addChildForm('dataDescription', $event)"
     (valueChange)="patchDMP($event)"
   ></app-data-description>
-  <!-- <app-data-preservation></app-data-preservation> -->
+  <app-data-preservation></app-data-preservation>
+  <app-reviewer></app-reviewer>
 
   <div class="form-actions">
     <button mat-button color="primary" type="button" (click)="resetDmp()">
@@ -39,6 +40,7 @@
       Save
     </button>
   </div>
+  
   <div class="output">
     <div>Current DMP Object:</div>
     <pre>{{ dmp | json }}</pre>
