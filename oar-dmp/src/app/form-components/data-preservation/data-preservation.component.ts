@@ -53,6 +53,16 @@ export class DataPreservationComponent {
     
   }
 
+  // We want to receive the initial data from the parent component and initialize 
+  // the form values. For that we create an input property with a setter that updates 
+  // the form. Here you could do any data transformation you need.
+  @Input()
+  set initialDMP_Meta(data_preservation: DMP_Meta) {
+    // loop over paths array sent fromt he server and populat local copy of 
+    // paths aray to populate the table of paths in the user interface
+  }
+  
+
   addRow() {
     // Disable buttons while the user is inputing new row
     this.disableAdd=true;
@@ -83,7 +93,7 @@ export class DataPreservationComponent {
         if(element.id === e.id){
           element.isEdit = false;
         }
-        // re populate keywords array
+        // re populate paths array
         this.preservationForm.value['pathsURLs'].push(element.path);
       }
     )
@@ -111,7 +121,7 @@ export class DataPreservationComponent {
     this.pathSource = this.pathSource.filter((u: any) => !u.isSelected);
     this.resetTable();
     this.pathSource.forEach((element)=>{
-        // re populate keywords array
+        // re populate paths array
         this.preservationForm.value['pathsURLs'].push(element.path);
     });
     if (this.pathSource.length === 0){
