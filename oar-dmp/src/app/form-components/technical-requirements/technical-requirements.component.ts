@@ -2,18 +2,58 @@ import { Component, OnInit } from '@angular/core';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
+import { FormBuilder, Validators } from '@angular/forms';
+import { defer, map, of, startWith } from 'rxjs';
+import { DMP_Meta } from 'src/app/types/DMP.types';
+
+export interface TechnicalResources {
+  resource: string;
+  id: number;
+  isEdit: boolean;
+}
+
+const COLUMNS_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'resource',
+    type: 'text',
+    label: 'Technical Resource',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
 
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
-  styleUrls: ['./technical-requirements.component.scss']
+  styleUrls: ['./technical-requirements.component.scss', '../keywords/keywords.component.scss']
 })
 export class StorageNeedsComponent implements OnInit {
 
+  // This mimics the technical-requirements type interface from 
+  // types/technical-requirements.type.ts
+  technicalRequirementsForm = this.fb.group(
+    {
+      dataSize: ['', [Validators.required, Validators.pattern("^[0-9]*$")]], // only numbers
+      sizeUnit: ['', Validators.required],
+      softwareDevelopment: ['', Validators.required],
+      technicalResources: [[]]
+    }
+  );
+  
   // message:any
   constructor(
     private dropDownService: DropDownSelectService,
-    private sharedService: ResourcesService
+    private sharedService: ResourcesService,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
@@ -141,5 +181,109 @@ export class StorageNeedsComponent implements OnInit {
     this.sharedService.websiteSubject$.next(this.websiteUse)
 
   }
+
+  disableAdd:boolean = false;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
+  
+  errorMessage: string = '';
+
+  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
+  columnsSchema: any = COLUMNS_SCHEMA;
+  techResource: TechnicalResources[] = [];
+
+
+  onDoneClick(e:any){
+    if (!e.path.length) {
+      this.errorMessage = "Technical Resource can't be empty";
+      return;
+    }
+
+    this.errorMessage = '';
+    this.resetTable();
+    this.techResource.forEach((element)=>{
+        if(element.id === e.id){
+          element.isEdit = false;
+        }
+        // re populate paths array
+        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
+      }
+    )
+    // Enable buttons once user entered new data into a row
+    this.disableAdd=false;
+    this.disableClear=false;
+    this.disableRemove=false;
+
+  }
+
+  removeRow(id:any) {
+    // select word from the specific id
+    var selWord = this.techResource.filter((u) => u.id === id);    
+    this.technicalRequirementsForm.value['technicalResources'].forEach((value:string,index:number) =>{
+      selWord.forEach((word)=>{
+        if(value === word.resource){
+          this.technicalRequirementsForm.value['technicalResources'].splice(index,1);
+        }
+      });
+    });
+
+    this.techResource = this.techResource.filter((u) => u.id !== id);
+  }
+
+  removeSelectedRows() {
+    this.techResource = this.techResource.filter((u: any) => !u.isSelected);
+    this.resetTable();
+    this.techResource.forEach((element)=>{
+        // re populate paths array
+        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
+    });
+    if (this.techResource.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+  }
+
+  clearTable(){
+    this.techResource = [];
+    this.resetTable();
+     // If the table is empty disable clear and remove buttons
+    this.disableClear=true;
+    this.disableRemove=true;
+  }
+
+  addRow() {
+    // Disable buttons while the user is inputing new row
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+    
+    const newRow = {
+      id: Date.now(),
+      resource: '',
+      isEdit: true,
+    };
+    // create a new array using an existing array as one part of it 
+    // using the spread operator '...'
+    this.techResource = [newRow, ...this.techResource];
+  }
+
+  resetTable(){
+    // this.technicalRequirementsForm.value['pathsURLs'] = []
+    this.technicalRequirementsForm.setValue({
+      // all of technicalRequirementsForm needs to be "changed" in order to fire the update event and propagate
+      // changes up to the parent form but since we are only trying to update the table
+      // don't change preservation description text therefore re-assign it to preservationDescription
+      dataSize: this.technicalRequirementsForm.value['dataSize'],
+      sizeUnit: this.technicalRequirementsForm.value['sizeUnit'],
+      softwareDevelopment: this.technicalRequirementsForm.value['softwareDevelopment'],
+      // only change table values
+      pathsURLs:[]
+
+    })
+
+  }
+
+
 
 }
