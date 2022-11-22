@@ -2,29 +2,47 @@
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()">
   
   <!-- And in our template we can render all child components and register the formReady event. -->
+  <!-- BASIC INFO -->
   <app-basic-info 
     [initialDMP_Meta] ="initialDMP" 
     (formReady)="addChildForm('basicInfo', $event)"
     (valueChange)="patchDMP($event)"
   ></app-basic-info>
+
+  <!-- PERSONEL -->
   <app-personel></app-personel>
+
+  <!-- KEYWORDS -->
   <app-keywords
     [initialDMP_Meta] ="initialDMP" 
     (formReady)="addChildForm('keyWordsAndPhrases', $event)"
     (valueChange)="patchDMP($event)"
   ></app-keywords>
+
+  <!-- TECHNICAL REQUIREMENTS -->
   <app-technical-requirements></app-technical-requirements>
+
+  <!-- ETHICAL ISSUES -->
   <app-ethical-issues
     [initialDMP_Meta] ="initialDMP" 
     (formReady)="addChildForm('ethicalIssues', $event)"
     (valueChange)="patchDMP($event)"
   ></app-ethical-issues>
+
+  <!-- DATA DESCRIPTION -->
   <app-data-description
     [initialDMP_Meta] ="initialDMP"   
     (formReady)="addChildForm('dataDescription', $event)"
     (valueChange)="patchDMP($event)"
   ></app-data-description>
-  <app-data-preservation></app-data-preservation>
+
+  <!-- DATA PRESERVATION -->
+  <app-data-preservation
+    [initialDMP_Meta] ="initialDMP"
+    (formReady)="addChildForm('dataPreservation', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-data-preservation>
+
   <app-reviewer></app-reviewer>
 
   <div class="form-actions">

@@ -5,15 +5,19 @@ import { BasicInfoComponent } from '../form-components/basic-info/basic-info.com
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
+import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
 
 
+//  Interface for the DMP interface. This is where we define observed values of
+//  different DMP form components
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
   dataDescription?: ObservedValueOf<DataDescriptionComponent["formReady"]>;
+  dataPreservation?: ObservedValueOf<DataPreservationComponent["formReady"]>;
   
 }
 // In the example above we have a number of child components: 
@@ -36,6 +40,8 @@ export class DmpFormComponent implements OnInit {
   @ViewChild(EthicalIssuesComponent) ethicalIssuesRadioBtns!: EthicalIssuesComponent;
   // For clearing the keywords / phrases table
   @ViewChild(KeywordsComponent) keyWordsTable!: KeywordsComponent;
+  // For clearing data preservation links
+  @ViewChild(DataPreservationComponent) preservationLinksTable!: DataPreservationComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -118,9 +124,7 @@ export class DmpFormComponent implements OnInit {
         ethicalPII:"no"
     })
     this.keyWordsTable.clearKeywordsTable();
-    // this.form.controls['keyWordsAndPhrases'].patchValue({
-    //   keyWords: []
-    // })
+    
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();
     // We have to set this one separately because it is an array
@@ -131,6 +135,12 @@ export class DmpFormComponent implements OnInit {
     })
     // This sends signal to DataDescriptionComponent to reset checkboxes
     this.dataCategoriesCheckBoxes.resetCheckboxes();
+
+    // Reset Data Preservation component of the form
+    this.form.controls['dataPreservation'].patchValue({
+      preservationDescription:""
+    })
+    this.preservationLinksTable.clearTable();
     
     
   }

@@ -60,7 +60,50 @@ export class DataPreservationComponent {
   set initialDMP_Meta(data_preservation: DMP_Meta) {
     // loop over paths array sent fromt he server and populat local copy of 
     // paths aray to populate the table of paths in the user interface
+    data_preservation.pathsURLs.forEach( 
+      (initialPath, index) => {  
+        this.pathSource.push({id:index, path:initialPath, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+
+    // set initial values for data preservatio part of the form
+    // to what has been sent from the server
+    this.preservationForm.patchValue({
+      preservationDescription:  data_preservation.preservationDescription,
+      pathsURLs:                data_preservation.pathsURLs
+
+    });
   }
+
+  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
+  // observable with of() that emits the created form group and use it as an output.
+  @Output()
+  formReady = of(this.preservationForm);
+
+  // We need to extract the form values and provide them to the parent component whenever 
+  // a value changes. And again we can provide an observable as @Output() instead of creating 
+  // an event emitter:
+  @Output()
+  valueChange = defer(() =>
+    // There are a few important things to note here: form.valueChanges will only emit when 
+    // the form value changes but not initially. That's why we use startWith to provide the 
+    // initial value. And we use defer() to use the latest form value for startWith() 
+    // whenever someone subscribes.
+    this.preservationForm.valueChanges.pipe(
+      startWith(this.preservationForm.value),
+      map(
+        (formValue): Partial<DMP_Meta> => ({           
+          // The observable emits a partial DMP_Meta object that only contains the properties related 
+          // to our part of the form 
+          preservationDescription: formValue.preservationDescription,
+          pathsURLs:               formValue.pathsURLs
+        })
+      )
+
+    )
+  );
   
 
   addRow() {
@@ -140,7 +183,16 @@ export class DataPreservationComponent {
   }
 
   resetTable(){
-    this.preservationForm.value['pathsURLs'] = []
+    // this.preservationForm.value['pathsURLs'] = []
+    this.preservationForm.setValue({
+      // all of preservationForm needs to be "changed" in order to fire the update event and propagate
+      // changes up to the parent form but since we are only trying to update the table
+      // don't change preservation description text therefore re-assign it to preservationDescription
+      preservationDescription: this.preservationForm.value['preservationDescription'],
+      // only change table values
+      pathsURLs:[]
+
+    })
 
   }
 

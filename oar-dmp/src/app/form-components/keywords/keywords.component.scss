@@ -35,23 +35,30 @@ h2 {
 }
 
 .button-add-row {
+  line-height: 20px;
   background: #1b2f9e;
   color: #ffffff;
 }
 
 .button-clear-table {
+  line-height: 20px;
   background: #f82f2f;
   color: #fffdfd;
 }
 
 .button-remove-rows {
+  line-height: 20px;
   background: #f5f5f5;
   color: #c90000;
   margin-right: 5px;
 }
 
 .button-remove {
+  line-height: 20px;
   color: red;
+}
+.button-edit{
+  line-height: 20px;
 }
 
 ::ng-deep .mat-form-field-infix {

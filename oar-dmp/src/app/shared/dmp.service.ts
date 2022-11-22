@@ -32,7 +32,12 @@ export class DmpService {
 
     // Data Description Meta data
     dataDescription:          'Data Description Example',
-    dataCategories:           ['Working', 'Derived']
+    dataCategories:           ['Working', 'Derived'],
+
+    // Data Preservation Meta data
+    preservationDescription:  'Data preservation description example text',
+    pathsURLs:                ['link 1', 'lik 2']
+
   };
 
   fetchDMP(): Observable<DMP_Meta> {
