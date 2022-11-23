@@ -5,6 +5,7 @@ import { ResourcesService } from '../../shared/resources.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
+import { SoftwareDevelopment } from 'src/app/types/software-development.type';
 
 export interface TechnicalResources {
   resource: string;
@@ -37,6 +38,8 @@ const COLUMNS_SCHEMA = [
   styleUrls: ['./technical-requirements.component.scss', '../keywords/keywords.component.scss']
 })
 export class StorageNeedsComponent implements OnInit {
+
+  sftDev: SoftwareDevelopment = {development:"yes", softwareUse:"Both", softwareDatabase:"yes", softwareWebsite:"no"}
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -122,20 +125,21 @@ export class StorageNeedsComponent implements OnInit {
   }
 
   // determines whether there is any software development planned for this DMP
-  private softwareDev: string="no";
+  //private softwareDev: string="no";
   setSoftwareDev(e: string): void {
-    this.softwareDev = e;
-    if (this.softwareDev === "yes") {
+    // this.softwareDev = e;
+    this.sftDev["development"] = e;
+    if (this.sftDev["development"] === "yes") {
       //if there is software development being done as part of a DMP send message
       //to resource options to highlight correct row in the Software Tools table
       //located in resource-options compomnent 
-      this.sharedService.setSoftwareMessage(this.softwareUse)
+      this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
       this.sharedService.softwareSubject$.next(this.softwareUse)
 
-      this.sharedService.setDatabaseMessage(this.databaseUse)
+      this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
       this.sharedService.databaseSubject$.next(this.databaseUse)
 
-      this.sharedService.setWebsiteMessage(this.websiteUse)
+      this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
       this.sharedService.websiteSubject$.next(this.websiteUse)
     }
   }
@@ -143,11 +147,11 @@ export class StorageNeedsComponent implements OnInit {
   //returns true or false to determine whether to display options for type of softwae
   // that is being developed as part of a DMP
   selSoftwareDev(name:string): boolean{
-    if (!this.softwareDev) { // if no radio button is selected, always return false so every nothing is shown  
+    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so every nothing is shown  
       return false;  
     }
     else {      
-      return (this.softwareDev === name); // if current radio button is selected, return true, else return false 
+      return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false 
     }  
     
 
@@ -157,18 +161,20 @@ export class StorageNeedsComponent implements OnInit {
   private softwareUse: string="internal";
   setSoftwareUse(e: string): void {
     this.softwareUse = e;
+    this.sftDev["softwareUse"] = e;
     //send message to resource options to highlight correct row in the Software Tools table
     //located in resource-options compomnent 
-    this.sharedService.softwareSubject$.next(this.softwareUse)
+    this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
   }
 
   // determines whether a database will be used for the softwre development
   private databaseUse: string="no";
   setDatabaseUse(sel: string){
     this.databaseUse = sel;
+    this.sftDev["softwareDatabase"] = sel;
     //send message to resource options to highlight correct row in the Database table
     //located in resource-options compomnent 
-    this.sharedService.databaseSubject$.next(this.databaseUse)
+    this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
 
   }
 
@@ -176,9 +182,10 @@ export class StorageNeedsComponent implements OnInit {
   private websiteUse: string="no";
   setWebsiteDev(sel: string){
     this.websiteUse = sel;
+    this.sftDev["softwareWebsite"] = sel;
     //send message to resource options to highlight correct row in the Database table
     //located in resource-options compomnent 
-    this.sharedService.websiteSubject$.next(this.websiteUse)
+    this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
 
   }
 
@@ -191,10 +198,9 @@ export class StorageNeedsComponent implements OnInit {
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
   techResource: TechnicalResources[] = [];
-
-
+  
   onDoneClick(e:any){
-    if (!e.path.length) {
+    if (!e.resource.length) {
       this.errorMessage = "Technical Resource can't be empty";
       return;
     }
@@ -278,7 +284,7 @@ export class StorageNeedsComponent implements OnInit {
       sizeUnit: this.technicalRequirementsForm.value['sizeUnit'],
       softwareDevelopment: this.technicalRequirementsForm.value['softwareDevelopment'],
       // only change table values
-      pathsURLs:[]
+      technicalResources:[]
 
     })
 

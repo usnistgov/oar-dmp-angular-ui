@@ -23,6 +23,12 @@ export class DmpService {
 
     //Keywords
     keyWords:                 ['Keyword', 'Example'],
+
+    //Technical Resources
+    dataSize:                 10,
+    sizeUnit:                 "GB",
+    softwareDevelopment:      {development:"yes", softwareUse:"Both", softwareDatabase: "yes", softwareWebsite: "no"},
+    technicalResources:       ['Technical', 'Resources'],
     
     // Ethical Issues Meta data
     ethicalIssue:             'yes', 
