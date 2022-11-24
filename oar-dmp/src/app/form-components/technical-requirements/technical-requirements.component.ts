@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
@@ -37,7 +37,16 @@ const COLUMNS_SCHEMA = [
   templateUrl: './technical-requirements.component.html',
   styleUrls: ['./technical-requirements.component.scss', '../keywords/keywords.component.scss']
 })
-export class StorageNeedsComponent implements OnInit {
+export class StorageNeedsComponent {
+  disableAdd:boolean = false;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
+  
+  errorMessage: string = '';
+
+  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
+  columnsSchema: any = COLUMNS_SCHEMA;
+  techResource: TechnicalResources[] = [];
 
   sftDev: SoftwareDevelopment = {development:"yes", softwareUse:"Both", softwareDatabase:"yes", softwareWebsite:"no"}
 
@@ -47,7 +56,10 @@ export class StorageNeedsComponent implements OnInit {
     {
       dataSize: ['', [Validators.required, Validators.pattern("^[0-9]*$")]], // only numbers
       sizeUnit: ['', Validators.required],
-      softwareDevelopment: ['', Validators.required],
+      development: ['', Validators.required],
+      softwareUse: [''],
+      softwareDatabase: [''],
+      softwareWebsite: [''],
       technicalResources: [[]]
     }
   );
@@ -59,8 +71,76 @@ export class StorageNeedsComponent implements OnInit {
     private fb: FormBuilder
   ) { }
 
+  // We want to receive the initial data from the parent component and initialize 
+  // the form values. For that we create an input property with a setter that updates 
+  // the form. Here you could do any data transformation you need.
+  @Input()
+  set initialDMP_Meta(technical_requirements: DMP_Meta) {
+    // loop over resources array sent fromt the server and populate local copy of 
+    // resources aray to populate the table of resources in the user interface
+    technical_requirements.technicalResources.forEach( 
+      (technicalResource, index) => {  
+        this.techResource.push({id:index, resource:technicalResource, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+
+    // set initial values for data preservation part of the form
+    // to what has been sent from the server
+    this.technicalRequirementsForm.patchValue({
+      dataSize:                       technical_requirements.dataSize,
+      sizeUnit:                       technical_requirements.sizeUnit,
+      // softwareDevelopment:            technical_requirements.softwareDevelopment,
+      development:                    technical_requirements.softwareDevelopment.development,
+      softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
+      softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
+      softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
+      technicalResources:             technical_requirements.technicalResources
+
+    });
+  }
+
+  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
+  // observable with of() that emits the created form group and use it as an output.
+  @Output()
+  formReady = of(this.technicalRequirementsForm);
+
+  // We need to extract the form values and provide them to the parent component whenever 
+  // a value changes. And again we can provide an observable as @Output() instead of creating 
+  // an event emitter:
+  @Output()
+  valueChange = defer(() =>
+    // There are a few important things to note here: form.valueChanges will only emit when 
+    // the form value changes but not initially. That's why we use startWith to provide the 
+    // initial value. And we use defer() to use the latest form value for startWith() 
+    // whenever someone subscribes.
+    this.technicalRequirementsForm.valueChanges.pipe(
+      startWith(this.technicalRequirementsForm.value),
+      map(
+        (formValue): Partial<DMP_Meta> => ({           
+          // The observable emits a partial DMP_Meta object that only contains the properties related 
+          // to our part of the form 
+          dataSize:                       formValue.dataSize,
+          sizeUnit:                       formValue.sizeUnit,
+          softwareDevelopment:            {
+                                            "development":formValue.development,
+                                            "softwareUse":formValue.softwareUse,
+                                            "softwareDatabase":formValue.softwareDatabase,
+                                            "softwareWebsite":formValue.softwareWebsite
+                                          },
+          technicalResources:             formValue.technicalResources
+        })
+      )
+
+    )
+  );
+
   ngOnInit(): void {
-    // this.message=this.sharedService.getMessage()
+    // This function gets executed after initial data from the parent has been passed in and allows for
+    // setting check states used for radio buttons etc.
+    console.log("ngOnInit Technical reqs");
+    console.log (this.technicalRequirementsForm.value["softwareDevelopment"]["development"])
   }
   
   dataSize = "3";
@@ -188,16 +268,6 @@ export class StorageNeedsComponent implements OnInit {
     this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
 
   }
-
-  disableAdd:boolean = false;
-  disableClear:boolean = true;
-  disableRemove:boolean = true;
-  
-  errorMessage: string = '';
-
-  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  columnsSchema: any = COLUMNS_SCHEMA;
-  techResource: TechnicalResources[] = [];
   
   onDoneClick(e:any){
     if (!e.resource.length) {
@@ -211,7 +281,7 @@ export class StorageNeedsComponent implements OnInit {
         if(element.id === e.id){
           element.isEdit = false;
         }
-        // re populate paths array
+        // re populate resources array
         this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
       }
     )
@@ -240,7 +310,7 @@ export class StorageNeedsComponent implements OnInit {
     this.techResource = this.techResource.filter((u: any) => !u.isSelected);
     this.resetTable();
     this.techResource.forEach((element)=>{
-        // re populate paths array
+        // re populate resources array
         this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
     });
     if (this.techResource.length === 0){
@@ -275,14 +345,17 @@ export class StorageNeedsComponent implements OnInit {
   }
 
   resetTable(){
-    // this.technicalRequirementsForm.value['pathsURLs'] = []
+    // this.technicalRequirementsForm.value['resourcesURLs'] = []
     this.technicalRequirementsForm.setValue({
       // all of technicalRequirementsForm needs to be "changed" in order to fire the update event and propagate
       // changes up to the parent form but since we are only trying to update the table
       // don't change preservation description text therefore re-assign it to preservationDescription
-      dataSize: this.technicalRequirementsForm.value['dataSize'],
-      sizeUnit: this.technicalRequirementsForm.value['sizeUnit'],
-      softwareDevelopment: this.technicalRequirementsForm.value['softwareDevelopment'],
+      dataSize:             this.technicalRequirementsForm.value['dataSize'],
+      sizeUnit:             this.technicalRequirementsForm.value['sizeUnit'],
+      development:          this.technicalRequirementsForm.value['development'],
+      softwareUse:          this.technicalRequirementsForm.value['softwareUse'],
+      softwareDatabase:     this.technicalRequirementsForm.value['softwareDatabase'],
+      softwareWebsite:      this.technicalRequirementsForm.value['softwareWebsite'],
       // only change table values
       technicalResources:[]
 

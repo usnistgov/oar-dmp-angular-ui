@@ -58,8 +58,8 @@ export class DataPreservationComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(data_preservation: DMP_Meta) {
-    // loop over paths array sent fromt he server and populat local copy of 
-    // paths aray to populate the table of paths in the user interface
+    // loop over paths array sent from the server and populate local copy of 
+    // paths array to populate the table of paths in the user interface
     data_preservation.pathsURLs.forEach( 
       (initialPath, index) => {  
         this.pathSource.push({id:index, path:initialPath, isEdit:false});
@@ -68,7 +68,7 @@ export class DataPreservationComponent {
       }
     );
 
-    // set initial values for data preservatio part of the form
+    // set initial values for data preservation part of the form
     // to what has been sent from the server
     this.preservationForm.patchValue({
       preservationDescription:  data_preservation.preservationDescription,

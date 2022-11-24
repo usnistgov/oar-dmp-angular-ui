@@ -22,10 +22,13 @@
     <tr>
       <td class="description">Software Development</td>
       <td>
-        <input type="radio" id="softwareDevY" name="softwareDevelopment" value="yes" (click)="setSoftwareDev('yes')">
+        <input type="radio" id="softwareDevY" name="softwareDevelopment" value="yes" (click)="setSoftwareDev('yes')"
+        [formControl]="technicalRequirementsForm.controls['development']"
+        >
         <label for="softwareDevY">Yes</label>
 
-        <input type="radio" id="softwareDevN" name="softwareDevelopment" value="no" (click)="setSoftwareDev('no')" [checked]='true'  >
+        <input type="radio" id="softwareDevN" name="softwareDevelopment" value="no" (click)="setSoftwareDev('no')" 
+        [formControl]="technicalRequirementsForm.controls['development']" >
         <label for="softwareDevN">No</label>
         <div *ngIf="selSoftwareDev('yes')">
           <!-- display this div only if the software development radio button was set to yes  -->
@@ -34,15 +37,18 @@
           <table>
             <tr>
               <td>
-                <input type="radio" id="softwareInternal" name="softwareUse" value="internal" (click)="setSoftwareUse('internal')" [checked]='true'>
+                <input type="radio" id="softwareInternal" name="softwareUse" value="internal" (click)="setSoftwareUse('internal')" 
+                [formControl]="technicalRequirementsForm.controls['softwareUse']">
                 <label for="softwareInternal">Internal NIST Use</label>
               </td>
               <td>
-                <input type="radio" id="softwareExternal" name="softwareUse" value="external" (click)="setSoftwareUse('external')">
+                <input type="radio" id="softwareExternal" name="softwareUse" value="external" (click)="setSoftwareUse('external')"
+                [formControl]="technicalRequirementsForm.controls['softwareUse']">
                 <label for="softwareExternal">External Use</label>
               </td>
               <td>
-                <input type="radio" id="softwareIntExt" name="softwareUse" value="both" (click)="setSoftwareUse('both')">
+                <input type="radio" id="softwareIntExt" name="softwareUse" value="both" (click)="setSoftwareUse('both')"
+                [formControl]="technicalRequirementsForm.controls['softwareUse']">
                 <label for="softwareIntExt">Both</label>
               </td>
             </tr>
@@ -52,11 +58,13 @@
           <table>
             <tr>
               <td>
-                <input type="radio" id="databaseY" name="databaseUse" value="internal" (click)="setDatabaseUse('yes')" >
+                <input type="radio" id="databaseY" name="databaseUse" value="yes" (click)="setDatabaseUse('yes')" 
+                [formControl]="technicalRequirementsForm.controls['softwareDatabase']">
                 <label for="databaseY">Yes</label>
               </td>
               <td>
-                <input type="radio" id="databaseN" name="databaseUse" value="external" (click)="setDatabaseUse('no')" [checked]='true'>
+                <input type="radio" id="databaseN" name="databaseUse" value="no" (click)="setDatabaseUse('no')" 
+                [formControl]="technicalRequirementsForm.controls['softwareDatabase']">
                 <label for="databaseN">No</label>
               </td>
             </tr>
@@ -66,11 +74,13 @@
           <table>
             <tr>
               <td>
-                <input type="radio" id="websiteY" name="websiteDevelopment" value="internal" (click)="setWebsiteDev('yes')" >
+                <input type="radio" id="websiteY" name="websiteDevelopment" value="yes" (click)="setWebsiteDev('yes')" 
+                [formControl]="technicalRequirementsForm.controls['softwareWebsite']">
                 <label for="websiteY">Yes</label>
               </td>
               <td>
-                <input type="radio" id="websiteN" name="websiteDevelopment" value="external" (click)="setWebsiteDev('no')" [checked]='true'>
+                <input type="radio" id="websiteN" name="websiteDevelopment" value="no" (click)="setWebsiteDev('no')" 
+                [formControl]="technicalRequirementsForm.controls['softwareWebsite']">
                 <label for="websiteN">No</label>
               </td>
             </tr>

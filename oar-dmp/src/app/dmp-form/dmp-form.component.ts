@@ -3,6 +3,7 @@ import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
+import { StorageNeedsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
@@ -15,6 +16,7 @@ import { DmpService } from 'src/app/shared/dmp.service'
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
+  technicalRequirements?:ObservedValueOf<StorageNeedsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
   dataDescription?: ObservedValueOf<DataDescriptionComponent["formReady"]>;
   dataPreservation?: ObservedValueOf<DataPreservationComponent["formReady"]>;
@@ -42,6 +44,8 @@ export class DmpFormComponent implements OnInit {
   @ViewChild(KeywordsComponent) keyWordsTable!: KeywordsComponent;
   // For clearing data preservation links
   @ViewChild(DataPreservationComponent) preservationLinksTable!: DataPreservationComponent;
+  // For clearing data preservation links
+  @ViewChild(StorageNeedsComponent) technicalRequirementsTable!: StorageNeedsComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -124,6 +128,9 @@ export class DmpFormComponent implements OnInit {
         ethicalPII:"no"
     })
     this.keyWordsTable.clearKeywordsTable();
+
+    this.form.controls['technicalRequirements'].reset();
+    this.technicalRequirementsTable.clearTable();
     
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();

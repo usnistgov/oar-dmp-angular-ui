@@ -20,7 +20,11 @@
   ></app-keywords>
 
   <!-- TECHNICAL REQUIREMENTS -->
-  <app-technical-requirements></app-technical-requirements>
+  <app-technical-requirements
+    [initialDMP_Meta] ="initialDMP"
+    (formReady)="addChildForm('technicalRequirements', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-technical-requirements>
 
   <!-- ETHICAL ISSUES -->
   <app-ethical-issues

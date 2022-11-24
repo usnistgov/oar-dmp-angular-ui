@@ -27,7 +27,7 @@ export class DmpService {
     //Technical Resources
     dataSize:                 10,
     sizeUnit:                 "GB",
-    softwareDevelopment:      {development:"yes", softwareUse:"Both", softwareDatabase: "yes", softwareWebsite: "no"},
+    softwareDevelopment:      {development:"yes", softwareUse:"both", softwareDatabase: "yes", softwareWebsite: "no"},
     technicalResources:       ['Technical', 'Resources'],
     
     // Ethical Issues Meta data
