@@ -11,12 +11,15 @@
     <tr>
       <td class="description">Estimated Data Size</td>
       <td>
-        <input type="text" placeholder="Numeric value" (change)="setDataSize($event)">
+        <input type="text" placeholder="Numeric value" (change)="setDataSize($event)" 
+        [formControl]="technicalRequirementsForm.controls['dataSize']" >
+
         <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" >
           <option [value]="item.id" *ngFor="let item of dataUnits">
               {{item.size}}
           </option>
         </select>
+
       </td>
     </tr>
     <tr>

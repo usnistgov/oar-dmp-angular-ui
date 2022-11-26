@@ -37,7 +37,7 @@ const COLUMNS_SCHEMA = [
   templateUrl: './technical-requirements.component.html',
   styleUrls: ['./technical-requirements.component.scss', '../keywords/keywords.component.scss']
 })
-export class StorageNeedsComponent {
+export class StorageNeedsComponent {  
   disableAdd:boolean = false;
   disableClear:boolean = true;
   disableRemove:boolean = true;
@@ -48,7 +48,7 @@ export class StorageNeedsComponent {
   columnsSchema: any = COLUMNS_SCHEMA;
   techResource: TechnicalResources[] = [];
 
-  sftDev: SoftwareDevelopment = {development:"yes", softwareUse:"Both", softwareDatabase:"yes", softwareWebsite:"no"}
+  sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -78,6 +78,7 @@ export class StorageNeedsComponent {
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
     // loop over resources array sent fromt the server and populate local copy of 
     // resources aray to populate the table of resources in the user interface
+
     technical_requirements.technicalResources.forEach( 
       (technicalResource, index) => {  
         this.techResource.push({id:index, resource:technicalResource, isEdit:false});
@@ -88,17 +89,33 @@ export class StorageNeedsComponent {
 
     // set initial values for data preservation part of the form
     // to what has been sent from the server
-    this.technicalRequirementsForm.patchValue({
-      dataSize:                       technical_requirements.dataSize,
-      sizeUnit:                       technical_requirements.sizeUnit,
-      // softwareDevelopment:            technical_requirements.softwareDevelopment,
-      development:                    technical_requirements.softwareDevelopment.development,
-      softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
-      softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
-      softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
-      technicalResources:             technical_requirements.technicalResources
-
-    });
+    if (technical_requirements.softwareDevelopment.development === "yes"){
+      // If the software development option is set to yes then pass all initial values
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
+        softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
+        softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
+        technicalResources:             technical_requirements.technicalResources
+      });
+    }
+    else{
+      // else if software development is set to no don't set options for 
+      // softwareUse, softwareDatabase, softwareWebsite
+      // This will force the user to make a selection if they change software development to yes
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    "",
+        softwareDatabase:               "",
+        softwareWebsite:                "",
+        technicalResources:             technical_requirements.technicalResources
+      });
+    }
+    
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
@@ -139,13 +156,29 @@ export class StorageNeedsComponent {
   ngOnInit(): void {
     // This function gets executed after initial data from the parent has been passed in and allows for
     // setting check states used for radio buttons etc.
-    console.log("ngOnInit Technical reqs");
-    console.log (this.technicalRequirementsForm.value["softwareDevelopment"]["development"])
+    this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value;
+    for (var val of this.dataUnits) {
+      if(val.size === this.dataSetSize){
+        this.dataSize = val.id
+      }      
+    }
+    //this triggers highlighting in the resource options table / guide
+    this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value);
+
+    // if software development is set to yes then set the rest of the radio buttons
+    // according to passed metadata
+    if (this.technicalRequirementsForm.controls['development'].value == "yes"){
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);
+    }    
+
   }
   
-  dataSize = "3";
-  dataSetSize = "TB";
+  dataSize = "";
+  dataSetSize = "";
 
+  // used for estimated data size drop down of data units options
   dataUnits =[    
     {
       id: "1",
@@ -170,10 +203,14 @@ export class StorageNeedsComponent {
     this.sharedService.setStorageMessage(this.dataSetSize);
     //send message to subscribed components
     this.sharedService.storageSubject$.next(this.dataSetSize)
+    this.technicalRequirementsForm.patchValue(
+      {
+        sizeUnit: this.dataSetSize
+      }
+    )
   }
 
   setDataSize(e:any){
-    console.log(e.target.value)
     //send message to subscribed components
     this.sharedService.setStorageMessage(this.dataSetSize);    
     this.sharedService.storageSubject$.next(this.dataSetSize)
@@ -214,33 +251,31 @@ export class StorageNeedsComponent {
       //to resource options to highlight correct row in the Software Tools table
       //located in resource-options compomnent 
       this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
-      this.sharedService.softwareSubject$.next(this.softwareUse)
+      this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
 
       this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
-      this.sharedService.databaseSubject$.next(this.databaseUse)
+      this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
 
       this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
-      this.sharedService.websiteSubject$.next(this.websiteUse)
+      this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
     }
   }
 
   //returns true or false to determine whether to display options for type of softwae
   // that is being developed as part of a DMP
   selSoftwareDev(name:string): boolean{
-    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so every nothing is shown  
+    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so nothing is shown  
       return false;  
     }
     else {      
       return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false 
-    }  
-    
-
+    }
   }
 
   // determines what is the intended audience for the software developmed within this DMP
-  private softwareUse: string="internal";
+  // private softwareUse: string="internal";
   setSoftwareUse(e: string): void {
-    this.softwareUse = e;
+    // this.softwareUse = e;
     this.sftDev["softwareUse"] = e;
     //send message to resource options to highlight correct row in the Software Tools table
     //located in resource-options compomnent 
@@ -248,9 +283,9 @@ export class StorageNeedsComponent {
   }
 
   // determines whether a database will be used for the softwre development
-  private databaseUse: string="no";
+  // private databaseUse: string="no";
   setDatabaseUse(sel: string){
-    this.databaseUse = sel;
+    // this.databaseUse = sel;
     this.sftDev["softwareDatabase"] = sel;
     //send message to resource options to highlight correct row in the Database table
     //located in resource-options compomnent 
@@ -259,9 +294,9 @@ export class StorageNeedsComponent {
   }
 
   // determines whether a website will be used for the softwre development
-  private websiteUse: string="no";
+  // private websiteUse: string="no";
   setWebsiteDev(sel: string){
-    this.websiteUse = sel;
+    // this.websiteUse = sel;
     this.sftDev["softwareWebsite"] = sel;
     //send message to resource options to highlight correct row in the Database table
     //located in resource-options compomnent 
@@ -345,22 +380,31 @@ export class StorageNeedsComponent {
   }
 
   resetTable(){
-    // this.technicalRequirementsForm.value['resourcesURLs'] = []
-    this.technicalRequirementsForm.setValue({
+    this.technicalRequirementsForm.patchValue({
+      technicalResources:[]
+    })
+  }
+
+  resetTechnicalRequirements(){
+    this.dataSize = "3";
+    this.dataSetSize = "TB";
+    this.setSoftwareDev('no');
+    this.setSoftwareUse('no');
+    this.setDatabaseUse('no');
+    this.setWebsiteDev('no');
+    this.technicalRequirementsForm.patchValue({
       // all of technicalRequirementsForm needs to be "changed" in order to fire the update event and propagate
       // changes up to the parent form but since we are only trying to update the table
       // don't change preservation description text therefore re-assign it to preservationDescription
-      dataSize:             this.technicalRequirementsForm.value['dataSize'],
-      sizeUnit:             this.technicalRequirementsForm.value['sizeUnit'],
-      development:          this.technicalRequirementsForm.value['development'],
-      softwareUse:          this.technicalRequirementsForm.value['softwareUse'],
-      softwareDatabase:     this.technicalRequirementsForm.value['softwareDatabase'],
-      softwareWebsite:      this.technicalRequirementsForm.value['softwareWebsite'],
-      // only change table values
-      technicalResources:[]
-
+      dataSize:             null,
+      sizeUnit:             "TB",
+      development:          "no",
+      softwareUse:          null,
+      softwareDatabase:     null,
+      softwareWebsite:      null
     })
-
+    this.clearTable();
+    
   }
 
 

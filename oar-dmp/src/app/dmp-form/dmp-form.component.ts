@@ -129,8 +129,9 @@ export class DmpFormComponent implements OnInit {
     })
     this.keyWordsTable.clearKeywordsTable();
 
-    this.form.controls['technicalRequirements'].reset();
-    this.technicalRequirementsTable.clearTable();
+    // this.form.controls['technicalRequirements'].reset();
+    this.technicalRequirementsTable.resetTechnicalRequirements();
+    this.technicalRequirementsTable.resetTable();
     
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();
