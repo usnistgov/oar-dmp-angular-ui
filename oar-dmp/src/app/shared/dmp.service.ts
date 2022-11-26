@@ -21,8 +21,25 @@ export class DmpService {
     fundingNumber:            '12345',
     projectDescription:       'Example Project Description',
 
+    //Personel
+    nistContact:              {firstName:"Niksa", lastName:"Blonder"},
+    nistReviewer:             {firstName:"Ray", lastName:"Plante"},
+    contributors:             [{contributor:{
+                                  firstName:"Niksa", 
+                                  lastName:"Blonder"}, 
+                                role:"Contact Person", 
+                                instituion:"NIST", 
+                                e_mail:"nik@nist.gov"},
+                               {contributor:{
+                                  firstName:"Joe", 
+                                  lastName:"Dalton"}, 
+                                role:"Contact Person", 
+                                instituion:"IAEA", 
+                                e_mail:"joe@iaea.gov"}
+                              ],
+
     //Keywords
-    keyWords:                 ['Keyword', 'Example'],
+    keyWords:                 ['Keyword'],
 
     //Technical Resources
     dataSize:                 105,

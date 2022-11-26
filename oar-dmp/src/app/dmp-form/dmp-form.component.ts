@@ -131,7 +131,6 @@ export class DmpFormComponent implements OnInit {
 
     // this.form.controls['technicalRequirements'].reset();
     this.technicalRequirementsTable.resetTechnicalRequirements();
-    this.technicalRequirementsTable.resetTable();
     
     this.ethicalIssuesRadioBtns.resetRadioButtons();
     this.form.controls['dataDescription'].reset();
@@ -148,9 +147,8 @@ export class DmpFormComponent implements OnInit {
     this.form.controls['dataPreservation'].patchValue({
       preservationDescription:""
     })
+    
     this.preservationLinksTable.clearTable();
-    
-    
   }
 
 }

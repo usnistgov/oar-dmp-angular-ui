@@ -76,8 +76,8 @@ export class StorageNeedsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
-    // loop over resources array sent fromt the server and populate local copy of 
-    // resources aray to populate the table of resources in the user interface
+    // loop over resources array sent from the server and populate local copy of 
+    // resources array to populate the table of resources in the user interface
 
     technical_requirements.technicalResources.forEach( 
       (technicalResource, index) => {  

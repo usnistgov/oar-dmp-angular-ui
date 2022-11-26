@@ -1,6 +1,7 @@
+import { Person } from "./person.type";
+
 export interface Contributor {
-  firstName: string;
-  lastName:string;
+  contributor: Person;
   instituion:string;
   e_mail:string;
   role: string;
