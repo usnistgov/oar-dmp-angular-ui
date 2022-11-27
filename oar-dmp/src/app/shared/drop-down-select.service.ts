@@ -8,10 +8,16 @@ import * as _ from 'lodash';
 export class DropDownSelectService {
 
   constructor() { }
+
   getDropDownText(id: string, object: any){
     const selObj = _.filter(object, function (o) {
         return (_.includes(id,o.id));
     });
+    return selObj;
+  }
+
+  getDropDownID(fName: string, lName:string, object: any){
+    const selObj = _.filter(object, { firstName:fName, lastName:lName });
     return selObj;
   }
 }

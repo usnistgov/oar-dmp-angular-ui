@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
+import { PersonelComponent } from '../form-components/personel/personel.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { StorageNeedsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
@@ -15,6 +16,7 @@ import { DmpService } from 'src/app/shared/dmp.service'
 //  different DMP form components
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
+  personel?: ObservedValueOf<PersonelComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   technicalRequirements?:ObservedValueOf<StorageNeedsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
@@ -147,7 +149,7 @@ export class DmpFormComponent implements OnInit {
     this.form.controls['dataPreservation'].patchValue({
       preservationDescription:""
     })
-    
+
     this.preservationLinksTable.clearTable();
   }
 

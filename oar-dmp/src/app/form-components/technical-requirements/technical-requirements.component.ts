@@ -87,7 +87,7 @@ export class StorageNeedsComponent {
       }
     );
 
-    // set initial values for data preservation part of the form
+    // set initial values for technical requirements part of the form
     // to what has been sent from the server
     if (technical_requirements.softwareDevelopment.development === "yes"){
       // If the software development option is set to yes then pass all initial values

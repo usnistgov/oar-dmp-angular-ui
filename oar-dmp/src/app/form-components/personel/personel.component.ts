@@ -35,11 +35,7 @@ export class PersonelComponent implements OnInit {
       nistContactLastName:        [''],
       nistReviewerFirstName:      [''],
       nistReviewerLastName:       [''],
-      contributorFirstName:       [''],
-      contributorLastName:        [''],
-      role:                       [''],
-      instituion:                 [''],
-      e_mail:                     ['']
+      contributors:               [[]]
     }
   );
 
@@ -62,9 +58,55 @@ export class PersonelComponent implements OnInit {
         this.disableRemove=false;
       }
     )
+
+    this.personelForm.patchValue({
+      nistContactFirstName:       personel.primary_NIST_contact.firstName,
+      nistContactLastName:        personel.primary_NIST_contact.lastName,
+      nistReviewerFirstName:      personel.nistReviewer.firstName,
+      nistReviewerLastName:       personel.nistReviewer.lastName,
+      contributors:               personel.contributors
+    });
   }
 
+  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
+  // observable with of() that emits the created form group and use it as an output.
+  @Output()
+  formReady = of(this.personelForm);
+
+  // We need to extract the form values and provide them to the parent component whenever 
+  // a value changes. And again we can provide an observable as @Output() instead of creating 
+  // an event emitter:
+  @Output()
+  valueChange = defer(() =>
+    // There are a few important things to note here: form.valueChanges will only emit when 
+    // the form value changes but not initially. That's why we use startWith to provide the 
+    // initial value. And we use defer() to use the latest form value for startWith() 
+    // whenever someone subscribes.
+    this.personelForm.valueChanges.pipe(
+      startWith(this.personelForm.value),
+      map(
+        (formValue): Partial<DMP_Meta> =>(
+          // The observable emits a partial DMP_Meta object that only contains the properties related 
+          // to our part of the form 
+          {
+            primary_NIST_contact:   {firstName:formValue.nistContactFirstName, lastName: formValue.nistContactLastName},
+            nistReviewer:           {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
+            contributors: formValue.dmpContributors
+          }
+        )
+      )
+    )
+  );
+
   ngOnInit(): void {
+    console.log("ngOnInit");
+    this.personelForm.value["nistContactFirstName"] = {}
+    // console.log(this.personelForm.controls["nistContactFirstName"].value);
+    // console.log(this.personelForm.controls["nistContactLastName"].value);
+    // console.log(this.personelForm.controls["nistReviewerFirstName"].value);
+    // console.log(this.personelForm.controls["nistReviewerLastName"].value);
+    // console.log(this.personelForm.controls["contributors"].value);
+    
   }  
 
   btnAddContrib: boolean=false;
@@ -75,30 +117,69 @@ export class PersonelComponent implements OnInit {
   nistContacts: any = null;
 
   getgetAllFromAPI(){
+    console.log("get from API");
     this.apiService.getAll().subscribe(
       {
         next: (v) => {
-          console.log(v); 
+          /**
+           * Get list of nist employees from MongoDB and set to nistContacts array
+           * that is used for drop down select
+           */
           this.nistContacts = v;
+
+          /**
+           * Search nistContacts array that contains list of nist emproyees from MongoDB
+           * and retreive unique ID based on first and last name of NIST contact
+           */
+          var selId = this.dropDownService.getDropDownID(
+            this.personelForm.controls["nistContactFirstName"].value, 
+            this.personelForm.controls["nistContactLastName"].value, 
+            this.nistContacts);
+          // send a message to console if the search produces no results
+          if (selId.length === 0){
+            console.log("Could not find nist contact user ID");
+          }
+          // set id to primNistContact so that the drop down will be set to name
+          // that has been provided
+          this.primNistContact = selId[0].id;
+
+
+          /**
+           * Search and set dmp reviewer drop down menu - same priciple as above
+           */
+          selId = this.dropDownService.getDropDownID(
+            this.personelForm.controls["nistReviewerFirstName"].value, 
+            this.personelForm.controls["nistReviewerLastName"].value, 
+            this.nistContacts);
+
+          // send a message to console if the search produces no results
+          if (selId.length === 0){
+            console.log("Could not find nist reviewer user ID");
+          }
+
+          // set id to dmpReviewer so that the drop down will be set to name
+          // that has been provided
+          this.dmpReviewer = selId[0].id;
+
+          
         },
         error: (e) => console.error(e),
-        complete: () => console.info('complete') 
+        // complete: () => console.info('complete') 
       }
     );
   }
 
   //current selection string on dropdown option
-  //for Primary NIST Contact
+  //for Primary NIST Contact. This value is an ID from MongoDB
   primNistContact: string = "";
 
-
-  
-  crntNistContactGrp: string = "";
-  crntNistContactName: string = "";
   selPrimNistContact() {
     //Select primary contact from a drop down list of NIST contacts
-    this.crntNistContactGrp = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts)[0].group;
-    this.crntNistContactName = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts)[0].name;
+    var selected = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts);
+    this.personelForm.patchValue({
+      nistContactFirstName: selected[0].firstName,
+      nistContactLastName:  selected[0].lastName,
+    })
   }
 
   private contributorOption: string="false";

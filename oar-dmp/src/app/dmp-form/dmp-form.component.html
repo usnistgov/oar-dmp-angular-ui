@@ -10,7 +10,11 @@
   ></app-basic-info>
 
   <!-- PERSONEL -->
-  <app-personel></app-personel>
+  <app-personel
+    [initialDMP_Meta] ="initialDMP" 
+    (formReady)="addChildForm('personel', $event)"
+    (valueChange)="patchDMP($event)"
+  ></app-personel>
 
   <!-- KEYWORDS -->
   <app-keywords

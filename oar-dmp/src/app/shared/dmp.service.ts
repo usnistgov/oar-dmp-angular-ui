@@ -22,8 +22,8 @@ export class DmpService {
     projectDescription:       'Example Project Description',
 
     //Personel
-    nistContact:              {firstName:"Niksa", lastName:"Blonder"},
-    nistReviewer:             {firstName:"Ray", lastName:"Plante"},
+    primary_NIST_contact:              {firstName:"Ray", lastName:"Plante"},
+    nistReviewer:             {firstName:"Niksa", lastName:"Blonder"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
                                   lastName:"Blonder"}, 
