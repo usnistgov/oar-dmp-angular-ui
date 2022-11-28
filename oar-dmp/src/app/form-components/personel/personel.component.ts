@@ -8,18 +8,83 @@ import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 
-interface DataContributor {
-  contributor: Contributor,
+export interface DataContributor {  
+  name: string;
+  surname: string;
+  institution: string;
+  role: string;
+  e_mail: string;
   id: number;
   isEdit: boolean;
 }
 
+// Schema for Contributors data table
+const COLUMNS_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'name',
+    type: 'text',
+    label: 'Name',
+  },
+  {
+    key: 'surname',
+    type: 'text',
+    label: 'Surname',
+  },
+  {
+    key: 'institution',
+    type: 'text',
+    label: 'Institution',
+  },
+  {
+    key: 'role',
+    type: 'text',
+    label: 'Role',
+  },
+  {
+    key: 'e_mail',
+    type: 'text',
+    label: 'e-mail',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
+
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['./personel.component.scss']
+  styleUrls: ['../keywords/keywords.component.scss', './personel.component.scss']
 })
 export class PersonelComponent implements OnInit {
+
+  disableAdd:boolean = true;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
+
+  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
+  columnsSchema: any = COLUMNS_SCHEMA;
+  dmpContributor: DataContributor[] = []
+
+  // flags to determine if select drop down has been used
+  sel_NIST_Contributor: boolean = false; 
+  sel_NIST_ContribRole: boolean = false;
+  sel_EXT_ContribRole: boolean = false;
+
+  sel_EXT_Contributor: boolean = false;
+
+  nistContributor: string = "";
+  crntContribName: string = "";
+  crntContribSurname: string = "";
+  crntContribEmail: string = "";
+  
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -39,10 +104,7 @@ export class PersonelComponent implements OnInit {
     }
   );
 
-  dmpContributors: DataContributor[] = []
-  disableAdd:boolean = false;
-  disableClear:boolean = true;
-  disableRemove:boolean = true;
+  
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 
@@ -53,7 +115,15 @@ export class PersonelComponent implements OnInit {
     // resources array to populate the table of resources in the user interface
     personel.contributors.forEach(
       (aContributor, index) => {
-        this.dmpContributors.push({id:index, isEdit:false, contributor:aContributor});
+        this.dmpContributor.push({
+          id:           index, 
+          isEdit:       false, 
+          name:         aContributor.contributor.firstName,
+          surname:      aContributor.contributor.lastName,
+          role:         aContributor.role,
+          institution:  aContributor.instituion,
+          e_mail:       aContributor.e_mail
+        });
         this.disableClear=false;
         this.disableRemove=false;
       }
@@ -62,8 +132,8 @@ export class PersonelComponent implements OnInit {
     this.personelForm.patchValue({
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
-      nistReviewerFirstName:      personel.nistReviewer.firstName,
-      nistReviewerLastName:       personel.nistReviewer.lastName,
+      nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
+      nistReviewerLastName:       personel.NIST_DMP_Reviewer.lastName,
       contributors:               personel.contributors
     });
   }
@@ -90,8 +160,9 @@ export class PersonelComponent implements OnInit {
           // to our part of the form 
           {
             primary_NIST_contact:   {firstName:formValue.nistContactFirstName, lastName: formValue.nistContactLastName},
-            nistReviewer:           {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
-            contributors: formValue.dmpContributors
+            NIST_DMP_Reviewer:      {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
+            contributors:           formValue.contributors
+
           }
         )
       )
@@ -99,17 +170,8 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    console.log("ngOnInit");
-    this.personelForm.value["nistContactFirstName"] = {}
-    // console.log(this.personelForm.controls["nistContactFirstName"].value);
-    // console.log(this.personelForm.controls["nistContactLastName"].value);
-    // console.log(this.personelForm.controls["nistReviewerFirstName"].value);
-    // console.log(this.personelForm.controls["nistReviewerLastName"].value);
-    // console.log(this.personelForm.controls["contributors"].value);
-    
   }  
 
-  btnAddContrib: boolean=false;
   //List of contributors that will be aded to the DMP
   contributors: Contributor[]=[];
 
@@ -163,8 +225,7 @@ export class PersonelComponent implements OnInit {
 
           
         },
-        error: (e) => console.error(e),
-        // complete: () => console.info('complete') 
+        error: (e) => console.error(e) 
       }
     );
   }
@@ -190,79 +251,265 @@ export class PersonelComponent implements OnInit {
   selectedContributor(name: string): boolean{
     
     
-    if (!this.contributorOption) { // if no radio button is selected, always return false so every nothing is shown  
+    if (!this.contributorOption) { // if no radio button is selected, always return false so nothing is shown  
       return false;  
     }  
     return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
 
   }
-
-  nistContributor: string = "";
-  crntNistContribName: string = "";
-  crntNistContribSurname: string = "";
-  crntNistContribEmail: string = "";
+  
   selNistContributor(){
-    
-    this.crntNistContribName = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].firstName;
-    this.crntNistContribSurname = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].lastName;
-    this.crntNistContribEmail = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)[0].e_mail;
-  }
+    var sel = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)
+    this.crntContribName = sel[0].firstName;
+    this.crntContribSurname = sel[0].lastName;
+    this.crntContribEmail = sel[0].e_mail;
 
-  private clearContributor():void{
-    this.contributorRole ="";
-    this.nistContributor = "";
-    // this.externalContributor = {firstName:"", lastName:"",instituion:"", e_mail:"", role:""};
+    this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+    if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+      this.disableAdd=false;
+    }
   }
 
   contributorRoles = ROLES;
-  contributorRole: string = "";
-  crntContribRole:any;
+  nistContribRole: string = "";
+  crntContribRole: string = "";
+
+  extContribRole: string = "";
+  
   selContributorRole(){
     // select role for the contributors from a drop down list
-    this.crntContribRole = this.dropDownService.getDropDownText(this.contributorRole, this.contributorRoles)[0].value;
+    this.crntContribRole = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles)[0].value;
+
+    this.sel_NIST_ContribRole = true; // indicates that drop down select has been performed
+
+    if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+      this.disableAdd=false;
+    }
+
   }
 
   // Default values of external contributor
-  // externalContributor: Contributor={firstName:"", lastName:"",instituion:"", e_mail:"", role:""};
+  externalContributor: Contributor={
+    contributor:{firstName:"", lastName:""}, 
+    role:"",
+    e_mail:"",
+    instituion:""
+  };
   
-  addContributor(role:string):void{
-    // if (this.contributorRadioSel === "contributorNIST"){
-    //   //Add NIST employe / associate contributor
-    //   this.contributors.push(
-    //     {
-    //       firstName: this.crntNistContribName,
-    //       lastName: this.crntNistContribSurname,
-    //       instituion:"NIST",
-    //       e_mail:this.crntNistContribEmail,
-    //       role:this.crntContribRole
-    //     }
-    //   );
-    // }
-    // else if (this.contributorRadioSel === "contributorExternal"){
-    //   // console.log("adding contributorExternal");
-    //   this.externalContributor.role=this.crntContribRole
-    //   this.contributors.push(this.externalContributor);
-    // }
-    
-    // //Clear previously selected options on radio button click
-    // this.clearContributor();
-
-  }
-
   private contributorRadioSel: string="";
   onContributorChange(value:any){
     // console.log(value.id);
     this.contributorRadioSel=value.id;
-    this.btnAddContrib=true;
+    // this.disableAdd=false;
   }
 
+  //current selection string on dropdown option
+  //for DMP reviewer NIST Contact. This value is an ID from MongoDB
   dmpReviewer: string="";
-  crntReviewerName: string="";
-  crntReviewerSurname: string="";
   selDmpReviewer(){
-    // select DMP reviewer from a drip down list
-    this.crntReviewerName = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].firstName;
-    this.crntReviewerSurname = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts)[0].lastName;
+    // select DMP reviewer from a drop down list of NIST contacts
+    var selected = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts);
+    this.personelForm.patchValue({
+      nistReviewerFirstName: selected[0].firstName,
+      nistReviewerLastName:  selected[0].lastName,
+    })
+  }
+
+  errorMessage: string = "";
+  
+  removeSelectedRows() {
+    this.dmpContributor = this.dmpContributor.filter((u: any) => !u.isSelected);
+    this.resetTable();
+    this.dmpContributor.forEach((element)=>{
+        // re populate contributors array
+        this.personelForm.value['contributors'].push({
+          contributor:{firstName:element.name, lastName:element.surname},
+          e_mail: element.e_mail,
+          instituion: element.institution,
+          role: element.role
+        });
+    });
+    if (this.dmpContributor.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+  }
+
+  resetTable(){
+    this.personelForm.patchValue({
+      contributors:[]
+    })
+  }
+  clearTable(){
+    this.dmpContributor = [];
+    this.resetTable();
+     // If the table is empty disable clear and remove buttons
+    this.disableClear=true;
+    this.disableRemove=true;
+  }
+
+  addRow(){
+    console.log(this.contributorRadioSel);
+    // Disable buttons while the user is inputing new row
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+
+    //reset dropdown selection flags
+    this.sel_NIST_Contributor = false;
+    this.sel_NIST_ContribRole = false;
+
+    if (this.contributorRadioSel === "contributorExternal"){
+      this.crntContribName = this.externalContributor.contributor.firstName;
+      this.crntContribSurname = this.externalContributor.contributor.lastName;
+      this.crntContribEmail = this.externalContributor.e_mail
+    }
+
+    var filterOnEmail = this.dmpContributor.filter(      
+      (member: any) => member.e_mail.toLowerCase() === this.crntContribEmail.toLowerCase()
+    );
+
+    if(filterOnEmail.length > 0){
+
+      this.errorMessage = "Contributor " + this.crntContribName + " " + this.crntContribSurname + " with e-mail address " + this.crntContribEmail + " is already in the list of contributors";
+      this.disableAdd=false;
+      this.disableClear=false;
+      this.disableRemove=false;
+      return;
+
+    }
+
+    const newRow = {
+      id: Date.now(),
+      name: this.crntContribName,
+      surname:this.crntContribSurname,
+      e_mail:this.crntContribEmail,
+      institution:"",
+      role:this.crntContribRole,
+      isEdit: false,
+    };
+    
+    if (this.contributorOption == "NIST"){
+      newRow.institution = this.contributorOption;
+    }
+    else{
+      newRow.institution = this.externalContributor.instituion;
+    }
+
+    // create a new array using an existing array as one part of it 
+    // using the spread operator '...'
+    this.dmpContributor = [newRow, ...this.dmpContributor];
+
+    //update changes made to the table in the personel form
+    this.onDoneClick(newRow);
+
+  }
+
+  removeRow(id:any) {
+    // select word from the specific id
+    var selWord = this.dmpContributor.filter((u) => u.id === id);    
+    this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
+      selWord.forEach((word)=>{
+        /**
+         * NOTE: 
+         * assuming here that e-mail is always unique
+         * i.e. that there are no two contributors with the same e-mail
+         * Some check could be performed as a future feature to ensure that
+         * when adding a new contributor the e-mail is unique and always present field
+         */
+        if(value.e_mail === word.e_mail){
+          //remove from DmpRecord
+          this.personelForm.value['contributors'].splice(index,1);
+        }
+      });
+    });
+
+    // remove from the display table
+    this.dmpContributor = this.dmpContributor.filter((u) => u.id !== id);
+  }
+
+  onDoneClick(e:any){
+    if (!e.e_mail.length) {
+      /**
+       * NOTE:
+       * e-mail validation should go here too
+       */
+      this.errorMessage = "e-mail can't be empty";
+      return;
+    }
+    else if(!e.institution.length) {
+      this.errorMessage = "Institution can't be empty";
+      return;
+    }
+    else if(!e.name.length) {
+      this.errorMessage = "Name can't be empty";
+      return;
+    }
+    else if(!e.role.length) {
+      this.errorMessage = "Role can't be empty";
+      return;
+    }
+    else if(!e.surname.length) {
+      this.errorMessage = "Surname can't be empty";
+      return;
+    }
+
+    this.errorMessage = '';
+    this.resetTable();
+    this.dmpContributor.forEach((element)=>{
+        if(element.id === e.id){
+          element.isEdit = false;
+        }
+        // re populate contributors array
+        this.personelForm.value['contributors'].push({
+          contributor:{firstName:element.name, lastName:element.surname},
+          e_mail: element.e_mail,
+          instituion: element.institution,
+          role: element.role
+        });
+      }
+    )
+    // Enable buttons once user entered new data into a row
+    this.disableAdd=false;
+    this.disableClear=false;
+    this.disableRemove=false;
+
+  }
+
+  selExtContributorRole(){
+    // select role for the contributors from a drop down list
+    //var sel = this.dropDownService.getDropDownRole(this.extContribRole, this.contributorRoles);
+    this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
+
+    this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
+
+    this.disableAdd=false;
+
+
+
+  }
+
+  resetPersonnelForm(){
+
+    this.primNistContact = "";
+    this.dmpReviewer = "";
+    this.nistContributor = "";
+    this.nistContribRole = "";
+    this.externalContributor.contributor.firstName = "";
+    this.externalContributor.contributor.lastName = "";
+    this.externalContributor.instituion = "";
+    this.extContribRole = "";
+    this.externalContributor.e_mail = "";
+    this.contributorRadioSel = "";
+    this.personelForm.patchValue({
+      nistContactFirstName:       "",
+      nistContactLastName:        "",
+      nistReviewerFirstName:      "",
+      nistReviewerLastName:       ""
+    });
+    this.clearTable();
   }
 
 

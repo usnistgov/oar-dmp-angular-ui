@@ -46,8 +46,10 @@ export class DmpFormComponent implements OnInit {
   @ViewChild(KeywordsComponent) keyWordsTable!: KeywordsComponent;
   // For clearing data preservation links
   @ViewChild(DataPreservationComponent) preservationLinksTable!: DataPreservationComponent;
-  // For clearing data preservation links
+  // For clearing Technical resources table
   @ViewChild(StorageNeedsComponent) technicalRequirementsTable!: StorageNeedsComponent;
+  // For clearing Contributors resources table
+  @ViewChild(PersonelComponent) personnelForm!: PersonelComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
@@ -129,6 +131,8 @@ export class DmpFormComponent implements OnInit {
         ethicalIssue:"no",
         ethicalPII:"no"
     })
+
+    this.personnelForm.resetPersonnelForm();
     this.keyWordsTable.clearKeywordsTable();
 
     // this.form.controls['technicalRequirements'].reset();

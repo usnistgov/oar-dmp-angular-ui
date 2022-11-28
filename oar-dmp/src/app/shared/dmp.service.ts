@@ -22,8 +22,8 @@ export class DmpService {
     projectDescription:       'Example Project Description',
 
     //Personel
-    primary_NIST_contact:              {firstName:"Ray", lastName:"Plante"},
-    nistReviewer:             {firstName:"Niksa", lastName:"Blonder"},
+    primary_NIST_contact:     {firstName:"Ray", lastName:"Plante"},
+    NIST_DMP_Reviewer:        {firstName:"Niksa", lastName:"Blonder"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
                                   lastName:"Blonder"}, 
@@ -39,7 +39,7 @@ export class DmpService {
                               ],
 
     //Keywords
-    keyWords:                 ['Keyword'],
+    keyWords:                 ['Keyword', 'Example'],
 
     //Technical Resources
     dataSize:                 105,

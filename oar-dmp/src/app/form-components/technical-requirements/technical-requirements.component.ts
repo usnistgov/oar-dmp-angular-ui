@@ -333,11 +333,13 @@ export class StorageNeedsComponent {
     this.technicalRequirementsForm.value['technicalResources'].forEach((value:string,index:number) =>{
       selWord.forEach((word)=>{
         if(value === word.resource){
+          //remove from DmpRecord
           this.technicalRequirementsForm.value['technicalResources'].splice(index,1);
         }
       });
     });
 
+    //remove from the display table
     this.techResource = this.techResource.filter((u) => u.id !== id);
   }
 
