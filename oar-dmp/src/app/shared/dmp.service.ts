@@ -47,10 +47,12 @@ export class DmpService {
     technicalResources:       ['Technical', 'Resources'],
     
     // Ethical Issues Meta data
-    ethicalIssue:             'yes', 
-    ethicalIssueDescription:  'Ethical Issues Description paragraph example', 
-    ethicalReport:            'Ethical Report paragraph example', 
-    ethicalPII:               'yes',
+    ethical_issues:           {
+                                ethical_issues_exist:         'yes', 
+                                ethical_issues_description:   'Ethical Issues Description paragraph example', 
+                                ethical_issues_report:        'Ethical Report paragraph example', 
+                                dmp_PII:                      'yes'
+                              },
 
     // Data Description Meta data
     dataDescription:          'Data Description Example',

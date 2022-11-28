@@ -25,12 +25,12 @@ export class EthicalIssuesComponent {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
-  set initialDMP_Meta(ethical_issues: DMP_Meta) {
+  set initialDMP_Meta(ethicalIssues: DMP_Meta) {
     this.ethicalIsuesForm.patchValue({
-      ethicalIssue:                ethical_issues.ethicalIssue,
-      ethicalIssueDescription:     ethical_issues.ethicalIssueDescription,
-      ethicalReport:               ethical_issues.ethicalReport,
-      ethicalPII:                  ethical_issues.ethicalPII
+      ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
+      ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
+      ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description,
+      ethicalPII:               ethicalIssues.ethical_issues.dmp_PII 
     });
   }
 
@@ -49,10 +49,13 @@ export class EthicalIssuesComponent {
         (formValue): Partial<DMP_Meta> => ({           
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to this part of the form 
-          ethicalIssue:                formValue.ethicalIssue,
-          ethicalIssueDescription:     formValue.ethicalIssueDescription,
-          ethicalReport:               formValue.ethicalReport,
-          ethicalPII:                  formValue.ethicalPII
+          ethical_issues: {
+            ethical_issues_exist:           formValue.ethicalIssue,
+            ethical_issues_description:     formValue.ethicalIssueDescription,
+            ethical_issues_report:          formValue.ethicalReport,
+            dmp_PII:                        formValue.ethicalPII
+          }               
+          
         })
       )
     )
@@ -78,6 +81,21 @@ export class EthicalIssuesComponent {
 
   setEthicalIssues(e: string): void {
     this.selectedEthicalIssue = e; 
+    /**
+     * TODO:
+     * reset text fields for Ethical Issues Description and Ethical issues report
+     */
+    // if (e === 'no'){
+    //   // if there are not ethical issues clear description and report fields
+           
+    //   this.ethicalIsuesForm.patchValue({
+    //     ethical_issues: {
+    //       ethical_issues_description:     "",
+    //       ethical_issues_report:          "",
+    //     }      
+    //   });
+    // }
+    // console.log(this.selectedEthicalIssue);
   }
 
   selEthicalIssues(name:string): boolean{
