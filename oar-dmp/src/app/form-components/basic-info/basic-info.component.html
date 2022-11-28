@@ -57,28 +57,28 @@
       <td class="description">Funding</td>
       <td>
         <div>
-          <input type="radio" id="operatingUnit" name="funding" value="Operating Unit" checked 
-          [formControl]="basicInfoForm.controls['funding']">
+          <input type="radio" id="operatingUnit" name="grant_source" value="Operating Unit" checked 
+          [formControl]="basicInfoForm.controls['grant_source']">
           <label for="operatingUnit">Operating Unit</label>
         </div>
         <div>
-          <input type="radio" id="divProjTrkNum" name="funding" value="Division Project Tracking Number" 
-          [formControl]="basicInfoForm.controls['funding']">
+          <input type="radio" id="divProjTrkNum" name="grant_source" value="Division Project Tracking Number" 
+          [formControl]="basicInfoForm.controls['grant_source']">
           <label for="divProjTrkNum">Division Project Tracking Number</label>
         </div>
         <div>
-          <input type="radio" id="grantNum" name="funding" value="Grant Number"
-          [formControl]="basicInfoForm.controls['funding']">
+          <input type="radio" id="grantNum" name="grant_source" value="Grant Number"
+          [formControl]="basicInfoForm.controls['grant_source']">
           <label for="grantNum">Grant Number</label>
         </div>
         <div>
-          <input type="radio" id="contractNum" name="funding" value="Contract Number"
-          [formControl]="basicInfoForm.controls['funding']">
+          <input type="radio" id="contractNum" name="grant_source" value="Contract Number"
+          [formControl]="basicInfoForm.controls['grant_source']">
           <label for="contractNum">Contract Number</label>
         </div>
         <div>
           Funding Number:&nbsp;
-          <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['fundingNumber']">
+          <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['grant_id']">
         </div>
         
       </td>

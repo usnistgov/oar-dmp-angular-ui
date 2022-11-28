@@ -17,8 +17,7 @@ export class DmpService {
     startDate:                '2022-09-28',
     endDate:                  '2023-09-28',
     dmpSearchable:            'yes',
-    funding:                  'Grant Number',
-    fundingNumber:            '12345',
+    funding:                  {grant_source:'Grant Number', grant_id:'12345'},
     projectDescription:       'Example Project Description',
 
     //Personel

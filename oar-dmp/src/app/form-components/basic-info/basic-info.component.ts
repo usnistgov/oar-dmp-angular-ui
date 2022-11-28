@@ -18,8 +18,8 @@ export class BasicInfoComponent{
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
     dmpSearchable: ['', Validators.required],
-    funding: ['', Validators.required],
-    fundingNumber: ['', Validators.required],
+    grant_source: ['', Validators.required],
+    grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required]
 
   });
@@ -37,8 +37,8 @@ export class BasicInfoComponent{
       startDate: basic_info.startDate,
       endDate: basic_info.endDate,
       dmpSearchable: basic_info.dmpSearchable,
-      funding: basic_info.funding,
-      fundingNumber: basic_info.fundingNumber,
+      grant_source: basic_info.funding.grant_source,
+      grant_id: basic_info.funding.grant_id,
       projectDescription: basic_info.projectDescription
     });
   }
@@ -62,8 +62,7 @@ export class BasicInfoComponent{
           startDate: formValue.startDate,
           endDate: formValue.endDate,
           dmpSearchable: formValue.dmpSearchable,
-          funding: formValue.funding,
-          fundingNumber: formValue.fundingNumber,
+          funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
           projectDescription:formValue.projectDescription
         })
       )
