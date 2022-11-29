@@ -366,7 +366,7 @@ export class StorageNeedsComponent {
   }
 
   addRow() {
-    // Disable buttons while the user is inputing new row
+    // Disable buttons while the user is inputting new row
     this.disableAdd=true;
     this.disableClear=true;
     this.disableRemove=true;

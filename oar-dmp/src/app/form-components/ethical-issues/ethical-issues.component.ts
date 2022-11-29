@@ -81,20 +81,14 @@ export class EthicalIssuesComponent {
 
   setEthicalIssues(e: string): void {
     this.selectedEthicalIssue = e; 
-    /**
-     * TODO:
-     * reset text fields for Ethical Issues Description and Ethical issues report
-     */
-    // if (e === 'no'){
-    //   // if there are not ethical issues clear description and report fields
+    if (e === 'no'){
+      // if there are not ethical issues clear description and report fields
            
-    //   this.ethicalIsuesForm.patchValue({
-    //     ethical_issues: {
-    //       ethical_issues_description:     "",
-    //       ethical_issues_report:          "",
-    //     }      
-    //   });
-    // }
+      this.ethicalIsuesForm.patchValue({        
+        ethicalReport:            "",
+        ethicalIssueDescription:  "",
+      });
+    }
     // console.log(this.selectedEthicalIssue);
   }
 
