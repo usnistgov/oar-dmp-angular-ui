@@ -242,22 +242,37 @@ export class StorageNeedsComponent {
   }
 
   // determines whether there is any software development planned for this DMP
-  //private softwareDev: string="no";
   setSoftwareDev(e: string): void {
     // this.softwareDev = e;
     this.sftDev["development"] = e;
-    if (this.sftDev["development"] === "yes") {
+    if (this.sftDev["development"] === "no") {
+      /**
+       * Reset Radio buttons for:
+       *        Software developed for this project will be for
+       *        Does the software development require a database?
+       *        Will the software development produce a website interface?
+       */
+       this.technicalRequirementsForm.patchValue({
+        softwareUse:                    "",
+        softwareDatabase:               "",
+        softwareWebsite:                ""
+      });
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);      
+    }
+    else{
       //if there is software development being done as part of a DMP send message
       //to resource options to highlight correct row in the Software Tools table
       //located in resource-options compomnent 
-      this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
-      this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
+      // this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
+      // this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
 
-      this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
-      this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
+      // this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
+      // this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
 
-      this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
-      this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
+      // this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
+      // this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
     }
   }
 
@@ -273,7 +288,6 @@ export class StorageNeedsComponent {
   }
 
   // determines what is the intended audience for the software developmed within this DMP
-  // private softwareUse: string="internal";
   setSoftwareUse(e: string): void {
     // this.softwareUse = e;
     this.sftDev["softwareUse"] = e;
@@ -283,7 +297,6 @@ export class StorageNeedsComponent {
   }
 
   // determines whether a database will be used for the softwre development
-  // private databaseUse: string="no";
   setDatabaseUse(sel: string){
     // this.databaseUse = sel;
     this.sftDev["softwareDatabase"] = sel;
@@ -294,7 +307,6 @@ export class StorageNeedsComponent {
   }
 
   // determines whether a website will be used for the softwre development
-  // private websiteUse: string="no";
   setWebsiteDev(sel: string){
     // this.websiteUse = sel;
     this.sftDev["softwareWebsite"] = sel;
