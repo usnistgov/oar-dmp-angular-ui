@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
+import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type';
 import { Contributor } from 'src/app/types/contributor.type';
 import { DmpAPIService } from '../../dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
@@ -91,7 +92,13 @@ export class PersonelComponent implements OnInit {
     private apiService: DmpAPIService,
     private fb: FormBuilder
   ) { 
-    this.getgetAllFromAPI();
+    console.log("constructor")
+    /**
+     * NOTE uncoment this when pulling data from API with a backend database
+     */
+    // this.getgetAllFromAPI(); //sets values from API service
+
+    
   }
 
   personelForm = this.fb.group(
@@ -170,6 +177,11 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    console.log("ngOnInit");
+    /**
+     * NOTE Comment below when woking with API
+     */
+    this.getNistContacts();
   }  
 
   //List of contributors that will be aded to the DMP
@@ -177,6 +189,54 @@ export class PersonelComponent implements OnInit {
 
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
+
+  /**
+   * This function gets hard coded NIST contasts
+   * Used when not working with an API for NIST contacts database
+   */
+  getNistContacts(){
+    this.nistContacts = NIST_STAFF;
+    this.setNISTContacts();
+
+  }
+
+  setNISTContacts(){
+    /**
+     * Search nistContacts array that contains list of nist emproyees from MongoDB
+     * and retreive unique ID based on first and last name of NIST contact
+     */
+    var selId = this.dropDownService.getDropDownID(
+    this.personelForm.controls["nistContactFirstName"].value, 
+    this.personelForm.controls["nistContactLastName"].value, 
+    this.nistContacts);
+    // send a message to console if the search produces no results
+    if (selId.length === 0){
+      console.log("Could not find nist contact user ID");
+      return;
+    }
+    // set id to primNistContact so that the drop down will be set to name
+    // that has been provided
+    this.primNistContact = selId[0].id;
+
+
+    /**
+     * Search and set dmp reviewer drop down menu - same priciple as above
+     */
+    selId = this.dropDownService.getDropDownID(
+      this.personelForm.controls["nistReviewerFirstName"].value, 
+      this.personelForm.controls["nistReviewerLastName"].value, 
+      this.nistContacts);
+
+    // send a message to console if the search produces no results
+    if (selId.length === 0){
+      console.log("Could not find nist reviewer user ID");
+      return;
+    }
+
+    // set id to dmpReviewer so that the drop down will be set to name
+    // that has been provided
+    this.dmpReviewer = selId[0].id;
+  }
 
   getgetAllFromAPI(){
     console.log("get from API");
@@ -188,40 +248,9 @@ export class PersonelComponent implements OnInit {
            * that is used for drop down select
            */
           this.nistContacts = v;
+          console.log("contacts have been set");
 
-          /**
-           * Search nistContacts array that contains list of nist emproyees from MongoDB
-           * and retreive unique ID based on first and last name of NIST contact
-           */
-          var selId = this.dropDownService.getDropDownID(
-            this.personelForm.controls["nistContactFirstName"].value, 
-            this.personelForm.controls["nistContactLastName"].value, 
-            this.nistContacts);
-          // send a message to console if the search produces no results
-          if (selId.length === 0){
-            console.log("Could not find nist contact user ID");
-          }
-          // set id to primNistContact so that the drop down will be set to name
-          // that has been provided
-          this.primNistContact = selId[0].id;
-
-
-          /**
-           * Search and set dmp reviewer drop down menu - same priciple as above
-           */
-          selId = this.dropDownService.getDropDownID(
-            this.personelForm.controls["nistReviewerFirstName"].value, 
-            this.personelForm.controls["nistReviewerLastName"].value, 
-            this.nistContacts);
-
-          // send a message to console if the search produces no results
-          if (selId.length === 0){
-            console.log("Could not find nist reviewer user ID");
-          }
-
-          // set id to dmpReviewer so that the drop down will be set to name
-          // that has been provided
-          this.dmpReviewer = selId[0].id;
+          this.setNISTContacts();
 
           
         },
@@ -271,7 +300,7 @@ export class PersonelComponent implements OnInit {
     }
   }
 
-  contributorRoles = ROLES;
+  contributorRoles = ROLES; // sets hardcoded roles values
   nistContribRole: string = "";
   crntContribRole: string = "";
 
@@ -481,6 +510,7 @@ export class PersonelComponent implements OnInit {
   selExtContributorRole(){
     // select role for the contributors from a drop down list
     //var sel = this.dropDownService.getDropDownRole(this.extContribRole, this.contributorRoles);
+    console.log("selExtContributorRole");
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
 
     this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
