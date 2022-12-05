@@ -21,8 +21,8 @@ export class DmpService {
     projectDescription:       'Example Project Description',
 
     //Personel
-    primary_NIST_contact:     {firstName:"Ray", lastName:"Plante"},
-    NIST_DMP_Reviewer:        {firstName:"Niksa", lastName:"Blonder"},
+    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder"},
+    NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
                                   lastName:"Blonder"}, 
@@ -38,13 +38,13 @@ export class DmpService {
                               ],
 
     //Keywords
-    keyWords:                 ['Keyword', 'Example'],
+    keyWords:                 ['Trace Elements', 'Stable Isotope Ratios'],
 
     //Technical Resources
     dataSize:                 105,
     sizeUnit:                 "GB",
     softwareDevelopment:      {development:"yes", softwareUse:"both", softwareDatabase: "yes", softwareWebsite: "yes"},
-    technicalResources:       ['Technical', 'Resources'],
+    technicalResources:       ['Mass Spectrometer', 'Microsope'],
     
     // Ethical Issues Meta data
     ethical_issues:           {
@@ -60,7 +60,7 @@ export class DmpService {
 
     // Data Preservation Meta data
     preservationDescription:  'Data preservation description example text',
-    pathsURLs:                ['link 1', 'lik 2']
+    pathsURLs:                ['https://github.com/exampleuser/example_set', 'https://example.com']
 
   };
 

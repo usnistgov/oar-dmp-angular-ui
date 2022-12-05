@@ -96,7 +96,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
      */
-    // this.getgetAllFromAPI(); //sets values from API service
+    this.getgetAllFromAPI(); //sets values from API service
 
     
   }
@@ -181,7 +181,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
-    this.getNistContacts();
+    // this.getNistContacts();
   }  
 
   //List of contributors that will be aded to the DMP

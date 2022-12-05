@@ -25,6 +25,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatNativeDateModule } from '@angular/material/core';
 
+import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -53,7 +55,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    MatDialogModule
+    MatDialogModule,
+
+    MatAutocompleteModule
   ],
   providers: [],
   bootstrap: [AppComponent]
