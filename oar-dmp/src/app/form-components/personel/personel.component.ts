@@ -9,6 +9,8 @@ import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 
+import {Observable} from 'rxjs';
+
 export interface DataContributor {  
   name: string;
   surname: string;
@@ -85,6 +87,9 @@ export class PersonelComponent implements OnInit {
   crntContribName: string = "";
   crntContribSurname: string = "";
   crntContribEmail: string = "";
+
+  filteredOptions: Observable<string[]>;
+
   
 
   constructor(
@@ -97,12 +102,11 @@ export class PersonelComponent implements OnInit {
      * NOTE uncoment this when pulling data from API with a backend database
      */
     this.getgetAllFromAPI(); //sets values from API service
-
-    
   }
 
   personelForm = this.fb.group(
     {
+      nistContact:                [''],
       nistContactFirstName:       [''],
       nistContactLastName:        [''],
       nistReviewerFirstName:      [''],
@@ -137,6 +141,7 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
+      nistContact:                personel.primary_NIST_contact.firstName + ' ' + personel.primary_NIST_contact.lastName,
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
@@ -182,6 +187,10 @@ export class PersonelComponent implements OnInit {
      * NOTE Comment below when woking with API
      */
     // this.getNistContacts();
+    this.filteredOptions = this.personelForm.value['nistContact'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter('')),
+    );
   }  
 
   //List of contributors that will be aded to the DMP
@@ -251,12 +260,19 @@ export class PersonelComponent implements OnInit {
           console.log("contacts have been set");
 
           this.setNISTContacts();
+          
 
           
         },
         error: (e) => console.error(e) 
       }
     );
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+
+    return this.nistContacts.filter((option:string) => option.toLowerCase().includes(filterValue));
   }
 
   //current selection string on dropdown option
