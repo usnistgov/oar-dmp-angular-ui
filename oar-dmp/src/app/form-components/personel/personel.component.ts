@@ -88,7 +88,7 @@ export class PersonelComponent implements OnInit {
   crntContribSurname: string = "";
   crntContribEmail: string = "";
 
-  filteredOptions: Observable<string[]>;
+  filteredOptions!: Observable<string[]>;
 
   
 
@@ -102,6 +102,7 @@ export class PersonelComponent implements OnInit {
      * NOTE uncoment this when pulling data from API with a backend database
      */
     this.getgetAllFromAPI(); //sets values from API service
+
   }
 
   personelForm = this.fb.group(
@@ -187,10 +188,7 @@ export class PersonelComponent implements OnInit {
      * NOTE Comment below when woking with API
      */
     // this.getNistContacts();
-    this.filteredOptions = this.personelForm.value['nistContact'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter('')),
-    );
+
   }  
 
   //List of contributors that will be aded to the DMP
