@@ -2,27 +2,32 @@
 <div class="dmpSection">
   <div class="header">Personnel</div>
 
-  <mat-form-field class="example-full-width" appearance="fill">
-    <mat-label>Number</mat-label>
-    <input type="text"
-           placeholder="Pick one"
-           aria-label="Number"
-           matInput
-           [formControl]="personelForm.controls['nistContact']"
-           [matAutocomplete]="auto">
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-        {{option}}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
-
+  
   <table>
     <tr>
       <td class="description">Primary NIST Contact</td>
       <td>
+
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>NIST Contact</mat-label>
+          <input type="text"
+                 placeholder="Pick one"
+                 aria-label="Nist Contact"
+                 matInput
+                 [formControl]="personelForm.controls['nistContact']"
+                 [matAutocomplete]="auto">
+          <mat-autocomplete 
+            #auto="matAutocomplete"
+            [displayWith]="displayFn"
+          >
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{option.firstName + " " + option.lastName}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      
         
-        <select 
+        <!-- <select 
           name="primContact" 
           [(ngModel)]="primNistContact"
           (change)="selPrimNistContact()"
@@ -30,7 +35,9 @@
             <option [value]="contact.id" *ngFor="let contact of nistContacts">
                 {{contact.firstName + ' ' + contact.lastName}}
             </option>
-        </select>
+        </select> -->
+
+
         <!-- <table>
           <tr>
             <td>Primary Contact's Group</td>

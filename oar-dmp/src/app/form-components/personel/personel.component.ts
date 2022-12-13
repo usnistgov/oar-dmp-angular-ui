@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
-import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type';
+import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type'; //possibly need to comment this out
 import { Contributor } from 'src/app/types/contributor.type';
 import { DmpAPIService } from '../../dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
+import { NistContact } from 'src/app/types/nist-contact'
 
 import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
@@ -88,7 +89,7 @@ export class PersonelComponent implements OnInit {
   crntContribSurname: string = "";
   crntContribEmail: string = "";
 
-  filteredOptions!: Observable<string[]>;
+  filteredOptions!: Observable<NistContact[]>;
 
   
 
@@ -142,7 +143,7 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
-      nistContact:                personel.primary_NIST_contact.firstName + ' ' + personel.primary_NIST_contact.lastName,
+      nistContact:                {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
@@ -258,6 +259,40 @@ export class PersonelComponent implements OnInit {
           console.log("contacts have been set");
 
           this.setNISTContacts();
+          var currName = this.personelForm.controls['nistContact'].value;
+          console.log(currName);
+          this.filteredOptions = this.personelForm.controls['nistContact'].valueChanges.pipe(
+            startWith(''),
+            //map(value => this._filter(value || '')),
+            map (value => {
+              
+                /**
+                 * The optional chaining ?. operator in TypeScript value?.firstName
+                 * 
+                 * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+                 * using dot notation to access a nested property of an object, but instead of causing an 
+                 * error if the reference is nullish, it short-circuits returning undefined.
+                 * 
+                 * if value is a string return value else return concatination of value.firstName and value.lastName
+                 * */
+                console.log(value);
+                const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+                var res = name ? this._filter(name as string): this.nistContacts.slice();
+                console.log(res.length);
+                if (res.length ===1){
+                  this.personelForm.patchValue({
+                    nistContactFirstName: value.firstName,
+                    nistContactLastName:  value.lastName,
+                  })
+                }
+                return res;
+
+              }
+            )
+          );
+          console.log("filteredOptions");
+          console.log(this.filteredOptions);
+          
           
 
           
@@ -267,10 +302,36 @@ export class PersonelComponent implements OnInit {
     );
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
+  private _filter(nistPerson: string): NistContact[] {
+    //split name on white space to get first name and last name
+    // Beacuase the person name in the gui is displayed as <first name> <last name> delimited by white space
+    // filterValues[1] = last name
+    // filterValues[0] = first name
+    const filterValues = nistPerson.toLowerCase().split(" ");
+    var searchRes;
 
-    return this.nistContacts.filter((option:string) => option.toLowerCase().includes(filterValue));
+    if (filterValues.length > 1){
+      // if split resulted in more than a single word/entry search first on last name then first name
+      searchRes = this.nistContacts.filter(        
+        (option:any) => option.lastName.toLowerCase().includes(filterValues[1] || option.firstName.toLowerCase().includes(filterValues[0]) )
+      );
+
+    }
+    else{
+      //here we have only one entry in the filterValues array, so search just on that one value matching first on last name then first name
+      searchRes = this.nistContacts.filter(
+        (option:any) => option.lastName.toLowerCase().includes(filterValues[0]) || option.firstName.toLowerCase().includes(filterValues[0])
+      );
+
+    }
+    return searchRes;
+  }
+
+
+  displayFn(name:NistContact):string{
+    var res = name && name.firstName ? name.firstName + " " + name.lastName : '';
+    return res;
+
   }
 
   //current selection string on dropdown option
