@@ -89,7 +89,9 @@ export class PersonelComponent implements OnInit {
   crntContribSurname: string = "";
   crntContribEmail: string = "";
 
-  filteredOptions!: Observable<NistContact[]>;
+  fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
+  fltr_NIST_DMP_Reviewer!: Observable<NistContact[]>;
+  fltr_NIST_Contributor!: Observable<NistContact[]>;
 
   
 
@@ -108,7 +110,9 @@ export class PersonelComponent implements OnInit {
 
   personelForm = this.fb.group(
     {
-      nistContact:                [''],
+      primary_NIST_contact:       [''],
+      NIST_DMP_Reviewer:          [''],
+      dmp_contributor:            [''],
       nistContactFirstName:       [''],
       nistContactLastName:        [''],
       nistReviewerFirstName:      [''],
@@ -143,7 +147,8 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
-      nistContact:                {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
+      primary_NIST_contact:       {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
+      NIST_DMP_Reviewer:          {firstName: personel.NIST_DMP_Reviewer.firstName, lastName:personel.NIST_DMP_Reviewer.lastName},
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
@@ -247,7 +252,7 @@ export class PersonelComponent implements OnInit {
   }
 
   getgetAllFromAPI(){
-    console.log("get from API");
+    // console.log("get from API");
     this.apiService.getAll().subscribe(
       {
         next: (v) => {
@@ -256,14 +261,13 @@ export class PersonelComponent implements OnInit {
            * that is used for drop down select
            */
           this.nistContacts = v;
-          console.log("contacts have been set");
+          // console.log("contacts have been set");
 
           this.setNISTContacts();
-          var currName = this.personelForm.controls['nistContact'].value;
-          console.log(currName);
-          this.filteredOptions = this.personelForm.controls['nistContact'].valueChanges.pipe(
+          // var currName = this.personelForm.controls['primary_NIST_contact'].value;
+          // console.log(currName);
+          this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
             startWith(''),
-            //map(value => this._filter(value || '')),
             map (value => {
               
                 /**
@@ -273,12 +277,12 @@ export class PersonelComponent implements OnInit {
                  * using dot notation to access a nested property of an object, but instead of causing an 
                  * error if the reference is nullish, it short-circuits returning undefined.
                  * 
-                 * if value is a string return value else return concatination of value.firstName and value.lastName
+                 * if value is a string return value else return concatenation of value.firstName and value.lastName
                  * */
-                console.log(value);
+                // console.log(value);
                 const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
                 var res = name ? this._filter(name as string): this.nistContacts.slice();
-                console.log(res.length);
+                // console.log(res.length);
                 if (res.length ===1){
                   this.personelForm.patchValue({
                     nistContactFirstName: value.firstName,
@@ -290,8 +294,57 @@ export class PersonelComponent implements OnInit {
               }
             )
           );
-          console.log("filteredOptions");
-          console.log(this.filteredOptions);
+
+          this.fltr_NIST_DMP_Reviewer = this.personelForm.controls['NIST_DMP_Reviewer'].valueChanges.pipe(
+            startWith(''),
+            map (reviewer => {             
+                
+                // console.log(reviewer);
+                const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
+                var res2 = name ? this._filter(name as string): this.nistContacts.slice();
+                // console.log(res.length);
+                if (res2.length ===1){
+                  this.personelForm.patchValue({
+                    nistReviewerFirstName: reviewer.firstName,
+                    nistReviewerLastName:  reviewer.lastName,
+                  })
+                }
+                return res2;
+
+              }
+            )
+          );
+
+          this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+            startWith(''),
+            map (contributor => {             
+                
+                // console.log(contributor);
+                const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
+                var res3 = name ? this._filter(name as string): this.nistContacts.slice();
+                // console.log(res.length);
+                if (res3.length ===1){
+                  this.personelForm.patchValue({
+                    nistReviewerFirstName: contributor.firstName,
+                    nistReviewerLastName:  contributor.lastName,
+                  })
+                  this.crntContribName = contributor.firstName;
+                  this.crntContribSurname = contributor.lastName;
+                  this.crntContribEmail = contributor.e_mail;
+
+                  this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+                  if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+                    this.disableAdd=false;
+                  }
+                }
+                return res3;
+
+              }
+            )
+          );
+          // console.log("fltr_Prim_NIST_Contact");
+          // console.log(this.fltr_Prim_NIST_Contact);
           
           
 
@@ -328,9 +381,34 @@ export class PersonelComponent implements OnInit {
   }
 
 
-  displayFn(name:NistContact):string{
+  displaySelectedContact(name:NistContact):string{
     var res = name && name.firstName ? name.firstName + " " + name.lastName : '';
     return res;
+
+  }
+
+  // displaySelectedContributor(contributor:NistContact):string{
+  displaySelectedContributor(){
+    // var res = contributor && contributor.firstName ? contributor.firstName + " " + contributor.lastName : '';
+    // if (typeof contributor !== 'string'){
+    //   this.crntContribName = contributor.firstName;
+    //   this.crntContribSurname = contributor.lastName;
+    //   this.crntContribEmail = contributor.e_mail;
+
+    //   this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+    //   if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+    //     this.disableAdd=false;
+    //   }
+    // }
+    // else{
+    //   this.disableAdd = true;
+    //   this.sel_NIST_Contributor = false; // indicates that drop down select has not been performed
+    // }
+
+    
+    // return res;
+    console.log("displaySelectedContributor")
 
   }
 
@@ -338,14 +416,14 @@ export class PersonelComponent implements OnInit {
   //for Primary NIST Contact. This value is an ID from MongoDB
   primNistContact: string = "";
 
-  selPrimNistContact() {
-    //Select primary contact from a drop down list of NIST contacts
-    var selected = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts);
-    this.personelForm.patchValue({
-      nistContactFirstName: selected[0].firstName,
-      nistContactLastName:  selected[0].lastName,
-    })
-  }
+  // selPrimNistContact() {
+  //   //Select primary contact from a drop down list of NIST contacts
+  //   var selected = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts);
+  //   this.personelForm.patchValue({
+  //     nistContactFirstName: selected[0].firstName,
+  //     nistContactLastName:  selected[0].lastName,
+  //   })
+  // }
 
   private contributorOption: string="false";
   setContributor(e:string):void{
