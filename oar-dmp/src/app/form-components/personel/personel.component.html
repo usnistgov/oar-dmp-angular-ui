@@ -88,17 +88,6 @@
                   </mat-autocomplete>
                 </mat-form-field>
 
-                <!-- <select
-                  name="nistContributor"
-                  [(ngModel)]="nistContributor"
-                  (change)="selNistContributor()"
-                >
-                  <option [value]="contact.id" *ngFor="let contact of nistContacts">
-                      {{contact.firstName + ' ' + contact.lastName}}
-                  </option>
-
-                </select> -->
-
               </td>
             </tr>
             <tr>
@@ -258,26 +247,6 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>    
-
-      <!-- <table style="width: 100%;">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Institution</th>
-            <th>Role</th>
-            <th>e-mail</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let contributor of  contributors">
-            <td>{{contributor.firstName + " " + contributor.lastName}}</td>
-            <td>{{contributor.instituion}}</td>
-            <td>{{contributor.role}}</td>
-            <td>{{contributor.e_mail}}</td>
-
-          </tr>
-        </tbody>
-      </table> -->
     
   </div>
   <table>

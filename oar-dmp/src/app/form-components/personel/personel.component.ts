@@ -84,13 +84,12 @@ export class PersonelComponent implements OnInit {
 
   sel_EXT_Contributor: boolean = false;
 
-  nistContributor: string = "";
   crntContribName: string = "";
   crntContribSurname: string = "";
   crntContribEmail: string = "";
 
   fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
-  fltr_NIST_DMP_Reviewer!: Observable<NistContact[]>;
+  // fltr_NIST_DMP_Reviewer!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<NistContact[]>;
 
   
@@ -115,8 +114,8 @@ export class PersonelComponent implements OnInit {
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
       nistContactLastName:        [''],
-      nistReviewerFirstName:      [''],
-      nistReviewerLastName:       [''],
+      // nistReviewerFirstName:      [''],
+      // nistReviewerLastName:       [''],
       contributors:               [[]]
     }
   );
@@ -189,7 +188,7 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    console.log("ngOnInit");
+    // console.log("ngOnInit");
     /**
      * NOTE Comment below when woking with API
      */
@@ -209,47 +208,9 @@ export class PersonelComponent implements OnInit {
    */
   getNistContacts(){
     this.nistContacts = NIST_STAFF;
-    this.setNISTContacts();
-
+    // this.setNISTContacts();
   }
 
-  setNISTContacts(){
-    /**
-     * Search nistContacts array that contains list of nist emproyees from MongoDB
-     * and retreive unique ID based on first and last name of NIST contact
-     */
-    var selId = this.dropDownService.getDropDownID(
-    this.personelForm.controls["nistContactFirstName"].value, 
-    this.personelForm.controls["nistContactLastName"].value, 
-    this.nistContacts);
-    // send a message to console if the search produces no results
-    if (selId.length === 0){
-      console.log("Could not find nist contact user ID");
-      return;
-    }
-    // set id to primNistContact so that the drop down will be set to name
-    // that has been provided
-    this.primNistContact = selId[0].id;
-
-
-    /**
-     * Search and set dmp reviewer drop down menu - same priciple as above
-     */
-    selId = this.dropDownService.getDropDownID(
-      this.personelForm.controls["nistReviewerFirstName"].value, 
-      this.personelForm.controls["nistReviewerLastName"].value, 
-      this.nistContacts);
-
-    // send a message to console if the search produces no results
-    if (selId.length === 0){
-      console.log("Could not find nist reviewer user ID");
-      return;
-    }
-
-    // set id to dmpReviewer so that the drop down will be set to name
-    // that has been provided
-    this.dmpReviewer = selId[0].id;
-  }
 
   getgetAllFromAPI(){
     // console.log("get from API");
@@ -261,11 +222,7 @@ export class PersonelComponent implements OnInit {
            * that is used for drop down select
            */
           this.nistContacts = v;
-          // console.log("contacts have been set");
-
-          this.setNISTContacts();
-          // var currName = this.personelForm.controls['primary_NIST_contact'].value;
-          // console.log(currName);
+          
           this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
             startWith(''),
             map (value => {
@@ -381,52 +338,13 @@ export class PersonelComponent implements OnInit {
 
   }
 
-  // displaySelectedContributor(contributor:NistContact):string{
-  displaySelectedContributor(){
-    // var res = contributor && contributor.firstName ? contributor.firstName + " " + contributor.lastName : '';
-    // if (typeof contributor !== 'string'){
-    //   this.crntContribName = contributor.firstName;
-    //   this.crntContribSurname = contributor.lastName;
-    //   this.crntContribEmail = contributor.e_mail;
-
-    //   this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-    //   if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-    //     this.disableAdd=false;
-    //   }
-    // }
-    // else{
-    //   this.disableAdd = true;
-    //   this.sel_NIST_Contributor = false; // indicates that drop down select has not been performed
-    // }
-
-    
-    // return res;
-    console.log("displaySelectedContributor")
-
-  }
-
-  //current selection string on dropdown option
-  //for Primary NIST Contact. This value is an ID from MongoDB
-  primNistContact: string = "";
-
-  // selPrimNistContact() {
-  //   //Select primary contact from a drop down list of NIST contacts
-  //   var selected = this.dropDownService.getDropDownText(this.primNistContact, this.nistContacts);
-  //   this.personelForm.patchValue({
-  //     nistContactFirstName: selected[0].firstName,
-  //     nistContactLastName:  selected[0].lastName,
-  //   })
-  // }
-
   private contributorOption: string="false";
   setContributor(e:string):void{
     this.contributorOption = e;
 
   }
+
   selectedContributor(name: string): boolean{
-    
-    
     if (!this.contributorOption) { // if no radio button is selected, always return false so nothing is shown  
       return false;  
     }  
@@ -434,19 +352,6 @@ export class PersonelComponent implements OnInit {
 
   }
   
-  selNistContributor(){
-    var sel = this.dropDownService.getDropDownText(this.nistContributor, this.nistContacts)
-    this.crntContribName = sel[0].firstName;
-    this.crntContribSurname = sel[0].lastName;
-    this.crntContribEmail = sel[0].e_mail;
-
-    this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-    if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-      this.disableAdd=false;
-    }
-  }
-
   contributorRoles = ROLES; // sets hardcoded roles values
   nistContribRole: string = "";
   crntContribRole: string = "";
@@ -518,6 +423,7 @@ export class PersonelComponent implements OnInit {
       contributors:[]
     })
   }
+
   clearTable(){
     this.dmpContributor = [];
     this.resetTable();
@@ -656,23 +562,14 @@ export class PersonelComponent implements OnInit {
 
   selExtContributorRole(){
     // select role for the contributors from a drop down list
-    //var sel = this.dropDownService.getDropDownRole(this.extContribRole, this.contributorRoles);
-    console.log("selExtContributorRole");
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
-
     this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
-
     this.disableAdd=false;
-
-
-
   }
 
   resetPersonnelForm(){
 
-    this.primNistContact = "";
     this.dmpReviewer = "";
-    this.nistContributor = "";
     this.nistContribRole = "";
     this.externalContributor.contributor.firstName = "";
     this.externalContributor.contributor.lastName = "";
@@ -682,9 +579,9 @@ export class PersonelComponent implements OnInit {
     this.contributorRadioSel = "";
     this.personelForm.patchValue({
       nistContactFirstName:       "",
-      nistContactLastName:        "",
-      nistReviewerFirstName:      "",
-      nistReviewerLastName:       ""
+      nistContactLastName:        ""
+      // nistReviewerFirstName:      "",
+      // nistReviewerLastName:       ""
     });
     this.clearTable();
   }
