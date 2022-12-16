@@ -22,7 +22,7 @@ export class DmpService {
 
     //Personel
     primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder"},
-    NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
+    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
                                   lastName:"Blonder"}, 

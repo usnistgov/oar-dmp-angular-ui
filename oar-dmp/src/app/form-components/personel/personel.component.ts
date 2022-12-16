@@ -148,11 +148,11 @@ export class PersonelComponent implements OnInit {
 
     this.personelForm.patchValue({
       primary_NIST_contact:       {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
-      NIST_DMP_Reviewer:          {firstName: personel.NIST_DMP_Reviewer.firstName, lastName:personel.NIST_DMP_Reviewer.lastName},
+      // NIST_DMP_Reviewer:          {firstName: personel.NIST_DMP_Reviewer.firstName, lastName:personel.NIST_DMP_Reviewer.lastName},
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
-      nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
-      nistReviewerLastName:       personel.NIST_DMP_Reviewer.lastName,
+      // nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
+      // nistReviewerLastName:       personel.NIST_DMP_Reviewer.lastName,
       contributors:               personel.contributors
     });
   }
@@ -179,7 +179,7 @@ export class PersonelComponent implements OnInit {
           // to our part of the form 
           {
             primary_NIST_contact:   {firstName:formValue.nistContactFirstName, lastName: formValue.nistContactLastName},
-            NIST_DMP_Reviewer:      {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
+            // NIST_DMP_Reviewer:      {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
             contributors:           formValue.contributors
 
           }
@@ -295,25 +295,25 @@ export class PersonelComponent implements OnInit {
             )
           );
 
-          this.fltr_NIST_DMP_Reviewer = this.personelForm.controls['NIST_DMP_Reviewer'].valueChanges.pipe(
-            startWith(''),
-            map (reviewer => {             
+          // this.fltr_NIST_DMP_Reviewer = this.personelForm.controls['NIST_DMP_Reviewer'].valueChanges.pipe(
+          //   startWith(''),
+          //   map (reviewer => {             
                 
-                // console.log(reviewer);
-                const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
-                var res2 = name ? this._filter(name as string): this.nistContacts.slice();
-                // console.log(res.length);
-                if (res2.length ===1){
-                  this.personelForm.patchValue({
-                    nistReviewerFirstName: reviewer.firstName,
-                    nistReviewerLastName:  reviewer.lastName,
-                  })
-                }
-                return res2;
+          //       // console.log(reviewer);
+          //       const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
+          //       var res2 = name ? this._filter(name as string): this.nistContacts.slice();
+          //       // console.log(res.length);
+          //       if (res2.length ===1){
+          //         this.personelForm.patchValue({
+          //           nistReviewerFirstName: reviewer.firstName,
+          //           nistReviewerLastName:  reviewer.lastName,
+          //         })
+          //       }
+          //       return res2;
 
-              }
-            )
-          );
+          //     }
+          //   )
+          // );
 
           this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
             startWith(''),
@@ -343,12 +343,6 @@ export class PersonelComponent implements OnInit {
               }
             )
           );
-          // console.log("fltr_Prim_NIST_Contact");
-          // console.log(this.fltr_Prim_NIST_Contact);
-          
-          
-
-          
         },
         error: (e) => console.error(e) 
       }
