@@ -21,7 +21,7 @@
             [displayWith]="displaySelectedContact"
           >
             <mat-option *ngFor="let option of fltr_Prim_NIST_Contact | async" [value]="option">
-              {{option.firstName + " " + option.lastName}}
+              {{option.lastName + ", " + option.firstName}}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
@@ -83,7 +83,7 @@
                     [displayWith]="displaySelectedContact"
                   >
                     <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
-                      {{contrib.firstName + " " + contrib.lastName}}
+                      {{contrib.lastName + ", " + contrib.firstName}}
                     </mat-option>
                   </mat-autocomplete>
                 </mat-form-field>

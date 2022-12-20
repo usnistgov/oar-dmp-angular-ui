@@ -333,7 +333,7 @@ export class PersonelComponent implements OnInit {
 
 
   displaySelectedContact(name:NistContact):string{
-    var res = name && name.firstName ? name.firstName + " " + name.lastName : '';
+    var res = name && name.firstName ? name.lastName + ", " + name.firstName : '';
     return res;
 
   }
