@@ -379,10 +379,32 @@ export class PersonelComponent implements OnInit {
   };
   
   private contributorRadioSel: string="";
-  onContributorChange(value:any){
-    // console.log(value.id);
+
+  /**
+   * Resets form fields for Contributor personnel
+   */
+  private resetContributorFields(){
+    this.errorMessage = "";
+    this.crntContribRole = "";
+
+    // Reset NIST employe / associate fields
+    this.nistContribRole = "";    
+    this.personelForm.controls['dmp_contributor'].setValue("");
+
+    // reset external collaborator data fields    
+    this.extContribRole =  "";
+    this.externalContributor = {
+      contributor:{firstName:"", lastName:""}, 
+      role:"",
+      e_mail:"",
+      instituion:""
+    };
+  }
+
+  onContributorChange(value:any){    
     this.contributorRadioSel=value.id;
-    // this.disableAdd=false;
+    this.disableAdd=true;
+    this.resetContributorFields();
   }
 
   //current selection string on dropdown option
@@ -433,7 +455,8 @@ export class PersonelComponent implements OnInit {
   }
 
   addRow(){
-    console.log(this.contributorRadioSel);
+
+    const regex = /[A-Z]/i;
     // Disable buttons while the user is inputing new row
     this.disableAdd=true;
     this.disableClear=true;
@@ -444,9 +467,51 @@ export class PersonelComponent implements OnInit {
     this.sel_NIST_ContribRole = false;
 
     if (this.contributorRadioSel === "contributorExternal"){
-      this.crntContribName = this.externalContributor.contributor.firstName;
-      this.crntContribSurname = this.externalContributor.contributor.lastName;
-      this.crntContribEmail = this.externalContributor.e_mail
+      
+      /**
+       * Check first name
+       */
+      if (this.externalContributor.contributor.firstName.match(regex)){
+        this.crntContribName = this.externalContributor.contributor.firstName;
+      }
+      else{
+        this.errorMessage = "Missing contributor First Name";
+        this.extContribRole =  "";
+        return;
+      }
+
+      /**
+       * Check last name
+       */
+      if (this.externalContributor.contributor.lastName.match(regex)){
+        this.crntContribSurname = this.externalContributor.contributor.lastName;
+      }
+      else{
+        this.errorMessage = "Missing contributor Last Name";
+        this.extContribRole =  "";
+        return;
+      }
+
+      /**
+       * Check institution
+       */
+      if (!(this.externalContributor.instituion.match(regex))){
+        this.errorMessage = "Missing contributor Institution / Affiliation";
+        this.extContribRole =  "";
+        return;
+      }
+
+      /**
+       * Check e-mail
+       */
+      if (this.externalContributor.e_mail.match(regex)){
+        this.crntContribEmail = this.externalContributor.e_mail;
+      }
+      else{
+        this.errorMessage = "Missing contributor First Name";
+        this.extContribRole =  "";
+        return;
+      }
     }
 
     var filterOnEmail = this.dmpContributor.filter(      
@@ -456,9 +521,11 @@ export class PersonelComponent implements OnInit {
     if(filterOnEmail.length > 0){
 
       this.errorMessage = "Contributor " + this.crntContribName + " " + this.crntContribSurname + " with e-mail address " + this.crntContribEmail + " is already in the list of contributors";
-      this.disableAdd=false;
-      this.disableClear=false;
-      this.disableRemove=false;
+
+      this.disableAdd = false;
+      this.disableClear = false;
+      this.disableRemove = false;
+      this.extContribRole =  "";
       return;
 
     }
@@ -486,6 +553,8 @@ export class PersonelComponent implements OnInit {
 
     //update changes made to the table in the personel form
     this.onDoneClick(newRow);
+
+    this.resetContributorFields();
 
   }
 
@@ -553,8 +622,7 @@ export class PersonelComponent implements OnInit {
         });
       }
     )
-    // Enable buttons once user entered new data into a row
-    this.disableAdd=false;
+
     this.disableClear=false;
     this.disableRemove=false;
 
