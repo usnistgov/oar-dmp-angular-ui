@@ -11,6 +11,17 @@ import { DataPreservationComponent } from '../form-components/data-preservation/
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
 
+// for Communicating with backend services using HTTP
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+/**
+ * The HttpClient service makes use of observables for all transactions. You must import the RxJS observable and 
+ * operator symbols that appear in the example snippets. These ConfigService imports are typical.
+ */
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
+
+
 
 //  Interface for the DMP interface. This is where we define observed values of
 //  different DMP form components
@@ -35,6 +46,7 @@ interface DMPForm {
   templateUrl: './dmp-form.component.html',
   styleUrls: ['./dmp-form.component.scss']
 })
+@Injectable()
 export class DmpFormComponent implements OnInit {
   // get access to methods in DataDescriptionComponent child.
 
@@ -71,7 +83,7 @@ export class DmpFormComponent implements OnInit {
 
   });
 
-  constructor(private fb: FormBuilder, private dmp_Service: DmpService) {}
+  constructor(private fb: FormBuilder, private dmp_Service: DmpService, private http: HttpClient) {}
 
   ngOnInit(): void {
     // Fetch initial data from the (fake) backend
@@ -115,10 +127,14 @@ export class DmpFormComponent implements OnInit {
     // console.log(this.dmp)
     // console.log("==============")
   }
+
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
     this.dmp_Service.updateDMP(this.dmp).subscribe((aDMP) => {
       this.dmp = aDMP;
+      let send = {"name":"DMP record", "data":this.dmp}
+      
+      let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
       alert('DMP updated!');
     });
   }
