@@ -7,9 +7,12 @@
 /bazel-out
 
 # Node
-/node_modules
+node_modules
 npm-debug.log
 yarn-error.log
+
+#package-lock.json
+*lock.json
 
 # IDEs and editors
 .idea/
@@ -44,6 +47,7 @@ Thumbs.db
 #oar-dmp
 oar-dmp/.angular
 oar-dmp/dist/*
+/oar-dmp/node_modules
 
 oar-dmp/.vscode/*
 !oar-dmp/.vscode/settings.json

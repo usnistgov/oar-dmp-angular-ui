@@ -1,0 +1,97 @@
+<div class="dmpSection">
+  <div class="header">Data Description</div> 
+  <table>
+    <tr>
+      <td>Description Of Generated Data</td>
+      <td><textarea 
+        name="dmpDescription" 
+        cols="40" 
+        rows="5" 
+        placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"
+        [formControl]="dataDescriptionForm.controls['dataDescription']"
+        ></textarea>
+      </td>
+    </tr>
+  </table>
+
+  <div class="sub-header">Select categories of the data that will be generated</div>
+
+  <table>
+    <tr>
+      <td rowspan="3" class="dark_shade instruction">Must be stored in a location that is<br>backed up using a tested/automated proces</td>
+      <td>
+        <input type="checkbox" id="dataCategorySRD" name="dataCategorySRD" 
+        [value]="availableCategories[0].name" 
+        (click)="dataCategoryChange($event)" 
+        [checked]="dataCategoriesMap.get('Published Results and SRD')"
+        
+        >
+        <label for="dataCategorySRD"> {{availableCategories[0].name}} </label>
+      </td>            
+    </tr>
+    <tr>
+      <!-- <td>
+        <input type="checkbox" id="dataCategoryReference" name="dataCategoryReference" 
+        [value]="availableCategories[1].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Reference')"
+        
+        >
+        <label for="dataCategoryReference"> {{availableCategories[1].name}} Data </label>
+      </td> -->
+    </tr>
+    <tr>
+      <td>
+        <!-- <input type="checkbox" id="dataCategoryResource" name="dataCategoryResource" 
+        [value]="availableCategories[2].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Resource')"
+        
+        >
+        <label for="dataCategoryResource"> {{availableCategories[2].name}} Data </label> -->
+      </td>
+    </tr>
+
+    <!-- =============================================================== -->
+
+    <tr>
+      <td rowspan="2" class="medium_shade instruction">User may choose how they preserve data</td>
+      <td>
+        <!-- <input type="checkbox" id="dataCategoryPublished" name="dataCategoryPublished" 
+        [value]="availableCategories[3].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Published')"
+        
+        >
+        <label for="dataCategoryPublished"> {{availableCategories[3].name}} Data </label>  -->
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="checkbox" id="dataCategoryPublishable" name="dataCategoryPublishable" 
+        [value]="availableCategories[1].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Publishable')"
+        
+        >
+        <label for="dataCategoryPublishable"> {{availableCategories[1].name}} Data </label>
+      </td>
+    </tr>
+
+    <!-- =============================================================== -->
+
+    <tr>
+      <td rowspan="2" class="light_shade instruction">No data preservation requirements</td>
+      <td>
+        <input type="checkbox" id="dataCategoryWorking" name="dataCategoryWorking" 
+        [value]="availableCategories[2].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Working')"
+        
+        >
+        <label for="dataCategoryWorking"> {{availableCategories[2].name}} Data </label><br> 
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="checkbox" id="dataCategoryDerived" name="dataCategoryDerived" 
+        [value]="availableCategories[3].name" (click)="dataCategoryChange($event)" [checked]="dataCategoriesMap.get('Derived')"
+        
+        >
+        <label for="dataCategoryDerived"> {{availableCategories[3].name}} Data </label><br> 
+      </td>
+    </tr>
+  </table>
+  <img [src]="pyramid" [alt]="alttext">
+
+</div>

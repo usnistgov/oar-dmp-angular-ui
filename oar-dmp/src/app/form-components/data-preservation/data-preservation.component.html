@@ -1,0 +1,101 @@
+<div class="dmpSection">
+  <div class="header">Data Preservation</div>
+
+  <p class="instruction"> Provide the file path(s) / URL(s) for where you will be saving your data (if known)</p>
+  <article class="table-header">
+    
+    <!-- 
+      set button type to 'button' to prevent it from acting like a submit button and triggering
+      updateDMP in dmp.services.ts 
+    -->
+    <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
+    <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
+    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+  </article>
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+  
+
+  <table mat-table [dataSource]="pathSource" class="mat-elevation-z8">
+  
+    <!-- 
+      iterate over columns 
+    -->
+    <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
+      <!-- 
+        table headers 
+      -->
+      <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+      <!-- 
+        table cells 
+      -->
+      <td mat-cell *matCellDef="let element">  
+        <!-- table cell display default cell display -->
+        <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+          <!-- Switch if the column isSelected to display the checkbox in the table cell -->
+          <ng-container *ngSwitchCase="'isSelected'">
+            <mat-checkbox
+              (change)="element.isSelected = $event.checked"
+            ></mat-checkbox>
+          </ng-container>
+
+          <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
+          <div class="btn-edit" *ngSwitchCase="'isEdit'">
+            <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
+              Edit
+            </button>
+            <button
+              mat-button
+              class="button-remove"
+              (click)="removeRow(element.id)"
+            >
+              Delete
+            </button>
+          </div>
+          
+          <!-- default cell -->
+          <span *ngSwitchDefault>
+            {{ element[col.key] }}
+          </span>
+        </div>
+
+        <!-- table cell display if edit button has been clicked -->
+        <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+          <!-- no input for the selected checkbox column cell -->
+          <div *ngSwitchCase="'isSelected'"></div>
+          
+          <!-- Switch if the column isEdit to display the Done button in the table cell -->
+          <div class="btn-edit" *ngSwitchCase="'isEdit'">
+            <button type="button" mat-button (click)="onDoneClick(element)">
+              Done
+            </button>
+          </div>
+
+          <!-- default column cell -->
+          <mat-form-field class="form-input" *ngSwitchDefault>
+            <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+          </mat-form-field>
+
+        </div>
+
+      </td>
+    </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>    
+
+  <table>
+    <tr>
+      <td>Preservation Description</td>
+      <td><textarea 
+        name="dmpDescription" 
+        cols="40" 
+        rows="5" 
+        placeholder="Provide a description of the storage backup method to be used or how data will be preserved in the long-term."
+        [formControl]="preservationForm.controls['preservationDescription']"
+        ></textarea>
+      </td>
+    </tr>
+  </table>
+  
+</div>
