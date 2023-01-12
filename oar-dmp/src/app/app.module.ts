@@ -26,6 +26,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+// import { RouterModule } from '@angular/router';
+
 
 @NgModule({
   declarations: [
@@ -57,7 +59,10 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatCheckboxModule,
     MatDialogModule,
 
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    // RouterModule.forRoot([
+    //   {path: 'api'},
+    // ]),
   ],
   providers: [],
   bootstrap: [AppComponent]

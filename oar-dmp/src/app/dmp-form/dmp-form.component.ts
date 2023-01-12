@@ -36,9 +36,9 @@ interface DMPForm {
   
 }
 // In the example above we have a number of child components: 
-// BasicInfoComponent through ContactSubformComponent, 
-// which are combined into the main form group as basicInfo through contact. 
-// We define name and contact as optional because initially our form group will 
+// BasicInfoComponent through StorageNeedsComponent, 
+// which are combined into the main form group as basicInfo through dataPreservation. 
+// We define them all as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
 
 @Component({
@@ -87,10 +87,26 @@ export class DmpFormComponent implements OnInit {
 
   ngOnInit(): void {
     // Fetch initial data from the (fake) backend
-    this.dmp_Service.fetchDMP().subscribe((dmp) => {
+    this.dmp_Service.fetchDMP("zimzo").subscribe((dmp) => {
+      // console.log("fetchDMP_");
       this.initialDMP = dmp;
       this.dmp = dmp;
     });
+
+    // this.dmp_Service.fetchPDR().subscribe(
+    //   (aPDR)=>{
+    //     console.log("fetchPDR_");
+    //     console.log(aPDR);
+    //   }
+    // );
+
+    // this.dmp_Service.postDMP().subscribe(
+    //   (surprise)=>{
+    //     console.log("postDMP_");
+    //     console.log(surprise);
+    //   }
+    // );
+
   }
 
   // We need a method to register the child form groups. The method accepts a name 
@@ -110,31 +126,26 @@ export class DmpFormComponent implements OnInit {
   // For that we create another dmp property (dmp?: DMP_Meta;) that will contain the 
   // latest value and add a patchDMP() method to update the dmp.
   patchDMP(patch: Partial<DMP_Meta>) {
+    // patch contains value changes in the child components
+    if (!this.dmp) throw new Error("Missing DMP in patch");
     // Example of spread operatior (...)
     // let arr1 = [0, 1, 2];
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
-    // arr1 is now [0, 1, 2, 3, 4, 5]
-    // console.log("patchDMP")
-    // console.log("patch")
-    // console.log(patch)
-    // console.log("DMP")
-    // console.log(this.dmp)
-
-    if (!this.dmp) throw new Error("Missing DMP in patch");
+    // arr1 is now [0, 1, 2, 3, 4, 5]    
     this.dmp = { ...this.dmp, ...patch };
-    // console.log("post patch")
-    // console.log(this.dmp)
-    // console.log("==============")
   }
 
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
+    // console.log("onSubmit")
+    // console.log(this.dmp);
+    // alert('DMP updated!');
     this.dmp_Service.updateDMP(this.dmp).subscribe((aDMP) => {
-      this.dmp = aDMP;
-      let send = {"name":"DMP record", "data":this.dmp}
+      // this.dmp = aDMP;
+      // let send = {"name":"DMP record", "data":this.dmp}
       
-      let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
+      // let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
       alert('DMP updated!');
     });
   }

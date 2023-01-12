@@ -1,13 +1,30 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MIDASDMP } from '../types/midas-dmp.type';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DmpService {
 
-  constructor() { }
+  PDR_full = "http://localhost:9091/midas/dmp/mdm1"
+  dmpsAPI = "http://127.0.0.1:5000/dmps"  
+  /**
+   * See these two articles for setting up CORS in Angular
+   * https://dev-academy.com/angular-cors/
+   * https://www.azilen.com/blog/how-to-resolve-cors-errors-by-using-angular-proxy
+   * ng serve -o --proxy-config src/proxy.conf.json
+   */
+  PDR = "/api/midas/dmp/mdm1"
+
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
+  constructor(private http: HttpClient)  { }
+
 
   // For demo purposes we just store the DmpRecord here in the service
   // In a real world application you would make a request to the backend
@@ -64,19 +81,39 @@ export class DmpService {
 
   };
 
-  fetchDMP(): Observable<DMP_Meta> {
+  fetchPDR(): Observable<any>{
+    // console.log("fetchPDR")
+    let getInfo = this.http.get<any>(this.dmpsAPI);
+    return getInfo
+  }
+
+  postDMP(): Observable<any>{
+    console.log("postDMP")
+    
+    return this.http.post(this.dmpsAPI, JSON.stringify(this.DmpRecord), this.httpOptions)
+  }
+
+  fetchDMP(ex:string): Observable<DMP_Meta> {   
+    // console.log("fetchDMP") 
     return of(this.DmpRecord);
   }
 
-  updateDMP(DmpRecord: DMP_Meta): Observable<DMP_Meta> {
+  updateDMP(dmpMeta: DMP_Meta): Observable<MIDASDMP> {
     // The main objective of the spread operator is to spread the elements 
     // of an array or object. This is best explained with examples.
     // function foo(x, y, z) { }
     // var args = [0, 1, 2];
     // foo(...args);
-    
-    this.DmpRecord = { ...DmpRecord };
+    // console.log("updateDMP")
+    // console.log(dmpMeta)
+
+    let dateTime = new Date().toLocaleString()
+    let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
+    this.DmpRecord = { ...dmpMeta };
+    // let postRes = this.http.post<MIDASDMP>(this.PDR_full, JSON.stringify(midasDMP), this.httpOptions)
+    let postRes = this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
     //emits any number of provided values in sequence
-    return of(this.DmpRecord);
+    let ofDMP = of(midasDMP);
+    return postRes;
   }
 }
