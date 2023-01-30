@@ -13,13 +13,15 @@ import { DmpService } from 'src/app/shared/dmp.service'
 
 // for Communicating with backend services using HTTP
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+// import { HttpClient } from '@angular/common/http';
 /**
  * The HttpClient service makes use of observables for all transactions. You must import the RxJS observable and 
  * operator symbols that appear in the example snippets. These ConfigService imports are typical.
  */
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+// import { Observable, throwError } from 'rxjs';
+// import { catchError, retry } from 'rxjs/operators';
+
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
 
 
@@ -83,11 +85,21 @@ export class DmpFormComponent implements OnInit {
 
   });
 
-  constructor(private fb: FormBuilder, private dmp_Service: DmpService, private http: HttpClient) {}
+  constructor(
+    private fb: FormBuilder, 
+    private dmp_Service: DmpService, 
+    private route: ActivatedRoute,
+    // private http: HttpClient
+    ) {}
+
+  action:string = "";
 
   ngOnInit(): void {
+    this.route.data.subscribe(data  => {
+      this.action = data["action"] ;
+    });
     // Fetch initial data from the (fake) backend
-    this.dmp_Service.fetchDMP("zimzo").subscribe((dmp) => {
+    this.dmp_Service.fetchDMP(this.action).subscribe((dmp) => {
       // console.log("fetchDMP_");
       this.initialDMP = dmp;
       this.dmp = dmp;

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
 import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type'; //possibly need to comment this out
 import { Contributor } from 'src/app/types/contributor.type';
-import { DmpAPIService } from '../../dmp-api.service';
+import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from 'src/app/types/nist-contact'
 

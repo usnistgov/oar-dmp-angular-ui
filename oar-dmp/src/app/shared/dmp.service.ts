@@ -25,6 +25,47 @@ export class DmpService {
 
   constructor(private http: HttpClient)  { }
 
+  private NewDmpRecord: DMP_Meta = {
+    //Basic Info Meta data
+    title:                    '',
+    startDate:                '',
+    endDate:                  '',
+    dmpSearchable:            'yes',
+    funding:                  {grant_source:'Grant Number', grant_id:''},
+    projectDescription:       '',
+
+    //Personel
+    primary_NIST_contact:     {firstName:"", lastName:""},
+    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
+    contributors:             [],
+
+    //Keywords
+    keyWords:                 [],
+
+    //Technical Resources
+    dataSize:                 0,
+    sizeUnit:                 "GB",
+    softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
+    technicalResources:       [],
+    
+    // Ethical Issues Meta data
+    ethical_issues:           {
+                                ethical_issues_exist:         'no', 
+                                ethical_issues_description:   '', 
+                                ethical_issues_report:        '', 
+                                dmp_PII:                      'no'
+                              },
+
+    // Data Description Meta data
+    dataDescription:          '',
+    dataCategories:           [],
+
+    // Data Preservation Meta data
+    preservationDescription:  '',
+    pathsURLs:                []
+
+  };
+
 
   // For demo purposes we just store the DmpRecord here in the service
   // In a real world application you would make a request to the backend
@@ -93,9 +134,16 @@ export class DmpService {
     return this.http.post(this.dmpsAPI, JSON.stringify(this.DmpRecord), this.httpOptions)
   }
 
-  fetchDMP(ex:string): Observable<DMP_Meta> {   
-    // console.log("fetchDMP") 
-    return of(this.DmpRecord);
+  fetchDMP(action:string): Observable<DMP_Meta> {   
+    //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
+    // or if we are editing an existing one and which needs to be pulled from API
+    if (action === 'new'){
+      return of (this.NewDmpRecord);
+    }
+    else{
+      return of(this.DmpRecord);
+    }
+    
   }
 
   updateDMP(dmpMeta: DMP_Meta): Observable<MIDASDMP> {

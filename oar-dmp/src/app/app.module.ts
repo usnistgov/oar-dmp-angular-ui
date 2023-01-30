@@ -26,7 +26,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
-// import { RouterModule } from '@angular/router';
+import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     DataDescriptionComponent,
     ResourceOptionsComponent,
     DataPreservationComponent,
-    DmpFormComponent
+    DmpFormComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -60,9 +62,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatDialogModule,
 
     MatAutocompleteModule,
-    // RouterModule.forRoot([
-    //   {path: 'api'},
-    // ]),
+    DmpRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
