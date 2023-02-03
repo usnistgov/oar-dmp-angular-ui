@@ -15,8 +15,8 @@ export class EthicalIssuesComponent {
   // form controls, validators and any other configuration
   ethicalIsuesForm = this.fb.group({
     ethicalIssue: ['', Validators.required],
-    ethicalIssueDescription: ['', Validators.required],
-    ethicalReport: ['', Validators.required],
+    ethicalIssueDescription: [''],
+    ethicalReport: [''],
     ethicalPII: ['', Validators.required]
 
   });

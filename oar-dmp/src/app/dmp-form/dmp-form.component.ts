@@ -112,12 +112,6 @@ export class DmpFormComponent implements OnInit {
     //   }
     // );
 
-    // this.dmp_Service.postDMP().subscribe(
-    //   (surprise)=>{
-    //     console.log("postDMP_");
-    //     console.log(surprise);
-    //   }
-    // );
 
   }
 

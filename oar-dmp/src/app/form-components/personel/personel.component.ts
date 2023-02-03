@@ -6,7 +6,7 @@ import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from 'src/app/types/nist-contact'
 
-import { FormBuilder } from '@angular/forms';
+import { Validators, FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 
@@ -109,7 +109,7 @@ export class PersonelComponent implements OnInit {
 
   personelForm = this.fb.group(
     {
-      primary_NIST_contact:       [''],
+      primary_NIST_contact:       ['', Validators.required],
       NIST_DMP_Reviewer:          [''],
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
