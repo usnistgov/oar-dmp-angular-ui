@@ -152,8 +152,9 @@ export class DmpFormComponent implements OnInit {
       // let send = {"name":"DMP record", "data":this.dmp}
       
       // let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
-      alert('DMP updated!');
+      alert('DMP Saved!');
     });
+    console.log("onSubmit complete");
   }
 
   resetDmp(){

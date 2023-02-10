@@ -159,9 +159,19 @@ export class DmpService {
     let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
     this.DmpRecord = { ...dmpMeta };
     // let postRes = this.http.post<MIDASDMP>(this.PDR_full, JSON.stringify(midasDMP), this.httpOptions)
-    let postRes = this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+    this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions).subscribe({
+        next: data => {
+            // this.postId = data.id;
+            console.log('Next - Success');
+        },
+        error: error => {
+            // this.errorMessage = error.message;1
+            console.error('There was an error!', error);
+        }
+    })
     //emits any number of provided values in sequence
     let ofDMP = of(midasDMP);
-    return postRes;
+    return ofDMP
+    // return postRes;
   }
 }
