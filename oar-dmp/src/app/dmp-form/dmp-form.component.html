@@ -57,13 +57,16 @@
     <button mat-button color="primary" type="button" (click)="resetDmp()">
       Reset
     </button>
+    <button mat-button type="button" class="draft" (click)="saveDraft()">
+      Save Draft
+    </button>
     <button
       mat-flat-button
       color="primary"
       type="submit"
       [disabled]="form.invalid"
     >
-      Save
+      Publish
     </button>
   </div>
   

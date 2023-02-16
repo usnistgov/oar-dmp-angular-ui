@@ -147,6 +147,7 @@ export class DmpFormComponent implements OnInit {
     // console.log("onSubmit")
     // console.log(this.dmp);
     // alert('DMP updated!');
+    /*
     this.dmp_Service.updateDMP(this.dmp).subscribe((aDMP) => {
       // this.dmp = aDMP;
       // let send = {"name":"DMP record", "data":this.dmp}
@@ -154,7 +155,31 @@ export class DmpFormComponent implements OnInit {
       // let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
       alert('DMP Saved!');
     });
-    console.log("onSubmit complete");
+    */
+    this.dmp_Service.postDMP(this.dmp).subscribe(
+      {
+        next: data => {
+            // this.postId = data.id;
+            console.log('Next - Success');
+            console.log(data);
+            // alert('DMP Saved!');
+            // return of("Success");
+        },
+        error: error => {
+            // this.errorMessage = error.message;1
+            console.log('There was an error!');
+            console.log(error.message);
+            //alert('DMP NOT Saved!');
+            // return of("Error");
+        }
+      }
+    );
+    
+    //console.log("onSubmit complete");
+  }
+
+  saveDraft(){
+    console.log("save draft");
   }
 
   resetDmp(){

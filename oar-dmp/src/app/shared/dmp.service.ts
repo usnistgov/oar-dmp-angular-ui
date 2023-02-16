@@ -127,12 +127,14 @@ export class DmpService {
     let getInfo = this.http.get<any>(this.dmpsAPI);
     return getInfo
   }
-
+ 
+  /*
   postDMP(): Observable<any>{
     console.log("postDMP")
     
     return this.http.post(this.dmpsAPI, JSON.stringify(this.DmpRecord), this.httpOptions)
   }
+  */
 
   fetchDMP(action:string): Observable<DMP_Meta> {   
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
@@ -146,7 +148,7 @@ export class DmpService {
     
   }
 
-  updateDMP(dmpMeta: DMP_Meta): Observable<MIDASDMP> {
+  updateDMP(dmpMeta: DMP_Meta)/*:Observable<MIDASDMP>*/ {
     // The main objective of the spread operator is to spread the elements 
     // of an array or object. This is best explained with examples.
     // function foo(x, y, z) { }
@@ -158,20 +160,33 @@ export class DmpService {
     let dateTime = new Date().toLocaleString()
     let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
     this.DmpRecord = { ...dmpMeta };
+    //emits any number of provided values in sequence
+    let ofDMP = of(midasDMP);
+    
     // let postRes = this.http.post<MIDASDMP>(this.PDR_full, JSON.stringify(midasDMP), this.httpOptions)
     this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions).subscribe({
         next: data => {
             // this.postId = data.id;
             console.log('Next - Success');
+            alert('DMP Saved!');
+            // return of("Success");
         },
         error: error => {
             // this.errorMessage = error.message;1
             console.error('There was an error!', error);
+            alert('DMP NOT Saved!');
+            // return of("Error");
         }
     })
-    //emits any number of provided values in sequence
-    let ofDMP = of(midasDMP);
+    // return "a string";
     return ofDMP
     // return postRes;
+  }
+
+  postDMP(dmpMeta: DMP_Meta){
+    console.log("postDMP")
+    let dateTime = new Date().toLocaleString()
+    let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
+    return this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
   }
 }
