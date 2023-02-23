@@ -6,6 +6,7 @@ import { PageNotFoundComponent } from '../page-not-found/page-not-found.componen
 const routes: Routes = [
   { path: 'new', component: DmpFormComponent, data: {action:"new"} },
   { path: 'edit', component: DmpFormComponent, data: {action:"edit"} },
+  { path: 'edit/:id', component: DmpFormComponent, data: {action:"edit"} },
   { path: '**', component: PageNotFoundComponent },  // Wildcard route for a 404 page
 ];
 

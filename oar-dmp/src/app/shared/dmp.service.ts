@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { MIDASDMP } from '../types/midas-dmp.type';
 
 @Injectable({
@@ -136,14 +136,21 @@ export class DmpService {
   }
   */
 
-  fetchDMP(action:string): Observable<DMP_Meta> {   
+  fetchDMP(action:string, recordID:string|null) {   
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
     // or if we are editing an existing one and which needs to be pulled from API
     if (action === 'new'){
-      return of (this.NewDmpRecord);
+      return of(this.NewDmpRecord);
     }
     else{
-      return of(this.DmpRecord);
+      /**
+       * get DMP record from API
+       */
+      let apiAddress:string = this.dmpsAPI;
+      if (recordID !==null){
+        apiAddress += "/" + recordID;
+      }
+      return this.http.get<any>(apiAddress);
     }
     
   }
@@ -187,6 +194,6 @@ export class DmpService {
     console.log("postDMP")
     let dateTime = new Date().toLocaleString()
     let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
-    return this.http.post<MIDASDMP>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+    return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
   }
 }

@@ -89,21 +89,46 @@ export class DmpFormComponent implements OnInit {
     private fb: FormBuilder, 
     private dmp_Service: DmpService, 
     private route: ActivatedRoute,
+    private router: Router
     // private http: HttpClient
     ) {}
 
   action:string = "";
+  id:string | null = null;
 
   ngOnInit(): void {
+    this.id = this.route.snapshot.paramMap.get('id')
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
     });
     // Fetch initial data from the (fake) backend
-    this.dmp_Service.fetchDMP(this.action).subscribe((dmp) => {
-      // console.log("fetchDMP_");
-      this.initialDMP = dmp;
-      this.dmp = dmp;
-    });
+    this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
+      {
+        next: data => {
+            // this.postId = data.id;
+            console.log('Next - Success');
+            if (this.id !==null){
+              console.log('display dmp pulled from the database');
+            }
+            else{
+              console.log('display empty dmp');
+              this.initialDMP = data;
+              this.dmp = data;
+            }
+        },
+        error: error => {
+            console.log('There was an error!');
+            console.log(error.message);
+        }
+      }
+    );
+    
+    
+    // .subscribe((dmp) => {
+    //   // console.log("fetchDMP_");
+    //   this.initialDMP = dmp;
+    //   this.dmp = dmp;
+    // });
 
     // this.dmp_Service.fetchPDR().subscribe(
     //   (aPDR)=>{
@@ -144,38 +169,21 @@ export class DmpFormComponent implements OnInit {
 
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
-    // console.log("onSubmit")
-    // console.log(this.dmp);
-    // alert('DMP updated!');
-    /*
-    this.dmp_Service.updateDMP(this.dmp).subscribe((aDMP) => {
-      // this.dmp = aDMP;
-      // let send = {"name":"DMP record", "data":this.dmp}
-      
-      // let postReturn = this.http.post('http://localhost:9091/midas/dmp/mdm1',JSON.stringify(send))
-      alert('DMP Saved!');
-    });
-    */
     this.dmp_Service.postDMP(this.dmp).subscribe(
       {
         next: data => {
             // this.postId = data.id;
             console.log('Next - Success');
-            console.log(data);
-            // alert('DMP Saved!');
-            // return of("Success");
+            console.log(data[0].data.endDate);
+            this.router.navigate(['edit', data[0]._id]);
+            alert('DMP Saved!');
         },
         error: error => {
-            // this.errorMessage = error.message;1
             console.log('There was an error!');
             console.log(error.message);
-            //alert('DMP NOT Saved!');
-            // return of("Error");
         }
       }
     );
-    
-    //console.log("onSubmit complete");
   }
 
   saveDraft(){
