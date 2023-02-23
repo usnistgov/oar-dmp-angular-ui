@@ -177,19 +177,32 @@ export class DmpFormComponent implements OnInit {
             // this.postId = data.id;
             console.log('Next - Success');
             console.log(data[0].data.endDate);
-            this.router.navigate(['edit', data[0]._id]);
-            alert('DMP Saved!');
+            this.router.navigate(['success']);
         },
         error: error => {
             console.log('There was an error!');
             console.log(error.message);
+            this.router.navigate(['error']);
         }
       }
     );
   }
 
   saveDraft(){
-    console.log("save draft");
+    if (!this.dmp) throw new Error("Missing DMP in submit");
+    this.dmp_Service.postDMP(this.dmp).subscribe(
+      {
+        next: data => {
+            console.log(data[0].data.endDate);
+            this.router.navigate(['edit', data[0]._id]);            
+        },
+        error: error => {
+            console.log('There was an error!');
+            console.log(error.message);
+            this.router.navigate(['error']);
+        }
+      }
+    );
   }
 
   resetDmp(){
