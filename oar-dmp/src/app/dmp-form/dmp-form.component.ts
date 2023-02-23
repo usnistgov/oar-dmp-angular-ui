@@ -101,7 +101,7 @@ export class DmpFormComponent implements OnInit {
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
     });
-    // Fetch initial data from the (fake) backend
+    // Fetch initial data from the backend
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
       {
         next: data => {
@@ -109,6 +109,8 @@ export class DmpFormComponent implements OnInit {
             console.log('Next - Success');
             if (this.id !==null){
               console.log('display dmp pulled from the database');
+              this.initialDMP = data[0].data;
+              this.dmp = data[0].data;
             }
             else{
               console.log('display empty dmp');

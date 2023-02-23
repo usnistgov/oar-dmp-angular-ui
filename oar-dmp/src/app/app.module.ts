@@ -28,6 +28,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
 import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { PageErrorComponent } from './page-error/page-error.component';
+import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 
 
 @NgModule({
@@ -42,7 +44,9 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     ResourceOptionsComponent,
     DataPreservationComponent,
     DmpFormComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    PageErrorComponent,
+    PageDmpPublishedComponent
   ],
   imports: [
     BrowserModule,
