@@ -119,8 +119,9 @@ export class DmpFormComponent implements OnInit {
             }
         },
         error: error => {
-            console.log('There was an error!');
-            console.log(error.message);
+          console.log(error.message);
+          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+            
         }
       }
     );
@@ -171,7 +172,7 @@ export class DmpFormComponent implements OnInit {
 
   onSubmit() {
     if (!this.dmp) throw new Error("Missing DMP in submit");
-    this.dmp_Service.postDMP(this.dmp).subscribe(
+    this.dmp_Service.createDMP(this.dmp).subscribe(
       {
         next: data => {
             // this.postId = data.id;
@@ -180,9 +181,8 @@ export class DmpFormComponent implements OnInit {
             this.router.navigate(['success']);
         },
         error: error => {
-            console.log('There was an error!');
-            console.log(error.message);
-            this.router.navigate(['error']);
+          console.log(error.message);
+          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
         }
       }
     );
@@ -190,19 +190,39 @@ export class DmpFormComponent implements OnInit {
 
   saveDraft(){
     if (!this.dmp) throw new Error("Missing DMP in submit");
-    this.dmp_Service.postDMP(this.dmp).subscribe(
-      {
-        next: data => {
+    if (this.id !==null){
+      // If id is not null then update dmp with the current id
+      console.log("update DMP")
+      this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
+        {
+          next: data => {
             console.log(data[0].data.endDate);
             this.router.navigate(['edit', data[0]._id]);            
-        },
-        error: error => {
-            console.log('There was an error!');
+          },
+          error: error => {
             console.log(error.message);
-            this.router.navigate(['error']);
+            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+          }
+          
         }
-      }
-    );
+      );
+    }
+    else {
+      //create a new DMP
+      this.dmp_Service.createDMP(this.dmp).subscribe(
+        {
+          next: data => {
+              console.log(data[0].data.endDate);
+              this.router.navigate(['edit', data[0]._id]);            
+          },
+          error: error => {
+            console.log(error.message);
+            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+          }
+        }
+      );
+    }
+    
   }
 
   resetDmp(){
@@ -237,6 +257,19 @@ export class DmpFormComponent implements OnInit {
     })
 
     this.preservationLinksTable.clearTable();
+  }
+
+  buildErrorMessage(error:any){
+
+    let errorMessage = " ";
+    if (error.status){
+      errorMessage += error.status + " ";
+    }
+    if (error.statusText){
+      errorMessage += error.statusText + " ";
+    }
+    return errorMessage;
+
   }
 
 }
