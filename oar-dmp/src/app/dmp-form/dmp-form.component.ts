@@ -175,9 +175,6 @@ export class DmpFormComponent implements OnInit {
     this.dmp_Service.createDMP(this.dmp).subscribe(
       {
         next: data => {
-            // this.postId = data.id;
-            console.log('Next - Success');
-            console.log(data[0].data.endDate);
             this.router.navigate(['success']);
         },
         error: error => {
@@ -196,7 +193,6 @@ export class DmpFormComponent implements OnInit {
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
         {
           next: data => {
-            console.log(data[0].data.endDate);
             this.router.navigate(['edit', data[0]._id]);            
           },
           error: error => {
@@ -212,7 +208,6 @@ export class DmpFormComponent implements OnInit {
       this.dmp_Service.createDMP(this.dmp).subscribe(
         {
           next: data => {
-              console.log(data[0].data.endDate);
               this.router.navigate(['edit', data[0]._id]);            
           },
           error: error => {

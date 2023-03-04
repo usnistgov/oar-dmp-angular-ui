@@ -151,7 +151,10 @@ export class DmpService {
     console.log("updateDMP");
     let apiAddress:string = this.dmpsAPI;
     apiAddress += "/" + dmpID;
-    let updatedDMP = {data:dmpMeta};
+
+    let dateTime = new Date().toLocaleString()
+    let status = {state:"edit", modified:dateTime, action:"update", message:''};
+    let updatedDMP = {status:status, data:dmpMeta};
     return this.http.put<Array<any>>(apiAddress, JSON.stringify(updatedDMP), this.httpOptions)
 
   }
@@ -159,7 +162,8 @@ export class DmpService {
   createDMP(dmpMeta: DMP_Meta){
     console.log("createDMP")
     let dateTime = new Date().toLocaleString()
-    let midasDMP:MIDASDMP = {name:dateTime, data:dmpMeta}
+    let status = {state:"edit", since:dateTime, modified:dateTime, action:"create", message:''};
+    let midasDMP:MIDASDMP = {status:status, data:dmpMeta}
     return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
   }
 
