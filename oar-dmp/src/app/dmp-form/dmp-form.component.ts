@@ -10,6 +10,7 @@ import { DataDescriptionComponent } from '../form-components/data-description/da
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
+import { FormControl } from '@angular/forms';
 
 // for Communicating with backend services using HTTP
 import { Injectable } from '@angular/core';
@@ -85,6 +86,8 @@ export class DmpFormComponent implements OnInit {
 
   });
 
+  name = new FormControl('');
+
   constructor(
     private fb: FormBuilder, 
     private dmp_Service: DmpService, 
@@ -109,13 +112,16 @@ export class DmpFormComponent implements OnInit {
             console.log('Next - Success');
             if (this.id !==null){
               console.log('display dmp pulled from the database');
-              this.initialDMP = data[0].data;
-              this.dmp = data[0].data;
+              this.initialDMP = data.data;
+              this.dmp = data.data;
+              this.name.setValue(data.name);
+              // this.name.value = data.name
             }
             else{
               console.log('display empty dmp');
               this.initialDMP = data;
               this.dmp = data;
+              // this.name.value = '';
             }
         },
         error: error => {
@@ -171,8 +177,15 @@ export class DmpFormComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.dmp) throw new Error("Missing DMP in submit");
-    this.dmp_Service.createDMP(this.dmp).subscribe(
+    if (!this.dmp){
+      alert("Cannot save DMP. Record name is empty. Missing DMP in submit")
+      throw new Error("Missing DMP in submit");
+    }
+    if (this.name.value === '') {
+      alert("Cannot save DMP. Record name is empty.")
+      throw new Error("Record name is empty");
+    }
+    this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
       {
         next: data => {
             this.router.navigate(['success']);
@@ -186,14 +199,23 @@ export class DmpFormComponent implements OnInit {
   }
 
   saveDraft(){
-    if (!this.dmp) throw new Error("Missing DMP in submit");
+    if (!this.dmp){
+      alert("Cannot save DMP. Record name is empty. Missing DMP in submit")
+      throw new Error("Missing DMP in submit");
+    } 
+    if (this.name.value === '') {
+      alert("Cannot save DMP. Record name is empty.")
+      throw new Error("Record name is empty");
+    }
     if (this.id !==null){
       // If id is not null then update dmp with the current id
       console.log("update DMP")
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
         {
           next: data => {
-            this.router.navigate(['edit', data[0]._id]);            
+            console.log("Successful update of the record")
+            this.dmp = data;
+            alert("Successfuly saved draft of the data");
           },
           error: error => {
             console.log(error.message);
@@ -205,10 +227,11 @@ export class DmpFormComponent implements OnInit {
     }
     else {
       //create a new DMP
-      this.dmp_Service.createDMP(this.dmp).subscribe(
+      this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
         {
           next: data => {
-              this.router.navigate(['edit', data[0]._id]);            
+            console.log(data.id)
+            this.router.navigate(['edit', data.id]);
           },
           error: error => {
             console.log(error.message);

@@ -9,7 +9,7 @@ import { MIDASDMP } from '../types/midas-dmp.type';
 })
 export class DmpService {
 
-  PDR_full = "http://localhost:9091/midas/dmp/mdm1"
+  PDR_AIP = "http://localhost:9091/midas/dmp/mdm1"
   dmpsAPI = "http://127.0.0.1:5000/dmps"  
   /**
    * See these two articles for setting up CORS in Angular
@@ -124,7 +124,7 @@ export class DmpService {
 
   fetchPDR(): Observable<any>{
     // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.dmpsAPI);
+    let getInfo = this.http.get<any>(this.PDR_AIP);
     return getInfo
   }
 
@@ -138,7 +138,7 @@ export class DmpService {
       /**
        * get DMP record from API
        */
-      let apiAddress:string = this.dmpsAPI;
+      let apiAddress:string = this.PDR_AIP;
       if (recordID !==null){
         apiAddress += "/" + recordID;
       }
@@ -149,22 +149,19 @@ export class DmpService {
 
   updateDMP(dmpMeta: DMP_Meta, dmpID: string) {
     console.log("updateDMP");
-    let apiAddress:string = this.dmpsAPI;
-    apiAddress += "/" + dmpID;
-
-    let dateTime = new Date().toLocaleString()
-    let status = {state:"edit", modified:dateTime, action:"update", message:''};
-    let updatedDMP = {status:status, data:dmpMeta};
-    return this.http.put<Array<any>>(apiAddress, JSON.stringify(updatedDMP), this.httpOptions)
+    let apiAddress:string = this.PDR_AIP;
+    apiAddress += "/" + dmpID + "/data";
+    return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.httpOptions)
 
   }
 
-  createDMP(dmpMeta: DMP_Meta){
+  createDMP(dmpMeta: DMP_Meta, name:string){
     console.log("createDMP")
-    let dateTime = new Date().toLocaleString()
-    let status = {state:"edit", since:dateTime, modified:dateTime, action:"create", message:''};
-    let midasDMP:MIDASDMP = {status:status, data:dmpMeta}
-    return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+    let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
+    return this.http.post<any>(this.PDR_AIP, JSON.stringify(midasDMP), this.httpOptions)
+    // return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+    
+
   }
 
 }

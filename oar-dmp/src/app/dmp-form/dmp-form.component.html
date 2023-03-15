@@ -1,5 +1,16 @@
 
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
+
+  <div class="dmpSection">
+    <table>
+      <tr>
+        <td><label for="name">Record Name: </label></td>
+        <td><input id="name" type="text" [formControl]="name"></td>
+      </tr>
+    </table>
+    
+    
+  </div>
   
   <!-- And in our template we can render all child components and register the formReady event. -->
   <!-- BASIC INFO -->
