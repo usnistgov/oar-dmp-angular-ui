@@ -5,7 +5,7 @@
     <table>
       <tr>
         <td><label for="name">Record Name: </label></td>
-        <td><input id="name" type="text" [formControl]="name"></td>
+        <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled"></div></td>
       </tr>
     </table>
     
@@ -81,9 +81,9 @@
     </button>
   </div>
   
-  <div class="output">
+  <!-- <div class="output">
     <div>Current DMP Object:</div>
     <pre>{{ dmp | json }}</pre>
-  </div>
+  </div> -->
   
 </form>

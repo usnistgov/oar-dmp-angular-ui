@@ -87,6 +87,8 @@ export class DmpFormComponent implements OnInit {
   });
 
   name = new FormControl('');
+  nameDisabled = false;
+  nameClass:string = "mnemonicNameNew";
 
   constructor(
     private fb: FormBuilder, 
@@ -103,6 +105,14 @@ export class DmpFormComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id')
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
+      if (this.action === "edit"){
+        this.nameClass = "mnemonicNameDisabled"
+        this.nameDisabled = true;
+      }
+      else{
+        this.nameClass = "mnemonicNameNew"
+        this.nameDisabled = false;
+      }
     });
     // Fetch initial data from the backend
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
