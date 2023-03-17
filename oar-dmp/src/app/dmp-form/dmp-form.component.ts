@@ -213,8 +213,8 @@ export class DmpFormComponent implements OnInit {
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
         {
           next: data => {
-            console.log("Successful update of the record")
-            this.dmp = data;
+            //try to reload the page to read the saved dmp from mongodb
+            this.router.navigate(['edit', this.id]);
             alert("Successfuly saved draft of the data");
           },
           error: error => {

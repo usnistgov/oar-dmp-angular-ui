@@ -15,7 +15,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {onSameUrlNavigation:'reload'})],
+  // use reload to Refetch data on same URL navigation
+  // this is used to reload saved draft from dmp which enables for 
+  // metadata that are lists to be properly saved and updated
   exports: [RouterModule]
 })
 export class DmpRoutingModule { }
