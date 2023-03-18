@@ -130,12 +130,12 @@ version=$VERSION
 [ -n "$version" ] || version=`cat $PACKAGE_DIR/VERSION | awk '{print $2}'`
 vers4fn=`echo $version | perl -pe 's#[/ \t]+#_#g'`
 
-# install required modules
-nodemodarg=
-[ -z "$CACHE_DIR" ] || nodemodearg="--prefix $CACHE_DIR"
-npmvers=`npm --version`
-echo '+' npm install $nodemodarg
-npm $npmpfx install $nodemodarg
+# # install required modules
+# nodemodarg=
+# [ -z "$CACHE_DIR" ] || nodemodearg="--prefix $CACHE_DIR"
+# npmvers=`npm --version`
+# echo '+' npm install $nodemodarg
+# npm $npmpfx install $nodemodarg
 
 echo '#########################'
 echo '#'
