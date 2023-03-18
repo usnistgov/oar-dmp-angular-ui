@@ -64,7 +64,7 @@ VOLUME /dev/oar-dmp-angular-ui
 VOLUME /app/dist
 
 RUN mkdir -p /dev/oar-dmp-angular-ui /app && chmod a+rwx /app
-WORKDIR /dev/oar-midas-portal
+WORKDIR /dev/oar-dmp-angular-ui
 
 ENV CODEDIR /dev/oar-dmp-angular-ui
 ENV DOCKERDIR /dev/oar-dmp-angular-ui
