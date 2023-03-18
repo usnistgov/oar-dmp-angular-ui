@@ -1,0 +1,18 @@
+#! /bin/bash
+#
+# makedist:  build the package's distributions
+#
+# This script is designed to run without any arguments: this will build
+# all of the available distributions.  Restricting the build to specific
+# distributions can be done by listing the names of the desired distributions
+# on the command line.
+#
+# This script is a simple wrapper around makedist.angular; see that script
+# for further details (or type "makedist -h")
+set -e
+prog=`basename $0`
+execdir=`dirname $0`
+[ "$execdir" = "" -o "$execdir" = "." ] && execdir=$PWD
+PACKAGE_DIR=`dirname $execdir`
+
+exec $execdir/makedist.dmpui
