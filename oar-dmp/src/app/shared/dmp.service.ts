@@ -9,7 +9,7 @@ import { MIDASDMP } from '../types/midas-dmp.type';
 })
 export class DmpService {
 
-  PDR_AIP = "http://localhost:9091/midas/dmp/mdm1"
+  PDR_AIP = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
   dmpsAPI = "http://127.0.0.1:5000/dmps"  
   /**
    * See these two articles for setting up CORS in Angular
@@ -17,7 +17,7 @@ export class DmpService {
    * https://www.azilen.com/blog/how-to-resolve-cors-errors-by-using-angular-proxy
    * ng serve -o --proxy-config src/proxy.conf.json
    */
-  PDR = "/api/midas/dmp/mdm1"
+  // PDR = "/api/midas/dmp/mdm1"
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
