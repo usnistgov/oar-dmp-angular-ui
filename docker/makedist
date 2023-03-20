@@ -12,12 +12,11 @@
 #   angular            build only the angular-based distributions
 #   java               build only the java-based distributions 
 #
-echo "********************** makdist in docker"
+echo "############ makedist in docker  $@ "
 prog=`basename $0`
 execdir=`dirname $0`
 [ "$execdir" = "" -o "$execdir" = "." ] && execdir=$PWD
 export CODEDIR=`(cd $execdir/.. > /dev/null 2>&1; pwd)`
 export DOCKERDIR=$execdir
-echo "$DOCKERDIR/run.sh build $@"
 
 exec $DOCKERDIR/run.sh build "$@"

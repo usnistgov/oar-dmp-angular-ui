@@ -149,15 +149,16 @@ echo '+' " npm run build-oardmp"
 # npm run build-all
 npm run build-oardmp
 # create the dependency file
-if [ -f "package-lock.json" ]; then
+if [ -f "$SOURCE_DIR/package-lock.json" ]; then
     echo '+' $execdir/record_npm_deps.py $DISTNAMES $version package-lock.json \
              $npmvers \> $DIST_DIR/${DISTNAMES}-${vers4fn}_dep.json
     $execdir/record_npm_deps.py $DISTNAMES $version package-lock.json \
-             $npmvers  > $DIST_DIR/${DISTNAMES}-${vers4fn}_dep.json
+                            $npmvers > $DIST_DIR/${DISTNAMES}-${vers4fn}_dep.json
 else
     echo ${prog}: WARNING: Unable to create dependency file for ${dist}: \
          package-lock.json not found
 fi
+
 
 # # create the distribution file
 echo '+' '(cd' $BUILD_DIR '&&' \

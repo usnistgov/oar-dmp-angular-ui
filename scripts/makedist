@@ -7,12 +7,139 @@
 # distributions can be done by listing the names of the desired distributions
 # on the command line.
 #
-# This script is a simple wrapper around makedist.angular; see that script
-# for further details (or type "makedist -h")
+# There are currently two distributions: pdr-publish, pdr-lps
+#
+# SYNOPSIS
+#    makedist.angular [OPTIONS] [DISTNAME ...]
+#
+# OPTIONS
+#    -l, --list               list the names of the supported distributions and
+#                             exit without building.
+#    --dist-dir=DIR           The output directory to write the distribution
+#                             products into.
+#    -d DIR, --source-dir=DIR  the directory containing the python source code
+#                             (default: .)
+#    -c DIR, --cache-dir=DIR  directory for holding intermediate or cache-able
+#                             products; if provided, the node_modules cache will
+#                             be located and used from here.  This can be shared
+#                             with other similar packages to avoid redundant 
+#                             re-building of nodejs dependency modules
+#    -v VER, --version=VER    assign VER as the VERSION for this product
+#    
+#
+
+echo "********************** makedist in scripts"
 set -e
 prog=`basename $0`
 execdir=`dirname $0`
 [ "$execdir" = "" -o "$execdir" = "." ] && execdir=$PWD
 PACKAGE_DIR=`dirname $execdir`
+VERSION=
+echo "********************** $execdir "
+# this is needed because realpath is not on macs
+function realpath {
+    if [ -d "$1" ]; then
+        (cd $1 && pwd)
+    elif [ -f "$1" ]; then
+        file=`basename $1`
+        parent=`dirname $1`
+        realdir=`(cd $parent && pwd)`
+        echo "$realdir/$file"
+    elif [[ $1 = /* ]]; then
+        echo $1
+    else
+        echo "$PWD/${1#./}"
+    fi
+}
 
-exec $execdir/makedist.dmpui
+# Update this list with the names of the individual component names
+# 
+DISTNAMES="dmp-ui"
+dmp_dists=":dmp-ui:"
+
+
+# handle command line options
+while [ "$1" != "" ]; do 
+  case "$1" in
+    --list|-l)
+        echo "Available distributions: $DISTNAMES"
+        exit 0
+        ;;
+    --dist-dir=*)
+        DIST_DIR=`echo $1 | sed -e 's/[^=]*=//'`
+        ;;
+    --dist-dir)
+        shift
+        DIST_DIR=$1
+        ;;
+    --source-dir=*|--dir=*)
+        SOURCE_DIR=`echo $1 | sed -e 's/[^=]*=//'`
+        ;;
+    -d|--dir|--source-dir)
+        shift
+        SOURCE_DIR=$1
+        ;;
+    --cache-dir=*)
+        CACHE_DIR=`echo $1 | sed -e 's/[^=]*=//'`
+        # NOTE: CACHE_DIR is ignored
+        ;;
+    -c|--cache-dir)
+        shift
+        CACHE_DIR=$1
+        # NOTE: CACHE_DIR is ignored
+        ;;
+    -*)
+        echo "$prog: unsupported option:" $1
+        false
+        ;;
+    *)
+        (echo :${DISTNAMES}: | sed -e 's/ /:/g' | grep -qs :${1}:) || {
+            echo "${prog}: ${1}: unrecognized distribution name"
+            echo "${prog}: recognized names:" $DISTNAMES
+            false
+        }
+        build_dist="$build_dist $1"
+        ;;
+  esac
+  shift
+done
+[ -n "$build_dist" ] || build_dist=$DISTNAMES
+echo '#' Building $build_dist
+
+# # make sure the oar-metadata submodule has been initialized
+# #
+# [ -d "oar-metadata/scripts" ] || {
+#     set -x
+#     git submodule init
+#     git submodule update
+#     set +x
+# }
+
+# set the current version.  This will inject the version into the code, if 
+# needed.
+#
+set -x
+(scripts/setversion.sh)
+scripts/setversion.sh $VERSION
+set +x
+[ -n "$PACKAGE_NAME" ] || PACKAGE_NAME=`cat VERSION | awk '{print $1}'`
+version=`cat VERSION | awk '{print $2}'`
+vers4fn=`echo $version | perl -pe 's#[/ ]+#_#g'`
+
+build_dmp=
+
+for dist in $build_dist; do
+    if (echo $dmp_dists | grep -qs :${dist}:); then
+        build_dmp="$build_dmp $dist"
+    fi
+done
+
+args=
+[ -z "$CACHE_DIR" ] || args="$args --cache-dir=`realpath $CACHE_DIR`"
+[ -z "$DIST_DIR" ] || args="$args --dist-dir=`realpath $DIST_DIR`"
+[ -z "$build_dmp" ] || {
+    sargs=
+    [ -z "$SOURCE_DIR" ] || sargs="--source-dir=$SOURCE_DIR"
+    echo '+' makedist.dmpui 
+    $execdir/makedist.dmpui 
+}
