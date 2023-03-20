@@ -114,6 +114,7 @@ done
 
 # true ${DIST_DIR:=$SOURCE_DIR/dist}
 DIST_DIR=`realpath $DIST_DIR`
+echo "mkdir -p $DIST_DIR $BUILD_DIR"
 mkdir -p $DIST_DIR $BUILD_DIR
 
 # set the current version.  This will inject the version into the code, if 

@@ -20,7 +20,7 @@ import os, sys, json
 from collections import OrderedDict
 
 prog = os.path.basename(sys.argv.pop(0))
-pkgname = os.environ.get('PACKAGE_NAME', 'oar-pdr')
+pkgname = os.environ.get('PACKAGE_NAME', 'oar-dmp-angular-ui')
 
 def fail(msg, excode=1):
     print(prog + ": " + msg, file=sys.stderr)
