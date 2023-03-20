@@ -169,6 +169,7 @@ if wordin dmp-ui $comptypes; then
 
     if [ "$docmds" == "build" ]; then
         # build only
+        
         echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \
                        "${args[@]}" "${angargs[@]}"
         docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \

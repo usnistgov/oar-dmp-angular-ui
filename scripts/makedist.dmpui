@@ -122,21 +122,22 @@ mkdir -p $DIST_DIR $BUILD_DIR
 #
 # don't reset the version unnecessarily as it may have been done by makedist
 # 
+# # 
 [ -z "$VERSION" -a -f "$PACKAGE_DIR/VERSION" ] || {
     echo '+' $execdir/setversion.sh $VERSION
     $execdir/setversion.sh $VERSION
 }
+
+echo "********************** 1"
 [ -n "$PACKAGE_NAME" ] || PACKAGE_NAME=`cat $PACKAGE_DIR/VERSION | awk '{print $1}'`
 version=$VERSION
 [ -n "$version" ] || version=`cat $PACKAGE_DIR/VERSION | awk '{print $2}'`
 vers4fn=`echo $version | perl -pe 's#[/ \t]+#_#g'`
-
+echo "********************** 2"
 # install required modules
 nodemodarg=
 [ -z "$CACHE_DIR" ] || nodemodearg="--prefix $CACHE_DIR"
 npmvers=`npm --version`
-# echo '+' npm install $nodemodarg
-# npm $npmpfx install $nodemodarg
 
 echo '#########################'
 echo '#'
@@ -148,6 +149,8 @@ npm run build-lib
 echo '+' " npm run build-oardmp"
 # npm run build-all
 npm run build-oardmp
+
+
 # create the dependency file
 if [ -f "$SOURCE_DIR/package-lock.json" ]; then
     echo '+' $execdir/record_npm_deps.py $DISTNAMES $version package-lock.json \
@@ -158,7 +161,6 @@ else
     echo ${prog}: WARNING: Unable to create dependency file for ${dist}: \
          package-lock.json not found
 fi
-
 
 # # create the distribution file
 echo '+' '(cd' $BUILD_DIR '&&' \

@@ -67,7 +67,7 @@ RUN mkdir -p /dev/oar-dmp-angular-ui /app && chmod a+rwx /app
 WORKDIR /dev/oar-dmp-angular-ui
 
 ENV CODEDIR /dev/oar-dmp-angular-ui
-ENV DOCKERDIR /dev/oar-dmp-angular-ui
+ENV DOCKERDIR /dev/oar-dmp-angular-ui/docker
 ENV DEVUID $devuid
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
