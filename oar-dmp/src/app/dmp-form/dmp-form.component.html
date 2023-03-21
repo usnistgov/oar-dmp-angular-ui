@@ -1,5 +1,16 @@
 
-<form *ngIf="initialDMP" (ngSubmit)="onSubmit()">
+<form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
+
+  <div class="dmpSection">
+    <table>
+      <tr>
+        <td><label for="name">Record Name: </label></td>
+        <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled"></div></td>
+      </tr>
+    </table>
+    
+    
+  </div>
   
   <!-- And in our template we can render all child components and register the formReady event. -->
   <!-- BASIC INFO -->
@@ -54,8 +65,11 @@
   <app-reviewer></app-reviewer>
 
   <div class="form-actions">
-    <button mat-button color="primary" type="button" (click)="resetDmp()">
+    <button mat-button class="btn_reset" type="button" (click)="resetDmp()">
       Reset
+    </button>
+    <button mat-button type="button" class="btn_draft" (click)="saveDraft()">
+      Save Draft
     </button>
     <button
       mat-flat-button
@@ -63,13 +77,13 @@
       type="submit"
       [disabled]="form.invalid"
     >
-      Save
+      Publish
     </button>
   </div>
   
-  <div class="output">
+  <!-- <div class="output">
     <div>Current DMP Object:</div>
     <pre>{{ dmp | json }}</pre>
-  </div>
+  </div> -->
   
 </form>
