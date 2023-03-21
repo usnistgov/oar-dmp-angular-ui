@@ -140,22 +140,7 @@ export class DmpFormComponent implements OnInit {
             
         }
       }
-    );
-    
-    
-    // .subscribe((dmp) => {
-    //   // console.log("fetchDMP_");
-    //   this.initialDMP = dmp;
-    //   this.dmp = dmp;
-    // });
-
-    // this.dmp_Service.fetchPDR().subscribe(
-    //   (aPDR)=>{
-    //     console.log("fetchPDR_");
-    //     console.log(aPDR);
-    //   }
-    // );
-
+    );    
 
   }
 
@@ -188,7 +173,7 @@ export class DmpFormComponent implements OnInit {
 
   onSubmit() {
     if (!this.dmp){
-      alert("Cannot save DMP. Record name is empty. Missing DMP in submit")
+      alert("Cannot save DMP. Missing DMP in submit")
       throw new Error("Missing DMP in submit");
     }
     if (this.name.value === '') {

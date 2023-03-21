@@ -103,7 +103,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
      */
-    this.getNistContactsFromAPI(); //sets values from API service
+    // this.getNistContactsFromAPI(); //sets values from API service
 
   }
 
@@ -192,7 +192,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
-    // this.getNistContacts();
+    this.getNistContacts();
 
   }  
 
@@ -208,7 +208,7 @@ export class PersonelComponent implements OnInit {
    */
   getNistContacts(){
     this.nistContacts = NIST_STAFF;
-    // this.setNISTContacts();
+    this.getNistContactsFromAPI();
   }
 
 
