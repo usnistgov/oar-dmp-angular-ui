@@ -172,25 +172,31 @@ export class DmpFormComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.dmp){
-      alert("Cannot save DMP. Missing DMP in submit")
-      throw new Error("Missing DMP in submit");
-    }
-    if (this.name.value === '') {
-      alert("Cannot save DMP. Record name is empty.")
-      throw new Error("Record name is empty");
-    }
-    this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
-      {
-        next: data => {
-            this.router.navigate(['success']);
-        },
-        error: error => {
-          console.log(error.message);
-          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
-        }
-      }
-    );
+    // For demo purposes make onSumit identical to saving a draft
+    // later new logic will have to be implemented for proper proceduere
+    // of submitting a DMP record for publishing
+    this.saveDraft();
+
+    
+    // if (!this.dmp){
+    //   alert("Cannot save DMP. Missing DMP in submit")
+    //   throw new Error("Missing DMP in submit");
+    // }
+    // if (this.name.value === '') {
+    //   alert("Cannot save DMP. Record name is empty.")
+    //   throw new Error("Record name is empty");
+    // }
+    // this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
+    //   {
+    //     next: data => {
+    //         this.router.navigate(['success']);
+    //     },
+    //     error: error => {
+    //       console.log(error.message);
+    //       this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+    //     }
+    //   }
+    // );
   }
 
   saveDraft(){
