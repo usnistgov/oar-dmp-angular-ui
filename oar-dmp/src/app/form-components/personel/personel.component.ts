@@ -99,13 +99,12 @@ export class PersonelComponent implements OnInit {
     private apiService: DmpAPIService,
     private fb: FormBuilder
   ) { 
-    // console.log("constructor")
+    console.log("constructor")
     /**
-     * NOTE coment this when NOT pulling data from API with a backend database
-     * enable getNistContacts(); in ngOninit to work woth hard coded NIST contacts 
-     * for testing purposes
+     * NOTE uncoment this when pulling data from API with a backend database
      */
     // this.getNistContactsFromAPI(); //sets values from API service
+
   }
 
   personelForm = this.fb.group(
@@ -191,8 +190,7 @@ export class PersonelComponent implements OnInit {
   ngOnInit(): void {
     // console.log("ngOnInit");
     /**
-     * NOTE Comment below when woking with mongo DB API to pull contacts from the Mongo DB
-     * enable getgetAllFromAPI() in constructor to work with API
+     * NOTE Comment below when woking with API
      */
     this.getNistContacts();
 
@@ -208,7 +206,6 @@ export class PersonelComponent implements OnInit {
    * This function gets hard coded NIST contasts
    * Used when not working with an API for NIST contacts database
    */
-  
   getNistContacts(){
     this.nistContacts = NIST_STAFF;
     this.getNistContactsFromAPI();
@@ -224,8 +221,84 @@ export class PersonelComponent implements OnInit {
            * that is used for drop down select
            */
           this.nistContacts = v;
-          this.setNISTContacts();
           
+          this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
+            startWith(''),
+            map (value => {
+              
+                /**
+                 * The optional chaining ?. operator in TypeScript value?.firstName
+                 * 
+                 * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+                 * using dot notation to access a nested property of an object, but instead of causing an 
+                 * error if the reference is nullish, it short-circuits returning undefined.
+                 * 
+                 * if value is a string return value else return concatenation of value.firstName and value.lastName
+                 * */
+                // console.log(value);
+                const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+                var res = name ? this._filter(name as string): this.nistContacts.slice();
+                // console.log(res.length);
+                if (res.length ===1){
+                  this.personelForm.patchValue({
+                    nistContactFirstName: value.firstName,
+                    nistContactLastName:  value.lastName,
+                  })
+                }
+                return res;
+
+              }
+            )
+          );
+
+          // this.fltr_NIST_DMP_Reviewer = this.personelForm.controls['NIST_DMP_Reviewer'].valueChanges.pipe(
+          //   startWith(''),
+          //   map (reviewer => {             
+                
+          //       // console.log(reviewer);
+          //       const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
+          //       var res2 = name ? this._filter(name as string): this.nistContacts.slice();
+          //       // console.log(res.length);
+          //       if (res2.length ===1){
+          //         this.personelForm.patchValue({
+          //           nistReviewerFirstName: reviewer.firstName,
+          //           nistReviewerLastName:  reviewer.lastName,
+          //         })
+          //       }
+          //       return res2;
+
+          //     }
+          //   )
+          // );
+
+          this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+            startWith(''),
+            map (contributor => {             
+                
+                // console.log(contributor);
+                const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
+                var res3 = name ? this._filter(name as string): this.nistContacts.slice();
+                // console.log(res.length);
+                if (res3.length ===1){
+                  this.personelForm.patchValue({
+                    nistReviewerFirstName: contributor.firstName,
+                    nistReviewerLastName:  contributor.lastName,
+                  })
+                  this.crntContribName = contributor.firstName;
+                  this.crntContribSurname = contributor.lastName;
+                  this.crntContribEmail = contributor.e_mail;
+
+                  this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+                  if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+                    this.disableAdd=false;
+                  }
+                }
+                return res3;
+
+              }
+            )
+          );
         },
         error: (e) => console.error(e) 
       }
