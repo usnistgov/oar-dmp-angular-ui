@@ -206,6 +206,7 @@ export class PersonelComponent implements OnInit {
    * This function gets hard coded NIST contasts
    * Used when not working with an API for NIST contacts database
    */
+  
   getNistContacts(){
     this.nistContacts = NIST_STAFF;
     this.getNistContactsFromAPI();
