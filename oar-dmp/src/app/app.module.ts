@@ -26,6 +26,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import {MatAutocompleteModule} from '@angular/material/autocomplete'; 
+import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { PageErrorComponent } from './page-error/page-error.component';
+import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
+
 
 @NgModule({
   declarations: [
@@ -38,7 +43,10 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     DataDescriptionComponent,
     ResourceOptionsComponent,
     DataPreservationComponent,
-    DmpFormComponent
+    DmpFormComponent,
+    PageNotFoundComponent,
+    PageErrorComponent,
+    PageDmpPublishedComponent
   ],
   imports: [
     BrowserModule,
@@ -57,7 +65,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatCheckboxModule,
     MatDialogModule,
 
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    DmpRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
