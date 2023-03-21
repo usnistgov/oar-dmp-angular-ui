@@ -161,31 +161,20 @@ fi
 # handle angular building and/or testing.  If shell was requested with
 # angular, open the shell in the angular test contatiner (angtest).
 # 
+# handle angular building and/or testing.  If shell was requested with
+# angular, open the shell in the angular test contatiner (angtest).
+# 
 if wordin dmp-ui $comptypes; then
     docmds=`echo $cmds | sed -${SED_RE_OPT}e 's/shell//' -e 's/install//' -e 's/^ +$//'`
-    if { wordin shell $cmds && [ "$comptypes" == "dmp-ui" ]; }; then 
+    if { wordin shell $cmds && [ "$comptypes" == "editable" ]; }; then
         docmds="$docmds shell"
     fi
 
     if [ "$docmds" == "build" ]; then
         # build only
-        
         echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \
                        "${args[@]}" "${angargs[@]}"
         docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \
                        "${args[@]}" "${angargs[@]}"
-    elif [ -n "$docmds" ]; then
-        echo '+' docker run --rm $volopt "${dargs[@]}" --cap-add=SYS_ADMIN \
-                        oar-dmp-angular-ui/dmp-ui $docmds "${args[@]}" \
-                        "${angargs[@]}"
-        if wordin shell $docmds; then
-            exec docker run -ti --rm $volopt "${dargs[@]}" --cap-add=SYS_ADMIN \
-                        oar-dmp-angular-ui/dmp-ui $docmds "${args[@]}"     \
-                        "${angargs[@]}"
-        else
-            docker run --rm $volopt "${dargs[@]}" --cap-add=SYS_ADMIN \
-                   oar-dmp-angular-ui/dmp-ui $docmds "${args[@]}" \
-                   "${angargs[@]}"
-        fi
     fi
 fi
