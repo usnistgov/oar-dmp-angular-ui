@@ -9,8 +9,8 @@ import { MIDASDMP } from '../types/midas-dmp.type';
 })
 export class DmpService {
 
-  PDR_AIP = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
-  dmpsAPI = "http://127.0.0.1:5000/dmps"  
+  PDR_AIP = "https://mdsdev.nist.gov/midas/dmp/mdm1"//http://localhost:9091
+  // dmpsAPI = "http://127.0.0.1:5000/dmps"  
   /**
    * See these two articles for setting up CORS in Angular
    * https://dev-academy.com/angular-cors/
