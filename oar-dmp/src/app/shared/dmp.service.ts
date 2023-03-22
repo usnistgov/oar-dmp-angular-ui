@@ -1,16 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MIDASDMP } from '../types/midas-dmp.type';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DmpService {
 
-  PDR_AIP = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
+  PDR_API = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
   dmpsAPI = "http://127.0.0.1:5000/dmps"  
+  env_pdr_api = environment.config_url
+  test_path:string = 'api link unset'
+
   /**
    * See these two articles for setting up CORS in Angular
    * https://dev-academy.com/angular-cors/
@@ -23,7 +27,22 @@ export class DmpService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
-  constructor(private http: HttpClient)  { }
+  constructor(private http: HttpClient)  { 
+    console.log("DMP service constructor");
+    this.http.get(this.env_pdr_api).subscribe(
+      {
+        next: data => {
+          console.log(data)
+          console.log("DMP service cubscribe response");
+          this.test_path="hard coded path";
+        },
+        error: error => {
+          console.log(error.message);
+            
+        }
+      }
+    );
+  }
 
   private NewDmpRecord: DMP_Meta = {
     //Basic Info Meta data
@@ -124,13 +143,15 @@ export class DmpService {
 
   fetchPDR(): Observable<any>{
     // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.PDR_AIP);
+    let getInfo = this.http.get<any>(this.PDR_API);
     return getInfo
   }
 
   fetchDMP(action:string, recordID:string|null) {   
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
     // or if we are editing an existing one and which needs to be pulled from API
+    console.log("fetchDMP");
+    console.log(this.test_path);
     if (action === 'new'){
       return of(this.NewDmpRecord);
     }
@@ -138,10 +159,11 @@ export class DmpService {
       /**
        * get DMP record from API
        */
-      let apiAddress:string = this.PDR_AIP;
+      let apiAddress:string = this.PDR_API;
       if (recordID !==null){
         apiAddress += "/" + recordID;
       }
+      console.log("fetchDMP: pre get");
       return this.http.get<any>(apiAddress);
     }
     
@@ -149,7 +171,7 @@ export class DmpService {
 
   updateDMP(dmpMeta: DMP_Meta, dmpID: string) {
     console.log("updateDMP");
-    let apiAddress:string = this.PDR_AIP;
+    let apiAddress:string = this.PDR_API;
     apiAddress += "/" + dmpID + "/data";
     return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.httpOptions)
 
@@ -158,7 +180,7 @@ export class DmpService {
   createDMP(dmpMeta: DMP_Meta, name:string){
     console.log("createDMP")
     let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
-    return this.http.post<any>(this.PDR_AIP, JSON.stringify(midasDMP), this.httpOptions)
+    return this.http.post<any>(this.PDR_API, JSON.stringify(midasDMP), this.httpOptions)
     // return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
     
 

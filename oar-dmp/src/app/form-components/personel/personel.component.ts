@@ -98,12 +98,12 @@ export class PersonelComponent implements OnInit {
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
     private fb: FormBuilder
-  ) { 
-    console.log("constructor")
+  ) {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
      */
     // this.getNistContactsFromAPI(); //sets values from API service
+    console.log(" PersonelComponent constructor");
 
   }
 
@@ -188,7 +188,7 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // console.log("ngOnInit");
+    console.log(" PersonelComponent ngOnInit");
     /**
      * NOTE Comment below when woking with API
      */

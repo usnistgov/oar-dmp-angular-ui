@@ -96,7 +96,11 @@ export class DmpFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
     // private http: HttpClient
-    ) {}
+    ) {
+
+      console.log('DmpFormComponent construcor');
+
+    }
 
   action:string = "";
   id:string | null = null;
@@ -115,20 +119,18 @@ export class DmpFormComponent implements OnInit {
       }
     });
     // Fetch initial data from the backend
+    console.log("Fetch initial data from the backend")
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
       {
         next: data => {
-            // this.postId = data.id;
-            console.log('Next - Success');
+          console.log("fetch a DMP subscribe")
             if (this.id !==null){
-              console.log('display dmp pulled from the database');
               this.initialDMP = data.data;
               this.dmp = data.data;
               this.name.setValue(data.name);
               // this.name.value = data.name
             }
             else{
-              console.log('display empty dmp');
               this.initialDMP = data;
               this.dmp = data;
               // this.name.value = '';
