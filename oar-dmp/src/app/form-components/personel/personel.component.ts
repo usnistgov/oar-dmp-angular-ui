@@ -103,7 +103,7 @@ export class PersonelComponent implements OnInit {
      * NOTE uncoment this when pulling data from API with a backend database
      */
     // this.getNistContactsFromAPI(); //sets values from API service
-    console.log(" PersonelComponent constructor");
+    // console.log(" PersonelComponent constructor");
 
   }
 
@@ -188,7 +188,7 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    console.log(" PersonelComponent ngOnInit");
+    // console.log(" PersonelComponent ngOnInit");
     /**
      * NOTE Comment below when woking with API
      */
@@ -235,10 +235,10 @@ export class PersonelComponent implements OnInit {
                  * 
                  * if value is a string return value else return concatenation of value.firstName and value.lastName
                  * */
-                // console.log(value);
+
                 const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
                 var res = name ? this._filter(name as string): this.nistContacts.slice();
-                // console.log(res.length);
+
                 if (res.length ===1){
                   this.personelForm.patchValue({
                     nistContactFirstName: value.firstName,
@@ -255,10 +255,9 @@ export class PersonelComponent implements OnInit {
           //   startWith(''),
           //   map (reviewer => {             
                 
-          //       // console.log(reviewer);
           //       const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
           //       var res2 = name ? this._filter(name as string): this.nistContacts.slice();
-          //       // console.log(res.length);
+          
           //       if (res2.length ===1){
           //         this.personelForm.patchValue({
           //           nistReviewerFirstName: reviewer.firstName,
@@ -275,10 +274,9 @@ export class PersonelComponent implements OnInit {
             startWith(''),
             map (contributor => {             
                 
-                // console.log(contributor);
                 const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
                 var res3 = name ? this._filter(name as string): this.nistContacts.slice();
-                // console.log(res.length);
+                
                 if (res3.length ===1){
                   this.personelForm.patchValue({
                     nistReviewerFirstName: contributor.firstName,
