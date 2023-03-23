@@ -118,21 +118,17 @@ export class DmpFormComponent implements OnInit {
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
       {
         next: data => {
-            // this.postId = data.id;
-            console.log('Next - Success');
-            if (this.id !==null){
-              console.log('display dmp pulled from the database');
-              this.initialDMP = data.data;
-              this.dmp = data.data;
-              this.name.setValue(data.name);
-              // this.name.value = data.name
-            }
-            else{
-              console.log('display empty dmp');
-              this.initialDMP = data;
-              this.dmp = data;
-              // this.name.value = '';
-            }
+          if (this.id !==null){
+            this.initialDMP = data.data;
+            this.dmp = data.data;
+            this.name.setValue(data.name);
+            // this.name.value = data.name
+          }
+          else{
+            this.initialDMP = data;
+            this.dmp = data;
+            // this.name.value = '';
+          }
         },
         error: error => {
           console.log(error.message);
@@ -210,7 +206,6 @@ export class DmpFormComponent implements OnInit {
     }
     if (this.id !==null){
       // If id is not null then update dmp with the current id
-      console.log("update DMP")
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
         {
           next: data => {
@@ -231,7 +226,6 @@ export class DmpFormComponent implements OnInit {
       this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
         {
           next: data => {
-            console.log(data.id)
             this.router.navigate(['edit', data.id]);
           },
           error: error => {
@@ -245,7 +239,6 @@ export class DmpFormComponent implements OnInit {
   }
 
   resetDmp(){
-    // console.log ("reset DMP");
     this.form.controls['basicInfo'].reset();
     this.form.controls['ethicalIssues'].reset();
     this.form.controls['ethicalIssues'].patchValue({

@@ -14,7 +14,6 @@ export class PageErrorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // console.log(this.route.snapshot.params['foo']);
     this.errorMessage = this.route.snapshot.params['dmpError'];
 
   }

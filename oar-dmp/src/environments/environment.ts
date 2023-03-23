@@ -4,7 +4,8 @@
 // saml.metadata.entitybaseUrl: https://mdsdev.nist.gov/sso
 
 export const environment = {
-  production: false
+  production: false,
+  config_url:"assets/environment.json"
 };
 
 /*
