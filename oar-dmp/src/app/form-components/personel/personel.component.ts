@@ -2,11 +2,11 @@ import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
 import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type'; //possibly need to comment this out
 import { Contributor } from 'src/app/types/contributor.type';
-import { DmpAPIService } from '../../dmp-api.service';
+import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from 'src/app/types/nist-contact'
 
-import { FormBuilder } from '@angular/forms';
+import { Validators, FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 
@@ -103,13 +103,13 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
      */
-    this.getgetAllFromAPI(); //sets values from API service
+    // this.getNistContactsFromAPI(); //sets values from API service
 
   }
 
   personelForm = this.fb.group(
     {
-      primary_NIST_contact:       [''],
+      primary_NIST_contact:       ['', Validators.required],
       NIST_DMP_Reviewer:          [''],
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
@@ -192,7 +192,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
-    // this.getNistContacts();
+    this.getNistContacts();
 
   }  
 
@@ -208,13 +208,12 @@ export class PersonelComponent implements OnInit {
    */
   getNistContacts(){
     this.nistContacts = NIST_STAFF;
-    // this.setNISTContacts();
+    this.getNistContactsFromAPI();
   }
 
 
-  getgetAllFromAPI(){
-    // console.log("get from API");
-    this.apiService.getAll().subscribe(
+  getNistContactsFromAPI(){
+    this.apiService.get_NIST_Personnel().subscribe(
       {
         next: (v) => {
           /**
