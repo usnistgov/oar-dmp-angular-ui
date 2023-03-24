@@ -206,9 +206,71 @@ export class PersonelComponent implements OnInit {
    * This function gets hard coded NIST contasts
    * Used when not working with an API for NIST contacts database
    */
-  getNistContacts(){
+  getNistContacts(){    
+    // this.getNistContactsFromAPI();
+    this.getNistContactsNoAPI();
+
+  }
+
+  getNistContactsNoAPI(){
     this.nistContacts = NIST_STAFF;
-    this.getNistContactsFromAPI();
+    this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
+      startWith(''),
+      map (value => {
+        
+          /**
+           * The optional chaining ?. operator in TypeScript value?.firstName
+           * 
+           * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+           * using dot notation to access a nested property of an object, but instead of causing an 
+           * error if the reference is nullish, it short-circuits returning undefined.
+           * 
+           * if value is a string return value else return concatenation of value.firstName and value.lastName
+           * */
+
+          const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+          var res = name ? this._filter(name as string): this.nistContacts.slice();
+
+          if (res.length ===1){
+            this.personelForm.patchValue({
+              nistContactFirstName: value.firstName,
+              nistContactLastName:  value.lastName,
+            })
+          }
+          return res;
+
+        }
+      )
+    );
+
+    this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+      startWith(''),
+      map (contributor => {             
+          
+          const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
+          var res3 = name ? this._filter(name as string): this.nistContacts.slice();
+          
+          if (res3.length ===1){
+            this.personelForm.patchValue({
+              nistReviewerFirstName: contributor.firstName,
+              nistReviewerLastName:  contributor.lastName,
+            })
+            this.crntContribName = contributor.firstName;
+            this.crntContribSurname = contributor.lastName;
+            this.crntContribEmail = contributor.e_mail;
+
+            this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+            if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+              this.disableAdd=false;
+            }
+          }
+          return res3;
+
+        }
+      )
+    );
+
   }
 
 
