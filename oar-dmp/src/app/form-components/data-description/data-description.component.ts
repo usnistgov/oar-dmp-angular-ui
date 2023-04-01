@@ -136,6 +136,22 @@ export class DataDescriptionComponent implements OnInit {
     this.sharedService.setStorageMessage(storageTier);
     this.sharedService.storageSubject$.next(storageTier);
 
+    // since data categories check boxes take presidence over estimated data size option in 
+    // technical requirements module, make sure to send apropriate message to the technical
+    // requirements module
+    if (storageTier === ""){
+      // if not check boxes are selected send false to indicate that storage resources should
+      // be highlighted according to estimated data size settings
+      this.sharedService.setDataCategories(false);
+      this.sharedService.dataCategories$.next(false);
+    }
+    else{
+      // if any of the boxes are selected send true to indicate that technical requirements module
+      // should not be sending any messages to the resource options component
+      this.sharedService.setDataCategories(true);
+      this.sharedService.dataCategories$.next(true);
+    }
+
   }
 
   dataCategoryChange(e:any) {

@@ -33,6 +33,11 @@ export class ResourcesService {
   websiteSubject$ = new Subject<string>();
   websiteMessage:any
 
+  //property for seting data categories to inform
+  // technical requirements module 
+  dataCategories$ = new Subject<boolean>();
+  dataCategoriesIsSet:boolean = false
+
   constructor() { }
 
   setStorageMessage(data:any){
@@ -57,6 +62,10 @@ export class ResourcesService {
 
   setWebsiteMessage(data:any){
     this.databaseMessage = data
+  }
+
+  setDataCategories(data:boolean){
+    this.dataCategoriesIsSet = data;
   }
 
   

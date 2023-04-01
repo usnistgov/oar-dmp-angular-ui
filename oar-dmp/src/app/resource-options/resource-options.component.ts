@@ -14,7 +14,7 @@ import { ResourcesService } from '../shared/resources.service';
 })
 export class ResourceOptionsComponent implements OnInit {
 
-  subscription!: Subscription | null;
+  storageSubscription!: Subscription | null;
   softwareSubscription!: Subscription | null;
   databaseSubscription!: Subscription | null;
   websiteSubscription!: Subscription | null;
@@ -49,9 +49,9 @@ export class ResourceOptionsComponent implements OnInit {
 
   //subscribe to a particular subject
   storageSubscribe() {
-    if (!this.subscription) {
+    if (!this.storageSubscription) {
       //subscribe if not already subscribed
-      this.subscription = this.sharedService.storageSubject$.subscribe({
+      this.storageSubscription = this.sharedService.storageSubject$.subscribe({
         next: (message) => {
           this.storageSelection = message;
         }

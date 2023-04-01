@@ -6,6 +6,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { SoftwareDevelopment } from 'src/app/types/software-development.type';
+import { Subscription } from 'rxjs';
+
 
 export interface TechnicalResources {
   resource: string;
@@ -41,6 +43,8 @@ export class StorageNeedsComponent {
   disableAdd:boolean = false;
   disableClear:boolean = true;
   disableRemove:boolean = true;
+
+  storageSubscription!: Subscription | null;
   
   errorMessage: string = '';
 
@@ -68,7 +72,7 @@ export class StorageNeedsComponent {
   constructor(
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) { }
 
   // We want to receive the initial data from the parent component and initialize 
@@ -154,6 +158,7 @@ export class StorageNeedsComponent {
   );
 
   ngOnInit(): void {
+    this.dataCategorySubscribe()
     // This function gets executed after initial data from the parent has been passed in and allows for
     // setting check states used for radio buttons etc.
     
@@ -165,7 +170,7 @@ export class StorageNeedsComponent {
     }
 
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
-    if (typeof dataSizeInput === 'string'){
+    if (typeof dataSizeInput === 'string' && !this.dataCategoryIsSet){
       // dataSizeInput can be none or undefined if no data has be inserted in the text box
       // so check first if the value of the textbox is a string
       if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
@@ -189,7 +194,27 @@ export class StorageNeedsComponent {
   
   dataSize = "";
   dataSetSize = "";
-  dataSizeRegEx : RegExp = new RegExp("^[1-9][0-9]*$", "g");
+  dataCategoryIsSet:boolean = false;
+
+  //subscribe to a particular subject
+  dataCategorySubscribe() {
+    if (!this.storageSubscription) {
+      //subscribe if not already subscribed
+      this.storageSubscription = this.sharedService.dataCategories$.subscribe({
+        next: (message) => {
+          this.dataCategoryIsSet = message;
+          if(!message){
+            // if no data categories check boxes are selected
+            // then see what is the estimated data size to properly
+            // highlight storage resources
+            this.selDataSize();
+          }
+        }
+      });
+    }
+  }
+
+  dataSizeRegEx : RegExp = new RegExp("^[1-9][0-9]*$");
 
   // used for estimated data size drop down of data units options
   dataUnits =[    
@@ -218,22 +243,24 @@ export class StorageNeedsComponent {
     // dataSizeInput can be none or undefined if no data has be inserted in the text box
     // so check first if the value of the textbox is a string
     if (typeof dataSizeInput === 'string'){
-      console.log(dataSizeInput.trim())
-      console.log(parseInt(dataSizeInput.trim()))
-      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){            
-        this.sharedService.setStorageMessage(this.dataSetSize);
-        //send message to subscribed components
-        this.sharedService.storageSubject$.next(this.dataSetSize)
-        this.technicalRequirementsForm.patchValue(
-          {
-            sizeUnit: this.dataSetSize
-          }
-        )
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){    
+        if (!this.dataCategoryIsSet){ // send message to resource options component only if data category check boxes have not been set
+          this.sharedService.setStorageMessage(this.dataSetSize);
+          //send message to subscribed components
+          this.sharedService.storageSubject$.next(this.dataSetSize)
+          this.technicalRequirementsForm.patchValue(
+            {
+              sizeUnit: this.dataSetSize
+            }
+          )
+        }
       }
       else{
         alert ("Estimated data size must be an integer value greater than zero");
-        this.sharedService.setStorageMessage("");
-        this.sharedService.storageSubject$.next("");
+        if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
+          this.sharedService.setStorageMessage("");
+          this.sharedService.storageSubject$.next("");
+        }
       }
     }
   }
@@ -242,16 +269,18 @@ export class StorageNeedsComponent {
     //send message to subscribed components
     
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
-    
-    
     if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
-      this.sharedService.setStorageMessage(this.dataSetSize);    
-      this.sharedService.storageSubject$.next(this.dataSetSize);
+      if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
+        this.sharedService.setStorageMessage(this.dataSetSize);    
+        this.sharedService.storageSubject$.next(this.dataSetSize);
+      }
     }
     else{
       alert ("Estimated data size must be an integer value greater than zero");
-      this.sharedService.setStorageMessage("");
-      this.sharedService.storageSubject$.next("");
+      if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
+        this.sharedService.setStorageMessage("");
+        this.sharedService.storageSubject$.next("");
+      }
     }
     
 
