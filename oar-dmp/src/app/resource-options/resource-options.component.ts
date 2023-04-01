@@ -41,14 +41,14 @@ export class ResourceOptionsComponent implements OnInit {
 
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
-    this.subscribe()
+    this.storageSubscribe()
     this.softwareSubscribe()
     this.databaseSubscribe()
     this.websiteSubscribe()
   }
 
   //subscribe to a particular subject
-  subscribe() {
+  storageSubscribe() {
     if (!this.subscription) {
       //subscribe if not already subscribed
       this.subscription = this.sharedService.storageSubject$.subscribe({

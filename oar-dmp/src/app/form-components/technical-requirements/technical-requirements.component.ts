@@ -156,12 +156,24 @@ export class StorageNeedsComponent {
   ngOnInit(): void {
     // This function gets executed after initial data from the parent has been passed in and allows for
     // setting check states used for radio buttons etc.
+    
     this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value;
     for (var val of this.dataUnits) {
       if(val.size === this.dataSetSize){
         this.dataSize = val.id
       }      
     }
+
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    if (typeof dataSizeInput === 'string'){
+      // dataSizeInput can be none or undefined if no data has be inserted in the text box
+      // so check first if the value of the textbox is a string
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+        this.sharedService.setStorageMessage(this.dataSetSize); 
+        this.sharedService.storageSubject$.next(this.dataSetSize);
+      }
+    }
+
     //this triggers highlighting in the resource options table / guide
     this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value);
 
@@ -177,6 +189,7 @@ export class StorageNeedsComponent {
   
   dataSize = "";
   dataSetSize = "";
+  dataSizeRegEx : RegExp = new RegExp("^[1-9][0-9]*$", "g");
 
   // used for estimated data size drop down of data units options
   dataUnits =[    
@@ -199,21 +212,48 @@ export class StorageNeedsComponent {
     // assign the value to dataSetSize variable that is further used
     // in HTML portion of the component for changing the class name
     // of myDiv1
+  
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    this.sharedService.setStorageMessage(this.dataSetSize);
-    //send message to subscribed components
-    this.sharedService.storageSubject$.next(this.dataSetSize)
-    this.technicalRequirementsForm.patchValue(
-      {
-        sizeUnit: this.dataSetSize
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    // dataSizeInput can be none or undefined if no data has be inserted in the text box
+    // so check first if the value of the textbox is a string
+    if (typeof dataSizeInput === 'string'){
+      console.log(dataSizeInput.trim())
+      console.log(parseInt(dataSizeInput.trim()))
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){            
+        this.sharedService.setStorageMessage(this.dataSetSize);
+        //send message to subscribed components
+        this.sharedService.storageSubject$.next(this.dataSetSize)
+        this.technicalRequirementsForm.patchValue(
+          {
+            sizeUnit: this.dataSetSize
+          }
+        )
       }
-    )
+      else{
+        alert ("Estimated data size must be an integer value greater than zero");
+        this.sharedService.setStorageMessage("");
+        this.sharedService.storageSubject$.next("");
+      }
+    }
   }
 
   setDataSize(e:any){
     //send message to subscribed components
-    this.sharedService.setStorageMessage(this.dataSetSize);    
-    this.sharedService.storageSubject$.next(this.dataSetSize)
+    
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    
+    
+    if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+      this.sharedService.setStorageMessage(this.dataSetSize);    
+      this.sharedService.storageSubject$.next(this.dataSetSize);
+    }
+    else{
+      alert ("Estimated data size must be an integer value greater than zero");
+      this.sharedService.setStorageMessage("");
+      this.sharedService.storageSubject$.next("");
+    }
+    
 
   }
 
