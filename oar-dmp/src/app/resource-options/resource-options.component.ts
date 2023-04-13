@@ -1,18 +1,20 @@
 //Example of passing data from parent component (app.component) to the child component (resource-options.component)
 // Start with declaring Input decorator
 //import { Component, OnInit, Input } from '@angular/core';
-import { Component, OnInit, OnChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs';
+
 
 // In the child, we need to import the service "ResourcesService" file to be able to use it. 
 import { ResourcesService } from '../shared/resources.service';
+import { DomPositioningModule } from '../shared/dom-positioning.module';
 
 @Component({
   selector: 'app-resource-options',
   templateUrl: './resource-options.component.html',
   styleUrls: ['./resource-options.component.scss']
 })
-export class ResourceOptionsComponent implements OnInit {
+export class ResourceOptionsComponent implements OnInit, AfterViewInit {
 
   storageSubscription!: Subscription | null;
   softwareSubscription!: Subscription | null;
@@ -24,7 +26,9 @@ export class ResourceOptionsComponent implements OnInit {
   // @Input() data :any
 
   // we inject shared service ResourcesService in the constructor.
-  constructor(private sharedService:ResourcesService) { }
+  constructor(private sharedService:ResourcesService, private dom:DomPositioningModule) { 
+    console.log("resoruce-optionscomponent");
+  }
 
   // message : any
   storageSelection: string = "";
@@ -45,6 +49,11 @@ export class ResourceOptionsComponent implements OnInit {
     this.softwareSubscribe()
     this.databaseSubscribe()
     this.websiteSubscribe()
+  }
+  ngAfterViewInit(): void {
+    console.log("resoruce-options after view init");
+    // this.dom.setDomElementTop("resources-grid-container", "dmp_hdr")
+    // this.dom.horizontalDomAdjust("resource_options", "dmp_hdr")
   }
 
   //subscribe to a particular subject

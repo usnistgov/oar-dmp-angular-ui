@@ -1,7 +1,7 @@
 
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
 
-  <div class="dmpSection">
+  <div class="dmpSection" (resized)="onResized($event)">
     <table>
       <tr>
         <td><label for="name">Record Name: </label></td>
@@ -14,55 +14,69 @@
   
   <!-- And in our template we can render all child components and register the formReady event. -->
   <!-- BASIC INFO -->
-  <app-basic-info 
-    [initialDMP_Meta] ="initialDMP" 
-    (formReady)="addChildForm('basicInfo', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-basic-info>
+  <div id="basic_info_section">
+    <app-basic-info 
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('basicInfo', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-basic-info>
+  </div>
 
-  <!-- PERSONEL -->
-  <app-personel
-    [initialDMP_Meta] ="initialDMP" 
-    (formReady)="addChildForm('personel', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-personel>
+  <!-- PERSONNEL -->
+  <div id="personnel_section">
+    <app-personel
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('personel', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-personel>
+  </div>
 
   <!-- KEYWORDS -->
-  <app-keywords
-    [initialDMP_Meta] ="initialDMP" 
-    (formReady)="addChildForm('keyWordsAndPhrases', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-keywords>
+  <div id="keywords_section">
+    <app-keywords
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('keyWordsAndPhrases', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-keywords>
+  </div>
 
   <!-- TECHNICAL REQUIREMENTS -->
-  <app-technical-requirements
-    [initialDMP_Meta] ="initialDMP"
-    (formReady)="addChildForm('technicalRequirements', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-technical-requirements>
+  <div id="technical_requirements_section">
+    <app-technical-requirements
+      [initialDMP_Meta] ="initialDMP"
+      (formReady)="addChildForm('technicalRequirements', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-technical-requirements>
+  </div>
 
   <!-- ETHICAL ISSUES -->
-  <app-ethical-issues
-    [initialDMP_Meta] ="initialDMP" 
-    (formReady)="addChildForm('ethicalIssues', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-ethical-issues>
+  <div id="ethical_issues_section">
+    <app-ethical-issues
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('ethicalIssues', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-ethical-issues>
+  </div>
 
   <!-- DATA DESCRIPTION -->
-  <app-data-description
-    [initialDMP_Meta] ="initialDMP"   
-    (formReady)="addChildForm('dataDescription', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-data-description>
+  <div id="data_description_section">
+    <app-data-description
+      [initialDMP_Meta] ="initialDMP"   
+      (formReady)="addChildForm('dataDescription', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-data-description>
+  </div>
 
   <!-- DATA PRESERVATION -->
-  <app-data-preservation
-    [initialDMP_Meta] ="initialDMP"
-    (formReady)="addChildForm('dataPreservation', $event)"
-    (valueChange)="patchDMP($event)"
-  ></app-data-preservation>
+  <div id="data_preservation_section">
+    <app-data-preservation
+      [initialDMP_Meta] ="initialDMP"
+      (formReady)="addChildForm('dataPreservation', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-data-preservation>
+  </div>
 
-  <app-reviewer></app-reviewer>
+  <!-- <app-reviewer></app-reviewer> -->
 
   <div class="form-actions">
     <button mat-button class="btn_reset" type="button" (click)="resetDmp()">

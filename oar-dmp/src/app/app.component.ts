@@ -8,7 +8,9 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'dmp_ui2';
   
-  constructor(){ }
+  constructor(){ 
+    console.log("app.component")
+  }
 
   
   

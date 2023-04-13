@@ -50,7 +50,7 @@ export class DataPreservationComponent {
   );
 
   constructor(private fb: FormBuilder) { 
-    
+    console.log("data-preservation component");
   }
 
   // We want to receive the initial data from the parent component and initialize 
