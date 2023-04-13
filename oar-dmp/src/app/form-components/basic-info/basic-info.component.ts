@@ -74,6 +74,8 @@ export class BasicInfoComponent{
   @Output()
   formReady = of(this.basicInfoForm);
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder) {
+    console.log("basic-info component");
+  }
 
 }

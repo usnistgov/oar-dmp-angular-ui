@@ -7,9 +7,10 @@ body {
 }
 .dmpSection {
   border: none;
-  border-bottom: 0.1rem solid rgba(128, 128, 128, 0.418);
-  margin-right: 0.5rem;
-  width: 600px;
+  border-bottom: 2px solid rgba(128, 128, 128, 0.418);
+  // margin-right: 0.5rem;
+  margin-left: 0.5rem;
+  // width: 600px;
 }
 div{
   
@@ -112,8 +113,8 @@ div{
 }
 div.sticky{
   position: fixed;
-  top: 65px;
-  left: 623px;
+  // top: 95px;
+  // left: 623px;
 }
 
 

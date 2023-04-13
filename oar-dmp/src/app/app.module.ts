@@ -30,6 +30,9 @@ import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
+import { DomPositioningModule } from './shared/dom-positioning.module';
+import { AngularResizeEventModule } from 'angular-resize-event';
+
 
 
 @NgModule({
@@ -66,9 +69,11 @@ import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-publish
     MatDialogModule,
 
     MatAutocompleteModule,
-    DmpRoutingModule
+    DmpRoutingModule,
+    DomPositioningModule,
+    AngularResizeEventModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {  }
