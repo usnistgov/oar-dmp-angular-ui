@@ -14,6 +14,7 @@ import { FormControl } from '@angular/forms';
 
 
 
+
 // for Communicating with backend services using HTTP
 import { Injectable } from '@angular/core';
 // import { HttpClient } from '@angular/common/http';
@@ -145,22 +146,10 @@ export class DmpFormComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    console.log("dmp-form after view init");
-    this.dom.setDomElementTop("resources-grid-container", "dmp_hdr");
-    this.dom.horizontalDomAdjust("resource_options", "dmp_hdr");
-    this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
-    
-    // this.dom.elementWidthAdjustment("basic_info_section","resource_options");
-    // this.dom.elementWidthAdjustment("personnel_section","resource_options");
-    // this.dom.elementWidthAdjustment("keywords_section","resource_options");
-    // this.dom.elementWidthAdjustment("technical_requirements_section","resource_options");
-    // this.dom.elementWidthAdjustment("ethical_issues_section","resource_options");
-    // this.dom.elementWidthAdjustment("data_description_section","resource_options");
-    // this.dom.elementWidthAdjustment("data_preservation_section","resource_options");
   
   }
 
-
+  
 
   // We need a method to register the child form groups. The method accepts a name 
   // (here "basicInfo" through "technical-requirements") and the form group. 

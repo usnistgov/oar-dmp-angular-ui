@@ -43,6 +43,10 @@ export class DomPositioningModule {
       let targetCoords = elemToSize?.getBoundingClientRect();
       let refCoords = refElem?.getBoundingClientRect();
       let shiftRight = refCoords.right - targetCoords.width - 10;
+      if (shiftRight < 660){
+        shiftRight = 660;
+        
+      }
       elemToSize.style.left= shiftRight.toString() + "px";
     }
   }
@@ -54,6 +58,10 @@ export class DomPositioningModule {
       let windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       let refCoords = refElem?.getBoundingClientRect();
       let calcWidth = windowWidth-refCoords.width - 30;
+      if (calcWidth < 660){
+        calcWidth = 660;
+        
+      }
       elemToSize.style.width= calcWidth.toString() + "px";
     }
   }

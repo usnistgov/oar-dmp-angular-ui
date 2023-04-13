@@ -31,7 +31,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 import { DomPositioningModule } from './shared/dom-positioning.module';
-// import { AngularResizeEventModule } from 'angular-resize-event';ng serve -o
+import { AngularResizeEventModule } from 'angular-resize-event';
 
 
 
@@ -70,7 +70,8 @@ import { DomPositioningModule } from './shared/dom-positioning.module';
 
     MatAutocompleteModule,
     DmpRoutingModule,
-    DomPositioningModule
+    DomPositioningModule,
+    AngularResizeEventModule
   ],
   providers: [],
   bootstrap: [AppComponent]
