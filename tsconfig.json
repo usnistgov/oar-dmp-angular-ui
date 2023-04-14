@@ -8,4 +8,11 @@
         "path": "./oar-dmp/tsconfig.ref.json"
       },
     ],
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "types": ["jest", "node"]
+    }
   }
