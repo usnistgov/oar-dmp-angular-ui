@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BasicInfoComponent } from './basic-info.component';
 
 describe('BasicInfoComponent', () => {
+    debugger;
   let component: BasicInfoComponent;
   let fixture: ComponentFixture<BasicInfoComponent>;
 
