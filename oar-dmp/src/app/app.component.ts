@@ -22,6 +22,12 @@ export class AppComponent {
     this.dom.setDomElementTop("resources-grid-container", "dmp_hdr");
     this.dom.horizontalDomAdjust("resource_options", "dmp_hdr");
     this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
+    this.dom.panelHeightAdjustment("PageNotFound", "resource_options");
+    this.dom.panelHeightAdjustment("DmpPublished", "resource_options");
+    this.dom.panelHeightAdjustment("PageError", "resource_options");
+    // this.dom.panelHeightAdjustment("", "");
+    // this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
+    // this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
   }
 
   
