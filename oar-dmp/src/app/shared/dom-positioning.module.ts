@@ -42,7 +42,7 @@ export class DomPositioningModule {
     if (elemToSize != null && refElem != null){
       let targetCoords = elemToSize?.getBoundingClientRect();
       let refCoords = refElem?.getBoundingClientRect();
-      let shiftRight = refCoords.right - targetCoords.width - 10;
+      let shiftRight = refCoords.right - targetCoords.width - 25;
       if (shiftRight < 660){
         shiftRight = 660;
         
@@ -57,13 +57,28 @@ export class DomPositioningModule {
     if (elemToSize != null && refElem != null){
       let windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       let refCoords = refElem?.getBoundingClientRect();
-      let calcWidth = windowWidth-refCoords.width - 30;
+      let calcWidth = windowWidth-refCoords.width - 55;
       if (calcWidth < 660){
         calcWidth = 660;
         
       }
       elemToSize.style.width= calcWidth.toString() + "px";
     }
+  }
+
+  panelHeightAdjustment(elemID:string, refElemID:string){
+    //element that we want to set position and size propertioes to
+    let elemToSize = document.getElementById(elemID);
+    // reference element that we want to use to match the height of 
+    let refElem = document.getElementById(refElemID);    
+
+    if (elemToSize != null){
+      if (refElem?.clientHeight != null){
+        console.log(refElem?.clientHeight.toString()+"px")
+        elemToSize.style.height = refElem.clientHeight.toString()+"px"
+      }
+    }
+
   }
 
 

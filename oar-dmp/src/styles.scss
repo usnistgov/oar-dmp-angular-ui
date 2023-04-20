@@ -1,5 +1,6 @@
 $font-stack: Helvetica, sans-serif;
 $primary-color: #333;
+$dmp_margin_left: 35px;
 
 body {
   font: 100% $font-stack;
@@ -9,7 +10,7 @@ body {
   border: none;
   border-bottom: 2px solid rgba(128, 128, 128, 0.418);
   // margin-right: 0.5rem;
-  margin-left: 0.5rem;
+  margin-left: $dmp_margin_left;
   // width: 600px;
 }
 div{
@@ -25,6 +26,8 @@ div{
     background: #1a7bbc;
     color: white;
     font-size: larger;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
     
   }
 
@@ -115,6 +118,9 @@ div.sticky{
   position: fixed;
   // top: 95px;
   // left: 623px;
+}
+div.dmp_info_panel{
+  margin-left: $dmp_margin_left;
 }
 
 
