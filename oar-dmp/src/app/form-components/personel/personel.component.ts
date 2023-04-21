@@ -2,11 +2,11 @@ import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
 import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type'; //possibly need to comment this out
 import { Contributor } from 'src/app/types/contributor.type';
-import { DmpAPIService } from '../../dmp-api.service';
+import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from 'src/app/types/nist-contact'
 
-import { FormBuilder } from '@angular/forms';
+import { Validators, FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 
@@ -98,18 +98,18 @@ export class PersonelComponent implements OnInit {
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
     private fb: FormBuilder
-  ) { 
-    console.log("constructor")
+  ) {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
      */
-    this.getgetAllFromAPI(); //sets values from API service
+    // this.getNistContactsFromAPI(); //sets values from API service
+    // console.log(" PersonelComponent constructor");
 
   }
 
   personelForm = this.fb.group(
     {
-      primary_NIST_contact:       [''],
+      primary_NIST_contact:       ['', Validators.required],
       NIST_DMP_Reviewer:          [''],
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
@@ -188,11 +188,11 @@ export class PersonelComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // console.log("ngOnInit");
+    // console.log(" PersonelComponent ngOnInit");
     /**
      * NOTE Comment below when woking with API
      */
-    // this.getNistContacts();
+    this.getNistContacts();
 
   }  
 
@@ -206,15 +206,76 @@ export class PersonelComponent implements OnInit {
    * This function gets hard coded NIST contasts
    * Used when not working with an API for NIST contacts database
    */
-  getNistContacts(){
+  getNistContacts(){    
+    // this.getNistContactsFromAPI();
+    this.getNistContactsNoAPI();
+
+  }
+
+  getNistContactsNoAPI(){
     this.nistContacts = NIST_STAFF;
-    // this.setNISTContacts();
+    this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
+      startWith(''),
+      map (value => {
+        
+          /**
+           * The optional chaining ?. operator in TypeScript value?.firstName
+           * 
+           * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+           * using dot notation to access a nested property of an object, but instead of causing an 
+           * error if the reference is nullish, it short-circuits returning undefined.
+           * 
+           * if value is a string return value else return concatenation of value.firstName and value.lastName
+           * */
+
+          const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+          var res = name ? this._filter(name as string): this.nistContacts.slice();
+
+          if (res.length ===1){
+            this.personelForm.patchValue({
+              nistContactFirstName: value.firstName,
+              nistContactLastName:  value.lastName,
+            })
+          }
+          return res;
+
+        }
+      )
+    );
+
+    this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+      startWith(''),
+      map (contributor => {             
+          
+          const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
+          var res3 = name ? this._filter(name as string): this.nistContacts.slice();
+          
+          if (res3.length ===1){
+            this.personelForm.patchValue({
+              nistReviewerFirstName: contributor.firstName,
+              nistReviewerLastName:  contributor.lastName,
+            })
+            this.crntContribName = contributor.firstName;
+            this.crntContribSurname = contributor.lastName;
+            this.crntContribEmail = contributor.e_mail;
+
+            this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+            if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+              this.disableAdd=false;
+            }
+          }
+          return res3;
+
+        }
+      )
+    );
+
   }
 
 
-  getgetAllFromAPI(){
-    // console.log("get from API");
-    this.apiService.getAll().subscribe(
+  getNistContactsFromAPI(){
+    this.apiService.get_NIST_Personnel().subscribe(
       {
         next: (v) => {
           /**
@@ -236,10 +297,10 @@ export class PersonelComponent implements OnInit {
                  * 
                  * if value is a string return value else return concatenation of value.firstName and value.lastName
                  * */
-                // console.log(value);
+
                 const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
                 var res = name ? this._filter(name as string): this.nistContacts.slice();
-                // console.log(res.length);
+
                 if (res.length ===1){
                   this.personelForm.patchValue({
                     nistContactFirstName: value.firstName,
@@ -256,10 +317,9 @@ export class PersonelComponent implements OnInit {
           //   startWith(''),
           //   map (reviewer => {             
                 
-          //       // console.log(reviewer);
           //       const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
           //       var res2 = name ? this._filter(name as string): this.nistContacts.slice();
-          //       // console.log(res.length);
+          
           //       if (res2.length ===1){
           //         this.personelForm.patchValue({
           //           nistReviewerFirstName: reviewer.firstName,
@@ -276,10 +336,9 @@ export class PersonelComponent implements OnInit {
             startWith(''),
             map (contributor => {             
                 
-                // console.log(contributor);
                 const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
                 var res3 = name ? this._filter(name as string): this.nistContacts.slice();
-                // console.log(res.length);
+                
                 if (res3.length ===1){
                   this.personelForm.patchValue({
                     nistReviewerFirstName: contributor.firstName,

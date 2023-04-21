@@ -1,9 +1,9 @@
 <div>
     <app-header appVersion="1.0"></app-header>
 </div>
-<div class="dmp_header">Data Management Plan</div>  
+<div class="dmp_header" id="dmp_hdr" (resized)="onResized($event)">Data Management Plan</div>  
 
-<div class="sticky">
+<div class="sticky" id="resource_options">
     <!-- 
     Here child component called resource-options expects the property named "data"
     whose value is stored in the "resourceCompMessage" variable
@@ -12,10 +12,13 @@
   -->
     <app-resource-options></app-resource-options>
 </div>
-<table>
+<div id="dmp_panel">
+  <router-outlet></router-outlet>
+</div>
+<!-- <table>
     <tr>
         <td>
-            <app-dmp-form></app-dmp-form>
+          <router-outlet></router-outlet>
         </td>
         <td>
 
@@ -23,7 +26,12 @@
 
         </td>
     </tr>
-</table>
+</table> -->
+
+<!-- <h1>
+  Environment
+</h1>
+<pre>{{env | json}}</pre> -->
 <div>
     <app-footer></app-footer>
 </div>

@@ -1,13 +1,77 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MIDASDMP } from '../types/midas-dmp.type';
+import * as jsonData from '../../assets/environment.json'
 
 @Injectable({
   providedIn: 'root'
 })
 export class DmpService {
 
-  constructor() { }
+  // PDR_API = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
+  // dmpsAPI = "http://127.0.0.1:5000/dmps"  
+
+  // The link for the API that saves and gets data for DMP is provided in the 
+  // environment.json file located in assets directory
+  API_CONF: any = jsonData; //get data from environment.json
+
+  /**
+   * See these two articles for setting up CORS in Angular
+   * https://dev-academy.com/angular-cors/
+   * https://www.azilen.com/blog/how-to-resolve-cors-errors-by-using-angular-proxy
+   * ng serve -o --proxy-config src/proxy.conf.json
+   */
+  // PDR = "/api/midas/dmp/mdm1"
+
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
+  constructor(private http: HttpClient)  { }
+
+  private NewDmpRecord: DMP_Meta = {
+    //Basic Info Meta data
+    title:                    '',
+    startDate:                '',
+    endDate:                  '',
+    dmpSearchable:            'yes',
+    funding:                  {grant_source:'Grant Number', grant_id:''},
+    projectDescription:       '',
+
+    //Personel
+    primary_NIST_contact:     {firstName:"", lastName:""},
+    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
+    contributors:             [],
+
+    //Keywords
+    keyWords:                 [],
+
+    //Technical Resources
+    dataSize:                 null,
+    sizeUnit:                 "GB",
+    softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
+    technicalResources:       [],
+    
+    // Ethical Issues Meta data
+    ethical_issues:           {
+                                ethical_issues_exist:         'no', 
+                                ethical_issues_description:   '', 
+                                ethical_issues_report:        '', 
+                                dmp_PII:                      'no'
+                              },
+
+    // Data Description Meta data
+    dataDescription:          '',
+    dataCategories:           [],
+
+    // Data Preservation Meta data
+    preservationDescription:  '',
+    pathsURLs:                []
+
+  };
+
 
   // For demo purposes we just store the DmpRecord here in the service
   // In a real world application you would make a request to the backend
@@ -64,19 +128,49 @@ export class DmpService {
 
   };
 
-  fetchDMP(): Observable<DMP_Meta> {
-    return of(this.DmpRecord);
+  fetchPDR(): Observable<any>{
+    // console.log("fetchPDR")
+    let getInfo = this.http.get<any>(this.API_CONF.PDRDMP);
+    return getInfo
   }
 
-  updateDMP(DmpRecord: DMP_Meta): Observable<DMP_Meta> {
-    // The main objective of the spread operator is to spread the elements 
-    // of an array or object. This is best explained with examples.
-    // function foo(x, y, z) { }
-    // var args = [0, 1, 2];
-    // foo(...args);
+  fetchDMP(action:string, recordID:string|null) {   
+    //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
+    // or if we are editing an existing one and which needs to be pulled from API
+    // console.log("fetchDMP");
+    console.log(this.API_CONF.PDRDMP);
+    if (action === 'new'){
+      return of(this.NewDmpRecord);
+    }
+    else{
+      /**
+       * get DMP record from API
+       */
+      let apiAddress:string = this.API_CONF.PDRDMP; //this.PDR_API;
+      if (recordID !==null){
+        apiAddress += "/" + recordID;
+      }
+      // console.log("fetchDMP: pre get");
+      return this.http.get<any>(apiAddress);
+    }
     
-    this.DmpRecord = { ...DmpRecord };
-    //emits any number of provided values in sequence
-    return of(this.DmpRecord);
   }
+
+  updateDMP(dmpMeta: DMP_Meta, dmpID: string) {
+    // console.log("updateDMP");
+    let apiAddress:string = this.API_CONF.PDRDMP; //this.PDR_API;
+    apiAddress += "/" + dmpID + "/data";
+    return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.httpOptions)
+
+  }
+
+  createDMP(dmpMeta: DMP_Meta, name:string){
+    // console.log("createDMP")
+    let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
+    return this.http.post<any>(this.API_CONF.PDRDMP, JSON.stringify(midasDMP), this.httpOptions)
+    // return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+    
+
+  }
+
 }

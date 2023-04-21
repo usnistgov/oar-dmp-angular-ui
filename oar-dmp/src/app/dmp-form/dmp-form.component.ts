@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ObservedValueOf } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
@@ -10,6 +10,23 @@ import { DataDescriptionComponent } from '../form-components/data-description/da
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
 import { DMP_Meta } from 'src/app/types/DMP.types';
 import { DmpService } from 'src/app/shared/dmp.service'
+import { FormControl } from '@angular/forms';
+
+
+
+
+// for Communicating with backend services using HTTP
+import { Injectable } from '@angular/core';
+// import { HttpClient } from '@angular/common/http';
+/**
+ * The HttpClient service makes use of observables for all transactions. You must import the RxJS observable and 
+ * operator symbols that appear in the example snippets. These ConfigService imports are typical.
+ */
+// import { Observable, throwError } from 'rxjs';
+// import { catchError, retry } from 'rxjs/operators';
+
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { DomPositioningModule } from '../shared/dom-positioning.module';
 
 
 //  Interface for the DMP interface. This is where we define observed values of
@@ -25,9 +42,9 @@ interface DMPForm {
   
 }
 // In the example above we have a number of child components: 
-// BasicInfoComponent through ContactSubformComponent, 
-// which are combined into the main form group as basicInfo through contact. 
-// We define name and contact as optional because initially our form group will 
+// BasicInfoComponent through StorageNeedsComponent, 
+// which are combined into the main form group as basicInfo through dataPreservation. 
+// We define them all as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
 
 @Component({
@@ -35,6 +52,7 @@ interface DMPForm {
   templateUrl: './dmp-form.component.html',
   styleUrls: ['./dmp-form.component.scss']
 })
+@Injectable()
 export class DmpFormComponent implements OnInit {
   // get access to methods in DataDescriptionComponent child.
 
@@ -71,15 +89,67 @@ export class DmpFormComponent implements OnInit {
 
   });
 
-  constructor(private fb: FormBuilder, private dmp_Service: DmpService) {}
+  name = new FormControl('');
+  nameDisabled = false;
+  nameClass:string = "mnemonicNameNew";
+
+  constructor(
+    private fb: FormBuilder, 
+    private dmp_Service: DmpService, 
+    private route: ActivatedRoute,
+    private router: Router,
+    private dom:DomPositioningModule
+    // private http: HttpClient
+    ) {  }
+
+  action:string = "";
+  id:string | null = null;
 
   ngOnInit(): void {
-    // Fetch initial data from the (fake) backend
-    this.dmp_Service.fetchDMP().subscribe((dmp) => {
-      this.initialDMP = dmp;
-      this.dmp = dmp;
+    console.log("dmp-form component OnInit");
+    this.id = this.route.snapshot.paramMap.get('id')
+    this.route.data.subscribe(data  => {
+      this.action = data["action"] ;
+      if (this.action === "edit"){
+        this.nameClass = "mnemonicNameDisabled"
+        this.nameDisabled = true;
+      }
+      else{
+        this.nameClass = "mnemonicNameNew"
+        this.nameDisabled = false;
+      }
     });
+    // Fetch initial data from the backend
+    this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
+      {
+        next: data => {
+          if (this.id !==null){
+            this.initialDMP = data.data;
+            this.dmp = data.data;
+            this.name.setValue(data.name);
+            // this.name.value = data.name
+          }
+          else{
+            this.initialDMP = data;
+            this.dmp = data;
+            // this.name.value = '';
+          }
+        },
+        error: error => {
+          console.log(error.message);
+          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+            
+        }
+      }
+    );    
+
   }
+
+  ngAfterViewInit(): void {
+  
+  }
+
+  
 
   // We need a method to register the child form groups. The method accepts a name 
   // (here "basicInfo" through "technical-requirements") and the form group. 
@@ -98,33 +168,88 @@ export class DmpFormComponent implements OnInit {
   // For that we create another dmp property (dmp?: DMP_Meta;) that will contain the 
   // latest value and add a patchDMP() method to update the dmp.
   patchDMP(patch: Partial<DMP_Meta>) {
+    // patch contains value changes in the child components
+    if (!this.dmp) throw new Error("Missing DMP in patch");
     // Example of spread operatior (...)
     // let arr1 = [0, 1, 2];
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
-    // arr1 is now [0, 1, 2, 3, 4, 5]
-    // console.log("patchDMP")
-    // console.log("patch")
-    // console.log(patch)
-    // console.log("DMP")
-    // console.log(this.dmp)
-
-    if (!this.dmp) throw new Error("Missing DMP in patch");
+    // arr1 is now [0, 1, 2, 3, 4, 5]    
     this.dmp = { ...this.dmp, ...patch };
-    // console.log("post patch")
-    // console.log(this.dmp)
-    // console.log("==============")
   }
+
   onSubmit() {
-    if (!this.dmp) throw new Error("Missing DMP in submit");
-    this.dmp_Service.updateDMP(this.dmp).subscribe((aDMP) => {
-      this.dmp = aDMP;
-      alert('DMP updated!');
-    });
+    // For demo purposes make onSumit identical to saving a draft
+    // later new logic will have to be implemented for proper proceduere
+    // of submitting a DMP record for publishing
+    this.saveDraft();
+
+    
+    // if (!this.dmp){
+    //   alert("Cannot save DMP. Missing DMP in submit")
+    //   throw new Error("Missing DMP in submit");
+    // }
+    // if (this.name.value === '') {
+    //   alert("Cannot save DMP. Record name is empty.")
+    //   throw new Error("Record name is empty");
+    // }
+    // this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
+    //   {
+    //     next: data => {
+    //         this.router.navigate(['success']);
+    //     },
+    //     error: error => {
+    //       console.log(error.message);
+    //       this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+    //     }
+    //   }
+    // );
+  }
+
+  saveDraft(){
+    if (!this.dmp){
+      alert("Cannot save DMP. Record name is empty. Missing DMP in submit")
+      throw new Error("Missing DMP in submit");
+    } 
+    if (this.name.value === '') {
+      alert("Cannot save DMP. Record name is empty.")
+      throw new Error("Record name is empty");
+    }
+    if (this.id !==null){
+      // If id is not null then update dmp with the current id
+      this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
+        {
+          next: data => {
+            //try to reload the page to read the saved dmp from mongodb
+            this.router.navigate(['edit', this.id]);
+            alert("Successfuly saved draft of the data");
+          },
+          error: error => {
+            console.log(error.message);
+            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+          }
+          
+        }
+      );
+    }
+    else {
+      //create a new DMP
+      this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
+        {
+          next: data => {
+            this.router.navigate(['edit', data.id]);
+          },
+          error: error => {
+            console.log(error.message);
+            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+          }
+        }
+      );
+    }
+    
   }
 
   resetDmp(){
-    // console.log ("reset DMP");
     this.form.controls['basicInfo'].reset();
     this.form.controls['ethicalIssues'].reset();
     this.form.controls['ethicalIssues'].patchValue({
@@ -155,6 +280,19 @@ export class DmpFormComponent implements OnInit {
     })
 
     this.preservationLinksTable.clearTable();
+  }
+
+  buildErrorMessage(error:any){
+
+    let errorMessage = " ";
+    if (error.status){
+      errorMessage += error.status + " ";
+    }
+    if (error.statusText){
+      errorMessage += error.statusText + " ";
+    }
+    return errorMessage;
+
   }
 
 }
