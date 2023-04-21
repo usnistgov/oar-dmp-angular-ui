@@ -49,7 +49,7 @@ export class DmpService {
     keyWords:                 [],
 
     //Technical Resources
-    dataSize:                 0,
+    dataSize:                 null,
     sizeUnit:                 "GB",
     softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
     technicalResources:       [],

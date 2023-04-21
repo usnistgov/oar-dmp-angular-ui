@@ -7,9 +7,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PageNotFoundComponent implements OnInit {
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor() { 
+    console.log("page-notfound component - constructor");
+      
+      
   }
+
+  ngOnInit(): void {  }
 
 }
