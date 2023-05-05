@@ -8,4 +8,10 @@
         "path": "./oar-dmp/tsconfig.ref.json"
       },
     ],
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ]    
+    }
   }
