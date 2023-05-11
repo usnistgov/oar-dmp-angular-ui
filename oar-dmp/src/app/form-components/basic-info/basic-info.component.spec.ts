@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BasicInfoComponent } from './basic-info.component';
+import { FormBuilder } from '@angular/forms';
 
 describe('BasicInfoComponent', () => {
   let component: BasicInfoComponent;
@@ -8,7 +9,8 @@ describe('BasicInfoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BasicInfoComponent ]
+      declarations: [ BasicInfoComponent ],
+      providers: [ FormBuilder ]
     })
     .compileComponents();
   });
