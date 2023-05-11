@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EthicalIssuesComponent } from './ethical-issues.component';
+import { FormBuilder } from '@angular/forms';
 
 describe('EthicalIssuesComponent', () => {
   let component: EthicalIssuesComponent;
@@ -8,7 +9,8 @@ describe('EthicalIssuesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EthicalIssuesComponent ]
+      declarations: [ EthicalIssuesComponent ],
+      providers: [ FormBuilder ]
     })
     .compileComponents();
   });
