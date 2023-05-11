@@ -5,7 +5,6 @@ import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { DmpAPIService } from '../../shared/dmp-api.service';
 import { FormBuilder } from '@angular/forms';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import { DMP_Meta } from '../../types/DMP.types';
 
 describe('PersonelComponent', () => {
   let component: PersonelComponent;
