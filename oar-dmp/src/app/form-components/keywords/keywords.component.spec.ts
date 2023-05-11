@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KeywordsComponent } from './keywords.component';
+import { DMP_Meta } from 'src/app/types/DMP.types';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
+
 
 describe('KeywordsComponent', () => {
   let component: KeywordsComponent;
@@ -8,6 +11,7 @@ describe('KeywordsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [FormsModule, ReactiveFormsModule],
       declarations: [ KeywordsComponent ]
     })
     .compileComponents();

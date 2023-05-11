@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ResourceOptionsComponent } from './resource-options.component';
+import { DomPositioningModule } from '../shared/dom-positioning.module';
 
 describe('ResourceOptionsComponent', () => {
   let component: ResourceOptionsComponent;
@@ -8,7 +9,8 @@ describe('ResourceOptionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ResourceOptionsComponent ]
+      declarations: [ ResourceOptionsComponent ],
+      providers: [DomPositioningModule]
     })
     .compileComponents();
   });
