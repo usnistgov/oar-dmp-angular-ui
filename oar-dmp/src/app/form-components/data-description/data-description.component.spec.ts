@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DataDescriptionComponent } from './data-description.component';
+import { FormBuilder } from '@angular/forms';
 
 describe('DataDescriptionComponent', () => {
   let component: DataDescriptionComponent;
@@ -8,7 +9,8 @@ describe('DataDescriptionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DataDescriptionComponent ]
+      declarations: [ DataDescriptionComponent ],
+      providers: [ FormBuilder ]
     })
     .compileComponents();
   });
