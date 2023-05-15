@@ -32,7 +32,7 @@ import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
-
+import { ConfigModule } from './config/config.module';
 
 
 @NgModule({
@@ -71,7 +71,8 @@ import { AngularResizeEventModule } from 'angular-resize-event';
     MatAutocompleteModule,
     DmpRoutingModule,
     DomPositioningModule,
-    AngularResizeEventModule
+    AngularResizeEventModule,
+    ConfigModule
   ],
   providers: [],
   bootstrap: [AppComponent]

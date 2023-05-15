@@ -3,7 +3,8 @@ import { Observable, of } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MIDASDMP } from '../types/midas-dmp.type';
-import * as jsonData from '../../assets/environment.json'
+import { ConfigurationService } from '../config/config.module';
+// import * as jsonData from '../../assets/environment.json'// remove this line and import configservice from ../service config.service
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class DmpService {
 
   // The link for the API that saves and gets data for DMP is provided in the 
   // environment.json file located in assets directory
-  API_CONF: any = jsonData; //get data from environment.json
+  API_CONF: any = null; //jsonData; //get data from environment.json
 
   /**
    * See these two articles for setting up CORS in Angular
@@ -29,7 +30,7 @@ export class DmpService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
-  constructor(private http: HttpClient)  { }
+  constructor(private http: HttpClient, private configService: ConfigurationService)  { }
 
   private NewDmpRecord: DMP_Meta = {
     //Basic Info Meta data
@@ -130,7 +131,7 @@ export class DmpService {
 
   fetchPDR(): Observable<any>{
     // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.API_CONF.PDRDMP);
+    let getInfo = this.http.get<any>(this.configService.getConfig().PDRDMP);
     return getInfo
   }
 
@@ -138,7 +139,7 @@ export class DmpService {
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
     // or if we are editing an existing one and which needs to be pulled from API
     // console.log("fetchDMP");
-    console.log(this.API_CONF.PDRDMP);
+    console.log(this.configService.getConfig().PDRDMP);
     if (action === 'new'){
       return of(this.NewDmpRecord);
     }
@@ -146,7 +147,7 @@ export class DmpService {
       /**
        * get DMP record from API
        */
-      let apiAddress:string = this.API_CONF.PDRDMP; //this.PDR_API;
+      let apiAddress:string = this.configService.getConfig().PDRDMP; //this.PDR_API;
       if (recordID !==null){
         apiAddress += "/" + recordID;
       }
@@ -158,7 +159,7 @@ export class DmpService {
 
   updateDMP(dmpMeta: DMP_Meta, dmpID: string) {
     // console.log("updateDMP");
-    let apiAddress:string = this.API_CONF.PDRDMP; //this.PDR_API;
+    let apiAddress:string = this.configService.getConfig().PDRDMP; //this.PDR_API;
     apiAddress += "/" + dmpID + "/data";
     return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.httpOptions)
 
@@ -167,7 +168,7 @@ export class DmpService {
   createDMP(dmpMeta: DMP_Meta, name:string){
     // console.log("createDMP")
     let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
-    return this.http.post<any>(this.API_CONF.PDRDMP, JSON.stringify(midasDMP), this.httpOptions)
+    return this.http.post<any>(this.configService.getConfig().PDRDMP, JSON.stringify(midasDMP), this.httpOptions)
     // return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
     
 

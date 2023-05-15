@@ -5,7 +5,8 @@
 
 export const environment = {
   production: false,
-  config_url:"assets/environment.json"
+  configUrl:"assets/environment.json",
+  debug:true
 };
 
 /*
