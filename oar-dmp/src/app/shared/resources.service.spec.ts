@@ -13,4 +13,9 @@ describe('ResourcesService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('set Messages', () => {
+    service.setSoftwareMessage("A Message");
+    expect(service.softwareMessage).toBe("A Message");
+  });
 });
