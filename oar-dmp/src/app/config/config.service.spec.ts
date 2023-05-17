@@ -35,6 +35,7 @@ describe('ConfigurationService', () => {
         const configPromise = service.fetchConfig().toPromise();
         // By the time the HTTP request is expected, the configPromise has already been created.
         const req = httpMock.expectOne('assets/dev-environment.json');
+        console.log(req);
         expect(req.request.method).toBe('GET');
         // Set the HTTP response
         req.flush(mockConfig);
