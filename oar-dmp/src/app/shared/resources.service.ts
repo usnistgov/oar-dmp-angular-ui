@@ -61,7 +61,7 @@ export class ResourcesService {
   }
 
   setWebsiteMessage(data:any){
-    this.databaseMessage = data
+    this.websiteMessage = data
   }
 
   setDataCategories(data:boolean){
