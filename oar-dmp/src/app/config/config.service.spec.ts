@@ -34,7 +34,7 @@ describe('ConfigurationService', () => {
         // Create a promise. This will pause the test until the promise is resolved using await.
         const configPromise = service.fetchConfig().toPromise();
         // By the time the HTTP request is expected, the configPromise has already been created.
-        const req = httpMock.expectOne('assets/environment.json');
+        const req = httpMock.expectOne('assets/dev-environment.json');
         expect(req.request.method).toBe('GET');
         // Set the HTTP response
         req.flush(mockConfig);
@@ -79,7 +79,7 @@ describe('ConfgirationService via ConfigModule', () => {
         svc = TestBed.inject(ConfigurationService);
         httpMock = TestBed.inject(HttpTestingController);
 
-        let req = httpMock.expectOne('assets/environment.json');
+        let req = httpMock.expectOne('assets/dev-environment.json');
         req.flush({
             PDRDMP: "http://localhost:4202/",
             recaptchaApiKey: "X"
