@@ -100,7 +100,39 @@ describe('DmpService', () => {
     const req = httpController.expectNone('/')
     expect(req).not.toBeNull();
 
-    
+    // Wait for fetchDMP() to finish, which will hang on HttpClient.get() to finish
+    const config = await configPromise;
+
+    // Assert
+    expect(config).toStrictEqual(mockDmpRecord);
+
+  });
+
+  it('update a DMP', async() => {
+    // Create a promise. This will pause the test until the promise is resolved using await.
+    const configPromise = service.updateDMP(mockDmpRecord, "mdm1:0017").toPromise();
+
+    // By the time the HTTP request is expected, the configPromise has already been created.
+    const req = httpController.expectOne('//mdm1:0017/data');
+    expect(req.request.method).toBe('PUT');
+    // Set the HTTP response
+    req.flush(mockConfig);
+
+    const config = await configPromise;
+
+    // Assert
+    expect(config).toEqual(mockConfig);    
+
+  });
+
+  it('create a DMP', async() => {
+    // Create a promise. This will pause the test until the promise is resolved using await.
+    const configPromise = service.createDMP(mockDmpRecord, "mnemonic").toPromise();
+
+    // By the time the HTTP request is expected, the configPromise has already been created.
+    const req = httpController.expectOne('/')
+    expect(req.request.method).toBe('POST');
+    expect(req).not.toBeNull();
 
     // Wait for fetchDMP() to finish, which will hang on HttpClient.get() to finish
     const config = await configPromise;
