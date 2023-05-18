@@ -6,6 +6,8 @@ import { ConfigurationService } from '../config/config.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Configuration } from '../config/config.model';
 
+import { DMP_Meta } from '../types/DMP.types';
+
 describe('DmpService', () => {
   let service: DmpService;
   let httpController: HttpTestingController;
@@ -13,6 +15,46 @@ describe('DmpService', () => {
   // Mock configuration object
   const mockConfig: Configuration = {
       PDRDMP: 'http://localhost:9091/midas/dmp/mdm1',
+  };
+
+  const mockDmpRecord: DMP_Meta = {
+    //Basic Info Meta data
+    title:                    '',
+    startDate:                '',
+    endDate:                  '',
+    dmpSearchable:            'yes',
+    funding:                  {grant_source:'Grant Number', grant_id:''},
+    projectDescription:       '',
+
+    //Personel
+    primary_NIST_contact:     {firstName:"", lastName:""},
+    contributors:             [],
+
+    //Keywords
+    keyWords:                 [],
+
+    //Technical Resources
+    dataSize:                 null,
+    sizeUnit:                 "GB",
+    softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
+    technicalResources:       [],
+    
+    // Ethical Issues Meta data
+    ethical_issues:           {
+                                ethical_issues_exist:         'no', 
+                                ethical_issues_description:   '', 
+                                ethical_issues_report:        '', 
+                                dmp_PII:                      'no'
+                              },
+
+    // Data Description Meta data
+    dataDescription:          '',
+    dataCategories:           [],
+
+    // Data Preservation Meta data
+    preservationDescription:  '',
+    pathsURLs:                []
+
   };
 
   beforeEach(() => {
@@ -49,6 +91,22 @@ describe('DmpService', () => {
 
     // Assert
     expect(config).toEqual(mockConfig);
+
+  });
+
+  it('start new DMP', async() => {    
+    let configPromise = service.fetchDMP("new", null).toPromise();    
+
+    const req = httpController.expectNone('/')
+    expect(req).not.toBeNull();
+
+    
+
+    // Wait for fetchDMP() to finish, which will hang on HttpClient.get() to finish
+    const config = await configPromise;
+
+    // Assert
+    expect(config).toStrictEqual(mockDmpRecord);
 
   });
 });
