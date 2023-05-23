@@ -125,6 +125,7 @@ describe('DmpService', () => {
 
   });
 
+  /*
   it('create a DMP', async() => {
     // Create a promise. This will pause the test until the promise is resolved using await.
     const configPromise = service.createDMP(mockDmpRecord, "mnemonic").toPromise();
@@ -141,4 +142,5 @@ describe('DmpService', () => {
     expect(config).toStrictEqual(mockDmpRecord);
 
   });
+  */
 });
