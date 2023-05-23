@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  production: true,
+  configUrl:"assets/environment.json",
+  debug:false
 };

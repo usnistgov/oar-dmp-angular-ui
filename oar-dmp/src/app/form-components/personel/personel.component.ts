@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
-import { NIST_STAFF } from 'src/app/types/nist-staff-mock.type'; //possibly need to comment this out
-import { Contributor } from 'src/app/types/contributor.type';
+import { NIST_STAFF } from '../../types/nist-staff-mock.type'; //possibly need to comment this out
+import { Contributor } from '../../types/contributor.type';
 import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
-import { NistContact } from 'src/app/types/nist-contact'
+import { NistContact } from '../../types/nist-contact'
 
 import { Validators, FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-import { DMP_Meta } from 'src/app/types/DMP.types';
+import { DMP_Meta } from '../../types/DMP.types';
 
 import {Observable} from 'rxjs';
 

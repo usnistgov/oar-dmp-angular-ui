@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DataPreservationComponent } from './data-preservation.component';
+import { FormBuilder } from '@angular/forms';
 
 describe('DataPreservationComponent', () => {
   let component: DataPreservationComponent;
@@ -8,7 +9,9 @@ describe('DataPreservationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DataPreservationComponent ]
+      declarations: [ DataPreservationComponent ],
+      providers: [ FormBuilder ]
+      
     })
     .compileComponents();
   });

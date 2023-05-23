@@ -1,7 +1,7 @@
 import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-import { DMP_Meta } from 'src/app/types/DMP.types';
+import { DMP_Meta } from '../../types/DMP.types';
 
 @Component({
   selector: 'app-basic-info',

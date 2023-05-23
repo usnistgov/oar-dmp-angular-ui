@@ -8,8 +8,8 @@ import { StorageNeedsComponent } from '../form-components/technical-requirements
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
-import { DMP_Meta } from 'src/app/types/DMP.types';
-import { DmpService } from 'src/app/shared/dmp.service'
+import { DMP_Meta } from '../types/DMP.types';
+import { DmpService } from '../shared/dmp.service'
 import { FormControl } from '@angular/forms';
 
 

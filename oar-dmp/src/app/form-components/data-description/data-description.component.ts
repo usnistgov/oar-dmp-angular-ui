@@ -3,8 +3,8 @@ import { Component, Input, Output, OnInit } from '@angular/core';
 import { ResourcesService } from '../../shared/resources.service';
 import { FormArray, FormBuilder, FormControl } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-import { DMP_Meta } from 'src/app/types/DMP.types';
-import { DataCategories } from 'src/app/types/data-categories.type';
+import { DMP_Meta } from '../../types/DMP.types';
+import { DataCategories } from '../../types/data-categories.type';
 
 @Component({
   selector: 'app-data-description',

@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ControlValueAccessor, NgControl, AbstractControl, FormControl} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-import { DMP_Meta } from 'src/app/types/DMP.types';
+import { DMP_Meta } from '../../types/DMP.types';
 
 @Component({
   selector: 'app-ethical-issues',
