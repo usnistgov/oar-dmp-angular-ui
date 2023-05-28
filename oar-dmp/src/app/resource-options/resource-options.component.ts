@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 // In the child, we need to import the service "ResourcesService" file to be able to use it. 
 import { ResourcesService } from '../shared/resources.service';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
+import { LoadResourcesService } from '../shared/load-resources.service';
 
 @Component({
   selector: 'app-resource-options',
@@ -26,7 +27,11 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   // @Input() data :any
 
   // we inject shared service ResourcesService in the constructor.
-  constructor(private sharedService:ResourcesService, private dom:DomPositioningModule) { 
+  constructor(
+    private sharedService:ResourcesService, 
+    private dom:DomPositioningModule,
+    private nistResources: LoadResourcesService
+    ) { 
     console.log("resoruce-optionscomponent");
   }
 
@@ -43,12 +48,16 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   softwareSelection: string = "";
   dataSelection: string = "";
 
+  availableResources: any = {}
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
     this.storageSubscribe()
     this.softwareSubscribe()
     this.databaseSubscribe()
     this.websiteSubscribe()
+    this.availableResources = this.nistResources.getAllResources();
+    console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
     console.log("resoruce-options after view init");

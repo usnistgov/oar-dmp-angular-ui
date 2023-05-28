@@ -33,7 +33,7 @@ import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-publish
 import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
 import { ConfigModule } from './config/config.module';
-
+import { NistResorucesModule } from './config/nist-resources.module';
 
 @NgModule({
   declarations: [
@@ -72,7 +72,8 @@ import { ConfigModule } from './config/config.module';
     DmpRoutingModule,
     DomPositioningModule,
     AngularResizeEventModule,
-    ConfigModule
+    ConfigModule,
+    NistResorucesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

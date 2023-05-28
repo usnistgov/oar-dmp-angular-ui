@@ -42,7 +42,7 @@ export class ConfigurationService {
      * application start-up.  
      */
     public getConfig(): Configuration {
-        return this.config ?? { PDRDMP: '/' };
+        return this.config ?? { PDRDMP: '/'};
     }
 
     /**
