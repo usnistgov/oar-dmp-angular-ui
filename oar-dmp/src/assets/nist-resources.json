@@ -1,12 +1,17 @@
 {
-  "RESOURCES":{
-    "storage":{
-      "name":"Nik",
-      "surname":"blonder"
-    },
-    "Database":{
-      "name":"Nik",
-      "surname":"blonder"
+  "RESOURCES":[
+    {
+      "resource":"Storage",
+      "options":[
+        {
+          "text":"AWS Cloud Storage",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"OU Storage Request (Local NAS, Central)",
+          "link":"https://nist.gov"
+        }
+      ]
     }
-  }
+  ]
 }

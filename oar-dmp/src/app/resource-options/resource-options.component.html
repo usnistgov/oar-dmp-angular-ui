@@ -12,7 +12,26 @@
 <!-- </div> -->
 
 <div id="resources-grid-container">
-  <pre>{{ availableResources['storage'] | json }}</pre>
+  <!-- <pre>{{ availableResources['storage'] | json }}</pre>
+  <pre>{{ availableResources| json }}</pre> -->
+  <div *ngFor="let category of availableResources">
+    <!-- <p>{{category | json}}</p> -->
+    <div class="grid-item">
+      <div class="cell">        
+        <div>
+          <table class="grid-table">
+            <tr><th><span class="header_span">{{category["resource"]}}</span></th></tr>
+            <tr *ngFor="let row of category.options">
+              <td>
+                <a href='{{row.link}}'>{{row.text}}</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
   
   <div class="grid-item">
     <div class="cell">
