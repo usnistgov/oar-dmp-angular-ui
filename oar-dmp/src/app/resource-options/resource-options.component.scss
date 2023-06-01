@@ -6,6 +6,9 @@
   // background-color: rgb(162, 171, 168);
   
 }
+.header_pad{
+  padding: 5px 0px 20px;
+}
 
 #resources-grid-container {      
   display: grid;
@@ -22,8 +25,9 @@
   font-size: 12px;
   text-align: left;
   border-radius: 5px;
+
 }
-.bottom_box{
+.span_box{
   grid-column-start: 1;
   grid-column-end: 3;
 }
