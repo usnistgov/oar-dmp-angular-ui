@@ -34,6 +34,7 @@ import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
 import { ConfigModule } from './config/config.module';
 import { NistResorucesModule } from './config/nist-resources.module';
+import { ResourceOptionsDirective } from './resource-options/resource-options.directive';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { NistResorucesModule } from './config/nist-resources.module';
     DmpFormComponent,
     PageNotFoundComponent,
     PageErrorComponent,
-    PageDmpPublishedComponent
+    PageDmpPublishedComponent,
+    ResourceOptionsDirective
   ],
   imports: [
     BrowserModule,

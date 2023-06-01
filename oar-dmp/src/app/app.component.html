@@ -1,7 +1,8 @@
 <div>
     <app-header appVersion="1.0"></app-header>
 </div>
-<div class="dmp_header" id="dmp_hdr" (resized)="onResized($event)">Data Management Plan</div>  
+<!-- div dmp_hdr is used for calculating resizing of the form and positioning of the reources options -->
+<div  id="dmp_hdr" (resized)="onResized($event)"></div>  
 
 <div class="sticky" id="resource_options">
     <!-- 
@@ -13,6 +14,7 @@
     <app-resource-options></app-resource-options>
 </div>
 <div id="dmp_panel">
+  <div class="dmp_header" >Data Management Plan</div>
   <router-outlet></router-outlet>
 </div>
 <!-- <table>
