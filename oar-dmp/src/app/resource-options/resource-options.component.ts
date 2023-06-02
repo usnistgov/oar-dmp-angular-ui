@@ -11,6 +11,11 @@ import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { FilterPipe } from './filter.pipe';
 
+interface Messages {
+  [key: string]: any;
+}
+
+
 @Component({
   selector: 'app-resource-options',
   templateUrl: './resource-options.component.html',
@@ -72,7 +77,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
       //subscribe if not already subscribed
       this.storageSubscription = this.sharedService.storageSubject$.subscribe({
         next: (message) => {
-          this.storageSelection = message;
+          this.storageSelection = message;          
         }
       });
     }
@@ -84,7 +89,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
       //subscribe if not already subscribed
       this.softwareSubscription = this.sharedService.softwareSubject$.subscribe({
         next: (message) => {
-          this.softwareSelection = message;
+          this.softwareSelection = message;          
         }
       });
     }

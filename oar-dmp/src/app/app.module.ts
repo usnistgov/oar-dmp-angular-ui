@@ -34,7 +34,6 @@ import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
 import { ConfigModule } from './config/config.module';
 import { NistResorucesModule } from './config/nist-resources.module';
-import { ResourceOptionsDirective } from './resource-options/resource-options.directive';
 import { FilterPipe } from './resource-options/filter.pipe';
 
 @NgModule({
@@ -52,7 +51,6 @@ import { FilterPipe } from './resource-options/filter.pipe';
     PageNotFoundComponent,
     PageErrorComponent,
     PageDmpPublishedComponent,
-    ResourceOptionsDirective,
     FilterPipe
   ],
   imports: [

@@ -26,7 +26,11 @@
             <tr><th><span class="header_span">{{category["resource"]}}</span></th></tr>
             <tr *ngFor="let row of category.options">
               <!-- <td  *ngFor="let c of row.highlight | filter: storageSelection"> -->
-              <td  [ngClass]="{'selected':row.highlight | filter: [storageSelection, computingSelection, dataSelection, websiteSelection, databaseSelection, awsSelection, colaborationSelection, softwareSelection, networkSelection]}">
+              <td  [ngClass]="{'selected':row.highlight | filter: 
+                {
+                  'storageSelection':storageSelection
+                }
+              }">
                 <a href='{{row.link}}'>{{row.text}}</a>
               </td>
             </tr>
