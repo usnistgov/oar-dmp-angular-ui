@@ -6,31 +6,37 @@
         {
           "text":"AWS Cloud Storage",
           "link":"https://nist.gov",
-          "highlight":["TB", "GB", "mid", "low"]
+          "highlight":{"storageSelection":["TB", "GB", "mid", "low"]}
         },
         {
           "text":"OU Storage Request (Local NAS, Central)",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "mid", "low"]}
         },
         {
           "text":"Google Drive",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["MB", "low"]}
         },
         {
           "text":"Box",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["GB", "low"]}
         },
         {
           "text":"Local storage on a workstation with TMS backup",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["GB", "mid", "low"]}
         },
         {
           "text":"Central Storage On-Prem (CFS2E, CFS2W)",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "top", "mid", "low"]}
         },
         {
           "text":"OISM Tier 1 network (elwood, jake)",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "top", "mid", "low"]}
         }
       ]
     },
@@ -39,8 +45,7 @@
       "options":[
         {
           "text":"OU HPC (ITL, CTCMS, other)",
-          "link":"https://nist.gov",
-          "highlight":["TB", "GB", "mid", "low"]
+          "link":"https://nist.gov"
         },
         {
           "text":"Central HPC (Raritan, Enki)",

@@ -35,6 +35,7 @@ import { AngularResizeEventModule } from 'angular-resize-event';
 import { ConfigModule } from './config/config.module';
 import { NistResorucesModule } from './config/nist-resources.module';
 import { ResourceOptionsDirective } from './resource-options/resource-options.directive';
+import { FilterPipe } from './resource-options/filter.pipe';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { ResourceOptionsDirective } from './resource-options/resource-options.di
     PageNotFoundComponent,
     PageErrorComponent,
     PageDmpPublishedComponent,
-    ResourceOptionsDirective
+    ResourceOptionsDirective,
+    FilterPipe
   ],
   imports: [
     BrowserModule,

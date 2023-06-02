@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { ResourcesService } from '../shared/resources.service';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
+import { FilterPipe } from './filter.pipe';
 
 @Component({
   selector: 'app-resource-options',
