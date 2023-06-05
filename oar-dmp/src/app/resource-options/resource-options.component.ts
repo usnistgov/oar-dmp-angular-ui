@@ -8,6 +8,13 @@ import { Subscription } from 'rxjs';
 // In the child, we need to import the service "ResourcesService" file to be able to use it. 
 import { ResourcesService } from '../shared/resources.service';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
+import { LoadResourcesService } from '../shared/load-resources.service';
+import { FilterPipe } from './filter.pipe';
+
+interface Messages {
+  [key: string]: any;
+}
+
 
 @Component({
   selector: 'app-resource-options',
@@ -26,7 +33,11 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   // @Input() data :any
 
   // we inject shared service ResourcesService in the constructor.
-  constructor(private sharedService:ResourcesService, private dom:DomPositioningModule) { 
+  constructor(
+    private sharedService:ResourcesService, 
+    private dom:DomPositioningModule,
+    private nistResources: LoadResourcesService
+    ) { 
     console.log("resoruce-optionscomponent");
   }
 
@@ -43,12 +54,16 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   softwareSelection: string = "";
   dataSelection: string = "";
 
+  availableResources: any = {}
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
     this.storageSubscribe()
     this.softwareSubscribe()
     this.databaseSubscribe()
     this.websiteSubscribe()
+    this.availableResources = this.nistResources.getAllResources();
+    console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
     console.log("resoruce-options after view init");
@@ -62,7 +77,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
       //subscribe if not already subscribed
       this.storageSubscription = this.sharedService.storageSubject$.subscribe({
         next: (message) => {
-          this.storageSelection = message;
+          this.storageSelection = message;          
         }
       });
     }
@@ -74,7 +89,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
       //subscribe if not already subscribed
       this.softwareSubscription = this.sharedService.softwareSubject$.subscribe({
         next: (message) => {
-          this.softwareSelection = message;
+          this.softwareSelection = message;          
         }
       });
     }

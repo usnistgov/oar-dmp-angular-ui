@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KeywordsComponent } from './keywords.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
+import { FormBuilder } from '@angular/forms';
+
 
 describe('KeywordsComponent', () => {
   let component: KeywordsComponent;
@@ -8,7 +11,9 @@ describe('KeywordsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ KeywordsComponent ]
+      imports: [FormsModule, ReactiveFormsModule],
+      declarations: [ KeywordsComponent ],
+      providers: [ FormBuilder ]
     })
     .compileComponents();
   });

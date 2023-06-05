@@ -1,0 +1,182 @@
+{
+  "RESOURCES":[
+    {
+      "resource":"Storage",
+      "options":[
+        {
+          "text":"AWS Cloud Storage",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "mid", "low"]}
+        },
+        {
+          "text":"OU Storage Request (Local NAS, Central)",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "mid", "low"]}
+        },
+        {
+          "text":"Google Drive",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["MB", "low"]}
+        },
+        {
+          "text":"Box",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["GB", "low"]}
+        },
+        {
+          "text":"Local storage on a workstation with TMS backup",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["GB", "mid", "low"]}
+        },
+        {
+          "text":"Central Storage On-Prem (CFS2E, CFS2W)",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "top", "mid", "low"]}
+        },
+        {
+          "text":"OISM Tier 1 network (elwood, jake)",
+          "link":"https://nist.gov",
+          "highlight":{"storageSelection":["TB", "GB", "top", "mid", "low"]}
+        }
+      ]
+    },
+    {
+      "resource":"Computing Resources",
+      "options":[
+        {
+          "text":"OU HPC (ITL, CTCMS, other)",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Central HPC (Raritan, Enki)",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"ENKI GPU Cluster",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Central VM (On-Prem)",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"OISM / RSO / HPC",
+          "link":"https://hpc.nist.gov/hpc/documentation/index.shtml"
+        }
+      ]
+    },
+    {
+      "resource":"Data Science",
+      "options":[
+        {
+          "text":"Informatics - Semantic",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"LIMS at NIST",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Standards",
+          "link":"https://nist.gov"
+        }
+      ]
+    },
+    {
+      "resource":"Web Server",
+      "options":[
+        {
+          "text":"Hosting",
+          "link":"https://nist.gov",
+          "highlight":{"websiteSelection":["yes"]}
+        }
+      ]
+    },
+    {
+      "resource":"Database",
+      "options":[
+        {
+          "text":"Licensing",
+          "link":"https://nist.gov",
+          "highlight":{"databaseSelection":["yes"]}
+        },
+        {
+          "text":"Resources at NIST",
+          "link":"https://nist.gov",
+          "highlight":{"databaseSelection":["yes"]}
+        }
+      ]
+    },
+    {
+      "resource":"AWS Cloud",
+      "options":[
+        {
+          "text":"Services",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Server",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Storage",
+          "link":"https://nist.gov"
+        }
+      ]
+    },
+    {
+      "resource":"Collaboration Tools",
+      "options":[
+        {
+          "text":"NIST-Wide Available",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"OU Approved",
+          "link":"https://nist.gov"
+        }
+      ]
+    },
+    {
+      "resource":"Software Tools",
+      "options":[
+        {
+          "text":"Gitlab Repository - Internal",
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["internal", "both"]}
+        },
+        {
+          "text":"Github Repository - Public and Private",
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["internal", "external", "both"]}
+        },
+        {
+          "text":"Science Software",
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["external", "both"]}
+        }
+      ]
+    },
+    {
+      "resource":"Network Support",
+      "options":[
+        {
+          "text":"Research Equipment Network (REN) - Instrument => ITSO",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"10Gb - high speed",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"Firewall - ITAC",
+          "link":"https://nist.gov"
+        },
+        {
+          "text":"DNS - ITAC",
+          "link":"https://nist.gov"
+        }
+      ]
+    }
+  ]
+}

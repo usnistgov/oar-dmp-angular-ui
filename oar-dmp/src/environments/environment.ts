@@ -5,7 +5,9 @@
 
 export const environment = {
   production: false,
-  config_url:"assets/environment.json"
+  configUrl:"assets/dev-environment.json",
+  NIST_Resources:"assets/nist-resources.json",
+  debug:true
 };
 
 /*

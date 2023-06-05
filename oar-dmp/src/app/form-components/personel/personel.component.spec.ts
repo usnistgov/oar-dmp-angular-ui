@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PersonelComponent } from './personel.component';
+import { DropDownSelectService } from '../../shared/drop-down-select.service';
+import { DmpAPIService } from '../../shared/dmp-api.service';
+import { FormBuilder } from '@angular/forms';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 describe('PersonelComponent', () => {
   let component: PersonelComponent;
@@ -8,7 +12,13 @@ describe('PersonelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PersonelComponent ]
+      declarations: [ PersonelComponent ],
+      providers: [
+        DropDownSelectService,
+        DmpAPIService,
+        FormBuilder
+      ],
+      imports: [HttpClientTestingModule, MatAutocompleteModule]
     })
     .compileComponents();
   });

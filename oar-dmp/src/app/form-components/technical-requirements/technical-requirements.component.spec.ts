@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StorageNeedsComponent } from './technical-requirements.component';
+import { FormBuilder } from '@angular/forms';
 
 describe('StorageNeedsComponent', () => {
   let component: StorageNeedsComponent;
@@ -8,7 +9,8 @@ describe('StorageNeedsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ StorageNeedsComponent ]
+      declarations: [ StorageNeedsComponent ],
+      providers: [ FormBuilder ]
     })
     .compileComponents();
   });

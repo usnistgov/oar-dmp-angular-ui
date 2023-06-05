@@ -32,8 +32,9 @@ import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
-
-
+import { ConfigModule } from './config/config.module';
+import { NistResorucesModule } from './config/nist-resources.module';
+import { FilterPipe } from './resource-options/filter.pipe';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { AngularResizeEventModule } from 'angular-resize-event';
     DmpFormComponent,
     PageNotFoundComponent,
     PageErrorComponent,
-    PageDmpPublishedComponent
+    PageDmpPublishedComponent,
+    FilterPipe
   ],
   imports: [
     BrowserModule,
@@ -71,7 +73,9 @@ import { AngularResizeEventModule } from 'angular-resize-event';
     MatAutocompleteModule,
     DmpRoutingModule,
     DomPositioningModule,
-    AngularResizeEventModule
+    AngularResizeEventModule,
+    ConfigModule,
+    NistResorucesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

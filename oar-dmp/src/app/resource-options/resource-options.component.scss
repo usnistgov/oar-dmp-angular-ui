@@ -6,12 +6,15 @@
   // background-color: rgb(162, 171, 168);
   
 }
+.header_pad{
+  padding: 5px 0px 20px;
+}
 
 #resources-grid-container {      
   display: grid;
   // define two columns of 330px each
   grid-template-columns:repeat(2, 290px);
-  background-color: #d3d3d3;
+  background-color: #b7daf1;;
   padding: 8px;
   border-radius: 10px;
 }
@@ -22,8 +25,9 @@
   font-size: 12px;
   text-align: left;
   border-radius: 5px;
+
 }
-.bottom_box{
+.span_box{
   grid-column-start: 1;
   grid-column-end: 3;
 }
