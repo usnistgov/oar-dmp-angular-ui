@@ -87,7 +87,8 @@
       "options":[
         {
           "text":"Hosting",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"websiteSelection":["yes"]}
         }
       ]
     },
@@ -96,11 +97,13 @@
       "options":[
         {
           "text":"Licensing",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"databaseSelection":["yes"]}
         },
         {
           "text":"Resources at NIST",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"databaseSelection":["yes"]}
         }
       ]
     },
@@ -139,15 +142,18 @@
       "options":[
         {
           "text":"Gitlab Repository - Internal",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["internal", "both"]}
         },
         {
           "text":"Github Repository - Public and Private",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["internal", "external", "both"]}
         },
         {
           "text":"Science Software",
-          "link":"https://nist.gov"
+          "link":"https://nist.gov",
+          "highlight":{"softwareSelection":["external", "both"]}
         }
       ]
     },

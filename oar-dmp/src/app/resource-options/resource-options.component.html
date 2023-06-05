@@ -28,7 +28,15 @@
               <!-- <td  *ngFor="let c of row.highlight | filter: storageSelection"> -->
               <td  [ngClass]="{'selected':row.highlight | filter: 
                 {
-                  'storageSelection':storageSelection
+                  'storageSelection':storageSelection,
+                  'computingSelection':computingSelection,
+                  'dataSelection':dataSelection,
+                  'websiteSelection':websiteSelection,
+                  'databaseSelection':databaseSelection,
+                  'awsSelection':awsSelection,
+                  'colaborationSelection':colaborationSelection,
+                  'softwareSelection':softwareSelection,
+                  'networkSelection':networkSelection
                 }
               }">
                 <a href='{{row.link}}'>{{row.text}}</a>
