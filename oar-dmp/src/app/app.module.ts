@@ -35,6 +35,7 @@ import { AngularResizeEventModule } from 'angular-resize-event';
 import { ConfigModule } from './config/config.module';
 import { NistResorucesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
+import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,7 @@ import { FilterPipe } from './resource-options/filter.pipe';
     ConfigModule,
     NistResorucesModule
   ],
-  providers: [],
+//   providers: [fakeBackendProvider],
   bootstrap: [AppComponent]
 })
 export class AppModule {  }
