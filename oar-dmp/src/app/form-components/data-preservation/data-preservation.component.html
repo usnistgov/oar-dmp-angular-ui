@@ -96,6 +96,17 @@
         ></textarea>
       </td>
     </tr>
+    <tr>
+      <td>Describe your plans for making the<br>data discoverable (findable) and accessible</td>
+      <td><textarea 
+        name="dmpDiscoverability" 
+        cols="40" 
+        rows="5" 
+        placeholder="Describe what steps will be taken to ensure that potential customers who do not already know the data will be able to find them (discoverability) and then obtain them for use (accessibility)."
+        [formControl]="preservationForm.controls['dataAccess']"
+        ></textarea>
+      </td>
+    </tr>
   </table>
   
 </div>

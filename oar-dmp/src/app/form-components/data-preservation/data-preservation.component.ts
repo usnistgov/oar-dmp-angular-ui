@@ -45,6 +45,7 @@ export class DataPreservationComponent {
   preservationForm = this.fb.group(
     {
       preservationDescription: [''],
+      dataAccess: [''],
       pathsURLs:[[]]
     }
   );
@@ -72,6 +73,7 @@ export class DataPreservationComponent {
     // to what has been sent from the server
     this.preservationForm.patchValue({
       preservationDescription:  data_preservation.preservationDescription,
+      dataAccess:               data_preservation.dataAccess,
       pathsURLs:                data_preservation.pathsURLs
 
     });
@@ -98,6 +100,7 @@ export class DataPreservationComponent {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           preservationDescription: formValue.preservationDescription,
+          dataAccess:              formValue.dataAccess, 
           pathsURLs:               formValue.pathsURLs
         })
       )
@@ -189,6 +192,7 @@ export class DataPreservationComponent {
       // changes up to the parent form but since we are only trying to update the table
       // don't change preservation description text therefore re-assign it to preservationDescription
       preservationDescription: this.preservationForm.value['preservationDescription'],
+      dataAccess: this.preservationForm.value['dataAccess'],
       // only change table values
       pathsURLs:[]
 

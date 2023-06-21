@@ -69,6 +69,7 @@ export class DmpService {
 
     // Data Preservation Meta data
     preservationDescription:  '',
+    dataAccess:               '',
     pathsURLs:                []
 
   };
@@ -125,6 +126,7 @@ export class DmpService {
 
     // Data Preservation Meta data
     preservationDescription:  'Data preservation description example text',
+    dataAccess:               'Data access description example text',
     pathsURLs:                ['https://github.com/exampleuser/example_set', 'https://example.com']
 
   };

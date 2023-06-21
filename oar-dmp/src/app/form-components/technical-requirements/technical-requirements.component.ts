@@ -479,8 +479,7 @@ export class StorageNeedsComponent {
     this.setWebsiteDev('no');
     this.technicalRequirementsForm.patchValue({
       // all of technicalRequirementsForm needs to be "changed" in order to fire the update event and propagate
-      // changes up to the parent form but since we are only trying to update the table
-      // don't change preservation description text therefore re-assign it to preservationDescription
+      // changes up to the parent form
       dataSize:             null,
       sizeUnit:             "TB",
       development:          "no",

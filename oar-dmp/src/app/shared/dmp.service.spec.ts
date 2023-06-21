@@ -53,6 +53,7 @@ describe('DmpService', () => {
 
     // Data Preservation Meta data
     preservationDescription:  '',
+    dataAccess:               '',
     pathsURLs:                []
 
   };
