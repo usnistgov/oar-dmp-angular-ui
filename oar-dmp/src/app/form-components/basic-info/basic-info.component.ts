@@ -2,6 +2,7 @@ import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
+import { MockOrganizations } from '../../types/mock-organizations';
 
 @Component({
   selector: 'app-basic-info',
@@ -20,7 +21,9 @@ export class BasicInfoComponent{
     dmpSearchable: ['', Validators.required],
     grant_source: ['', Validators.required],
     grant_id: ['', Validators.required],
-    projectDescription: ['', Validators.required]
+    projectDescription: ['', Validators.required],
+    nistOrganization:[],
+    organizations: [[]]
 
   });
 
@@ -76,6 +79,12 @@ export class BasicInfoComponent{
 
   constructor(private fb: FormBuilder) {
     console.log("basic-info component");
+  }
+
+  displaySelectedOrganization(org:MockOrganizations):string{
+    var res = org && org.id ? org.orgName : '';
+    return res;
+
   }
 
 }

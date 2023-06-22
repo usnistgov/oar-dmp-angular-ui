@@ -88,5 +88,28 @@
       <td><textarea name="projectDescription" cols="40" rows="5" placeholder="Description behind the science of the project"
         [formControl]="basicInfoForm.controls['projectDescription']"></textarea></td>
     </tr>
+    <tr>
+      <td>Organizations associated with this DMP</td>
+      <td>
+        <!-- <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Organization</mat-label>
+          <input type="text"
+                 placeholder="Pick one"
+                 aria-label="NIST Organization"
+                 matInput
+                 [formControl]="basicInfoForm.controls['nistOrganization']"
+                 [matAutocomplete]="nistOrganization">
+          <mat-autocomplete 
+            #nistOrganization="matAutocomplete"
+            [displayWith]="displaySelectedOrganization"
+          >
+            <mat-option *ngFor="let option of fltr_Prim_NIST_Contact | async" [value]="option">
+              {{option.lastName + ", " + option.firstName}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field> -->
+      </td>
+    </tr>
+    
   </table>
 </div>

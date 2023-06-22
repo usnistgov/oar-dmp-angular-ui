@@ -276,7 +276,9 @@ export class DmpFormComponent implements OnInit {
 
     // Reset Data Preservation component of the form
     this.form.controls['dataPreservation'].patchValue({
-      preservationDescription:""
+      preservationDescription:"",
+      dataAccess:"",
+      pathsURLs: []
     })
 
     this.preservationLinksTable.clearTable();
