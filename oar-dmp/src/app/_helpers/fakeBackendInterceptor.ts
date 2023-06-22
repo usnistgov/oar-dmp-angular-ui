@@ -173,21 +173,33 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             let body: any = {
                 userDetails: {
                     userId: 'xyz@nist.gov',
-                    userName: 'xyz'
+                    userName: 'xyz',
+                    userLastName: 'Doe',
+                    userEmail: 'xyz@nist.gov',
+                    userGroup: 'Domain Users',
+                    userDiv: 'Office of Data and Informatics',
+                    userDivNum: '641',
+                    userOU: 'Material Measurement Laboratory'
                 },
                 token: 'fake-jwt-token'
             };
-            console.log("logging in...")
-            return of(new HttpResponse({ status: 200, body }));
+            console.log("logging in...");
+
+            //Authorized
+            // return of(new HttpResponse({ status: 200, body }));
+
+            // Athenticated but not authorized
+            // body.token = null;
+            // return of(new HttpResponse({ status: 200, body }));
 
             // Reject
-            // return throwError(() =>
-            //   JSON.stringify({
-            //       "status": 401,
-            //       "Userid": "xyz@nist.gov",
-            //       "message": "Unauthorizeduser: User token is empty or expired."
-            //   })
-            // );
+            return throwError(
+              JSON.stringify({
+                  "status": 500,
+                  "Userid": "xyz@nist.gov",
+                  "message": "Sorry, but we're having trouble signing you in. Please contact our tech support."
+              })
+            );
         }
 
       // if (request.url.indexOf('/customization/api/draft') > -1 && request.method === 'GET') {

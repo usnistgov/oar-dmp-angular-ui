@@ -12,6 +12,7 @@ export class AppComponent {
   title = 'dmp_ui2';
   authorized:boolean = false;
   readyDisplay: boolean = false;
+  authMessage: string = "You are not authorized to edit this content.";
 
   
   constructor(private dom:DomPositioningModule,
@@ -23,25 +24,27 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.libWebAuthService.getAuthInfo().subscribe({
-        next: (info) =>{
+        next: (info: any) =>{
             if (info.token) {
-                // this.wizardService.setToken(info.token);
+                // Authorized
                 this.authorized = true;
             }
             else if (info.userDetails && info.userDetails.userId) {
                 // the user is authenticated but not authorized
-                // No user info returned at this time
+                // Display some message. For example:
+                this.authMessage = "You are not authorized.";
             }
             else {
                 // the user is not authenticated!
-                // Do nothing
+                // Display some message
+                this.authMessage = "You are not authorized.";
             }
 
             this.readyDisplay = true;
         },
-        error: (err) => {
-            //Do nothing for now
+        error: (err: any) => {
             this.readyDisplay = true;
+            this.authMessage = err.message;
         }
     })
   }
