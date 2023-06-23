@@ -1,3 +1,5 @@
 {
-  "PDRDMP":"https://mdsdev.nist.gov/midas/dmp/mdm1"
+  "PDRDMP":"https://mdsdev.nist.gov/midas/dmp/mdm1",
+  "AUTHAPI":  "https://localhost/sso/",
+  "REDIRECTAUTHAPI": "saml/login?redirectTo="
 }
