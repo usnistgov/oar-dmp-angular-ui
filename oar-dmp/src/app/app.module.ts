@@ -78,7 +78,7 @@ import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
     ConfigModule,
     NistResorucesModule
   ],
-//   providers: [fakeBackendProvider],
+  providers: [fakeBackendProvider],
   bootstrap: [AppComponent]
 })
 export class AppModule {  }
