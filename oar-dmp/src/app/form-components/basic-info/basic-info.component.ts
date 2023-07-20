@@ -4,15 +4,46 @@ import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { MockOrganizations } from '../../types/mock-organizations';
 
+const ORG_COL_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'organization',
+    type: 'text',
+    label: 'Organization(s)',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
+
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss']
 })
 export class BasicInfoComponent{
+  // ================================
+  // used for organizations table
+  // ================================
+  disableAdd:boolean = false;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
+  errorMessage: string = '';
+  organizations: MockOrganizations[] = []
+  displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
+  columnsSchema: any = ORG_COL_SCHEMA;
+  // ================================
+
   // Let's start with a child component that is responsible for a part of the form. 
   // The component injects the FormBuilder and creates a new form group with their 
-  // form controls, validators and any other configuration
+  // form controls, validators and any other configuration  
 
   basicInfoForm = this.fb.group({
     title: ['', Validators.required],
@@ -84,6 +115,16 @@ export class BasicInfoComponent{
   displaySelectedOrganization(org:MockOrganizations):string{
     var res = org && org.id ? org.orgName : '';
     return res;
+
+  }
+
+  removeSelectedRows() {
+  }
+
+  clearTable(){
+
+  }
+  addRow(){
 
   }
 
