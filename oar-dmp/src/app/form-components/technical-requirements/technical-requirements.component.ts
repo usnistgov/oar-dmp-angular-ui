@@ -39,7 +39,7 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
-  styleUrls: ['./technical-requirements.component.scss', '../keywords/keywords.component.scss']
+  styleUrls: ['./technical-requirements.component.scss', '../form-table.scss']
 })
 export class StorageNeedsComponent {  
   disableAdd:boolean = false;

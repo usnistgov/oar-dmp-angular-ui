@@ -65,7 +65,7 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['../keywords/keywords.component.scss', './personel.component.scss']
+  styleUrls: ['./personel.component.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
 

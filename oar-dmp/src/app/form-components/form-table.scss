@@ -1,0 +1,75 @@
+// =============================
+// form table buttons
+// =============================
+// .instruction{
+//   font-size: large;   
+// }
+
+.btn-edit {
+  text-align: right;
+}
+
+.button-add-row {
+  line-height: 20px;
+  background: #1b2f9e;
+  color: #ffffff;
+}
+
+.button-clear-table {
+  line-height: 20px;
+  background: #f82f2f;
+  color: #fffdfd;
+}
+
+.button-remove-rows {
+  line-height: 20px;
+  background: #f5f5f5;
+  color: #c90000;
+  margin-right: 5px;
+}
+
+.button-remove {
+  line-height: 20px;
+  color: red;
+}
+.button-edit{
+  line-height: 20px;
+}
+// =========================
+// Other form table css
+// =========================
+.form-table {
+  width: 90%;
+  margin: auto;
+  margin-top: 5px;
+}
+
+.table-header {
+  width: 90%;
+  margin: auto;
+  text-align: right;
+  margin-bottom: 15px;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+::ng-deep .mat-form-field-infix {
+  width: 100% !important;
+}
+
+.form-input {
+  padding-right: 5px;
+}
+
+.mat-header-cell {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000000;
+}
+:disabled{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #575656;
+}

@@ -94,7 +94,7 @@
       </td>
     </tr>
   </table>
-  <p class="instruction"> Technical resources equipment needed/used</p>
+  <div class="sub-category">Technical resources equipment needed/used</div>
   <article class="table-header">
     
     <!-- 
@@ -108,7 +108,7 @@
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
   
 
-  <table mat-table [dataSource]="techResource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="techResource" class="mat-elevation-z8 form-table">
   
     <!-- 
       iterate over columns 

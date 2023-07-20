@@ -114,7 +114,7 @@
   </table>
   <div class="dmpSubSection">
     <div class="sub-category">Organization(s) Associated With This DMP</div>  
-    <p class="instruction"> Add / Remove keywords or phrases</p>
+    <p class="instruction"> Add / Remove Organization(s) associated with this DMP</p>
     
     <article class="table-header">
       
@@ -129,7 +129,7 @@
     <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
     
   
-    <table mat-table [dataSource]="organizations" class="mat-elevation-z8">
+    <table mat-table [dataSource]="organizations" class="mat-elevation-z8 form-table">
     
       <!-- 
         iterate over columns 

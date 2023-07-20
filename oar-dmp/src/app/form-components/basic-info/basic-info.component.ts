@@ -26,7 +26,7 @@ const ORG_COL_SCHEMA = [
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
-  styleUrls: ['./basic-info.component.scss']
+  styleUrls: ['./basic-info.component.scss', '../form-table.scss']
 })
 export class BasicInfoComponent{
   // ================================
