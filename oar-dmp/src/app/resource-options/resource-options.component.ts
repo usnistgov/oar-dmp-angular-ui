@@ -54,7 +54,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   softwareSelection: string = "";
   dataSelection: string = "";
 
-  availableResources: any = {}
+  availableResources: any = {};
 
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
