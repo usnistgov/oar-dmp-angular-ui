@@ -3,7 +3,7 @@
   <table>
     <tr>
       <td class="description">Title</td>
-      <td><input type="text" [formControl]="basicInfoForm.controls['title']"></td>
+      <td><input type="text" [formControl]="basicInfoForm.controls['title']" class="wide"></td>
     </tr>
     <tr class="hidden-row">
       <td class="description">DMP Idntifier</td>
@@ -85,7 +85,7 @@
     </tr>
     <tr>
       <td>Project Description</td>
-      <td><textarea name="projectDescription" cols="40" rows="5" placeholder="Description behind the science of the project"
+      <td><textarea name="projectDescription" cols="80" rows="5" placeholder="Description behind the science of the project"
         [formControl]="basicInfoForm.controls['projectDescription']"></textarea></td>
     </tr>
     <tr>
