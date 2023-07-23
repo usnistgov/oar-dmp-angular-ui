@@ -40,6 +40,7 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
+    organizations:            [],
 
     //Personel
     primary_NIST_contact:     {firstName:"", lastName:""},
@@ -85,6 +86,7 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:'12345'},
     projectDescription:       'Example Project Description',
+    organizations:            [],
 
     //Personel
     primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder"},

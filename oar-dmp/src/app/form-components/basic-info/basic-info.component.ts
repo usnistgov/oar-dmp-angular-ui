@@ -4,6 +4,12 @@ import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { MockOrganizations } from '../../types/mock-organizations';
 
+export interface dmpOgranizations {
+  dmp_organization: string;
+  id: number;
+  isEdit: boolean;
+}
+
 const ORG_COL_SCHEMA = [
   {
     key: 'isSelected',
@@ -36,7 +42,7 @@ export class BasicInfoComponent{
   disableClear:boolean = true;
   disableRemove:boolean = true;
   errorMessage: string = '';
-  organizations: MockOrganizations[] = []
+  dmpOrganizations: dmpOgranizations[] = []
   displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
   columnsSchema: any = ORG_COL_SCHEMA;
   // ================================
@@ -54,7 +60,7 @@ export class BasicInfoComponent{
     grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required],
     nistOrganization:[],
-    organizations: [[]]
+    nistOrganizations: [[]]
 
   });
 
@@ -66,6 +72,16 @@ export class BasicInfoComponent{
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(basic_info: DMP_Meta) {
+    // loop over organizations array sent fromt he server and populate local copy of 
+    // organizations aray to populate the table of organizations in the GUI interface
+    basic_info.organizations.forEach( 
+      (org, index) => {        
+        this.dmpOrganizations.push({id:index, dmp_organization:org.orgName, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+      
+    );
     this.basicInfoForm.patchValue({
       title: basic_info.title,
       startDate: basic_info.startDate,
@@ -73,7 +89,8 @@ export class BasicInfoComponent{
       dmpSearchable: basic_info.dmpSearchable,
       grant_source: basic_info.funding.grant_source,
       grant_id: basic_info.funding.grant_id,
-      projectDescription: basic_info.projectDescription
+      projectDescription: basic_info.projectDescription,
+      organizations:basic_info.organizations
     });
   }
 
@@ -97,7 +114,8 @@ export class BasicInfoComponent{
           endDate: formValue.endDate,
           dmpSearchable: formValue.dmpSearchable,
           funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
-          projectDescription:formValue.projectDescription
+          projectDescription:formValue.projectDescription,
+          organizations:formValue.nistOrganizations
         })
       )
     )
