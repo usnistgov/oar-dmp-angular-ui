@@ -75,7 +75,7 @@ export class PersonelComponent implements OnInit {
 
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
-  dmpContributor: DataContributor[] = []
+  dmpContributors: DataContributor[] = []
 
   // flags to determine if select drop down has been used
   sel_NIST_Contributor: boolean = false; 
@@ -127,7 +127,7 @@ export class PersonelComponent implements OnInit {
     // resources array to populate the table of resources in the user interface
     personel.contributors.forEach(
       (aContributor, index) => {
-        this.dmpContributor.push({
+        this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
           name:         aContributor.contributor.firstName,
@@ -434,9 +434,9 @@ export class PersonelComponent implements OnInit {
   errorMessage: string = "";
   
   removeSelectedRows() {
-    this.dmpContributor = this.dmpContributor.filter((u: any) => !u.isSelected);
+    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.dmpContributor.forEach((element)=>{
+    this.dmpContributors.forEach((element)=>{
         // re populate contributors array
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname},
@@ -445,7 +445,7 @@ export class PersonelComponent implements OnInit {
           role: element.role
         });
     });
-    if (this.dmpContributor.length === 0){
+    if (this.dmpContributors.length === 0){
       // If the table is empty disable clear and remove buttons
       this.disableClear=true;
       this.disableRemove=true;
@@ -459,7 +459,7 @@ export class PersonelComponent implements OnInit {
   }
 
   clearTable(){
-    this.dmpContributor = [];
+    this.dmpContributors = [];
     this.resetTable();
      // If the table is empty disable clear and remove buttons
     this.disableClear=true;
@@ -526,7 +526,7 @@ export class PersonelComponent implements OnInit {
       }
     }
 
-    var filterOnEmail = this.dmpContributor.filter(      
+    var filterOnEmail = this.dmpContributors.filter(      
       (member: any) => member.e_mail.toLowerCase() === this.crntContribEmail.toLowerCase()
     );
 
@@ -561,7 +561,7 @@ export class PersonelComponent implements OnInit {
 
     // create a new array using an existing array as one part of it 
     // using the spread operator '...'
-    this.dmpContributor = [newRow, ...this.dmpContributor];
+    this.dmpContributors = [newRow, ...this.dmpContributors];
 
     //update changes made to the table in the personel form
     this.onDoneClick(newRow);
@@ -572,7 +572,7 @@ export class PersonelComponent implements OnInit {
 
   removeRow(id:any) {
     // select word from the specific id
-    var selWord = this.dmpContributor.filter((u) => u.id === id);    
+    var selWord = this.dmpContributors.filter((u) => u.id === id);    
     this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
       selWord.forEach((word)=>{
         /**
@@ -590,7 +590,7 @@ export class PersonelComponent implements OnInit {
     });
 
     // remove from the display table
-    this.dmpContributor = this.dmpContributor.filter((u) => u.id !== id);
+    this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
   }
 
   onDoneClick(e:any){
@@ -621,7 +621,7 @@ export class PersonelComponent implements OnInit {
 
     this.errorMessage = '';
     this.resetTable();
-    this.dmpContributor.forEach((element)=>{
+    this.dmpContributors.forEach((element)=>{
         if(element.id === e.id){
           element.isEdit = false;
         }
