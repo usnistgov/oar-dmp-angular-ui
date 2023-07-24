@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { NistResorucesService } from './nist-resoruces.service';
 
@@ -6,7 +7,10 @@ describe('NistResorucesService', () => {
   let service: NistResorucesService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [ HttpClientTestingModule ],
+      providers: [ NistResorucesService ]
+    });
     service = TestBed.inject(NistResorucesService);
   });
 
