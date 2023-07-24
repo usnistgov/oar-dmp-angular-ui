@@ -1,40 +1,37 @@
-export interface MockOrganizations {
-  id: number;
-  orgName: string;
-}
+import { NistOrganization } from "./nist-organization"
 
-export const ORGANIZATIONS: MockOrganizations[] =[
+export const ORGANIZATIONS: NistOrganization[] =[
   {
-    id: 1, 
-    orgName: 'Applied Chemicals and Materials Division',
+    ORG_ID: 1, 
+    name: 'Applied Chemicals and Materials Division',
   },
   {
-    id: 2, 
-    orgName: 'Biomolecular Measurement Division',
+    ORG_ID: 2, 
+    name: 'Biomolecular Measurement Division',
   },
   {
-    id: 3, 
-    orgName: 'Biosystems and Biomaterials Division',
+    ORG_ID: 3, 
+    name: 'Biosystems and Biomaterials Division',
   },
   {
-    id: 4, 
-    orgName: 'Chemical Sciences Division',
+    ORG_ID: 4, 
+    name: 'Chemical Sciences Division',
   },
   {
-    id: 5, 
-    orgName: 'Materials Measurement Science Division',
+    ORG_ID: 5, 
+    name: 'Materials Measurement Science Division',
   },
   {
-    id: 6, 
-    orgName: 'Materials Science and Engineering Division',
+    ORG_ID: 6, 
+    name: 'Materials Science and Engineering Division',
   },
   {
-    id: 7, 
-    orgName: 'Office of Data and Informatics',
+    ORG_ID: 7, 
+    name: 'Office of Data and Informatics',
   },
   {
-    id: 8, 
-    orgName: 'Office of Reference Materials',
+    ORG_ID: 8, 
+    name: 'Office of Reference Materials',
   }
 
 ]

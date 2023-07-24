@@ -1,4 +1,4 @@
 export interface NistOrganization {
-  orgID:number;
-  orgName:string;
+  ORG_ID:number;
+  name:string;
 }

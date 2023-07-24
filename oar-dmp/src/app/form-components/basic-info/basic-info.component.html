@@ -91,23 +91,24 @@
     <tr>
       <td>Organizations associated with this DMP</td>
       <td>
-        <!-- <mat-form-field class="example-full-width" appearance="fill">
-          <mat-label>Organization</mat-label>
+        <mat-form-field class="example-full-width" appearance="fill" style="width:400px;">
+          <mat-label>NIST Organization</mat-label>
           <input type="text"
                  placeholder="Pick one"
                  aria-label="NIST Organization"
                  matInput
                  [formControl]="basicInfoForm.controls['nistOrganization']"
-                 [matAutocomplete]="nistOrganization">
+                 [matAutocomplete]="nistOrganization"
+                 >
           <mat-autocomplete 
             #nistOrganization="matAutocomplete"
             [displayWith]="displaySelectedOrganization"
           >
-            <mat-option *ngFor="let option of fltr_Prim_NIST_Contact | async" [value]="option">
-              {{option.lastName + ", " + option.firstName}}
+            <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
+              {{option.name}}
             </mat-option>
           </mat-autocomplete>
-        </mat-form-field> -->
+        </mat-form-field>
       </td>
     </tr>
     
@@ -154,9 +155,6 @@
   
             <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
             <div class="btn-edit" *ngSwitchCase="'isEdit'">
-              <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
-                Edit
-              </button>
               <button
                 mat-button
                 class="button-remove"

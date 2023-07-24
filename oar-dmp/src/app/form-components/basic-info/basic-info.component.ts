@@ -2,10 +2,13 @@ import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
-import { MockOrganizations } from '../../types/mock-organizations';
+import { ORGANIZATIONS } from '../../types/mock-organizations';
+import { NistOrganization } from 'src/app/types/nist-organization';
+import {Observable} from 'rxjs';
 
 export interface dmpOgranizations {
-  dmp_organization: string;
+  org_id:number;
+  dmp_organization: string;  
   id: number;
   isEdit: boolean;
 }
@@ -17,7 +20,12 @@ const ORG_COL_SCHEMA = [
     label: '',
   },
   {
-    key: 'organization',
+    key: 'org_id',
+    type: 'text',
+    label: 'org ID',
+  },
+  {
+    key: 'dmp_organization',
     type: 'text',
     label: 'Organization(s)',
   },
@@ -45,6 +53,11 @@ export class BasicInfoComponent{
   dmpOrganizations: dmpOgranizations[] = []
   displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
   columnsSchema: any = ORG_COL_SCHEMA;
+  fltr_NIST_Org!: Observable<NistOrganization[]>;
+  //List of all nist organizations from NIST directory
+  nistOrganizations: any = null;
+  crntOrgID:number = 0;
+  crntOrgName:string = "";
   // ================================
 
   // Let's start with a child component that is responsible for a part of the form. 
@@ -59,7 +72,7 @@ export class BasicInfoComponent{
     grant_source: ['', Validators.required],
     grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required],
-    nistOrganization:[],
+    nistOrganization:[''],
     nistOrganizations: [[]]
 
   });
@@ -76,7 +89,7 @@ export class BasicInfoComponent{
     // organizations aray to populate the table of organizations in the GUI interface
     basic_info.organizations.forEach( 
       (org, index) => {        
-        this.dmpOrganizations.push({id:index, dmp_organization:org.orgName, isEdit:false});
+        this.dmpOrganizations.push({id:index, org_id:org.ORG_ID, dmp_organization:org.name, isEdit:false});
         this.disableClear=false;
         this.disableRemove=false;
       }
@@ -130,19 +143,70 @@ export class BasicInfoComponent{
     console.log("basic-info component");
   }
 
-  displaySelectedOrganization(org:MockOrganizations):string{
-    var res = org && org.id ? org.orgName : '';
+  ngOnInit(): void {
+    /**
+     * NOTE Comment below when woking with API
+     */
+    this.getNistOrganizations();
+
+  }
+
+  /**
+   * This function gets hard coded NIST organizations
+   * Used when not working with an API for NIST people service database
+   */
+  getNistOrganizations(){    
+    // this.getNistOrganizationsFromAPI();
+    this.getNistOrganizationsNoAPI();
+
+  }
+
+  getNistOrganizationsNoAPI(){
+    //ORGANIZATIONS is declared in '../../types/mock-organizations'
+    this.nistOrganizations = ORGANIZATIONS;
+    this.fltr_NIST_Org = this.basicInfoForm.controls['nistOrganization'].valueChanges.pipe(
+      startWith(''),
+      map(anOrganization => {
+        const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
+        var res = orgName ? this._filter(orgName as string):this.nistOrganizations.slice();
+        if (res.length ===1){
+          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgName = anOrganization.name;
+        }
+        return res;
+      }
+
+      )
+
+    );
+
+  }
+
+  displaySelectedOrganization(org:NistOrganization):string{
+    var res = org && org.ORG_ID? org.name : '';
     return res;
 
   }
 
   removeSelectedRows() {
+    console.log('remove selected orgs');
   }
 
   clearTable(){
-
+    console.log('clear selected orgs');
   }
   addRow(){
+    console.log('add selected orgs');
+  }
+
+  private _filter(nistOrg:string): NistOrganization[] {
+    const filterValues = nistOrg.toLowerCase()
+    var searchRes;
+    searchRes = this.nistOrganizations.filter(
+      (option:any) => option.name.toLowerCase().includes(filterValues)
+    );
+
+    return searchRes;
 
   }
 
