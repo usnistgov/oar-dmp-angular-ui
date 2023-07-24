@@ -170,24 +170,7 @@
             </span>
           </div>
   
-          <!-- table cell display if edit button has been clicked -->
-          <div [ngSwitch]="col.type" *ngIf="element.isEdit">
-            <!-- no input for the selected checkbox column cell -->
-            <div *ngSwitchCase="'isSelected'"></div>
-            
-            <!-- Switch if the column isEdit to display the Done button in the table cell -->
-            <div class="btn-edit" *ngSwitchCase="'isEdit'">
-              <button type="button" mat-button (click)="onDoneClick(element)">
-                Done
-              </button>
-            </div>
-  
-            <!-- default column cell -->
-            <mat-form-field class="form-input" *ngSwitchDefault>
-              <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
-            </mat-form-field>
-  
-          </div>
+         
   
         </td>
       </ng-container>

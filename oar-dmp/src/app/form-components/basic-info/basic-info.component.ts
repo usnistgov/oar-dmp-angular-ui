@@ -73,7 +73,7 @@ export class BasicInfoComponent{
     grant_source: ['', Validators.required],
     grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required],
-    nistOrganization:[''],
+    nistOrganization: [],
     nistOrganizations: [[]]
 
   });
@@ -211,8 +211,34 @@ export class BasicInfoComponent{
     this.disableClear=true;
     this.disableRemove=true;
   }
+
   addRow(){
-    console.log('add selected orgs');
+    const newRow = {
+      id: Date.now(),      
+      org_id:this.crntOrgID,
+      dmp_organization: this.crntOrgName,
+      isEdit: false,
+    };
+    this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
+  }
+
+  removeRow(id:any) {
+    var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+    this.basicInfoForm.value['nistOrganizations'].forEach(
+      (value:NistOrganization, index:number)=>{
+        selRow.forEach(
+          (org)=>{
+            if (value.ORG_ID === org.org_id){
+              //remove selected organization
+              this.basicInfoForm.value['nistOrganizations'].splice(index,1);
+            }
+          }
+        )
+      }
+    )
+
+    // remove from the display table
+    this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
   }
 
   private _filter(nistOrg:string): NistOrganization[] {
