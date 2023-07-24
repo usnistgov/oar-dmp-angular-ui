@@ -34,7 +34,7 @@ export class DmpService {
 
   // Http Options
   getHttpOptions(creds?: Credentials): {headers: HttpHeaders} {
-    let hdrs = {
+      let hdrs: {[name: string]: string} = {
       'Content-Type': 'application/json',
     };
     if (creds)
