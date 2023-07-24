@@ -12,8 +12,6 @@ import { EthicalIssuesComponent } from './form-components/ethical-issues/ethical
 import { DataDescriptionComponent } from './form-components/data-description/data-description.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
 import { DataPreservationComponent } from './form-components/data-preservation/data-preservation.component';
-import { OARngModule } from 'oarng';
-import { FrameModule } from 'oarng';
 import { DmpFormComponent } from './dmp-form/dmp-form.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -32,10 +30,14 @@ import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
-import { ConfigModule } from './config/config.module';
+// import { ConfigModule } from './config/config.module';
 import { NistResorucesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
 import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
+
+import { RELEASE } from '../environments/release-info';
+import { environment } from '../environments/environment';
+import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
 
 @NgModule({
   declarations: [
@@ -58,7 +60,7 @@ import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    OARngModule,
+    AuthModule,
     FrameModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
@@ -75,10 +77,16 @@ import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
     DmpRoutingModule,
     DomPositioningModule,
     AngularResizeEventModule,
-    ConfigModule,
+    AuthModule,
     NistResorucesModule
   ],
-  providers: [fakeBackendProvider],
+
+  providers: [
+//    fakeBackendProvider,
+    { provide: RELEASE_INFO, useValue: RELEASE },
+    { provide: CONFIG_URL, useValue: environment.configUrl }
+  ],
+
   bootstrap: [AppComponent]
 })
 export class AppModule {  }

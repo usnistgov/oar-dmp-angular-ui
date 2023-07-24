@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ResizedEvent } from 'angular-resize-event';
 import { DomPositioningModule } from './shared/dom-positioning.module';
-import { UserDetails, deepCopy, AuthInfo, LibWebAuthService } from 'oarng';
+import { Credentials, AuthenticationService } from 'oarng';
 
 @Component({
   selector: 'app-root',
@@ -10,41 +10,44 @@ import { UserDetails, deepCopy, AuthInfo, LibWebAuthService } from 'oarng';
 })
 export class AppComponent {
   title = 'dmp_ui2';
-  authorized:boolean = false;
   readyDisplay: boolean = false;
-  authMessage: string = "You are not authorized to edit this content.";
-
+  creds: Credentials|null = null;
+  authMessage: string = "You are not authenticated.";
   
   constructor(private dom:DomPositioningModule,
-    public libWebAuthService: LibWebAuthService){ 
-  }
+              public authService: AuthenticationService)
+  { }
 
   width: number = 0;
   height: number = 0;
 
   ngOnInit(): void {
-    this.libWebAuthService.getAuthInfo().subscribe({
-        next: (info: any) =>{
+    this.authService.getCredentials().subscribe({
+        next: (info: Credentials) =>{
             if (info.token) {
-                // Authorized
-                this.authorized = true;
+                // Authenticated
+                this.creds = info;
+                this.authMessage = "Welcome, "+(this.creds.userAttributes.userName || this.creds.userId)
             }
-            else if (info.userDetails && info.userDetails.userId) {
-                // the user is authenticated but not authorized
-                // Display some message. For example:
-                this.authMessage = "You are not authorized.";
-            }
-            else {
-                // the user is not authenticated!
-                // Display some message
-                this.authMessage = "You are not authorized.";
-            }
+            else
+                this.authMessage = "You are not logged in.";
 
             this.readyDisplay = true;
         },
         error: (err: any) => {
             this.readyDisplay = true;
-            this.authMessage = err.message;
+            if (err.status && err.status >= 500) {
+                console.error("Auth server failure: "+err.message);
+                this.authMessage = "Unable to log in; authentication server error";
+            }
+            else if (err.status && err.status == 401) {
+                console.error("Auth server reports: user is unauthorized: "+err.message);
+                this.authMessage = "User Log-in failure";
+            }
+            else {
+                console.error("Auth server communication failure: "+err.message);
+                this.authMessage = "Unable to log in; authentication server communtication error";
+            }
         }
     })
   }
