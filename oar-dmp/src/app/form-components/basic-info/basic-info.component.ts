@@ -22,7 +22,7 @@ const ORG_COL_SCHEMA = [
   {
     key: 'org_id',
     type: 'text',
-    label: 'org ID',
+    label: 'Org ID',
   },
   {
     key: 'dmp_organization',
