@@ -46,7 +46,7 @@ export class BasicInfoComponent{
   // ================================
   // used for organizations table
   // ================================
-  disableAdd:boolean = false;
+  disableAdd:boolean = true;
   disableClear:boolean = true;
   disableRemove:boolean = true;
   errorMessage: string = '';
@@ -58,6 +58,7 @@ export class BasicInfoComponent{
   nistOrganizations: any = null;
   crntOrgID:number = 0;
   crntOrgName:string = "";
+  
   // ================================
 
   // Let's start with a child component that is responsible for a part of the form. 
@@ -172,6 +173,11 @@ export class BasicInfoComponent{
         if (res.length ===1){
           this.crntOrgID = anOrganization.ORG_ID;
           this.crntOrgName = anOrganization.name;
+
+          this.disableAdd = false;
+        }
+        else{
+          this.disableAdd = true;
         }
         return res;
       }
@@ -192,8 +198,18 @@ export class BasicInfoComponent{
     console.log('remove selected orgs');
   }
 
+  resetTable(){
+    this.basicInfoForm.patchValue({
+      nistOrganizations:[]
+    })
+  }
+
   clearTable(){
-    console.log('clear selected orgs');
+    this.dmpOrganizations = []
+    this.resetTable();
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
   }
   addRow(){
     console.log('add selected orgs');
