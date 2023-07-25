@@ -195,7 +195,18 @@ export class BasicInfoComponent{
   }
 
   removeSelectedRows() {
-    console.log('remove selected orgs');
+    //assign unselected rows to dmpOrganizations
+    this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
+    //reset the table 
+    this.resetTable();
+    //repopulate the table with what's left in the array
+    this.rePopulateOrgs();
+
+    if (this.dmpOrganizations.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
   }
 
   resetTable(){
@@ -219,6 +230,22 @@ export class BasicInfoComponent{
       dmp_organization: this.crntOrgName,
       isEdit: false,
     };
+    // check that if any org id or org name is undefined 
+    // - this can happen if user types in the search box but does not select 
+    //    an actual organization from the drop down menu
+
+    if (typeof newRow.org_id === "undefined" || typeof newRow.dmp_organization === "undefined"){
+      this.errorMessage = "Select an existing NIST Organization";
+      return;
+
+    }
+
+    // Check if selected organization is already in the table
+    var selRow = this.dmpOrganizations.filter((u) => u.org_id === newRow.org_id);
+    if (selRow.length > 0){
+      this.errorMessage = "The selected Organization is already associated with this DMP.";
+      return;
+    }
     //add new row to the dmpOrganizations array
     this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
 
@@ -227,6 +254,14 @@ export class BasicInfoComponent{
 
     // re-populate the table with entries from dmpOrganizations array 
     // and update the form metadata
+    this.rePopulateOrgs();
+
+    this.disableAdd=true;
+    this.disableClear=false;
+    this.disableRemove=false;
+  }
+
+  private rePopulateOrgs(){
     this.dmpOrganizations.forEach(
       (org)=>{
         this.basicInfoForm.value['organizations'].push(
@@ -241,6 +276,8 @@ export class BasicInfoComponent{
 
   removeRow(id:any) {
     var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+
+    // update the form metadata
     this.basicInfoForm.value['organizations'].forEach(
       (value:NistOrganization, index:number)=>{
         selRow.forEach(
@@ -259,6 +296,10 @@ export class BasicInfoComponent{
   }
 
   private _filter(nistOrg:string): NistOrganization[] {
+    // add button should be disabled while filtering is being performed
+    // and should be enabled only when an existing organization has been selected
+    this.disableAdd = true;
+
     const filterValues = nistOrg.toLowerCase()
     var searchRes;
     searchRes = this.nistOrganizations.filter(
