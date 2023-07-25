@@ -31,7 +31,7 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-data-preservation',
   templateUrl: './data-preservation.component.html',
-  styleUrls: ['./data-preservation.component.scss', '../keywords/keywords.component.scss']
+  styleUrls: ['./data-preservation.component.scss', '../form-table.scss']
 })
 export class DataPreservationComponent {
   disableAdd:boolean = false;

@@ -27,32 +27,12 @@
         </mat-form-field>
 
       </td>
+      <td class="cell-top">NIST Contact ORCID</td>
+      <td class="cell-top"><input type="text" [(ngModel)]="primNistContactOrcid"></td>
     </tr>
-    <!-- <tr>
-      <td class="description">NIST DMP Reviewer</td>
-      <td>
-        <mat-form-field class="example-full-width" appearance="fill">
-          <mat-label>NIST Reviewer</mat-label>
-          <input type="text"
-                 placeholder="Pick one"
-                 aria-label="Nist Reviewer"
-                 matInput
-                 [formControl]="personelForm.controls['NIST_DMP_Reviewer']"
-                 [matAutocomplete]="NIST_DMP_Reviewer">
-          <mat-autocomplete 
-            #NIST_DMP_Reviewer="matAutocomplete"
-            [displayWith]="displaySelectedContact"
-          >
-            <mat-option *ngFor="let Reviewer of fltr_NIST_DMP_Reviewer | async" [value]="Reviewer">
-              {{Reviewer.firstName + " " + Reviewer.lastName}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-      </td>
-    </tr> -->
     <tr>
       <td class="description">Contributor</td>
-      <td>
+      <td colspan="3">
         <div>
           <input 
             type="radio" 
@@ -68,7 +48,7 @@
         <div *ngIf="selectedContributor('NIST')">
           <table>
             <tr>
-              <td>Select NIST Contributor</td>
+              <td class="cell-top">Select NIST Contributor</td>
               <td>
                 <mat-form-field class="example-full-width" appearance="fill">
                   <mat-label>NIST Contributor</mat-label>
@@ -89,6 +69,10 @@
                 </mat-form-field>
 
               </td>
+            </tr>
+            <tr>
+              <td class="cell-top">NIST Contributor ORCID</td>
+              <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
             </tr>
             <tr>
               <td>Contributor Role</td>
@@ -132,6 +116,10 @@
                 <td><input type="text" [(ngModel)]="externalContributor.contributor.lastName"></td>
               </tr>
               <tr>
+                <td>Contributor ORCID</td>
+                <td><input type="text" [(ngModel)]="externalContributor.contributor.orcid"></td>
+              </tr>
+              <tr>
                 <td class="description">Institution / Affiliation</td>
                 <td><input type="text" [(ngModel)]="externalContributor.instituion"></td>
               </tr>
@@ -159,10 +147,10 @@
           </div>
         </div>
       </td>
-    </tr>
+    </tr>    
     
   </table>
-  <div class="contributorsDiv">
+  <div class="dmpSubSection">
     
       <div class="sub-category">Contributors</div>
 
@@ -179,7 +167,7 @@
       
       <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
-      <table mat-table [dataSource]="dmpContributor" class="mat-elevation-z8 contribTbl">
+      <table mat-table [dataSource]="dmpContributors" class="mat-elevation-z8 contribTbl">
   
         <!-- 
           iterate over columns 

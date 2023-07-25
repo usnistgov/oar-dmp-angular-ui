@@ -5,9 +5,10 @@ table.contribTbl{
   width: 100%;
 
 }
-div.contributorsDiv{
-  width: 99%;
-}
+
 .table-header{
   margin-top: 5px;
+}
+td.cell-top{
+  vertical-align: top;
 }

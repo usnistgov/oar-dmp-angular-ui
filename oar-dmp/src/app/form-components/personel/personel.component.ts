@@ -18,6 +18,7 @@ export interface DataContributor {
   institution: string;
   role: string;
   e_mail: string;
+  orcid:string;
   id: number;
   isEdit: boolean;
 }
@@ -54,6 +55,11 @@ const COLUMNS_SCHEMA = [
     type: 'text',
     label: 'e-mail',
   },
+  {
+    key: 'orcid',
+    type: 'text',
+    label: 'ORCID',
+  },
   // Edit button column
   {
     key: 'isEdit',
@@ -65,7 +71,7 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['../keywords/keywords.component.scss', './personel.component.scss']
+  styleUrls: ['./personel.component.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
 
@@ -75,23 +81,41 @@ export class PersonelComponent implements OnInit {
 
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
-  dmpContributor: DataContributor[] = []
+  dmpContributors: DataContributor[] = []
 
   // flags to determine if select drop down has been used
   sel_NIST_Contributor: boolean = false; 
   sel_NIST_ContribRole: boolean = false;
-  sel_EXT_ContribRole: boolean = false;
-
+  
   sel_EXT_Contributor: boolean = false;
+  sel_EXT_ContribRole: boolean = false;
 
   crntContribName: string = "";
   crntContribSurname: string = "";
   crntContribEmail: string = "";
+  crntContribOrcid: string = "";
+  crntContribRole: string = "";
+  
+  nistContribOrcid: string = "";
+  nistContribRole: string = "";
 
+  extContribOrcid: string = "";
+  extContribRole: string = "";
+
+  primNistContactOrcid: string = "";
+
+  contributorRoles = ROLES; // sets hardcoded roles values
+  
   fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
-  // fltr_NIST_DMP_Reviewer!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<NistContact[]>;
 
+  // Default values of external contributor
+  externalContributor: Contributor={
+    contributor:{firstName:"", lastName:"", orcid:""}, 
+    role:"",
+    e_mail:"",
+    instituion:""
+  };
   
 
   constructor(
@@ -110,12 +134,9 @@ export class PersonelComponent implements OnInit {
   personelForm = this.fb.group(
     {
       primary_NIST_contact:       ['', Validators.required],
-      NIST_DMP_Reviewer:          [''],
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
       nistContactLastName:        [''],
-      // nistReviewerFirstName:      [''],
-      // nistReviewerLastName:       [''],
       contributors:               [[]]
     }
   );
@@ -131,14 +152,16 @@ export class PersonelComponent implements OnInit {
     // resources array to populate the table of resources in the user interface
     personel.contributors.forEach(
       (aContributor, index) => {
-        this.dmpContributor.push({
+        this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
           name:         aContributor.contributor.firstName,
           surname:      aContributor.contributor.lastName,
+          orcid:        aContributor.contributor.orcid,
           role:         aContributor.role,
           institution:  aContributor.instituion,
           e_mail:       aContributor.e_mail
+          
         });
         this.disableClear=false;
         this.disableRemove=false;
@@ -146,12 +169,12 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
-      primary_NIST_contact:       {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
-      // NIST_DMP_Reviewer:          {firstName: personel.NIST_DMP_Reviewer.firstName, lastName:personel.NIST_DMP_Reviewer.lastName},
+      primary_NIST_contact:       { firstName: personel.primary_NIST_contact.firstName, 
+                                    lastName:personel.primary_NIST_contact.lastName,
+                                    orcid:personel.primary_NIST_contact.orcid
+                                  },
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
-      // nistReviewerFirstName:      personel.NIST_DMP_Reviewer.firstName,
-      // nistReviewerLastName:       personel.NIST_DMP_Reviewer.lastName,
       contributors:               personel.contributors
     });
   }
@@ -177,8 +200,10 @@ export class PersonelComponent implements OnInit {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           {
-            primary_NIST_contact:   {firstName:formValue.nistContactFirstName, lastName: formValue.nistContactLastName},
-            // NIST_DMP_Reviewer:      {firstName:formValue.nistReviewerFirstName, lastName: formValue.nistReviewerLastName},
+            primary_NIST_contact:   { firstName:formValue.nistContactFirstName, 
+                                      lastName: formValue.nistContactLastName,
+                                      orcid:formValue.orcid
+                                    },
             contributors:           formValue.contributors
 
           }
@@ -250,11 +275,7 @@ export class PersonelComponent implements OnInit {
           const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
           var res3 = name ? this._filter(name as string): this.nistContacts.slice();
           
-          if (res3.length ===1){
-            this.personelForm.patchValue({
-              nistReviewerFirstName: contributor.firstName,
-              nistReviewerLastName:  contributor.lastName,
-            })
+          if (res3.length ===1){            
             this.crntContribName = contributor.firstName;
             this.crntContribSurname = contributor.lastName;
             this.crntContribEmail = contributor.e_mail;
@@ -313,25 +334,6 @@ export class PersonelComponent implements OnInit {
             )
           );
 
-          // this.fltr_NIST_DMP_Reviewer = this.personelForm.controls['NIST_DMP_Reviewer'].valueChanges.pipe(
-          //   startWith(''),
-          //   map (reviewer => {             
-                
-          //       const name = typeof reviewer === 'string' ? reviewer : reviewer?.firstName + " " + reviewer?.lastName;
-          //       var res2 = name ? this._filter(name as string): this.nistContacts.slice();
-          
-          //       if (res2.length ===1){
-          //         this.personelForm.patchValue({
-          //           nistReviewerFirstName: reviewer.firstName,
-          //           nistReviewerLastName:  reviewer.lastName,
-          //         })
-          //       }
-          //       return res2;
-
-          //     }
-          //   )
-          // );
-
           this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
             startWith(''),
             map (contributor => {             
@@ -340,10 +342,6 @@ export class PersonelComponent implements OnInit {
                 var res3 = name ? this._filter(name as string): this.nistContacts.slice();
                 
                 if (res3.length ===1){
-                  this.personelForm.patchValue({
-                    nistReviewerFirstName: contributor.firstName,
-                    nistReviewerLastName:  contributor.lastName,
-                  })
                   this.crntContribName = contributor.firstName;
                   this.crntContribSurname = contributor.lastName;
                   this.crntContribEmail = contributor.e_mail;
@@ -409,13 +407,8 @@ export class PersonelComponent implements OnInit {
     }  
     return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
 
-  }
+  }  
   
-  contributorRoles = ROLES; // sets hardcoded roles values
-  nistContribRole: string = "";
-  crntContribRole: string = "";
-
-  extContribRole: string = "";
   
   selContributorRole(){
     // select role for the contributors from a drop down list
@@ -427,15 +420,7 @@ export class PersonelComponent implements OnInit {
       this.disableAdd=false;
     }
 
-  }
-
-  // Default values of external contributor
-  externalContributor: Contributor={
-    contributor:{firstName:"", lastName:""}, 
-    role:"",
-    e_mail:"",
-    instituion:""
-  };
+  }  
   
   private contributorRadioSel: string="";
 
@@ -453,7 +438,7 @@ export class PersonelComponent implements OnInit {
     // reset external collaborator data fields    
     this.extContribRole =  "";
     this.externalContributor = {
-      contributor:{firstName:"", lastName:""}, 
+      contributor:{firstName:"", lastName:"", orcid:""}, 
       role:"",
       e_mail:"",
       instituion:""
@@ -466,24 +451,12 @@ export class PersonelComponent implements OnInit {
     this.resetContributorFields();
   }
 
-  //current selection string on dropdown option
-  //for DMP reviewer NIST Contact. This value is an ID from MongoDB
-  dmpReviewer: string="";
-  selDmpReviewer(){
-    // select DMP reviewer from a drop down list of NIST contacts
-    var selected = this.dropDownService.getDropDownText(this.dmpReviewer, this.nistContacts);
-    this.personelForm.patchValue({
-      nistReviewerFirstName: selected[0].firstName,
-      nistReviewerLastName:  selected[0].lastName,
-    })
-  }
-
   errorMessage: string = "";
   
   removeSelectedRows() {
-    this.dmpContributor = this.dmpContributor.filter((u: any) => !u.isSelected);
+    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.dmpContributor.forEach((element)=>{
+    this.dmpContributors.forEach((element)=>{
         // re populate contributors array
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname},
@@ -492,7 +465,7 @@ export class PersonelComponent implements OnInit {
           role: element.role
         });
     });
-    if (this.dmpContributor.length === 0){
+    if (this.dmpContributors.length === 0){
       // If the table is empty disable clear and remove buttons
       this.disableClear=true;
       this.disableRemove=true;
@@ -506,7 +479,7 @@ export class PersonelComponent implements OnInit {
   }
 
   clearTable(){
-    this.dmpContributor = [];
+    this.dmpContributors = [];
     this.resetTable();
      // If the table is empty disable clear and remove buttons
     this.disableClear=true;
@@ -516,6 +489,7 @@ export class PersonelComponent implements OnInit {
   addRow(){
 
     const regex = /[A-Z]/i;
+    const reORCID = /^(\d{4}-){3}\d{3}(\d|X)$/;
     // Disable buttons while the user is inputing new row
     this.disableAdd=true;
     this.disableClear=true;
@@ -571,9 +545,21 @@ export class PersonelComponent implements OnInit {
         this.extContribRole =  "";
         return;
       }
+
+      // check ORCID
+      const isORCID = reORCID.test(this.externalContributor.contributor.orcid)
+      
+      if (isORCID){
+        this.crntContribOrcid = this.externalContributor.contributor.orcid;
+      }
+      else{
+        this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+        this.extContribOrcid =  "";
+        return;
+      }
     }
 
-    var filterOnEmail = this.dmpContributor.filter(      
+    var filterOnEmail = this.dmpContributors.filter(      
       (member: any) => member.e_mail.toLowerCase() === this.crntContribEmail.toLowerCase()
     );
 
@@ -593,6 +579,7 @@ export class PersonelComponent implements OnInit {
       id: Date.now(),
       name: this.crntContribName,
       surname:this.crntContribSurname,
+      orcid:this.crntContribOrcid,
       e_mail:this.crntContribEmail,
       institution:"",
       role:this.crntContribRole,
@@ -608,7 +595,7 @@ export class PersonelComponent implements OnInit {
 
     // create a new array using an existing array as one part of it 
     // using the spread operator '...'
-    this.dmpContributor = [newRow, ...this.dmpContributor];
+    this.dmpContributors = [newRow, ...this.dmpContributors];
 
     //update changes made to the table in the personel form
     this.onDoneClick(newRow);
@@ -619,7 +606,7 @@ export class PersonelComponent implements OnInit {
 
   removeRow(id:any) {
     // select word from the specific id
-    var selWord = this.dmpContributor.filter((u) => u.id === id);    
+    var selWord = this.dmpContributors.filter((u) => u.id === id);    
     this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
       selWord.forEach((word)=>{
         /**
@@ -637,7 +624,7 @@ export class PersonelComponent implements OnInit {
     });
 
     // remove from the display table
-    this.dmpContributor = this.dmpContributor.filter((u) => u.id !== id);
+    this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
   }
 
   onDoneClick(e:any){
@@ -668,7 +655,7 @@ export class PersonelComponent implements OnInit {
 
     this.errorMessage = '';
     this.resetTable();
-    this.dmpContributor.forEach((element)=>{
+    this.dmpContributors.forEach((element)=>{
         if(element.id === e.id){
           element.isEdit = false;
         }
@@ -695,8 +682,7 @@ export class PersonelComponent implements OnInit {
   }
 
   resetPersonnelForm(){
-
-    this.dmpReviewer = "";
+    
     this.nistContribRole = "";
     this.externalContributor.contributor.firstName = "";
     this.externalContributor.contributor.lastName = "";
@@ -707,8 +693,6 @@ export class PersonelComponent implements OnInit {
     this.personelForm.patchValue({
       nistContactFirstName:       "",
       nistContactLastName:        ""
-      // nistReviewerFirstName:      "",
-      // nistReviewerLastName:       ""
     });
     this.clearTable();
   }

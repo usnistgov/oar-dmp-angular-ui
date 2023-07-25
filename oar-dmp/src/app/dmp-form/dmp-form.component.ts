@@ -251,6 +251,9 @@ export class DmpFormComponent implements OnInit {
 
   resetDmp(){
     this.form.controls['basicInfo'].reset();
+    this.form.controls['basicInfo'].patchValue({
+      organizations:[]
+  })
     this.form.controls['ethicalIssues'].reset();
     this.form.controls['ethicalIssues'].patchValue({
         ethicalIssue:"no",

@@ -50,9 +50,10 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
+    organizations:            [],
 
     //Personel
-    primary_NIST_contact:     {firstName:"", lastName:""},
+    primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
     // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [],
 
@@ -95,19 +96,24 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:'12345'},
     projectDescription:       'Example Project Description',
+    organizations:            [],
 
     //Personel
-    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder"},
+    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder", orcid:""},
     // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
-                                  lastName:"Blonder"}, 
+                                  lastName:"Blonder",
+                                  orcid:""
+                                }, 
                                 role:"Contact Person", 
                                 instituion:"NIST", 
                                 e_mail:"nik@nist.gov"},
                                {contributor:{
                                   firstName:"Joe", 
-                                  lastName:"Dalton"}, 
+                                  lastName:"Dalton",
+                                  orcid:""
+                                }, 
                                 role:"Contact Person", 
                                 instituion:"IAEA", 
                                 e_mail:"joe@iaea.gov"}
