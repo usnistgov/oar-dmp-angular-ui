@@ -18,6 +18,7 @@ export interface DataContributor {
   institution: string;
   role: string;
   e_mail: string;
+  orcid:string;
   id: number;
   isEdit: boolean;
 }
@@ -54,6 +55,11 @@ const COLUMNS_SCHEMA = [
     type: 'text',
     label: 'e-mail',
   },
+  {
+    key: 'orcid',
+    type: 'text',
+    label: 'ORCID',
+  },
   // Edit button column
   {
     key: 'isEdit',
@@ -80,17 +86,36 @@ export class PersonelComponent implements OnInit {
   // flags to determine if select drop down has been used
   sel_NIST_Contributor: boolean = false; 
   sel_NIST_ContribRole: boolean = false;
-  sel_EXT_ContribRole: boolean = false;
-
+  
   sel_EXT_Contributor: boolean = false;
+  sel_EXT_ContribRole: boolean = false;
 
   crntContribName: string = "";
   crntContribSurname: string = "";
   crntContribEmail: string = "";
+  crntContribOrcid: string = "";
+  crntContribRole: string = "";
+  
+  nistContribOrcid: string = "";
+  nistContribRole: string = "";
 
+  extContribOrcid: string = "";
+  extContribRole: string = "";
+
+  primNistContactOrcid: string = "";
+
+  contributorRoles = ROLES; // sets hardcoded roles values
+  
   fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<NistContact[]>;
 
+  // Default values of external contributor
+  externalContributor: Contributor={
+    contributor:{firstName:"", lastName:"", orcid:""}, 
+    role:"",
+    e_mail:"",
+    instituion:""
+  };
   
 
   constructor(
@@ -132,9 +157,11 @@ export class PersonelComponent implements OnInit {
           isEdit:       false, 
           name:         aContributor.contributor.firstName,
           surname:      aContributor.contributor.lastName,
+          orcid:        aContributor.contributor.orcid,
           role:         aContributor.role,
           institution:  aContributor.instituion,
           e_mail:       aContributor.e_mail
+          
         });
         this.disableClear=false;
         this.disableRemove=false;
@@ -142,7 +169,10 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
-      primary_NIST_contact:       {firstName: personel.primary_NIST_contact.firstName, lastName:personel.primary_NIST_contact.lastName},
+      primary_NIST_contact:       { firstName: personel.primary_NIST_contact.firstName, 
+                                    lastName:personel.primary_NIST_contact.lastName,
+                                    orcid:personel.primary_NIST_contact.orcid
+                                  },
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       contributors:               personel.contributors
@@ -170,7 +200,10 @@ export class PersonelComponent implements OnInit {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           {
-            primary_NIST_contact:   {firstName:formValue.nistContactFirstName, lastName: formValue.nistContactLastName},
+            primary_NIST_contact:   { firstName:formValue.nistContactFirstName, 
+                                      lastName: formValue.nistContactLastName,
+                                      orcid:formValue.orcid
+                                    },
             contributors:           formValue.contributors
 
           }
@@ -374,13 +407,8 @@ export class PersonelComponent implements OnInit {
     }  
     return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
 
-  }
+  }  
   
-  contributorRoles = ROLES; // sets hardcoded roles values
-  nistContribRole: string = "";
-  crntContribRole: string = "";
-
-  extContribRole: string = "";
   
   selContributorRole(){
     // select role for the contributors from a drop down list
@@ -392,15 +420,7 @@ export class PersonelComponent implements OnInit {
       this.disableAdd=false;
     }
 
-  }
-
-  // Default values of external contributor
-  externalContributor: Contributor={
-    contributor:{firstName:"", lastName:""}, 
-    role:"",
-    e_mail:"",
-    instituion:""
-  };
+  }  
   
   private contributorRadioSel: string="";
 
@@ -418,7 +438,7 @@ export class PersonelComponent implements OnInit {
     // reset external collaborator data fields    
     this.extContribRole =  "";
     this.externalContributor = {
-      contributor:{firstName:"", lastName:""}, 
+      contributor:{firstName:"", lastName:"", orcid:""}, 
       role:"",
       e_mail:"",
       instituion:""
@@ -469,6 +489,7 @@ export class PersonelComponent implements OnInit {
   addRow(){
 
     const regex = /[A-Z]/i;
+    const reORCID = /^(\d{4}-){3}\d{3}(\d|X)$/;
     // Disable buttons while the user is inputing new row
     this.disableAdd=true;
     this.disableClear=true;
@@ -524,6 +545,18 @@ export class PersonelComponent implements OnInit {
         this.extContribRole =  "";
         return;
       }
+
+      // check ORCID
+      const isORCID = reORCID.test(this.externalContributor.contributor.orcid)
+      
+      if (isORCID){
+        this.crntContribOrcid = this.externalContributor.contributor.orcid;
+      }
+      else{
+        this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+        this.extContribOrcid =  "";
+        return;
+      }
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
@@ -546,6 +579,7 @@ export class PersonelComponent implements OnInit {
       id: Date.now(),
       name: this.crntContribName,
       surname:this.crntContribSurname,
+      orcid:this.crntContribOrcid,
       e_mail:this.crntContribEmail,
       institution:"",
       role:this.crntContribRole,
