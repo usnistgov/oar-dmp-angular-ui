@@ -74,7 +74,7 @@ export class BasicInfoComponent{
     grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required],
     nistOrganization: [],
-    nistOrganizations: [[]]
+    organizations: [[]]
 
   });
 
@@ -129,7 +129,7 @@ export class BasicInfoComponent{
           dmpSearchable: formValue.dmpSearchable,
           funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
           projectDescription:formValue.projectDescription,
-          organizations:formValue.nistOrganizations
+          organizations:formValue.organizations
         })
       )
     )
@@ -200,7 +200,7 @@ export class BasicInfoComponent{
 
   resetTable(){
     this.basicInfoForm.patchValue({
-      nistOrganizations:[]
+      organizations:[]
     })
   }
 
@@ -219,18 +219,35 @@ export class BasicInfoComponent{
       dmp_organization: this.crntOrgName,
       isEdit: false,
     };
+    //add new row to the dmpOrganizations array
     this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
+
+    //reset the table
+    this.resetTable();
+
+    // re-populate the table with entries from dmpOrganizations array 
+    // and update the form metadata
+    this.dmpOrganizations.forEach(
+      (org)=>{
+        this.basicInfoForm.value['organizations'].push(
+          {
+            ORG_ID:org.org_id,
+            name:org.dmp_organization
+          }
+        )
+      }
+    )
   }
 
   removeRow(id:any) {
     var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
-    this.basicInfoForm.value['nistOrganizations'].forEach(
+    this.basicInfoForm.value['organizations'].forEach(
       (value:NistOrganization, index:number)=>{
         selRow.forEach(
           (org)=>{
             if (value.ORG_ID === org.org_id){
               //remove selected organization
-              this.basicInfoForm.value['nistOrganizations'].splice(index,1);
+              this.basicInfoForm.value['organizations'].splice(index,1);
             }
           }
         )
