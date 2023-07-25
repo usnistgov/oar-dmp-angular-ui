@@ -432,7 +432,8 @@ export class PersonelComponent implements OnInit {
     this.crntContribRole = "";
 
     // Reset NIST employe / associate fields
-    this.nistContribRole = "";    
+    this.nistContribRole = "";
+    this.nistContribOrcid = ""    ;
     this.personelForm.controls['dmp_contributor'].setValue("");
 
     // reset external collaborator data fields    
@@ -486,18 +487,16 @@ export class PersonelComponent implements OnInit {
     this.disableRemove=true;
   }
 
+  private isORCID(val:string):boolean{
+    const reORCID = /^(\d{4}-){3}\d{3}(\d|X)$/;
+    return reORCID.test(val);
+
+  }
+
   addRow(){
 
     const regex = /[A-Z]/i;
-    const reORCID = /^(\d{4}-){3}\d{3}(\d|X)$/;
-    // Disable buttons while the user is inputing new row
-    this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
-
-    //reset dropdown selection flags
-    this.sel_NIST_Contributor = false;
-    this.sel_NIST_ContribRole = false;
+    
 
     if (this.contributorRadioSel === "contributorExternal"){
       
@@ -546,17 +545,20 @@ export class PersonelComponent implements OnInit {
         return;
       }
 
-      // check ORCID
-      const isORCID = reORCID.test(this.externalContributor.contributor.orcid)
+      // add ORCID field
+      this.crntContribOrcid = this.externalContributor.contributor.orcid;      
+    }
+    else{
+      //we're adding a nist contributor so assign orcid text field
+      this.crntContribOrcid = this.nistContribOrcid;
+    }
+
+    // check ORCID
+    const isORCID = this.isORCID(this.crntContribOrcid);
       
-      if (isORCID){
-        this.crntContribOrcid = this.externalContributor.contributor.orcid;
-      }
-      else{
-        this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
-        this.extContribOrcid =  "";
-        return;
-      }
+    if (!isORCID && this.crntContribOrcid.length>0){
+      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+      return;
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
@@ -574,6 +576,15 @@ export class PersonelComponent implements OnInit {
       return;
 
     }
+
+    // Disable buttons while the user is inputing new row
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+
+    //reset dropdown selection flags
+    this.sel_NIST_Contributor = false;
+    this.sel_NIST_ContribRole = false;
 
     const newRow = {
       id: Date.now(),
@@ -652,6 +663,10 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Surname can't be empty";
       return;
     }
+    else if (!this.isORCID(e.orcid) && e.surname.length > 0){
+      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+      return;
+    }
 
     this.errorMessage = '';
     this.resetTable();
@@ -661,7 +676,7 @@ export class PersonelComponent implements OnInit {
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
-          contributor:{firstName:element.name, lastName:element.surname},
+          contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
           e_mail: element.e_mail,
           instituion: element.institution,
           role: element.role
@@ -684,15 +699,17 @@ export class PersonelComponent implements OnInit {
   resetPersonnelForm(){
     
     this.nistContribRole = "";
+    this.nistContribOrcid = "";
     this.externalContributor.contributor.firstName = "";
     this.externalContributor.contributor.lastName = "";
+    this.externalContributor.contributor.orcid = "";
     this.externalContributor.instituion = "";
     this.extContribRole = "";
     this.externalContributor.e_mail = "";
     this.contributorRadioSel = "";
     this.personelForm.patchValue({
       nistContactFirstName:       "",
-      nistContactLastName:        ""
+      nistContactLastName:        "",
     });
     this.clearTable();
   }
