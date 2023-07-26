@@ -31,7 +31,7 @@ export class NistResorucesService {
   }
 
   public getNistResources(): NIST_Resources {
-    return this.resources ?? { RESOURCES: {}};
+    return this.resources ?? { RESOURCES: []};
   }
 
   /**
