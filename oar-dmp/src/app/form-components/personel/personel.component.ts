@@ -134,9 +134,10 @@ export class PersonelComponent implements OnInit {
   personelForm = this.fb.group(
     {
       primary_NIST_contact:       ['', Validators.required],
+      primNistContactOrcid:       [''],
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
-      nistContactLastName:        [''],
+      nistContactLastName:        [''],      
       contributors:               [[]]
     }
   );
@@ -175,6 +176,7 @@ export class PersonelComponent implements OnInit {
                                   },
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
+      primNistContactOrcid:       personel.primary_NIST_contact.orcid,
       contributors:               personel.contributors
     });
   }
@@ -202,7 +204,7 @@ export class PersonelComponent implements OnInit {
           {
             primary_NIST_contact:   { firstName:formValue.nistContactFirstName, 
                                       lastName: formValue.nistContactLastName,
-                                      orcid:formValue.orcid
+                                      orcid:formValue.primNistContactOrcid
                                     },
             contributors:           formValue.contributors
 
@@ -615,6 +617,16 @@ export class PersonelComponent implements OnInit {
 
   }
 
+  isValidPrimaryContactOrcid(){    
+    let orcid = this.personelForm.value['primNistContactOrcid'];
+    if (orcid.length > 0){
+      return this.isORCID(orcid);
+    }
+    else{
+      return true;
+    }
+  }
+
   removeRow(id:any) {
     // select word from the specific id
     var selWord = this.dmpContributors.filter((u) => u.id === id);    
@@ -710,6 +722,7 @@ export class PersonelComponent implements OnInit {
     this.personelForm.patchValue({
       nistContactFirstName:       "",
       nistContactLastName:        "",
+      primNistContactOrcid:       ""
     });
     this.clearTable();
   }

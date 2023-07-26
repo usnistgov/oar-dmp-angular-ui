@@ -28,7 +28,7 @@
 
       </td>
       <td class="cell-top">NIST Contact ORCID</td>
-      <td class="cell-top"><input type="text" [(ngModel)]="primNistContactOrcid"></td>
+      <td class="cell-top"><input type="text" [formControl]="personelForm.controls['primNistContactOrcid']"></td>
     </tr>
     <tr>
       <td class="description">Contributor</td>
