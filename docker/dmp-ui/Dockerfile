@@ -29,7 +29,7 @@ RUN cd /usr/local && tar xJf /tmp/node-v16.17.1-linux-x64.tar.xz \
                   && ln -s ../node/bin/npm  npm                 \
                   && ln -s ../node/bin/npx  npx            
 
-ENV GOSU_VERSION 1.10
+ENV GOSU_VERSION 1.14
 RUN set -ex; \
     arch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
     wget -O /usr/local/bin/gosu \
