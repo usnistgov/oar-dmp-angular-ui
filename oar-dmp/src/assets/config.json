@@ -1,0 +1,7 @@
+{
+    "auth": {
+
+        "serviceEndpoint": "https://localhost/sso/"
+
+    }
+}

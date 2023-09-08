@@ -82,9 +82,9 @@ import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
   ],
 
   providers: [
-//    fakeBackendProvider,
-    { provide: RELEASE_INFO, useValue: RELEASE },
-    { provide: CONFIG_URL, useValue: environment.configUrl }
+   fakeBackendProvider,
+    // { provide: RELEASE_INFO, useValue: RELEASE },
+    // { provide: CONFIG_URL, useValue: environment.configUrl }
   ],
 
   bootstrap: [AppComponent]
