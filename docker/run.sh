@@ -19,13 +19,13 @@ $prog - build and optionally test the software in this repo via docker
 
 SYNOPSIS
   $prog [-d|--docker-build] [--dist-dir DIR] [CMD ...] 
-        [DISTNAME|python|angular|java ...] 
+        [DISTNAME|angular ...] 
         
 
 ARGS:
   angular   apply commands to just the angular distributions
 
-DISTNAMES:  pdr-lps, pdr-publish, customization-api
+DISTNAMES:  dmp-ui
 
 CMDs:
   build     build the software
