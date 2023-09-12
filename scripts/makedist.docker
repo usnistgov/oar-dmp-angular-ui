@@ -8,11 +8,10 @@
 # where:
 #   --dist-dir=DIR     write component distributions to the given directory
 #                      (instead of the default directory, dist)
-#   python             build only the python-based distributions
 #   angular            build only the angular-based distributions
-#   java               build only the java-based distributions 
-#   DISTNAME           build only the named distributions; DISTNAME can be
-#                      pdr-lps or pdr-publish
+#   DISTNAME           build only the named distributions; "dmp-ui" is the
+#                      supported DISTNAME
+#                      
 #
 prog=`basename $0`
 execdir=`dirname $0`
@@ -21,6 +20,6 @@ export CODEDIR=`(cd $execdir/.. > /dev/null 2>&1; pwd)`
 export DOCKERDIR=$CODEDIR/docker
 
 $DOCKERDIR/dockbuild.sh
+
 # Run the main makedist in the dockerdir
-echo "Run makedist for dmp-ui"
-exec $DOCKERDIR/makedist dmp-ui
+exec $DOCKERDIR/makedist "$@"

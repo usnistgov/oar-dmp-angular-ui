@@ -15,8 +15,8 @@ op=$1
 shift
 case "$op" in
     build|makedist)
-        echo '+' scripts/makedist.dmpui "$@"
-        $CODEDIR/scripts/makedist.dmpui "$@"
+        echo '+' scripts/makedist "$@"
+        $CODEDIR/scripts/makedist "$@"
         ;;
     shell)
         exec /bin/bash
