@@ -19,13 +19,12 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends zip wget ca-certificates git xz-utils \
                                                gnupg python3
 
-COPY node-sha256.txt /tmp
+COPY node-*-sha256.txt /tmp
 RUN arch=`dpkg --print-architecture` && \
     { [ "$arch" != "amd64" ] || arch="x64"; } && echo $arch > /etc/plat-arch
-RUN echo -n "### ARCH: "; cat /etc/plat-arch
 RUN cd /tmp && arch=`cat /etc/plat-arch`  \
             && wget https://nodejs.org/dist/v16.17.1/node-v16.17.1-linux-${arch}.tar.xz \
-            && sha256sum -c node-sha256.txt
+            && sha256sum -c node-${arch}-sha256.txt
 RUN cd /usr/local && arch=`cat /etc/plat-arch`                       \
                   && tar xJf /tmp/node-v16.17.1-linux-${arch}.tar.xz \
                   && ln -s node-v16.17.1-linux-${arch} node          \
