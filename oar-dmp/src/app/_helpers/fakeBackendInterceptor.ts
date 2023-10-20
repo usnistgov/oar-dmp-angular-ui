@@ -21,7 +21,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 userLastName: 'anon',
                 userEmail: 'anon@email.com'
             },
-            token: 'fake-jwt-token'
+            // token: 'fake-jwt-token'
+            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ4eXpAbmlzdC5nb3YiLCJ1c2VyTmFtZSI6Inh5eiIsInVzZXJMYXN0TmFtZSI6IkRvZSIsInVzZXJFbWFpbCI6Inh5ekBuaXN0LmdvdiIsInVzZXJPVSI6Ik1NTCJ9.l0KbcWrIYLirDGbqyhL-5iyMuZWFt28ZvV2nMp-kOFI'
         };
         console.log("logging in...");
 
