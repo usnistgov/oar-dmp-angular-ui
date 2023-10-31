@@ -37,7 +37,12 @@ setup_build
 
 log_intro   # record start of build into log
 
-# $codedir/oar-metadata/docker/dockbuild.sh $BUILD_IMAGES
+# install CA certs into containers that can use them
+if { echo $BUILD_IMAGES | grep -qs dmp-ui; }; then
+    cp_ca_certs_to dmp-ui
+fi
 
-echo '+' docker build $BUILD_OPTS -t $PACKAGE_NAME/dmp-ui dmp-ui
-docker build $BUILD_OPTS -t $PACKAGE_NAME/dmp-ui dmp-ui 2>&1
+if { echo " $BUILD_IMAGES " | grep -qs " dmp-ui "; }; then
+    echo '+' docker build $BUILD_OPTS -t $PACKAGE_NAME/dmp-ui dmp-ui
+    docker build $BUILD_OPTS -t $PACKAGE_NAME/dmp-ui dmp-ui 2>&1
+fi

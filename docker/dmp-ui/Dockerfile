@@ -19,6 +19,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends zip wget ca-certificates git xz-utils \
                                                gnupg python3
 
+COPY cacerts/README.md cacerts/*.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 COPY node-*-sha256.txt /tmp
 RUN arch=`dpkg --print-architecture` && \
     { [ "$arch" != "amd64" ] || arch="x64"; } && echo $arch > /etc/plat-arch
