@@ -153,6 +153,38 @@ fi
     $execdir/dockbuild.sh
 }
 
+# build distributions, if requested
+#
+if wordin build $cmds; then
+    echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+                    build "${args[@]}" $dists
+    docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+           build "${args[@]}" $dists
+fi
+
+# run tests, if requested
+#
+if wordin test $cmds; then
+    # not yet supported
+    echo '#' test command not yet implemented
+#    echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+#                    test "${args[@]}" $dists
+#    docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+#           test "${args[@]}" $dists
+fi
+
+# open a shell, if requested
+#
+if wordin shell $cmds; then
+    echo '+' docker run -ti --rm $volopt "${dargs[@]}"  \
+                    oar-dmp-angular-ui/dmp-ui shell "${args[@]}"
+    docker run --rm -ti $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+           shell "${args[@]}"
+fi
+
+
+
+
 # handle angular building and/or testing.  If shell was requested with
 # angular, open the shell in the angular test contatiner (angtest).
 # 
