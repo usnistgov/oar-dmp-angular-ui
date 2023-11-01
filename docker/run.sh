@@ -182,28 +182,3 @@ if wordin shell $cmds; then
            shell "${args[@]}"
 fi
 
-
-
-
-# handle angular building and/or testing.  If shell was requested with
-# angular, open the shell in the angular test contatiner (angtest).
-# 
-# handle angular building and/or testing.  If shell was requested with
-# angular, open the shell in the angular test contatiner (angtest).
-# 
-if wordin dmp-ui $comptypes; then
-    docmds=`echo $cmds | sed -${SED_RE_OPT}e 's/shell//' -e 's/install//' -e 's/^ +$//'`
-    if { wordin shell $cmds && [ "$comptypes" == "editable" ]; }; then
-        docmds="$docmds shell"
-    fi
-
-    if [ "$docmds" == "build" ]; then
-        # build only
-        echo '+' docker run --rm $volopt "${dargs[@]}" $bargs \
-                       oar-dmp-angular-ui/dmp-ui build  \
-                       "${args[@]}" "${angargs[@]}"
-        docker run --rm $volopt "${dargs[@]}" $bargs    \
-                        oar-dmp-angular-ui/dmp-ui build \
-                        "${args[@]}" "${angargs[@]}"
-    fi
-fi
