@@ -215,6 +215,10 @@ export class DmpFormComponent implements OnInit {
       alert("Cannot save DMP. Record name is empty.")
       throw new Error("Record name is empty");
     }
+    if (!this.personnelForm.isValidPrimaryContactOrcid()){
+      alert("Cannot save DMP. Ivalid ORCID format for the prmary NIST contact. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx")
+      throw new Error("Invalid ORCID for prmary NIST contact.");
+    }
     if (this.id !==null){
       // If id is not null then update dmp with the current id
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
@@ -251,6 +255,9 @@ export class DmpFormComponent implements OnInit {
 
   resetDmp(){
     this.form.controls['basicInfo'].reset();
+    this.form.controls['basicInfo'].patchValue({
+      organizations:[]
+  })
     this.form.controls['ethicalIssues'].reset();
     this.form.controls['ethicalIssues'].patchValue({
         ethicalIssue:"no",
@@ -276,7 +283,9 @@ export class DmpFormComponent implements OnInit {
 
     // Reset Data Preservation component of the form
     this.form.controls['dataPreservation'].patchValue({
-      preservationDescription:""
+      preservationDescription:"",
+      dataAccess:"",
+      pathsURLs: []
     })
 
     this.preservationLinksTable.clearTable();

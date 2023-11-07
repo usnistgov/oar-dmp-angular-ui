@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 
 import { NistResorucesService } from './nist-resoruces.service';
 
-
 export function configFetcherFactory(configSvc: NistResorucesService) {
     return () => { 
         return configSvc.fetchNistResources().toPromise();

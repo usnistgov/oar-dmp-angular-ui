@@ -2,18 +2,24 @@ import { TestBed } from '@angular/core/testing';
 
 import { DmpService } from './dmp.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ConfigurationService } from '../config/config.service';
+import {
+    ConfigModule, CONFIG_URL, ConfigurationService, AuthenticationService, MockAuthenticationService
+} from 'oarng';
+import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Configuration } from '../config/config.model';
+import { DMPConfiguration } from './config.model';
+
 
 import { DMP_Meta } from '../types/DMP.types';
 
 describe('DmpService', () => {
   let service: DmpService;
+  let cfgsvc: ConfigurationService;
   let httpController: HttpTestingController;
   let httpClient: HttpClient;
+
   // Mock configuration object
-  const mockConfig: Configuration = {
+  const mockConfig: DMPConfiguration = {
       PDRDMP: 'http://localhost:9091/midas/dmp/mdm1',
   };
 
@@ -53,17 +59,29 @@ describe('DmpService', () => {
 
     // Data Preservation Meta data
     preservationDescription:  '',
+    dataAccess:               '',
     pathsURLs:                []
 
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [ConfigurationService]
+      imports: [ HttpClientTestingModule, ConfigModule ],
+      providers: [
+        { provide: CONFIG_URL, useValue: environment.configUrl },
+        { provide: AuthenticationService, useClass: MockAuthenticationService }
+      ]
     });
     service = TestBed.inject(DmpService);
     httpController = TestBed.inject(HttpTestingController);
+    cfgsvc = TestBed.inject(ConfigurationService);
+
+    let req = httpController.expectOne('assets/environment.json');
+    expect(req.request.method).toBe('GET');
+    // Set the HTTP response
+    req.flush(mockConfig);
+    expect(cfgsvc.getConfig()['PDRDMP']).toBe(mockConfig['PDRDMP']);
+    // await cfgsvc.fetchConfig().toPromise();
   });
 
   afterEach(() => {
@@ -78,50 +96,51 @@ describe('DmpService', () => {
 
   it('fetch a DMP', async() => {
     // Create a promise. This will pause the test until the promise is resolved using await.
-    const configPromise = service.fetchDMP("edit", "mdm1:0017").toPromise();
+    const dmpPromise = service.fetchDMP("edit", "mdm1:0017").toPromise();
 
-    // By the time the HTTP request is expected, the configPromise has already been created.
-    const req = httpController.expectOne('//mdm1:0017');
-    expect(req.request.method).toBe('GET');
-    // Set the HTTP response
-    req.flush(mockConfig);
+    let req = httpController.expectOne(mockConfig.PDRDMP + "/mdm1:0017");
+    req.flush({
+      name: "testrec",
+      id: "mdm1:0017",
+      data: mockDmpRecord
+    })
 
+    // const req = httpController.expectOne('//mdm1:0017');
     // Wait for fetchDMP() to finish, which will hang on HttpClient.get() to finish
-    const config = await configPromise;
+    const rec = await dmpPromise;
 
     // Assert
-    expect(config).toEqual(mockConfig);
+    expect(rec.id).toEqual("mdm1:0017");
+    expect(rec.data.dmpSearchable).toEqual("yes");
+    expect(rec.data.title).toEqual("");
 
   });
 
-  it('start new DMP', async() => {    
-    let configPromise = service.fetchDMP("new", null).toPromise();    
+  it('start new DMP', async () => {    
+    let dmpPromise = service.fetchDMP("new", null).toPromise();    
 
     const req = httpController.expectNone('/')
     expect(req).not.toBeNull();
 
-    // Wait for fetchDMP() to finish, which will hang on HttpClient.get() to finish
-    const config = await configPromise;
-
     // Assert
-    expect(config).toStrictEqual(mockDmpRecord);
+    expect(await dmpPromise).toStrictEqual(mockDmpRecord);
 
   });
 
   it('update a DMP', async() => {
     // Create a promise. This will pause the test until the promise is resolved using await.
-    const configPromise = service.updateDMP(mockDmpRecord, "mdm1:0017").toPromise();
+    const dmpPromise = service.updateDMP(mockDmpRecord, "mdm1:0017").toPromise();
 
     // By the time the HTTP request is expected, the configPromise has already been created.
-    const req = httpController.expectOne('//mdm1:0017/data');
+    const req = httpController.expectOne(mockConfig.PDRDMP + '/mdm1:0017/data');
     expect(req.request.method).toBe('PUT');
     // Set the HTTP response
-    req.flush(mockConfig);
+    req.flush(mockDmpRecord);
 
-    const config = await configPromise;
+    let rec = await dmpPromise;
 
     // Assert
-    expect(config).toEqual(mockConfig);    
+    expect(rec).toEqual(mockDmpRecord);    
 
   });
 

@@ -19,15 +19,13 @@ $prog - build and optionally test the software in this repo via docker
 
 SYNOPSIS
   $prog [-d|--docker-build] [--dist-dir DIR] [CMD ...] 
-        [DISTNAME|python|angular|java ...] 
+        [DISTNAME|angular ...] 
         
 
 ARGS:
-  python    apply commands to just the python distributions
   angular   apply commands to just the angular distributions
-  java      apply commands to just the java distributions
 
-DISTNAMES:  pdr-lps, pdr-publish, customization-api
+DISTNAMES:  dmp-ui
 
 CMDs:
   build     build the software
@@ -105,16 +103,9 @@ while [ "$1" != "" ]; do
         -*)
             args=(${args[@]} $1)
             ;;
-        python|dmp-ui|java)
-            comptypes="$comptypes $1"
-            ;;
-        dmp-ui)
+        angular|dmp-ui)
             wordin dmp-ui $comptypes || comptypes="$comptypes dmp-ui"
             angargs=(${args[@]} $1)
-            ;;
-        pdr-publish)
-            wordin python $comptypes || comptypes="$comptypes python"
-            pyargs=(${pyargs[@]} $1)
             ;;
         build|install|test|shell)
             cmds="$cmds $1"
@@ -131,6 +122,10 @@ done
 [ -z "${testcl[@]}" ] || {
     dargs=(${dargs[@]} --env OAR_TEST_INCLUDE=\"${testcl[@]}\")
 }
+bargs=""
+# if [ -z "$HTTPS_PROXY" ]; then
+#     bargs="--build-arg=https_proxy=$HTTPS_PROXY"
+# fi
 
 comptypes=`echo $comptypes`
 cmds=`echo $cmds`
@@ -158,23 +153,32 @@ fi
     $execdir/dockbuild.sh
 }
 
-# handle angular building and/or testing.  If shell was requested with
-# angular, open the shell in the angular test contatiner (angtest).
-# 
-# handle angular building and/or testing.  If shell was requested with
-# angular, open the shell in the angular test contatiner (angtest).
-# 
-if wordin dmp-ui $comptypes; then
-    docmds=`echo $cmds | sed -${SED_RE_OPT}e 's/shell//' -e 's/install//' -e 's/^ +$//'`
-    if { wordin shell $cmds && [ "$comptypes" == "editable" ]; }; then
-        docmds="$docmds shell"
-    fi
-
-    if [ "$docmds" == "build" ]; then
-        # build only
-        echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \
-                       "${args[@]}" "${angargs[@]}"
-        docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui build \
-                       "${args[@]}" "${angargs[@]}"
-    fi
+# build distributions, if requested
+#
+if wordin build $cmds; then
+    echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+                    build "${args[@]}" $dists
+    docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+           build "${args[@]}" $dists
 fi
+
+# run tests, if requested
+#
+if wordin test $cmds; then
+    # not yet supported
+    echo '#' test command not yet implemented
+#    echo '+' docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+#                    test "${args[@]}" $dists
+#    docker run --rm $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+#           test "${args[@]}" $dists
+fi
+
+# open a shell, if requested
+#
+if wordin shell $cmds; then
+    echo '+' docker run -ti --rm $volopt "${dargs[@]}"  \
+                    oar-dmp-angular-ui/dmp-ui shell "${args[@]}"
+    docker run --rm -ti $volopt "${dargs[@]}" oar-dmp-angular-ui/dmp-ui \
+           shell "${args[@]}"
+fi
+

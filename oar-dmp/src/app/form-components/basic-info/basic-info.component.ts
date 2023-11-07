@@ -2,16 +2,68 @@ import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
+import { ORGANIZATIONS } from '../../types/mock-organizations';
+import { NistOrganization } from 'src/app/types/nist-organization';
+import {Observable} from 'rxjs';
+
+export interface dmpOgranizations {
+  org_id:number;
+  dmp_organization: string;  
+  id: number;
+  isEdit: boolean;
+}
+
+const ORG_COL_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'org_id',
+    type: 'text',
+    label: 'Org ID',
+  },
+  {
+    key: 'dmp_organization',
+    type: 'text',
+    label: 'Organization(s)',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
 
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
-  styleUrls: ['./basic-info.component.scss']
+  styleUrls: ['./basic-info.component.scss', '../form-table.scss']
 })
 export class BasicInfoComponent{
+  // ================================
+  // used for organizations table
+  // ================================
+  disableAdd:boolean = true;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
+  errorMessage: string = '';
+  dmpOrganizations: dmpOgranizations[] = []
+  displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
+  columnsSchema: any = ORG_COL_SCHEMA;
+  fltr_NIST_Org!: Observable<NistOrganization[]>;
+  //List of all nist organizations from NIST directory
+  nistOrganizations: any = null;
+  crntOrgID:number = 0;
+  crntOrgName:string = "";
+  
+  // ================================
+
   // Let's start with a child component that is responsible for a part of the form. 
   // The component injects the FormBuilder and creates a new form group with their 
-  // form controls, validators and any other configuration
+  // form controls, validators and any other configuration  
 
   basicInfoForm = this.fb.group({
     title: ['', Validators.required],
@@ -20,7 +72,9 @@ export class BasicInfoComponent{
     dmpSearchable: ['', Validators.required],
     grant_source: ['', Validators.required],
     grant_id: ['', Validators.required],
-    projectDescription: ['', Validators.required]
+    projectDescription: ['', Validators.required],
+    nistOrganization: [],
+    organizations: [[]]
 
   });
 
@@ -32,6 +86,16 @@ export class BasicInfoComponent{
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(basic_info: DMP_Meta) {
+    // loop over organizations array sent fromt he server and populate local copy of 
+    // organizations aray to populate the table of organizations in the GUI interface
+    basic_info.organizations.forEach( 
+      (org, index) => {        
+        this.dmpOrganizations.push({id:index, org_id:org.ORG_ID, dmp_organization:org.name, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+      
+    );
     this.basicInfoForm.patchValue({
       title: basic_info.title,
       startDate: basic_info.startDate,
@@ -39,7 +103,8 @@ export class BasicInfoComponent{
       dmpSearchable: basic_info.dmpSearchable,
       grant_source: basic_info.funding.grant_source,
       grant_id: basic_info.funding.grant_id,
-      projectDescription: basic_info.projectDescription
+      projectDescription: basic_info.projectDescription,
+      organizations:basic_info.organizations
     });
   }
 
@@ -63,7 +128,8 @@ export class BasicInfoComponent{
           endDate: formValue.endDate,
           dmpSearchable: formValue.dmpSearchable,
           funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
-          projectDescription:formValue.projectDescription
+          projectDescription:formValue.projectDescription,
+          organizations:formValue.organizations
         })
       )
     )
@@ -76,6 +142,172 @@ export class BasicInfoComponent{
 
   constructor(private fb: FormBuilder) {
     console.log("basic-info component");
+  }
+
+  ngOnInit(): void {
+    /**
+     * NOTE Comment below when woking with API
+     */
+    this.getNistOrganizations();
+
+  }
+
+  /**
+   * This function gets hard coded NIST organizations
+   * Used when not working with an API for NIST people service database
+   */
+  getNistOrganizations(){    
+    // this.getNistOrganizationsFromAPI();
+    this.getNistOrganizationsNoAPI();
+
+  }
+
+  getNistOrganizationsNoAPI(){
+    //ORGANIZATIONS is declared in '../../types/mock-organizations'
+    this.nistOrganizations = ORGANIZATIONS;
+    this.fltr_NIST_Org = this.basicInfoForm.controls['nistOrganization'].valueChanges.pipe(
+      startWith(''),
+      map(anOrganization => {
+        const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
+        var res = orgName ? this._filter(orgName as string):this.nistOrganizations.slice();
+        if (res.length ===1){
+          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgName = anOrganization.name;
+
+          this.disableAdd = false;
+        }
+        else{
+          this.disableAdd = true;
+        }
+        return res;
+      }
+
+      )
+
+    );
+
+  }
+
+  displaySelectedOrganization(org:NistOrganization):string{
+    var res = org && org.ORG_ID? org.name : '';
+    return res;
+
+  }
+
+  removeSelectedRows() {
+    //assign unselected rows to dmpOrganizations
+    this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
+    //reset the table 
+    this.resetTable();
+    //repopulate the table with what's left in the array
+    this.rePopulateOrgs();
+
+    if (this.dmpOrganizations.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+  }
+
+  resetTable(){
+    this.basicInfoForm.patchValue({
+      organizations:[]
+    })
+  }
+
+  clearTable(){
+    this.dmpOrganizations = []
+    this.resetTable();
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+  }
+
+  addRow(){
+    const newRow = {
+      id: Date.now(),      
+      org_id:this.crntOrgID,
+      dmp_organization: this.crntOrgName,
+      isEdit: false,
+    };
+    // check that if any org id or org name is undefined 
+    // - this can happen if user types in the search box but does not select 
+    //    an actual organization from the drop down menu
+
+    if (typeof newRow.org_id === "undefined" || typeof newRow.dmp_organization === "undefined"){
+      this.errorMessage = "Select an existing NIST Organization";
+      return;
+
+    }
+
+    // Check if selected organization is already in the table
+    var selRow = this.dmpOrganizations.filter((u) => u.org_id === newRow.org_id);
+    if (selRow.length > 0){
+      this.errorMessage = "The selected Organization is already associated with this DMP.";
+      return;
+    }
+    //add new row to the dmpOrganizations array
+    this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
+
+    //reset the table
+    this.resetTable();
+
+    // re-populate the table with entries from dmpOrganizations array 
+    // and update the form metadata
+    this.rePopulateOrgs();
+
+    this.disableAdd=true;
+    this.disableClear=false;
+    this.disableRemove=false;
+  }
+
+  private rePopulateOrgs(){
+    this.dmpOrganizations.forEach(
+      (org)=>{
+        this.basicInfoForm.value['organizations'].push(
+          {
+            ORG_ID:org.org_id,
+            name:org.dmp_organization
+          }
+        )
+      }
+    )
+  }
+
+  removeRow(id:any) {
+    var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+
+    // update the form metadata
+    this.basicInfoForm.value['organizations'].forEach(
+      (value:NistOrganization, index:number)=>{
+        selRow.forEach(
+          (org)=>{
+            if (value.ORG_ID === org.org_id){
+              //remove selected organization
+              this.basicInfoForm.value['organizations'].splice(index,1);
+            }
+          }
+        )
+      }
+    )
+
+    // remove from the display table
+    this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
+  }
+
+  private _filter(nistOrg:string): NistOrganization[] {
+    // add button should be disabled while filtering is being performed
+    // and should be enabled only when an existing organization has been selected
+    this.disableAdd = true;
+
+    const filterValues = nistOrg.toLowerCase()
+    var searchRes;
+    searchRes = this.nistOrganizations.filter(
+      (option:any) => option.name.toLowerCase().includes(filterValues)
+    );
+
+    return searchRes;
+
   }
 
 }

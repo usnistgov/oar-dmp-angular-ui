@@ -7,10 +7,10 @@
 # distributions can be done by listing the names of the desired distributions
 # on the command line.
 #
-# There are currently two distributions: pdr-publish, pdr-lps
+# There is currently only one distribution:  dmp-ui
 #
 # SYNOPSIS
-#    makedist.angular [OPTIONS] [DISTNAME ...]
+#    makedist [OPTIONS] [angular|DISTNAME ...]
 #
 # OPTIONS
 #    -l, --list               list the names of the supported distributions and
@@ -28,14 +28,13 @@
 #    
 #
 
-echo "********************** makedist in scripts"
 set -e
 prog=`basename $0`
 execdir=`dirname $0`
 [ "$execdir" = "" -o "$execdir" = "." ] && execdir=$PWD
 PACKAGE_DIR=`dirname $execdir`
-VERSION=
-echo "********************** $execdir "
+[ "$PACKAGE_DIR" = "" -o "$PACKAGE_DIR" = "." ] && PACKAGE_DIR=$PWD
+
 # this is needed because realpath is not on macs
 function realpath {
     if [ -d "$1" ]; then
@@ -55,8 +54,10 @@ function realpath {
 # Update this list with the names of the individual component names
 # 
 DISTNAMES="dmp-ui"
-dmp_dists=":dmp-ui:"
 
+declare -A APPSRCDIR=(  \
+    [dmp-ui]=oar-dmp    \
+)
 
 # handle command line options
 while [ "$1" != "" ]; do 
@@ -106,40 +107,76 @@ done
 [ -n "$build_dist" ] || build_dist=$DISTNAMES
 echo '#' Building $build_dist
 
-# # make sure the oar-metadata submodule has been initialized
-# #
-# [ -d "oar-metadata/scripts" ] || {
-#     set -x
-#     git submodule init
-#     git submodule update
-#     set +x
-# }
+true ${DIST_DIR:=$PACKAGE_DIR/dist}
+mkdir -p $DIST_DIR
+
+# make sure the oar-metadata submodule has been initialized
+#
+[ -d "lib/libs" ] || {
+    set -x
+    git submodule init
+    git submodule update
+    set +x
+}
 
 # set the current version.  This will inject the version into the code, if 
 # needed.
 #
-set -x
-(scripts/setversion.sh)
-scripts/setversion.sh $VERSION
-set +x
+# set -x
+echo '+' scripts/setversion.sh
+scripts/setversion.sh
 [ -n "$PACKAGE_NAME" ] || PACKAGE_NAME=`cat VERSION | awk '{print $1}'`
 version=`cat VERSION | awk '{print $2}'`
-vers4fn=`echo $version | perl -pe 's#[/ ]+#_#g'`
+vers4fn=`echo $version | sed -re 's#[/ \t]+#_#g'`
 
-build_dmp=
+npmpfx=
+[ -z "$CACHE_DIR" ] || npmpfx="--prefix $CACHE_DIR"
 
-for dist in $build_dist; do
-    if (echo $dmp_dists | grep -qs :${dist}:); then
-        build_dmp="$build_dmp $dist"
+echo "# Building dependencies"...
+
+# install required modules
+npmvers=`npm --version`
+echo '+' npm $npmpfx install
+npm $npmpfx install
+
+# build oarng
+echo '+' npm $npmpfx run build-lib
+npm $npmpfx run build-lib
+
+# build target distributions
+declare -A buildscript
+buildscript=(                \
+    ["dmp-ui"]=build-oardmp  \
+)
+
+for target in $build_dist; do
+    distname="${target}-$vers4fn"
+    builddir="${APPSRCDIR[$target]}/dist"
+
+    echo '##############################################'
+    echo '#'
+    echo "# Building $distname"...
+    echo '#'
+    echo '##############################################'
+
+    # build the code
+    echo '+' npm $npmpfx run ${buildscript[$target]}
+    npm $npmpfx run ${buildscript[$target]}
+
+    # zip up the distribution
+    echo '+' '(cd $builddir' '&&' \
+             "zip -qr $DIST_DIR/${distname}.zip *)"
+    (cd $builddir && zip -qr $DIST_DIR/${distname}.zip *)
+
+    # create the dependency file
+    if [ -f "package-lock.json" ]; then
+        echo '+' $execdir/record_npm_deps.py $target $version package-lock.json \
+                 $npmvers \> $DIST_DIR/${distname}_dep.json
+        $execdir/record_npm_deps.py $target $version package-lock.json $npmvers \
+                                    > $DIST_DIR/${distname}_dep.json
+    else
+        echo ${prog}: WARNING: Unable to create dependency file for ${dist}: \
+             package-lock.json not found
     fi
 done
 
-args=
-[ -z "$CACHE_DIR" ] || args="$args --cache-dir=`realpath $CACHE_DIR`"
-[ -z "$DIST_DIR" ] || args="$args --dist-dir=`realpath $DIST_DIR`"
-[ -z "$build_dmp" ] || {
-    sargs=
-    [ -z "$SOURCE_DIR" ] || sargs="--source-dir=$SOURCE_DIR"
-    echo '+' makedist.dmpui 
-    $execdir/makedist.dmpui 
-}

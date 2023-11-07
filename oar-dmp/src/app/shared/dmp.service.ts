@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, catchError, throwError, switchMap } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MIDASDMP } from '../types/midas-dmp.type';
-import { ConfigurationService } from '../config/config.module';
+import { ConfigurationService, AuthenticationService, Credentials } from 'oarng';
+import { DMPConfiguration } from './config.model';
+// import { ConfigurationService } from '../config/config.module';
 // import * as jsonData from '../../assets/environment.json'// remove this line and import configservice from ../service config.service
 
 @Injectable({
@@ -26,11 +28,19 @@ export class DmpService {
    */
   // PDR = "/api/midas/dmp/mdm1"
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
+  constructor(private http: HttpClient, private configService: ConfigurationService,
+              private authService: AuthenticationService)
+  { }
 
-  constructor(private http: HttpClient, private configService: ConfigurationService)  { }
+  // Http Options
+  getHttpOptions(creds?: Credentials): {headers: HttpHeaders} {
+      let hdrs: {[name: string]: string} = {
+      'Content-Type': 'application/json',
+    };
+    if (creds)
+      hdrs["Authorization"] = "Bearer "+creds.token;
+    return { headers: new HttpHeaders(hdrs) };
+  };
 
   private NewDmpRecord: DMP_Meta = {
     //Basic Info Meta data
@@ -40,9 +50,10 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
+    organizations:            [],
 
     //Personel
-    primary_NIST_contact:     {firstName:"", lastName:""},
+    primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
     // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [],
 
@@ -69,6 +80,7 @@ export class DmpService {
 
     // Data Preservation Meta data
     preservationDescription:  '',
+    dataAccess:               '',
     pathsURLs:                []
 
   };
@@ -84,19 +96,24 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:'12345'},
     projectDescription:       'Example Project Description',
+    organizations:            [],
 
     //Personel
-    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder"},
+    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder", orcid:""},
     // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [{contributor:{
                                   firstName:"Niksa", 
-                                  lastName:"Blonder"}, 
+                                  lastName:"Blonder",
+                                  orcid:""
+                                }, 
                                 role:"Contact Person", 
                                 instituion:"NIST", 
                                 e_mail:"nik@nist.gov"},
                                {contributor:{
                                   firstName:"Joe", 
-                                  lastName:"Dalton"}, 
+                                  lastName:"Dalton",
+                                  orcid:""
+                                }, 
                                 role:"Contact Person", 
                                 instituion:"IAEA", 
                                 e_mail:"joe@iaea.gov"}
@@ -125,13 +142,14 @@ export class DmpService {
 
     // Data Preservation Meta data
     preservationDescription:  'Data preservation description example text',
+    dataAccess:               'Data access description example text',
     pathsURLs:                ['https://github.com/exampleuser/example_set', 'https://example.com']
 
   };
 
   fetchPDR(): Observable<any>{
     // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.configService.getConfig().PDRDMP);
+    let getInfo = this.http.get<any>(this.configService.getConfig<DMPConfiguration>().PDRDMP);
     return getInfo
   }
 
@@ -139,7 +157,7 @@ export class DmpService {
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
     // or if we are editing an existing one and which needs to be pulled from API
     // console.log("fetchDMP");
-    console.log(this.configService.getConfig().PDRDMP);
+    console.log(this.configService.getConfig<DMPConfiguration>().PDRDMP);
     if (action === 'new'){
       return of(this.NewDmpRecord);
     }
@@ -147,7 +165,7 @@ export class DmpService {
       /**
        * get DMP record from API
        */
-      let apiAddress:string = this.configService.getConfig().PDRDMP; //this.PDR_API;
+      let apiAddress:string = this.configService.getConfig<DMPConfiguration>().PDRDMP; //this.PDR_API;
       if (recordID !==null){
         apiAddress += "/" + recordID;
       }
@@ -159,17 +177,34 @@ export class DmpService {
 
   updateDMP(dmpMeta: DMP_Meta, dmpID: string) {
     // console.log("updateDMP");
-    let apiAddress:string = this.configService.getConfig().PDRDMP; //this.PDR_API;
+    let apiAddress:string = this.configService.getConfig<DMPConfiguration>().PDRDMP; //this.PDR_API;
     apiAddress += "/" + dmpID + "/data";
-    return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.httpOptions)
 
+    return this.authService.getCredentials().pipe(
+      switchMap(creds => {
+        if (! creds)
+          throwError(new Error("Authentication Failed"));
+        return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.getHttpOptions(creds))
+      })
+    );
   }
 
-  createDMP(dmpMeta: DMP_Meta, name:string){
+  createDMP(dmpMeta: DMP_Meta, name:string) {
     // console.log("createDMP")
     let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
-    return this.http.post<any>(this.configService.getConfig().PDRDMP, JSON.stringify(midasDMP), this.httpOptions)
-    // return this.http.post<Array<any>>(this.dmpsAPI, JSON.stringify(midasDMP), this.httpOptions)
+
+    return this.authService.getCredentials().pipe(
+      switchMap(creds => {
+        if (! creds)
+          throwError(new Error("Authentication Failed"));
+        return this.http.post<any>(this.configService.getConfig<DMPConfiguration>().PDRDMP,
+                                   JSON.stringify(midasDMP),
+                                   this.getHttpOptions(creds));
+        // return this.http.post<Array<any>>(this.dmpsAPI,
+        //                                   JSON.stringify(midasDMP),
+        //                                   this.getHttpOptions(creds))
+      })
+    );
     
 
   }

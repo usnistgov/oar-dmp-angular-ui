@@ -31,7 +31,7 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-keywords',
   templateUrl: './keywords.component.html',
-  styleUrls: ['./keywords.component.scss']
+  styleUrls: ['./keywords.component.scss', '../form-table.scss']
 })
 export class KeywordsComponent {
 

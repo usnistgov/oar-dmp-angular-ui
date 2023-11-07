@@ -3,16 +3,14 @@
 # docker/makedist -- make all components from this repo via the docker containers
 #                    defined in the docker directory.
 #
-# Usage: docker/makedist [--dist-dir=DIR] [python|angular]
+# Usage: docker/makedist [--dist-dir=DIR] [angular|dmp-ui]
 #
 # where:
 #   --dist-dir=DIR     write component distributions to the given directory
 #                      (instead of the default directory, dist)
-#   python             build only the python-based distributions
 #   angular            build only the angular-based distributions
-#   java               build only the java-based distributions 
+#   dmp-ui             build only the dmp-ui distribution
 #
-echo "############ makedist in docker  $@ "
 prog=`basename $0`
 execdir=`dirname $0`
 [ "$execdir" = "" -o "$execdir" = "." ] && execdir=$PWD

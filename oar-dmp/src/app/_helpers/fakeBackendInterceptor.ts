@@ -186,20 +186,20 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             console.log("logging in...");
 
             //Authorized
-            // return of(new HttpResponse({ status: 200, body }));
+            return of(new HttpResponse({ status: 200, body }));
 
             // Athenticated but not authorized
             // body.token = null;
             // return of(new HttpResponse({ status: 200, body }));
 
             // Reject
-            return throwError(
-              JSON.stringify({
-                  "status": 500,
-                  "Userid": "xyz@nist.gov",
-                  "message": "Sorry, but we're having trouble signing you in. Please contact our tech support."
-              })
-            );
+            // return throwError(
+            //   JSON.stringify({
+            //       "status": 500,
+            //       "Userid": "xyz@nist.gov",
+            //       "message": "Sorry, but we're having trouble signing you in. Please contact our tech support."
+            //   })
+            // );
         }
 
       // if (request.url.indexOf('/customization/api/draft') > -1 && request.method === 'GET') {

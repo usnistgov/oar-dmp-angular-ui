@@ -1,5 +1,5 @@
 <div class="dmpSection">
-  <div class="header">Data Preservation</div>
+  <div class="header">Data Preservation and Accessibility</div>
 
   <p class="instruction"> Provide the file path(s) / URL(s) for where you will be saving your data (if known)</p>
   <article class="table-header">
@@ -15,7 +15,7 @@
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
   
 
-  <table mat-table [dataSource]="pathSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="pathSource" class="mat-elevation-z8 form-table">
   
     <!-- 
       iterate over columns 
@@ -93,6 +93,17 @@
         rows="5" 
         placeholder="Provide a description of the storage backup method to be used or how data will be preserved in the long-term."
         [formControl]="preservationForm.controls['preservationDescription']"
+        ></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td>Describe your plans for making the<br>data discoverable (findable) and accessible</td>
+      <td><textarea 
+        name="dmpDiscoverability" 
+        cols="40" 
+        rows="5" 
+        placeholder="Describe what steps will be taken to ensure that potential customers who do not already know the data will be able to find them (discoverability) and then obtain them for use (accessibility)."
+        [formControl]="preservationForm.controls['dataAccess']"
         ></textarea>
       </td>
     </tr>
