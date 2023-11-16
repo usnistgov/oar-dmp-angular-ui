@@ -1,5 +1,5 @@
 {
-  "PDRDMP":"https://localhost/midas/dmp/mdm1",
+  "PDRDMP":"http://localhost:9091/midas/dmp/mdm1",
   "auth": {
     "serviceEndpoint": "https://localhost/sso/"
   }

@@ -170,7 +170,14 @@ export class DmpService {
         apiAddress += "/" + recordID;
       }
       // console.log("fetchDMP: pre get");
-      return this.http.get<any>(apiAddress);
+      //return this.http.get<any>(apiAddress, this.getHttpOptions(creds));
+      return this.authService.getCredentials().pipe(
+        switchMap(creds => {
+          if (! creds)
+            throwError(new Error("Authentication Failed"));
+          return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
+        })
+      );
     }
     
   }
@@ -192,12 +199,13 @@ export class DmpService {
   createDMP(dmpMeta: DMP_Meta, name:string) {
     // console.log("createDMP")
     let midasDMP:MIDASDMP = {name:name, data:dmpMeta}
+    let apiAddress:string = this.configService.getConfig<DMPConfiguration>().PDRDMP; //this.PDR_API;
 
     return this.authService.getCredentials().pipe(
       switchMap(creds => {
         if (! creds)
           throwError(new Error("Authentication Failed"));
-        return this.http.post<any>(this.configService.getConfig<DMPConfiguration>().PDRDMP,
+        return this.http.post<any>(apiAddress,
                                    JSON.stringify(midasDMP),
                                    this.getHttpOptions(creds));
         // return this.http.post<Array<any>>(this.dmpsAPI,

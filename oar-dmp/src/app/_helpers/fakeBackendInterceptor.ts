@@ -10,137 +10,25 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   constructor(private http: HttpClient) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // array in local storage for registered users
-
-    // const sampleData: any = require('../../assets/science-theme/BiometricsScienceTheme.json');
-    // const sampleRecord: any = require('../../assets/science-theme/DNAScienceTheme.json');
-
-    // const biometricsData1: any  = require('../../assets/science-theme/SDB-300.json');
-    // const biometricsData2: any  = require('../../assets/science-theme/SDB-301.json');
-    // const biometricsData3: any  = require('../../assets/science-theme/SDB-302.json');
-    // const dna1: any  = require('../../assets/science-theme/dna1.json');
-    // const dna2: any  = require('../../assets/science-theme/dna2.json');
-    // const dna3: any  = require('../../assets/science-theme/dna3.json');
-    // const dna4: any  = require('../../assets/science-theme/dna4.json');
-    // const dna5: any  = require('../../assets/science-theme/dna5.json');
-
-    // const testdata: any = {
-    //     PageSize: 1,
-    //     ResultCount: 8,
-    //     ResultData: [biometricsData1,biometricsData2,biometricsData3,dna1,dna2,dna3,dna4,dna5]
-    // }
-
-    const wizardResponse = {
-            "id": "test1",
-            "name": "CoTEM",
-            "acls": {
-              "read": [
-                "anonymous"
-              ],
-              "write": [
-                "anonymous"
-              ],
-              "admin": [
-                "anonymous"
-              ],
-              "delete": [
-                "anonymous"
-              ]
-            },
-            "owner": "anonymous",
-            "data": {
-              "title": "Microscopy of Cobalt Samples"
-            },
-            "meta": {},
-            "curators": [],
-            "created": 1669560885.988901,
-            "createdDate": "2022-11-27T09:54:45",
-            "lastModified": 1669560885.988901,
-            "lastModifiedDate": "2022-11-27T09:54:45",
-            "deactivated": null,
-            "type": "dmp"
-        
-    }
-    console.log("request.url", request.url);
     // wrap in delayed observable to simulate server api call
     return of(null).pipe(mergeMap(() => {
-        // Wizard
-        // if (request.url.indexOf('localhost:9091') > -1 && request.method === 'POST') {
-        //     return of(new HttpResponse({ status: 200, body: wizardResponse }));
-        // }
+      // authenticate
+      if (request.url.indexOf('auth/_tokeninfo') > -1 && request.method === 'GET') {
+        let body: any = {
+            userDetails: {
+                userId: 'xyz@nist.gov',
+                userName: 'xyz',
+                userLastName: 'anon',
+                userEmail: 'anon@email.com'
+            },
+            // token: 'fake-jwt-token'
+            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ4eXpAbmlzdC5nb3YiLCJ1c2VyTmFtZSI6Inh5eiIsInVzZXJMYXN0TmFtZSI6IkRvZSIsInVzZXJFbWFpbCI6Inh5ekBuaXN0LmdvdiIsInVzZXJPVSI6Ik1NTCJ9.l0KbcWrIYLirDGbqyhL-5iyMuZWFt28ZvV2nMp-kOFI'
+        };
+        console.log("logging in...");
 
-        // metrics
-        // if (request.url.indexOf('usagemetrics/files') > -1 && request.method === 'GET') {
-        //     return of(new HttpResponse({ status: 200, body: metricsRecordDetails }));
-        // }
-
-        // if (request.url.indexOf('isPartOf.@id=ark:/88434/mds9911') > -1 && request.method === 'GET') {
-        //     // console.log("Getting forensics")
-        //     return of(new HttpResponse({ status: 200, body: testdata }));
-        // }
-
-        // if (request.url.indexOf('usagemetrics/files') > -1 && request.method === 'GET') 
-        // {
-        //   console.log("Throw error...");
-        //   throw new HttpErrorResponse(
-        //     {
-        //       error: 'internal error message goes here...',
-        //       headers: request.headers,
-        //       status: 500,
-        //       statusText: 'internal error',
-        //       url: request.url
-        //     });
-        // }
-
-      // For e2e test
-      // if (request.url.endsWith('/rmm/records/SAMPLE123456') && request.method === 'GET') {
-      //   return of(new HttpResponse({ status: 200, body: sampleData }));
-      // }
-
-      // Generate bundle plan
-    //   if (request.url.indexOf('_bundle_plan') > -1 && request.method === 'POST') 
-    //   {
-    //     console.log("Record saved...");
-    //     return of(new HttpResponse({ status: 200, body: bundlePlanRes }));
-    //   }
-
-      // Generate bundle plan internal error
-      // if (request.url.indexOf('_bundle_plan') > -1 && request.method === 'POST') 
-      // {
-      //   console.log("Throw error...");
-      //   throw new HttpErrorResponse(
-      //     {
-      //       error: 'internal error message goes here...',
-      //       headers: request.headers,
-      //       status: 500,
-      //       statusText: 'internal error',
-      //       url: request.url
-      //     });
-      // }
-
-    // Generate bundle download internal error
-    //   if (request.url.indexOf('_bundle') > -1 && request.url.indexOf('_bundle_plan') <= 0 && request.method === 'POST') 
-    //   {
-    //     console.log("Throw error...");
-    //     throw new HttpErrorResponse(
-    //       {
-    //         error: 'internal error message goes here...',
-    //         headers: request.headers,
-    //         status: 500,
-    //         statusText: 'internal error',
-    //         url: request.url
-    //       });
-    //   }
-
-      // // authenticate
-      // if (request.url.indexOf('auth/_perm/') > -1 && request.method === 'GET') {
-      //     let body: ApiToken = {
-      //         userId: 'xyz@nist.gov',
-      //         token: 'fake-jwt-token'
-      //     };
-      //     console.log("logging in...")
-      //     return of(new HttpResponse({ status: 200, body }));
-      // }
+        //Authorized
+        return of(new HttpResponse({ status: 200, body }));
+      }
 
       // return 401 not authorised if token is null or invalid
       // if (request.url.indexOf('auth/_perm/') > -1 && request.method === 'GET') {
@@ -158,94 +46,14 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       //     );
       // }
 
-      // if (request.url.endsWith('/auth/token') && request.method === 'GET') {
-      //     let body: ApiToken = {
-      //         userId: '1234',
-      //         token: 'fake-jwt-token'
-      //     };
-      //     console.log("getting token...")
-      //     // window.alert('Click ok to login');
-      //     return of(new HttpResponse({ status: 200, body }));
-      // }
-
-        // // authenticate
-        if (request.url.indexOf('auth/_tokeninfo') > -1 && request.method === 'GET') {
-            let body: any = {
-                userDetails: {
-                    userId: 'xyz@nist.gov',
-                    userName: 'xyz',
-                    userLastName: 'Doe',
-                    userEmail: 'xyz@nist.gov',
-                    userGroup: 'Domain Users',
-                    userDiv: 'Office of Data and Informatics',
-                    userDivNum: '641',
-                    userOU: 'Material Measurement Laboratory'
-                },
-                token: 'fake-jwt-token'
-            };
-            console.log("logging in...");
-
-            //Authorized
-            return of(new HttpResponse({ status: 200, body }));
-
-            // Athenticated but not authorized
-            // body.token = null;
-            // return of(new HttpResponse({ status: 200, body }));
-
-            // Reject
-            // return throwError(
-            //   JSON.stringify({
-            //       "status": 500,
-            //       "Userid": "xyz@nist.gov",
-            //       "message": "Sorry, but we're having trouble signing you in. Please contact our tech support."
-            //   })
-            // );
-        }
-
-      // if (request.url.indexOf('/customization/api/draft') > -1 && request.method === 'GET') {
-      //     console.log("Interceptor returning sample record...");
-      //     return of(new HttpResponse({ status: 200, body: sampleRecord }));
-      // }
-
-      // if (request.url.indexOf('/customization/api/draft') > -1 && request.method === 'PATCH') {
-      //     console.log("Record updated...");
-      //     return of(new HttpResponse({ status: 200, body: undefined }));
-      //     // return Observable.throw('Username or password is incorrect');
-      // }
-
-      // if (request.url.indexOf('/customization/api/draft') > -1 && request.method === 'DELETE') {
-      //     console.log("Record deleted...");
-      //     return of(new HttpResponse({ status: 200, body: undefined }));
-      // }
-
-      // if (request.url.indexOf('/customization/api/savedrec') > -1 && request.method === 'PUT') {
-      //     console.log("Record saved...");
-      //     return of(new HttpResponse({ status: 200, body: undefined }));
-      // }
-
-      // get bundle
-      // if (request.url.endsWith('/od/ds/_bundle') && request.method === 'POST') {
-      //     // return new Observable(observer => {
-      //     //     observer.next(this.testDataService.getBundle('https://s3.amazonaws.com/nist-midas/1858/20170213_PowderPlate2_Pad.zip', params););
-      //     //     observer.complete();
-      //     //   });
-      //     // return this.testDataService.getBundle('https://s3.amazonaws.com/nist-midas/1858/20170213_PowderPlate2_Pad.zip', bundlePlanRes);
-      //     console.log("Handling /od/ds/_bundle:");
-
-      //     const duplicate = request.clone({
-      // method: 'get' 
-      //     })
-      //     return next.handle(request);
-      // }
-
       // pass through any requests not handled above
       return next.handle(request);
 
   }))
 
-      // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
-      .pipe(materialize())
-      .pipe(delay(500))
+  // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
+  .pipe(materialize())
+  .pipe(delay(500))
   .pipe(dematerialize());
   }
 }
