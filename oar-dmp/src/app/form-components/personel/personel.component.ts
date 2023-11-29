@@ -114,7 +114,7 @@ export class PersonelComponent implements OnInit {
     contributor:{firstName:"", lastName:"", orcid:""}, 
     role:"",
     e_mail:"",
-    instituion:""
+    institution:""
   };
   
 
@@ -160,7 +160,7 @@ export class PersonelComponent implements OnInit {
           surname:      aContributor.contributor.lastName,
           orcid:        aContributor.contributor.orcid,
           role:         aContributor.role,
-          institution:  aContributor.instituion,
+          institution:  aContributor.institution,
           e_mail:       aContributor.e_mail
           
         });
@@ -444,7 +444,7 @@ export class PersonelComponent implements OnInit {
       contributor:{firstName:"", lastName:"", orcid:""}, 
       role:"",
       e_mail:"",
-      instituion:""
+      institution:""
     };
   }
 
@@ -464,7 +464,7 @@ export class PersonelComponent implements OnInit {
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname},
           e_mail: element.e_mail,
-          instituion: element.institution,
+          institution: element.institution,
           role: element.role
         });
     });
@@ -529,7 +529,7 @@ export class PersonelComponent implements OnInit {
       /**
        * Check institution
        */
-      if (!(this.externalContributor.instituion.match(regex))){
+      if (!(this.externalContributor.institution.match(regex))){
         this.errorMessage = "Missing contributor Institution / Affiliation";
         this.extContribRole =  "";
         return;
@@ -603,7 +603,7 @@ export class PersonelComponent implements OnInit {
       newRow.institution = this.contributorOption;
     }
     else{
-      newRow.institution = this.externalContributor.instituion;
+      newRow.institution = this.externalContributor.institution;
     }
 
     // create a new array using an existing array as one part of it 
@@ -690,7 +690,7 @@ export class PersonelComponent implements OnInit {
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
           e_mail: element.e_mail,
-          instituion: element.institution,
+          institution: element.institution,
           role: element.role
         });
       }
@@ -715,7 +715,7 @@ export class PersonelComponent implements OnInit {
     this.externalContributor.contributor.firstName = "";
     this.externalContributor.contributor.lastName = "";
     this.externalContributor.contributor.orcid = "";
-    this.externalContributor.instituion = "";
+    this.externalContributor.institution = "";
     this.extContribRole = "";
     this.externalContributor.e_mail = "";
     this.contributorRadioSel = "";
