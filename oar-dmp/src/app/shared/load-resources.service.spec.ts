@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { NistResorucesService } from '../config/nist-resoruces.service';
+import { NistResourcesService } from '../config/nist-resources.service';
 import { LoadResourcesService } from './load-resources.service';
 
 describe('LoadResourcesService', () => {
@@ -10,7 +10,7 @@ describe('LoadResourcesService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ],
-      providers: [ NistResorucesService, LoadResourcesService ]
+      providers: [ NistResourcesService, LoadResourcesService ]
     });
     service = TestBed.inject(LoadResourcesService);
   });

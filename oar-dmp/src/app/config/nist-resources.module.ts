@@ -1,9 +1,9 @@
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { NistResorucesService } from './nist-resoruces.service';
+import { NistResourcesService } from './nist-resources.service';
 
-export function configFetcherFactory(configSvc: NistResorucesService) {
+export function configFetcherFactory(configSvc: NistResourcesService) {
     return () => { 
         return configSvc.fetchNistResources().toPromise();
     };
@@ -12,11 +12,11 @@ export function configFetcherFactory(configSvc: NistResorucesService) {
 @NgModule({
     providers: [
         HttpClient,
-        NistResorucesService,
+        NistResourcesService,
         { provide: APP_INITIALIZER, useFactory: configFetcherFactory,
-          deps: [ NistResorucesService ], multi: true }
+          deps: [ NistResourcesService ], multi: true }
     ]
 })
-export class NistResorucesModule { }
+export class NistResourcesModule { }
 
-export { NistResorucesService }
+export { NistResourcesService }
