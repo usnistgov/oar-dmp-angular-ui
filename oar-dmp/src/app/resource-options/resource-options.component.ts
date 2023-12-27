@@ -1,7 +1,7 @@
 //Example of passing data from parent component (app.component) to the child component (resource-options.component)
 // Start with declaring Input decorator
 //import { Component, OnInit, Input } from '@angular/core';
-import { Component, OnInit, OnChanges, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit} from '@angular/core';
 import { Subscription } from 'rxjs';
 
 
@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { ResourcesService } from '../shared/resources.service';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
+import { SubmitDmpService } from '../shared/submit-dmp.service';
 import { FilterPipe } from './filter.pipe';
 
 interface Messages {
@@ -36,7 +37,8 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   constructor(
     private sharedService:ResourcesService, 
     private dom:DomPositioningModule,
-    private nistResources: LoadResourcesService
+    private nistResources: LoadResourcesService,
+    private form_buttons: SubmitDmpService
     ) { 
     console.log("resoruce-optionscomponent");
   }
@@ -69,6 +71,13 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     console.log("resoruce-options after view init");
     // this.dom.setDomElementTop("resources-grid-container", "dmp_hdr")
     // this.dom.horizontalDomAdjust("resource_options", "dmp_hdr")
+  }
+
+  resetDmp(e:any){
+    //send message to dmp form component to reset the form
+    this.form_buttons.setResetMessage("Reset Form");
+    this.form_buttons.resetSubject$.next("Reset Form");
+    
   }
 
   //subscribe to a particular subject

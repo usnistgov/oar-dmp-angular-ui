@@ -18,7 +18,16 @@
     <!-- <p>{{category | json}}</p> -->
     <div class="span_box">
       <!-- <span class="header_span header_pad">Resources Available At NIST</span> -->
+      <div class="grid-item">
+        <button mat-button class="btn_reset" type="button" (click)="resetDmp($event)">
+          Reset
+        </button>
+        <button mat-button type="button" class="btn_draft" >
+          Save Draft
+        </button>
+      </div>
     </div>
+    
     <div class="grid-item" *ngFor="let category of availableResources">
       <div class="cell">        
         <div>

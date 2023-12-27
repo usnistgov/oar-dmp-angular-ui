@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { ObservedValueOf } from "rxjs";
+import { ObservedValueOf, Subscription } from "rxjs";
 import { FormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
@@ -10,6 +10,7 @@ import { DataDescriptionComponent } from '../form-components/data-description/da
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
 import { DMP_Meta } from '../types/DMP.types';
 import { DmpService } from '../shared/dmp.service'
+import { SubmitDmpService } from '../shared/submit-dmp.service';//for acknowledging when form button has been 'pressed'
 import { FormControl } from '@angular/forms';
 
 
@@ -54,6 +55,8 @@ interface DMPForm {
 })
 @Injectable()
 export class DmpFormComponent implements OnInit {
+  btnResetSubscription!: Subscription | null;
+  btnResetMessage: string = "";
   // get access to methods in DataDescriptionComponent child.
 
   // this is for the purpose of reseting checkboxes.
@@ -98,7 +101,8 @@ export class DmpFormComponent implements OnInit {
     private dmp_Service: DmpService, 
     private route: ActivatedRoute,
     private router: Router,
-    private dom:DomPositioningModule
+    private dom:DomPositioningModule,
+    private form_buttons:SubmitDmpService
     // private http: HttpClient
     ) {  }
 
@@ -107,6 +111,7 @@ export class DmpFormComponent implements OnInit {
 
   ngOnInit(): void {
     console.log("dmp-form component OnInit");
+    this.btnResetSubscribe();
     this.id = this.route.snapshot.paramMap.get('id')
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
@@ -147,6 +152,21 @@ export class DmpFormComponent implements OnInit {
 
   ngAfterViewInit(): void {
   
+  }
+
+  //subscribe to button subjects
+  btnResetSubscribe(){
+    if (!this.btnResetSubscription) {
+      //subscribe if not already subscribed
+      this.btnResetSubscription = this.form_buttons.resetSubject$.subscribe({
+        next: (message) => {
+          // the message is not relevant here. it is just a trigger to reset the form
+          this.btnResetMessage = message;
+          this.resetDmp();
+        }
+      });
+    }
+
   }
 
   
