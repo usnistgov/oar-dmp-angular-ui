@@ -19,10 +19,10 @@
     <div class="span_box">
       <!-- <span class="header_span header_pad">Resources Available At NIST</span> -->
       <div class="grid-item">
-        <button mat-button class="btn_reset" type="button" (click)="resetDmp($event)">
+        <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
           Reset
         </button>
-        <button mat-button type="button" class="btn_draft" >
+        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
           Save Draft
         </button>
       </div>

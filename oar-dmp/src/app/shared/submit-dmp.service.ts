@@ -11,12 +11,12 @@ export class SubmitDmpService {
   //we create methods in the service file which performs certain tasks for the components. 
   //Then we call these methods from the components.
 
-  resetMessage:any
+  buttonMessage:any
   // create a property Subject to which we assign a new subject and define data that this 
   //subject emits - in out case it's a string
-  resetSubject$ = new Subject<string>();
+  buttonSubject$ = new Subject<string>();
 
-  setResetMessage(message:any){
-    this.resetMessage = message
+  setButtonMessage(message:any){
+    this.buttonMessage = message
   }
 }

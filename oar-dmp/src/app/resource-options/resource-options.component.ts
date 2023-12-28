@@ -73,10 +73,12 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     // this.dom.horizontalDomAdjust("resource_options", "dmp_hdr")
   }
 
-  resetDmp(e:any){
-    //send message to dmp form component to reset the form
-    this.form_buttons.setResetMessage("Reset Form");
-    this.form_buttons.resetSubject$.next("Reset Form");
+  dmpButtonClick(e:any){
+    //send message to dmp form component indicating which button has been pressed
+    //the e event captures the text of the button so we pass tat to the form to
+    //indicate the course of action. The options should be 'Reset', 'Save Draft' and 'Publish'
+    this.form_buttons.setButtonMessage(e.currentTarget.innerText);
+    this.form_buttons.buttonSubject$.next(e.currentTarget.innerText);
     
   }
 

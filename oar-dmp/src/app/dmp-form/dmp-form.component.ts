@@ -55,8 +55,8 @@ interface DMPForm {
 })
 @Injectable()
 export class DmpFormComponent implements OnInit {
-  btnResetSubscription!: Subscription | null;
-  btnResetMessage: string = "";
+  formButtonSubscription!: Subscription | null;
+  formButtonMessage: string = "";
   // get access to methods in DataDescriptionComponent child.
 
   // this is for the purpose of reseting checkboxes.
@@ -111,7 +111,7 @@ export class DmpFormComponent implements OnInit {
 
   ngOnInit(): void {
     console.log("dmp-form component OnInit");
-    this.btnResetSubscribe();
+    this.formButtonSubscribe();
     this.id = this.route.snapshot.paramMap.get('id')
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
@@ -155,14 +155,20 @@ export class DmpFormComponent implements OnInit {
   }
 
   //subscribe to button subjects
-  btnResetSubscribe(){
-    if (!this.btnResetSubscription) {
+  formButtonSubscribe(){
+    if (!this.formButtonSubscription) {
       //subscribe if not already subscribed
-      this.btnResetSubscription = this.form_buttons.resetSubject$.subscribe({
+      this.formButtonSubscription = this.form_buttons.buttonSubject$.subscribe({
         next: (message) => {
           // the message is not relevant here. it is just a trigger to reset the form
-          this.btnResetMessage = message;
-          this.resetDmp();
+          this.formButtonMessage = message;
+          if (this.formButtonMessage === "Reset"){
+            this.resetDmp();
+          }
+          else if (this.formButtonMessage === "Save Draft"){
+            this.saveDraft();
+          }
+          
         }
       });
     }
