@@ -25,6 +25,7 @@
         "@angular/router": "~13.3.0",
         "angular-resize-event": "3.1.1",
         "http-cache-semantics": "^4.1.1",
+        "jspdf": "^2.5.1",
         "loader-utils": "^3.2.1",
         "npm": "^8.19.2",
         "rxjs": "~7.5.0",
