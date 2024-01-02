@@ -48,6 +48,9 @@ interface DMPForm {
 // We define them all as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
 
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 @Component({
   selector: 'app-dmp-form',
   templateUrl: './dmp-form.component.html',
@@ -167,6 +170,9 @@ export class DmpFormComponent implements OnInit {
           }
           else if (this.formButtonMessage === "Save Draft"){
             this.saveDraft();
+          }
+          else if (this.formButtonMessage === "PDF Export"){
+            this.generatePdf();
           }
           
         }
@@ -328,6 +334,10 @@ export class DmpFormComponent implements OnInit {
     }
     return errorMessage;
 
+  }
+
+  generatePdf() {
+    console.log(this.dmp);
   }
 
 }
