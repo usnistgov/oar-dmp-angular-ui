@@ -336,8 +336,165 @@ export class DmpFormComponent implements OnInit {
 
   }
 
+  screenshotPDF(){
+    //capture full screenshot of the DMP form
+
+    let DATA: any = document.getElementById('dmp_panel');
+    let PDF = new jsPDF('p', 'mm', 'a4');
+    html2canvas(DATA).then((canvas) => {
+      var imgData = canvas.toDataURL('image/png');
+
+      /*
+      Here are the numbers (paper width and height) that I found to work. 
+      It still creates a little overlap part between the pages, but good enough for me.
+      if you can find an official number from jsPDF, use them.
+      */
+      var imgWidth = 210; 
+      var pageHeight = 295;  
+      var imgHeight = canvas.height * imgWidth / canvas.width;
+      var heightLeft = imgHeight;
+
+      var doc = new jsPDF('p', 'mm');
+      var position = 0;
+
+      doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        doc.addPage();
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      doc.save('angular-demo.pdf');
+    });
+
+  }
+
   generatePdf() {
     console.log(this.dmp);
+    // Create A4 size PDF document 
+    // A4 measures 8.27 x 11.69 inches
+    const pdf = new jsPDF('p', 'in', 'a4');
+    const ppi = 72; // pixels per inch resolution
+    const pageWidth = 8.27;
+    const margin = 0.5;
+    let verticalOffset = 0.5;
+    let lineFontSize = 35;
+
+    pdf.setFont("", "bold").setFontSize(lineFontSize);
+
+    pdf.text("Data Management Plan",margin,verticalOffset+(lineFontSize/ppi));
+    verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+
+    pdf.line(margin, verticalOffset, pageWidth-margin, verticalOffset);
+
+    lineFontSize = 12;
+    verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+
+    lineFontSize = 25;
+    pdf.setFont("", "normal").setFontSize(lineFontSize);
+    pdf.text("Basic Information",margin,verticalOffset+(lineFontSize/ppi));
+    verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+
+
+    pdf.setLineWidth(0.1);
+    pdf.setDrawColor(52, 94, 235);
+    pdf.line(margin, verticalOffset, pageWidth-margin, verticalOffset,);
+    
+    lineFontSize = 12;
+    verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+
+    // Title
+    if (this.dmp?.title !== undefined && this.dmp?.title !== null){
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Title:",margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      // ====================================================
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      let myText = pdf.splitTextToSize(this.dmp?.title,7.25)
+      pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+
+    // Start Date
+    if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Start Date:",margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      // ====================================================
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      let myText = pdf.splitTextToSize(this.dmp?.startDate,7.25)
+      pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+
+    // End Date
+    if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
+        pdf.setFont("","bold").setFontSize(lineFontSize);
+        pdf.text("End Date:",margin,verticalOffset+(lineFontSize/ppi));
+        verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+        // ====================================================
+        pdf.setFont("", "normal").setFontSize(lineFontSize);
+        let myText = pdf.splitTextToSize(this.dmp?.endDate,7.25)
+        pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
+        verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+
+    // Make DMP searchable
+    if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Make DMP searchable:",margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      // ====================================================
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      let myText = pdf.splitTextToSize(this.dmp?.dmpSearchable,7.25)
+      pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+
+    //Funding
+
+    // Make DMP searchable
+    if (this.dmp?.funding !== undefined){
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Funding:",margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      // ====================================================
+      pdf.text("Grant Source:",margin+margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      let myText = pdf.splitTextToSize(this.dmp?.funding.grant_source,7.25)
+      pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Grant ID:",margin+margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      myText = pdf.splitTextToSize(this.dmp?.funding.grant_id,7.25)
+      pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+    
+    
+    // Project Description
+    if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
+      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.text("Project Description:",margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+      // ====================================================
+      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      let myText = pdf.splitTextToSize(this.dmp?.projectDescription,7.25)
+      pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
+      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
+    }
+  
+
+    verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+    
+    pdf.save('a4.pdf');
+
   }
 
 }
