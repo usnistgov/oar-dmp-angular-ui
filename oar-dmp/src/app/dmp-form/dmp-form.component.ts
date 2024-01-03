@@ -50,6 +50,7 @@ interface DMPForm {
 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import autoTable from 'jspdf-autotable'
 
 @Component({
   selector: 'app-dmp-form',
@@ -492,6 +493,15 @@ export class DmpFormComponent implements OnInit {
   
 
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+    let myTableHeight = 0;
+    autoTable(pdf,{html:'#dmpOrganizations', startY:verticalOffset, didDrawPage: function(data:any) {
+      myTableHeight = data.cursor.y;
+    }})
+
+    
+
+    verticalOffset += ( myTableHeight + 1 + margin ) * (lineFontSize/ppi);
+    pdf.text("END",margin,verticalOffset+(lineFontSize/ppi));
     
     pdf.save('a4.pdf');
 
