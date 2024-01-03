@@ -174,6 +174,7 @@ export class DmpFormComponent implements OnInit {
           }
           else if (this.formButtonMessage === "PDF Export"){
             this.generatePdf();
+            // this.screenshotPDF();
           }
           
         }
