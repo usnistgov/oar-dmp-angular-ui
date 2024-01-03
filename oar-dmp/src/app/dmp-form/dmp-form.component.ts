@@ -28,6 +28,7 @@ import { Injectable } from '@angular/core';
 
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
+import { DmpPdf } from './dmp-pdf';
 
 
 //  Interface for the DMP interface. This is where we define observed values of
@@ -43,35 +44,6 @@ interface DMPForm {
   
 }
 
-interface dmpPDF {
-  PDF:jsPDF,
-  ppi:number,
-  pageWidth:number,
-  pageHeight:number;
-  margin: number,
-  yOffset: number,
-  lineFontSize:number
-}
-class DMP_PDF implements dmpPDF{
-  PDF:jsPDF;
-  ppi:number;
-  pageWidth:number;
-  pageHeight:number;
-  margin: number;
-  yOffset: number;
-  lineFontSize:number;
-
-  constructor(PDF:jsPDF, ppi:number, pageWidth:number, pageHeight:number, margin: number, yOffset: number, lineFontSize:number){
-    this.PDF = PDF;
-    this.ppi = ppi;
-    this.pageWidth = pageWidth;
-    this.pageHeight = pageHeight;
-    this.margin = margin;
-    this.yOffset = yOffset;
-    this.lineFontSize = lineFontSize;
-  }
-
-}
 // In the example above we have a number of child components: 
 // BasicInfoComponent through StorageNeedsComponent, 
 // which are combined into the main form group as basicInfo through dataPreservation. 
@@ -130,7 +102,7 @@ export class DmpFormComponent implements OnInit {
   nameDisabled = false;
   nameClass:string = "mnemonicNameNew";
 
-  DMP_PDF?:DMP_PDF;
+  DMP_PDF?:DmpPdf;
 
   constructor(
     private fb: FormBuilder, 
@@ -205,7 +177,8 @@ export class DmpFormComponent implements OnInit {
             this.saveDraft();
           }
           else if (this.formButtonMessage === "PDF Export"){
-            this.generatePdf();
+            // this.generatePdf();
+            this.generatePdfFromClass();
             // this.screenshotPDF();
           }
           
@@ -415,7 +388,10 @@ export class DmpFormComponent implements OnInit {
     const margin = 0.5;
     let verticalOffset = 0.5;
     let lineFontSize = 35;
-    this.DMP_PDF = new DMP_PDF(pdf, ppi, pageWidth, pageHeight, margin, verticalOffset, lineFontSize);
+    this.DMP_PDF = new DmpPdf(pdf, margin);
+    this.DMP_PDF.printMainHeader("Data Management Plan", 0.2, "#000000");
+    this.DMP_PDF.printMainHeader("Basic Information", 0.1, "#0000ff", 20);
+    this.DMP_PDF.exportAsPDF();
   }
 
   generatePdf() {
