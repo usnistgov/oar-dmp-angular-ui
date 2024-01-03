@@ -389,8 +389,18 @@ export class DmpFormComponent implements OnInit {
     let verticalOffset = 0.5;
     let lineFontSize = 35;
     this.DMP_PDF = new DmpPdf(pdf, margin);
-    this.DMP_PDF.printMainHeader("Data Management Plan", 0.2, "#000000");
-    this.DMP_PDF.printMainHeader("Basic Information", 0.1, "#0000ff", 20);
+    this.DMP_PDF.printHeader("Data Management Plan", 0.2, "#000000");
+    this.DMP_PDF.printHeader("Basic Information", 0.1, "#0000ff", 20);
+
+    // Title
+    if (this.dmp?.title !== undefined && this.dmp?.title !== null){
+      this.DMP_PDF.printTextField("Title", this.dmp?.title);
+    }
+
+    if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
+      this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
+    }
+    
     this.DMP_PDF.exportAsPDF();
   }
 
