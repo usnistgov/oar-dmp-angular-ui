@@ -42,6 +42,36 @@ interface DMPForm {
   dataPreservation?: ObservedValueOf<DataPreservationComponent["formReady"]>;
   
 }
+
+interface dmpPDF {
+  PDF:jsPDF,
+  ppi:number,
+  pageWidth:number,
+  pageHeight:number;
+  margin: number,
+  yOffset: number,
+  lineFontSize:number
+}
+class DMP_PDF implements dmpPDF{
+  PDF:jsPDF;
+  ppi:number;
+  pageWidth:number;
+  pageHeight:number;
+  margin: number;
+  yOffset: number;
+  lineFontSize:number;
+
+  constructor(PDF:jsPDF, ppi:number, pageWidth:number, pageHeight:number, margin: number, yOffset: number, lineFontSize:number){
+    this.PDF = PDF;
+    this.ppi = ppi;
+    this.pageWidth = pageWidth;
+    this.pageHeight = pageHeight;
+    this.margin = margin;
+    this.yOffset = yOffset;
+    this.lineFontSize = lineFontSize;
+  }
+
+}
 // In the example above we have a number of child components: 
 // BasicInfoComponent through StorageNeedsComponent, 
 // which are combined into the main form group as basicInfo through dataPreservation. 
@@ -99,6 +129,8 @@ export class DmpFormComponent implements OnInit {
   name = new FormControl('');
   nameDisabled = false;
   nameClass:string = "mnemonicNameNew";
+
+  DMP_PDF?:DMP_PDF;
 
   constructor(
     private fb: FormBuilder, 
@@ -373,18 +405,32 @@ export class DmpFormComponent implements OnInit {
 
   }
 
-  generatePdf() {
-    console.log(this.dmp);
+  generatePdfFromClass() {
     // Create A4 size PDF document 
-    // A4 measures 8.27 x 11.69 inches
+    // A4 measures 8.27 x 11.69 inches    
     const pdf = new jsPDF('p', 'in', 'a4');
     const ppi = 72; // pixels per inch resolution
     const pageWidth = 8.27;
+    const pageHeight = 11.69
     const margin = 0.5;
     let verticalOffset = 0.5;
     let lineFontSize = 35;
+    this.DMP_PDF = new DMP_PDF(pdf, ppi, pageWidth, pageHeight, margin, verticalOffset, lineFontSize);
+  }
 
-    pdf.setFont("", "bold").setFontSize(lineFontSize);
+  generatePdf() {
+    console.log(this.dmp);
+    // Create A4 size PDF document 
+    // A4 measures 8.27 x 11.69 inches    
+    const pdf = new jsPDF('p', 'in', 'a4');
+    const ppi = 72; // pixels per inch resolution
+    const pageWidth = 8.27;
+    const pageHeight = 11.69
+    const margin = 0.5;
+    let verticalOffset = 0.5;
+    let lineFontSize = 35;
+    
+    pdf.setFont("Helvetica", "bold").setFontSize(lineFontSize);
 
     pdf.text("Data Management Plan",margin,verticalOffset+(lineFontSize/ppi));
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
@@ -395,7 +441,7 @@ export class DmpFormComponent implements OnInit {
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
 
     lineFontSize = 25;
-    pdf.setFont("", "normal").setFontSize(lineFontSize);
+    pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
     pdf.text("Basic Information",margin,verticalOffset+(lineFontSize/ppi));
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
 
@@ -406,50 +452,57 @@ export class DmpFormComponent implements OnInit {
     
     lineFontSize = 12;
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
+    console.log(verticalOffset);
 
     // Title
     if (this.dmp?.title !== undefined && this.dmp?.title !== null){
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Title:",margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
       // ====================================================
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       let myText = pdf.splitTextToSize(this.dmp?.title,7.25)
       pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
     }
 
+    console.log(verticalOffset);
+
     // Start Date
     if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Start Date:",margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
       // ====================================================
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       let myText = pdf.splitTextToSize(this.dmp?.startDate,7.25)
       pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
     }
 
+    console.log(verticalOffset);
+
     // End Date
     if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
-        pdf.setFont("","bold").setFontSize(lineFontSize);
+        pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
         pdf.text("End Date:",margin,verticalOffset+(lineFontSize/ppi));
         verticalOffset += (1 + margin ) * (lineFontSize/ppi);
         // ====================================================
-        pdf.setFont("", "normal").setFontSize(lineFontSize);
+        pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
         let myText = pdf.splitTextToSize(this.dmp?.endDate,7.25)
         pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
         verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
     }
 
+    console.log(verticalOffset);
+
     // Make DMP searchable
     if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Make DMP searchable:",margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
       // ====================================================
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       let myText = pdf.splitTextToSize(this.dmp?.dmpSearchable,7.25)
       pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
@@ -459,39 +512,42 @@ export class DmpFormComponent implements OnInit {
 
     // Make DMP searchable
     if (this.dmp?.funding !== undefined){
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Funding:",margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
       // ====================================================
       pdf.text("Grant Source:",margin+margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       let myText = pdf.splitTextToSize(this.dmp?.funding.grant_source,7.25)
       pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
 
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Grant ID:",margin+margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       myText = pdf.splitTextToSize(this.dmp?.funding.grant_id,7.25)
       pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
     }
+
+    console.log(verticalOffset);
     
     
     // Project Description
     if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
-      pdf.setFont("","bold").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
       pdf.text("Project Description:",margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (1 + margin ) * (lineFontSize/ppi);
       // ====================================================
-      pdf.setFont("", "normal").setFontSize(lineFontSize);
+      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
       let myText = pdf.splitTextToSize(this.dmp?.projectDescription,7.25)
       pdf.text(myText,margin,verticalOffset+(lineFontSize/ppi));
       verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
     }
   
+    console.log(verticalOffset);
 
     verticalOffset += (1 + margin ) * (lineFontSize/ppi);
     let myTableHeight = 0;
@@ -500,9 +556,10 @@ export class DmpFormComponent implements OnInit {
     }})
 
     
-
+    console.log(verticalOffset);
     verticalOffset += ( myTableHeight + 1 + margin ) * (lineFontSize/ppi);
     pdf.text("END",margin,verticalOffset+(lineFontSize/ppi));
+    console.log(verticalOffset);
     
     pdf.save('a4.pdf');
 
