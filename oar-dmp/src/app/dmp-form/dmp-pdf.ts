@@ -67,6 +67,26 @@ export class DmpPdf{
     this.addMultipleLines(splitText,fontSize);
   }
 
+  printTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>, fontSize:number=12, fontType:string="Helvetica"){
+    let lineStartY = this.yOffset+(fontSize/this.ppi);
+
+    this.newPageCheck(lineStartY);
+
+    // set bold type font for field name
+    this.PDF.setFont(fontType, "bold").setFontSize(fontSize);
+    // split text to multi line
+    let splitText = this.PDF.splitTextToSize(fieldName, this.paragraphWidth)
+    this.addMultipleLines(splitText,fontSize);
+
+    autoTable(this.PDF, {head:[tblHead], body:[tblBody], startY:this.yOffset});
+
+    // Get they coordinate where the table ended
+    let finalY = (this.PDF as any).lastAutoTable.finalY;
+    // increase the offset by one line
+    this.yOffset = finalY + ((1 + this.marginTop ) * (fontSize/this.ppi));
+
+  }
+
   private addMultipleLines(text:string, fontSize:number){
     for(var i=0; i<text.length; i++){
       this.newPageCheck(this.yOffset);
