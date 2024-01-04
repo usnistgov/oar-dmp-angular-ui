@@ -390,7 +390,7 @@ export class DmpFormComponent implements OnInit {
     let lineFontSize = 35;
     this.DMP_PDF = new DmpPdf(pdf, margin);
     this.DMP_PDF.printHeader("Data Management Plan", 0.2, "#000000");
-    this.DMP_PDF.printHeader("Basic Information", 0.1, "#0000ff", 20);
+    this.DMP_PDF.printHeader("Basic Information", 0.1, "#117A65", 20);
 
     // Title
     if (this.dmp?.title !== undefined && this.dmp?.title !== null){
@@ -434,7 +434,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Researchers ============================
 
-    this.DMP_PDF.printHeader("Researchers", 0.1, "#0000ff", 20);
+    this.DMP_PDF.printHeader("Researchers", 0.1, "#117A65", 20);
 
     // Primary NIST Contact
     if (this.dmp?.primary_NIST_contact !== undefined){
@@ -467,7 +467,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Keywords / Phrases ============================
 
-    this.DMP_PDF.printHeader("Keywords / Phrases", 0.1, "#0000ff", 20);
+    this.DMP_PDF.printHeader("Keywords / Phrases", 0.1, "#117A65", 20);
 
     //Keywords / Phrases
     if(this.dmp?.keyWords !== undefined){
@@ -481,7 +481,7 @@ export class DmpFormComponent implements OnInit {
 
     // =========================== Technical Requirements =========================
 
-    this.DMP_PDF.printHeader("Technical Requirements", 0.1, "#0000ff", 20);
+    this.DMP_PDF.printHeader("Technical Requirements", 0.1, "#117A65", 20);
 
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
@@ -517,6 +517,55 @@ export class DmpFormComponent implements OnInit {
       }
       this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
+
+    // ========================================= Ethical Issues ===========================
+
+    this.DMP_PDF.printHeader("Ethical Issues", 0.1, "#117A65", 20);
+
+    if(this.dmp?.ethical_issues !== undefined){
+      //Are there any ethical issues related to the data that this DMP describes?
+      if(this.dmp?.ethical_issues.ethical_issues_exist !== ""){
+        this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
+                                    this.dmp?.ethical_issues.ethical_issues_exist);
+      }
+
+      //Describe any ethical issues raised in this project (human subjects etc)
+      if(this.dmp?.ethical_issues.ethical_issues_description !== ""){
+        this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
+                                    this.dmp?.ethical_issues.ethical_issues_description);
+      }
+
+      //Ethical issues report
+      if(this.dmp?.ethical_issues.ethical_issues_report !== ""){
+        this.DMP_PDF.printTextField("Ethical issues report", 
+                                    this.dmp?.ethical_issues.ethical_issues_report);
+      }
+
+      // Does the data generated in this project contain PII or BII?
+      if(this.dmp?.ethical_issues.dmp_PII !== ""){
+        this.DMP_PDF.printTextField("Does the data generated in this project contain PII or BII?", 
+                                    this.dmp?.ethical_issues.dmp_PII);
+      }
+    }
+
+    // ========================================= Data Description ===========================
+
+    this.DMP_PDF.printHeader("Data Description", 0.1, "#117A65", 20);
+    if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
+      this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
+    }
+
+    // Select categories of the data that will be generated
+    if(this.dmp?.dataCategories !== undefined){
+      let tblHeaders = ["Categories of the data that will be generated"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.dataCategories.length; i++){
+        tblData.push([this.dmp.dataCategories[i]])
+      }
+      this.DMP_PDF.printTable("", tblHeaders, tblData);
+    }
+
+
 
     
     
