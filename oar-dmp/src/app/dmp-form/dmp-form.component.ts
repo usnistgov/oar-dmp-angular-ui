@@ -478,6 +478,47 @@ export class DmpFormComponent implements OnInit {
       }
       this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
+
+    // =========================== Technical Requirements =========================
+
+    this.DMP_PDF.printHeader("Technical Requirements", 0.1, "#0000ff", 20);
+
+    //Estimated Data Size
+    if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
+      this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
+    }
+
+    //Software Development
+    if(this.dmp?.softwareDevelopment !== undefined && this.dmp?.softwareDevelopment !== null){
+      this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
+
+      //Software developed for this project will be for
+      if(this.dmp?.softwareDevelopment.softwareUse !== ""){
+        this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
+      }
+
+      //Does the software development require a database?
+      if(this.dmp?.softwareDevelopment.softwareDatabase !== ""){
+        this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
+      }
+
+      //Will the software development produce a website interface?
+      if(this.dmp?.softwareDevelopment.softwareWebsite !== ""){
+        this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
+      }
+    }
+
+    // Technical resources equipment needed/used
+    if(this.dmp?.technicalResources !== undefined){
+      let tblHeaders = ["Technical resources equipment needed/used"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.technicalResources.length; i++){
+        tblData.push([this.dmp.technicalResources[i]])
+      }
+      this.DMP_PDF.printTable("", tblHeaders, tblData);
+    }
+
+    
     
     this.DMP_PDF.exportAsPDF();
   }
