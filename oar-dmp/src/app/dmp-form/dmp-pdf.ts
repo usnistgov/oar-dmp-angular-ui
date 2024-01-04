@@ -78,7 +78,7 @@ export class DmpPdf{
     let splitText = this.PDF.splitTextToSize(fieldName, this.paragraphWidth)
     this.addMultipleLines(splitText,fontSize);
 
-    autoTable(this.PDF, {head:[tblHead], body:[tblBody], startY:this.yOffset});
+    autoTable(this.PDF, {head:[tblHead], body:tblBody, startY:this.yOffset});
 
     // Get they coordinate where the table ended
     let finalY = (this.PDF as any).lastAutoTable.finalY;

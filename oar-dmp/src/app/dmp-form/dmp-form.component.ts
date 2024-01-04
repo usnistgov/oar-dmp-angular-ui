@@ -421,6 +421,21 @@ export class DmpFormComponent implements OnInit {
     if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
       this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
     }
+
+    //Organization(s) Associated With This DMP
+    if(this.dmp?.organizations !== undefined){
+      let tblHeaders = ["Org ID", "Organization(s)"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.organizations.length; i++){
+        tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
+      }
+      this.DMP_PDF.printTable("Organization(s) Associated With This DMP",
+                              ["Org ID", "Organization(s)"],
+                              tblData
+      );
+    }
+
+    this.DMP_PDF.printHeader("Researchers", 0.1, "#0000ff", 20);
     
     this.DMP_PDF.exportAsPDF();
   }
@@ -428,38 +443,11 @@ export class DmpFormComponent implements OnInit {
 
   generatePdf() {
 
-
-    //Funding
-
-    // Make DMP searchable
-    if (this.dmp?.funding !== undefined){
-      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
-      pdf.text("Funding:",margin,verticalOffset+(lineFontSize/ppi));
-      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
-      // ====================================================
-      pdf.text("Grant Source:",margin+margin,verticalOffset+(lineFontSize/ppi));
-      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
-      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
-      let myText = pdf.splitTextToSize(this.dmp?.funding.grant_source,7.25)
-      pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
-      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
-
-      pdf.setFont("Helvetica","bold").setFontSize(lineFontSize);
-      pdf.text("Grant ID:",margin+margin,verticalOffset+(lineFontSize/ppi));
-      verticalOffset += (1 + margin ) * (lineFontSize/ppi);
-      pdf.setFont("Helvetica", "normal").setFontSize(lineFontSize);
-      myText = pdf.splitTextToSize(this.dmp?.funding.grant_id,7.25)
-      pdf.text(myText,margin+margin,verticalOffset+(lineFontSize/ppi));
-      verticalOffset += (myText.length + margin ) * (lineFontSize/ppi);
-    }
-
-    
     let myTableHeight = 0;
     autoTable(pdf,{html:'#dmpOrganizations', startY:verticalOffset, didDrawPage: function(data:any) {
       myTableHeight = data.cursor.y;
     }})
 
-    
     console.log(verticalOffset);
     verticalOffset += ( myTableHeight + 1 + margin ) * (lineFontSize/ppi);
     pdf.text("END",margin,verticalOffset+(lineFontSize/ppi));
