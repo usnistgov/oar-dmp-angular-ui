@@ -429,13 +429,55 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.organizations.length; i++){
         tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
       }
-      this.DMP_PDF.printTable("Organization(s) Associated With This DMP",
-                              ["Org ID", "Organization(s)"],
-                              tblData
-      );
+      this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
     }
 
+    // ========================== Researchers ============================
+
     this.DMP_PDF.printHeader("Researchers", 0.1, "#0000ff", 20);
+
+    // Primary NIST Contact
+    if (this.dmp?.primary_NIST_contact !== undefined){
+      let tblHeaders = ["Name", "Surname", "ORCID"];
+      let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
+    
+      this.DMP_PDF.printTable("Primary NIST Contact", tblHeaders, tblData);
+
+    }
+
+    // Contributors
+    if (this.dmp?.contributors !== undefined){
+      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID"];
+      let tblData:Array<Array<string>>=[];
+
+      for ( let i=0; i < this.dmp.contributors.length; i++){
+        let currRow: Array<string> = [];
+        currRow.push(this.dmp.contributors[i].contributor.firstName);
+        currRow.push(this.dmp.contributors[i].contributor.lastName);
+        currRow.push(this.dmp.contributors[i].institution);
+        currRow.push(this.dmp.contributors[i].role);
+        currRow.push(this.dmp.contributors[i].e_mail);
+        currRow.push(this.dmp.contributors[i].contributor.orcid);
+        tblData.push(currRow);
+      }
+      
+      this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
+
+    }    
+
+    // ========================== Keywords / Phrases ============================
+
+    this.DMP_PDF.printHeader("Keywords / Phrases", 0.1, "#0000ff", 20);
+
+    //Keywords / Phrases
+    if(this.dmp?.keyWords !== undefined){
+      let tblHeaders = ["Keywords / Phrases"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.keyWords.length; i++){
+        tblData.push([this.dmp.keyWords[i]])
+      }
+      this.DMP_PDF.printTable("", tblHeaders, tblData);
+    }
     
     this.DMP_PDF.exportAsPDF();
   }
