@@ -36,8 +36,8 @@ export class DmpPdf{
     let totalHeaderHeight = (1 + this.marginTop ) * (fontSize/this.ppi);
     totalHeaderHeight += ((1 + this.marginTop ) * (12/this.ppi))*2;
     
-    // if total height oif the header is greater than the page height then create new page
-    this.newPageCheck(totalHeaderHeight);
+    // if total height of the header is greater than the page height then create new page
+    this.newPageCheck(totalHeaderHeight+this.yOffset);
 
     this.PDF.setFont(fontType, "bold").setFontSize(fontSize);
     this.PDF.text(header,this.marginL, this.yOffset+(fontSize/this.ppi));
@@ -65,6 +65,7 @@ export class DmpPdf{
     this.PDF.setFont(fontType, "normal").setFontSize(fontSize);
     splitText = this.PDF.splitTextToSize(fieldValue, this.paragraphWidth)
     this.addMultipleLines(splitText,fontSize);
+    this.yOffset += (1 + this.marginTop ) * (12/this.ppi);
   }
 
   printTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>, fontSize:number=12, fontType:string="Helvetica"){
@@ -78,7 +79,7 @@ export class DmpPdf{
     let splitText = this.PDF.splitTextToSize(fieldName, this.paragraphWidth)
     this.addMultipleLines(splitText,fontSize);
 
-    autoTable(this.PDF, {head:[tblHead], body:tblBody, startY:this.yOffset});
+    autoTable(this.PDF, {head:[tblHead], body:tblBody, startY:this.yOffset/*, headStyles:{fillColor:"138d75"}*/});
 
     // Get they coordinate where the table ended
     let finalY = (this.PDF as any).lastAutoTable.finalY;

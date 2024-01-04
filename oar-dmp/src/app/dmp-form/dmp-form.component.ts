@@ -389,8 +389,8 @@ export class DmpFormComponent implements OnInit {
     let verticalOffset = 0.5;
     let lineFontSize = 35;
     this.DMP_PDF = new DmpPdf(pdf, margin);
-    this.DMP_PDF.printHeader("Data Management Plan", 0.2, "#000000");
-    this.DMP_PDF.printHeader("Basic Information", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Data Management Plan", 0.1, "#707b7c");
+    this.DMP_PDF.printHeader("Basic Information", 0.05, "#d5d8dc", 20);
 
     // Title
     if (this.dmp?.title !== undefined && this.dmp?.title !== null){
@@ -434,7 +434,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Researchers ============================
 
-    this.DMP_PDF.printHeader("Researchers", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Researchers", 0.05, "#d5d8dc", 20);
 
     // Primary NIST Contact
     if (this.dmp?.primary_NIST_contact !== undefined){
@@ -467,7 +467,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Keywords / Phrases ============================
 
-    this.DMP_PDF.printHeader("Keywords / Phrases", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Keywords / Phrases", 0.05, "#d5d8dc", 20);
 
     //Keywords / Phrases
     if(this.dmp?.keyWords !== undefined){
@@ -481,7 +481,7 @@ export class DmpFormComponent implements OnInit {
 
     // =========================== Technical Requirements =========================
 
-    this.DMP_PDF.printHeader("Technical Requirements", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Technical Requirements", 0.05, "#d5d8dc", 20);
 
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
@@ -520,7 +520,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================================= Ethical Issues ===========================
 
-    this.DMP_PDF.printHeader("Ethical Issues", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Ethical Issues", 0.05, "#d5d8dc", 20);
 
     if(this.dmp?.ethical_issues !== undefined){
       //Are there any ethical issues related to the data that this DMP describes?
@@ -550,7 +550,8 @@ export class DmpFormComponent implements OnInit {
 
     // ========================================= Data Description ===========================
 
-    this.DMP_PDF.printHeader("Data Description", 0.1, "#117A65", 20);
+    this.DMP_PDF.printHeader("Data Description", 0.05, "#d5d8dc", 20);
+
     if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
       this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
     }
@@ -563,6 +564,31 @@ export class DmpFormComponent implements OnInit {
         tblData.push([this.dmp.dataCategories[i]])
       }
       this.DMP_PDF.printTable("", tblHeaders, tblData);
+    }
+
+    // ======================== Data Preservation and Accessibility ==========================
+
+    this.DMP_PDF.printHeader("Data Preservation and Accessibility", 0.05, "#d5d8dc", 20);
+
+    // file path(s) / URL(s) for where data will be saved
+
+    if(this.dmp?.pathsURLs !== undefined){
+      let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.pathsURLs.length; i++){
+        tblData.push([this.dmp.pathsURLs[i]])
+      }
+      this.DMP_PDF.printTable("", tblHeaders, tblData);
+    }
+
+    // Preservation Description
+    if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
+      this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
+    }
+
+    // Describe your plans for making the data discoverable (findable) and accessible
+    if (this.dmp?.dataAccess !== undefined && this.dmp?.dataAccess !== null){
+      this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
     }
 
 
