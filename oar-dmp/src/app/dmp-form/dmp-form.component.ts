@@ -102,6 +102,8 @@ export class DmpFormComponent implements OnInit {
 
   });
 
+  markdown:Array<string> = [];
+
   name = new FormControl('');
   nameDisabled = false;
   nameClass:string = "mnemonicNameNew";
@@ -189,7 +191,7 @@ export class DmpFormComponent implements OnInit {
               this.generatePdfFromClass();
             }
             else if (this.dmpExportFormatType === "Markdown"){
-              this.saveFile();
+              this.exportAsMarkdown();
             }
             else{
               alert("Please select DMP export type from the drop down menu.");
@@ -212,16 +214,6 @@ export class DmpFormComponent implements OnInit {
     }
 
   }
-
-  saveFile() {
-    const blob = 
-        new Blob([
-                 "Please Save Me!"], 
-                 {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "save-me.txt");
-}
-
-  
 
   // We need a method to register the child form groups. The method accepts a name 
   // (here "basicInfo" through "technical-requirements") and the form group. 
@@ -630,22 +622,84 @@ export class DmpFormComponent implements OnInit {
     
     this.DMP_PDF.exportAsPDF();
   }
-  /*
+  
+  exportAsMarkdown() {
+    this.markdown = [];
 
-  generatePdf() {
+    this.markdown.push("# Data Management Plan  \n");
+    this.markdown.push("---  \n");
 
-    let myTableHeight = 0;
-    autoTable(pdf,{html:'#dmpOrganizations', startY:verticalOffset, didDrawPage: function(data:any) {
-      myTableHeight = data.cursor.y;
-    }})
+    this.markdown.push("## Basic Information  \n");
+    this.markdown.push("---  \n");
 
-    console.log(verticalOffset);
-    verticalOffset += ( myTableHeight + 1 + margin ) * (lineFontSize/ppi);
-    pdf.text("END",margin,verticalOffset+(lineFontSize/ppi));
-    console.log(verticalOffset);
-    
-    pdf.save('a4.pdf');
+    // Title
+    if (this.dmp?.title !== undefined && this.dmp?.title !== null){
+      this.markdown.push("**Basic Information:** " + this.dmp?.title + "  \n");
+    }
 
+    // Start Date
+    if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
+      this.markdown.push("**Start Date:** " + this.dmp?.startDate + "  \n");
+    }
+
+    // End Date
+    if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
+      this.markdown.push("**End Date:** " + this.dmp?.endDate + "  \n");
+    }
+
+    // Make DMP searchable
+    if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
+      this.markdown.push("**Make DMP Searchable:** " + this.dmp?.dmpSearchable + "  \n");
+    }
+
+    //Funding
+    if (this.dmp?.funding !== undefined){      
+      this.markdownTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
+    }
+
+    // Project Description
+    if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
+      this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
+    }
+
+    //Organization(s) Associated With This DMP
+    if(this.dmp?.organizations !== undefined){
+      let tblHeaders = ["Org ID", "Organization(s)"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.organizations.length; i++){
+        tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
+      }
+      
+      this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
+    }
+
+    // ========================== Researchers ============================
+
+
+    const blob = new Blob(this.markdown, {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "DMP.md");
   }
-  */
+
+  private markdownTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>,){
+    this.markdown.push("  \n");
+    this.markdown.push("**" + fieldName +":**  \n");
+    this.markdown.push("  \n");
+
+    let headerText = "|" + tblHead.join("|") + "|  \n";
+    this.markdown.push(headerText);
+    
+    let headerSeparator = "|"
+    for (let i = 0; i < tblHead.length; i ++){
+      headerSeparator += " --- |"
+    }
+    headerSeparator += "  \n"
+    this.markdown.push(headerSeparator);
+
+    
+    for (let i = 0; i < tblBody.length; i ++){
+      let tblRowContent = "|" + tblBody[i].join("|") + "|  \n";
+      this.markdown.push(tblRowContent);
+    }
+    this.markdown.push("  \n");
+  }
 }
