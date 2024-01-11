@@ -141,7 +141,7 @@ export class BasicInfoComponent{
   formReady = of(this.basicInfoForm);
 
   constructor(private fb: FormBuilder) {
-    console.log("basic-info component");
+    
   }
 
   ngOnInit(): void {

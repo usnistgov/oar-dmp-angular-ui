@@ -19,4 +19,11 @@ export class SubmitDmpService {
   setButtonMessage(message:any){
     this.buttonMessage = message
   }
+
+  exportFormat:any
+  exportFormatSubject$ = new Subject<string>();
+
+  setexportFormat(message:any){
+    this.exportFormat = message
+  }
 }

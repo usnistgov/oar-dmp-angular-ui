@@ -11,6 +11,7 @@ import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
 import { FilterPipe } from './filter.pipe';
+import { DropDownSelectService } from '../shared/drop-down-select.service';
 
 interface Messages {
   [key: string]: any;
@@ -38,9 +39,10 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     private sharedService:ResourcesService, 
     private dom:DomPositioningModule,
     private nistResources: LoadResourcesService,
-    private form_buttons: SubmitDmpService
+    private form_buttons: SubmitDmpService,
+    private dropDownService: DropDownSelectService,
     ) { 
-    console.log("resoruce-optionscomponent");
+
   }
 
   // message : any
@@ -58,6 +60,18 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
 
   availableResources: any = {};
 
+  exportType: string = "";
+  exportFormats = [
+    {
+      id: "1",
+      format: 'PDF'
+    },
+    {
+      id: "2",
+      format: 'MD'
+    }
+  ];
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
     this.storageSubscribe()
@@ -65,12 +79,20 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     this.databaseSubscribe()
     this.websiteSubscribe()
     this.availableResources = this.nistResources.getAllResources();
-    console.log(this.availableResources);
+    // console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
-    console.log("resoruce-options after view init");
+    // console.log("resoruce-options after view init");
     // this.dom.setDomElementTop("resources-grid-container", "dmp_hdr")
     // this.dom.horizontalDomAdjust("resource_options", "dmp_hdr")
+  }
+
+  setExportFormat(){
+
+    let dataFormat = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0].format;
+    this.form_buttons.setexportFormat(dataFormat);
+    this.form_buttons.exportFormatSubject$.next(dataFormat)
+    console.log(dataFormat);
   }
 
   dmpButtonClick(e:any){

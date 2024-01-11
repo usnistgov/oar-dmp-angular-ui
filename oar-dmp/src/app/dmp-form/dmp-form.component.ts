@@ -53,6 +53,7 @@ interface DMPForm {
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import autoTable from 'jspdf-autotable'
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-dmp-form',
@@ -63,6 +64,9 @@ import autoTable from 'jspdf-autotable'
 export class DmpFormComponent implements OnInit {
   formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
+
+  dmpExportFormatSubscription!: Subscription | null;
+  dmpExportFormatType: string = "";
   // get access to methods in DataDescriptionComponent child.
 
   // this is for the purpose of reseting checkboxes.
@@ -118,8 +122,9 @@ export class DmpFormComponent implements OnInit {
   id:string | null = null;
 
   ngOnInit(): void {
-    console.log("dmp-form component OnInit");
+    
     this.formButtonSubscribe();
+    this.formExportFormatSubscribe();
     this.id = this.route.snapshot.paramMap.get('id')
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
@@ -176,17 +181,39 @@ export class DmpFormComponent implements OnInit {
           else if (this.formButtonMessage === "Save Draft"){
             this.saveDraft();
           }
-          else if (this.formButtonMessage === "PDF Export"){
-            // this.generatePdf();
-            this.generatePdfFromClass();
-            // this.screenshotPDF();
+          else if (this.formButtonMessage === "Export As:"){
+            if (this.dmpExportFormatType === "PDF"){
+              this.generatePdfFromClass();
+            }
+            else{
+              this.saveFile();
+            }
           }
-          
         }
       });
     }
 
   }
+
+  formExportFormatSubscribe(){
+    if (!this.dmpExportFormatSubscription) {
+      //subscribe if not already subscribed
+      this.dmpExportFormatSubscription = this.form_buttons.exportFormatSubject$.subscribe({
+        next: (message) => {
+          this.dmpExportFormatType = message;          
+        }
+      });
+    }
+
+  }
+
+  saveFile() {
+    const blob = 
+        new Blob([
+                 "Please Save Me!"], 
+                 {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "save-me.txt");
+}
 
   
 

@@ -26,8 +26,14 @@
           Save Draft
         </button>
         <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-          PDF Export
+          Export As:
         </button>
+        
+        <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
+          <option [value]="item.id" *ngFor="let item of exportFormats">
+              {{item.format}}
+          </option>
+        </select>
       </div>
     </div>
     
