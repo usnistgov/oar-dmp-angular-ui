@@ -187,14 +187,8 @@ export class DmpFormComponent implements OnInit {
             if (this.dmpExportFormatType === ""){
               alert("Please select DMP export type from the drop down menu.");
             }
-            else if (this.dmpExportFormatType === "PDF"){
-              this.generatePdfFromClass();
-            }
-            else if (this.dmpExportFormatType === "Markdown"){
-              this.exportAsMarkdown();
-            }
-            else{
-              alert("Please select DMP export type from the drop down menu.");
+            else {
+              this.exportDMP(this.dmpExportFormatType);
             }
           }
         }
@@ -403,7 +397,7 @@ export class DmpFormComponent implements OnInit {
 
   }
 
-  generatePdfFromClass() {
+  exportDMP(dmpFormat:string) {
     // Create A4 size PDF document 
     // A4 measures 8.27 x 11.69 inches    
     const pdf = new jsPDF('p', 'in', 'a4');
@@ -414,37 +408,67 @@ export class DmpFormComponent implements OnInit {
     let verticalOffset = 0.5;
     let lineFontSize = 35;
     this.DMP_PDF = new DmpPdf(pdf, margin);
-    this.DMP_PDF.printHeader("Data Management Plan", 0.1, "#707b7c");
-    this.DMP_PDF.printHeader("Basic Information", 0.05, "#d5d8dc", 20);
+    this.markdown = [];
+
+    if (dmpFormat === "PDF"){      
+      this.DMP_PDF.printHeader("Data Management Plan", 0.1, "#707b7c");
+      this.DMP_PDF.printHeader("Basic Information", 0.05, "#d5d8dc", 20);
+    }
+    else if (dmpFormat === "Markdown"){
+      this.markdown.push("# Data Management Plan  \n");
+      this.markdown.push("---  \n");
+
+      this.markdown.push("## Basic Information  \n");
+      this.markdown.push("---  \n");
+    }
+    
 
     // Title
     if (this.dmp?.title !== undefined && this.dmp?.title !== null){
-      this.DMP_PDF.printTextField("Title", this.dmp?.title);
+      if (dmpFormat === "PDF") 
+        this.DMP_PDF.printTextField("Title", this.dmp?.title);
+      if (dmpFormat === "Markdown") 
+        this.markdown.push("**Basic Information:** " + this.dmp?.title + "  \n");
     }
 
     // Start Date
     if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
-      this.DMP_PDF.printTextField("Start Date", this.dmp?.startDate);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Start Date", this.dmp?.startDate);
+      if (dmpFormat === "Markdown") 
+        this.markdown.push("**Start Date:** " + this.dmp?.startDate + "  \n");
     }
 
     // End Date
     if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
-      this.DMP_PDF.printTextField("End Date", this.dmp?.endDate);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("End Date", this.dmp?.endDate);
+      if (dmpFormat === "Markdown") 
+        this.markdown.push("**End Date:** " + this.dmp?.endDate + "  \n");
     }
 
     // Make DMP searchable
     if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
-      this.DMP_PDF.printTextField("Make DMP Searchable", this.dmp?.dmpSearchable);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Make DMP Searchable", this.dmp?.dmpSearchable);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Make DMP Searchable:** " + this.dmp?.dmpSearchable + "  \n");
     }
 
     //Funding
     if (this.dmp?.funding !== undefined){
-      this.DMP_PDF.printTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
     }
 
     // Project Description
     if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
-      this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
     }
 
     //Organization(s) Associated With This DMP
@@ -454,20 +478,32 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.organizations.length; i++){
         tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
       }
-      this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
+
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
     }
 
     // ========================== Researchers ============================
 
-    this.DMP_PDF.printHeader("Researchers", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Researchers", 0.05, "#d5d8dc", 20);
+    
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("## Researchers  \n");
+      this.markdown.push("---  \n");
+    }
 
     // Primary NIST Contact
     if (this.dmp?.primary_NIST_contact !== undefined){
       let tblHeaders = ["Name", "Surname", "ORCID"];
       let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
     
-      this.DMP_PDF.printTable("Primary NIST Contact", tblHeaders, tblData);
-
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Primary NIST Contact", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
     }
 
     // Contributors
@@ -486,13 +522,17 @@ export class DmpFormComponent implements OnInit {
         tblData.push(currRow);
       }
       
-      this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Contributors", tblHeaders, tblData);
 
     }    
 
     // ========================== Keywords / Phrases ============================
 
-    this.DMP_PDF.printHeader("Keywords / Phrases", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Keywords / Phrases", 0.05, "#d5d8dc", 20);
 
     //Keywords / Phrases
     if(this.dmp?.keyWords !== undefined){
@@ -501,35 +541,43 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.keyWords.length; i++){
         tblData.push([this.dmp.keyWords[i]])
       }
-      this.DMP_PDF.printTable("", tblHeaders, tblData);
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
 
     // =========================== Technical Requirements =========================
 
-    this.DMP_PDF.printHeader("Technical Requirements", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Technical Requirements", 0.05, "#d5d8dc", 20);
 
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
-      this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
     }
 
     //Software Development
     if(this.dmp?.softwareDevelopment !== undefined && this.dmp?.softwareDevelopment !== null){
-      this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
 
       //Software developed for this project will be for
       if(this.dmp?.softwareDevelopment.softwareUse !== ""){
-        this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
       }
 
       //Does the software development require a database?
       if(this.dmp?.softwareDevelopment.softwareDatabase !== ""){
-        this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
       }
 
       //Will the software development produce a website interface?
       if(this.dmp?.softwareDevelopment.softwareWebsite !== ""){
-        this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
       }
     }
 
@@ -540,45 +588,54 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.technicalResources.length; i++){
         tblData.push([this.dmp.technicalResources[i]])
       }
-      this.DMP_PDF.printTable("", tblHeaders, tblData);
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
 
     // ========================================= Ethical Issues ===========================
 
-    this.DMP_PDF.printHeader("Ethical Issues", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Ethical Issues", 0.05, "#d5d8dc", 20);
 
     if(this.dmp?.ethical_issues !== undefined){
       //Are there any ethical issues related to the data that this DMP describes?
       if(this.dmp?.ethical_issues.ethical_issues_exist !== ""){
-        this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
                                     this.dmp?.ethical_issues.ethical_issues_exist);
       }
 
       //Describe any ethical issues raised in this project (human subjects etc)
       if(this.dmp?.ethical_issues.ethical_issues_description !== ""){
-        this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
                                     this.dmp?.ethical_issues.ethical_issues_description);
       }
 
       //Ethical issues report
       if(this.dmp?.ethical_issues.ethical_issues_report !== ""){
-        this.DMP_PDF.printTextField("Ethical issues report", 
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Ethical issues report", 
                                     this.dmp?.ethical_issues.ethical_issues_report);
       }
 
       // Does the data generated in this project contain PII or BII?
       if(this.dmp?.ethical_issues.dmp_PII !== ""){
-        this.DMP_PDF.printTextField("Does the data generated in this project contain PII or BII?", 
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTextField("Does the data generated in this project contain PII or BII?", 
                                     this.dmp?.ethical_issues.dmp_PII);
       }
     }
 
     // ========================================= Data Description ===========================
 
-    this.DMP_PDF.printHeader("Data Description", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Data Description", 0.05, "#d5d8dc", 20);
 
     if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
-      this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
     }
 
     // Select categories of the data that will be generated
@@ -588,12 +645,14 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.dataCategories.length; i++){
         tblData.push([this.dmp.dataCategories[i]])
       }
-      this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
 
     // ======================== Data Preservation and Accessibility ==========================
 
-    this.DMP_PDF.printHeader("Data Preservation and Accessibility", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.printHeader("Data Preservation and Accessibility", 0.05, "#d5d8dc", 20);
 
     // file path(s) / URL(s) for where data will be saved
 
@@ -603,114 +662,30 @@ export class DmpFormComponent implements OnInit {
       for ( let i=0; i < this.dmp.pathsURLs.length; i++){
         tblData.push([this.dmp.pathsURLs[i]])
       }
-      this.DMP_PDF.printTable("", tblHeaders, tblData);
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
     }
 
     // Preservation Description
     if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
-      this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
     }
 
     // Describe your plans for making the data discoverable (findable) and accessible
     if (this.dmp?.dataAccess !== undefined && this.dmp?.dataAccess !== null){
-      this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
-    }
-
-
-
-    
-    
-    this.DMP_PDF.exportAsPDF();
-  }
-  
-  exportAsMarkdown() {
-    this.markdown = [];
-
-    this.markdown.push("# Data Management Plan  \n");
-    this.markdown.push("---  \n");
-
-    this.markdown.push("## Basic Information  \n");
-    this.markdown.push("---  \n");
-
-    // Title
-    if (this.dmp?.title !== undefined && this.dmp?.title !== null){
-      this.markdown.push("**Basic Information:** " + this.dmp?.title + "  \n");
-    }
-
-    // Start Date
-    if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
-      this.markdown.push("**Start Date:** " + this.dmp?.startDate + "  \n");
-    }
-
-    // End Date
-    if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
-      this.markdown.push("**End Date:** " + this.dmp?.endDate + "  \n");
-    }
-
-    // Make DMP searchable
-    if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
-      this.markdown.push("**Make DMP Searchable:** " + this.dmp?.dmpSearchable + "  \n");
-    }
-
-    //Funding
-    if (this.dmp?.funding !== undefined){      
-      this.markdownTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
-    }
-
-    // Project Description
-    if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
-      this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
-    }
-
-    //Organization(s) Associated With This DMP
-    if(this.dmp?.organizations !== undefined){
-      let tblHeaders = ["Org ID", "Organization(s)"];
-      let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.organizations.length; i++){
-        tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
-      }
-      
-      this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-    }
-
-    // ========================== Researchers ============================
-
-    this.markdown.push("## Researchers  \n");
-    this.markdown.push("---  \n");
-
-    // Primary NIST Contact
-    if (this.dmp?.primary_NIST_contact !== undefined){
-      let tblHeaders = ["Name", "Surname", "ORCID"];
-      let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
-      this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
-
-    }
-
-    // Contributors
-    if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID"];
-      let tblData:Array<Array<string>>=[];
-
-      for ( let i=0; i < this.dmp.contributors.length; i++){
-        let currRow: Array<string> = [];
-        currRow.push(this.dmp.contributors[i].contributor.firstName);
-        currRow.push(this.dmp.contributors[i].contributor.lastName);
-        currRow.push(this.dmp.contributors[i].institution);
-        currRow.push(this.dmp.contributors[i].role);
-        currRow.push(this.dmp.contributors[i].e_mail);
-        currRow.push(this.dmp.contributors[i].contributor.orcid);
-        tblData.push(currRow);
-      }
-      
-      this.markdownTable("Contributors", tblHeaders, tblData);
-
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
     }    
-
-
-
-    const blob = new Blob(this.markdown, {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "DMP.md");
-  }
+    
+    if (dmpFormat === "PDF")
+      this.DMP_PDF.exportAsPDF();
+    else if (dmpFormat === "Markdown"){
+      const blob = new Blob(this.markdown, {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "DMP.md");
+    }
+  }  
 
   private markdownTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>,){
     this.markdown.push("  \n");
