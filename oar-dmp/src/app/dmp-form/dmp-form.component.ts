@@ -416,8 +416,8 @@ export class DmpFormComponent implements OnInit {
     }
     else if (dmpFormat === "Markdown"){
       this.markdown.push("# Data Management Plan  \n");
-      this.markdown.push("---  \n");
-
+      
+      this.markdown.push("---  \n");      
       this.markdown.push("## Basic Information  \n");
       this.markdown.push("---  \n");
     }
@@ -491,6 +491,7 @@ export class DmpFormComponent implements OnInit {
       this.DMP_PDF.printHeader("Researchers", 0.05, "#d5d8dc", 20);
     
     if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
       this.markdown.push("## Researchers  \n");
       this.markdown.push("---  \n");
     }
@@ -534,6 +535,12 @@ export class DmpFormComponent implements OnInit {
     if (dmpFormat === "PDF")
       this.DMP_PDF.printHeader("Keywords / Phrases", 0.05, "#d5d8dc", 20);
 
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
+      this.markdown.push("## Keywords / Phrases  \n");
+      this.markdown.push("---  \n");
+    }
+
     //Keywords / Phrases
     if(this.dmp?.keyWords !== undefined){
       let tblHeaders = ["Keywords / Phrases"];
@@ -544,40 +551,57 @@ export class DmpFormComponent implements OnInit {
       
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
     }
 
     // =========================== Technical Requirements =========================
 
     if (dmpFormat === "PDF")
       this.DMP_PDF.printHeader("Technical Requirements", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
+      this.markdown.push("## Technical Requirements  \n");
+      this.markdown.push("---  \n");
+    }
 
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + "  \n");
     }
 
     //Software Development
     if(this.dmp?.softwareDevelopment !== undefined && this.dmp?.softwareDevelopment !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Software Development:** " + this.dmp?.softwareDevelopment.development + "  \n");
 
       //Software developed for this project will be for
       if(this.dmp?.softwareDevelopment.softwareUse !== ""){
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Software developed for this project will be for:** " + this.dmp?.softwareDevelopment.softwareUse + "  \n");
       }
 
       //Does the software development require a database?
       if(this.dmp?.softwareDevelopment.softwareDatabase !== ""){
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Does the software development require a database?:** " + this.dmp?.softwareDevelopment.softwareDatabase + "  \n");
       }
 
       //Will the software development produce a website interface?
       if(this.dmp?.softwareDevelopment.softwareWebsite !== ""){
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Will the software development produce a website interface?:** " + this.dmp?.softwareDevelopment.softwareWebsite + "  \n");
       }
     }
 
@@ -591,12 +615,19 @@ export class DmpFormComponent implements OnInit {
       
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
     }
 
     // ========================================= Ethical Issues ===========================
 
     if (dmpFormat === "PDF")
       this.DMP_PDF.printHeader("Ethical Issues", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
+      this.markdown.push("## Ethical Issues  \n");
+      this.markdown.push("---  \n");
+    }
 
     if(this.dmp?.ethical_issues !== undefined){
       //Are there any ethical issues related to the data that this DMP describes?
@@ -604,6 +635,8 @@ export class DmpFormComponent implements OnInit {
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
                                     this.dmp?.ethical_issues.ethical_issues_exist);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Are there any ethical issues related to the data that this DMP describes?:** " + this.dmp?.ethical_issues.ethical_issues_exist + "  \n");
       }
 
       //Describe any ethical issues raised in this project (human subjects etc)
@@ -611,6 +644,9 @@ export class DmpFormComponent implements OnInit {
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
                                     this.dmp?.ethical_issues.ethical_issues_description);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Describe any ethical issues raised in this project (human subjects etc):** " + this.dmp?.ethical_issues.ethical_issues_description + "  \n");
+                          
       }
 
       //Ethical issues report
@@ -618,6 +654,9 @@ export class DmpFormComponent implements OnInit {
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Ethical issues report", 
                                     this.dmp?.ethical_issues.ethical_issues_report);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Ethical issues report:** " + this.dmp?.ethical_issues.ethical_issues_report + "  \n");
+          
       }
 
       // Does the data generated in this project contain PII or BII?
@@ -625,6 +664,8 @@ export class DmpFormComponent implements OnInit {
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Does the data generated in this project contain PII or BII?", 
                                     this.dmp?.ethical_issues.dmp_PII);
+        if (dmpFormat === "Markdown")
+          this.markdown.push("**Does the data generated in this project contain PII or BII?:** " + this.dmp?.ethical_issues.dmp_PII + "  \n");
       }
     }
 
@@ -632,10 +673,18 @@ export class DmpFormComponent implements OnInit {
 
     if (dmpFormat === "PDF")
       this.DMP_PDF.printHeader("Data Description", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
+      this.markdown.push("## Data Description  \n");
+      this.markdown.push("---  \n");
+    }
 
     if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
+      if (dmpFormat === "Markdown")
+        this.markdown.push(this.dmp?.dataDescription + "  \n");
+   
     }
 
     // Select categories of the data that will be generated
@@ -647,12 +696,19 @@ export class DmpFormComponent implements OnInit {
       }
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
     }
 
     // ======================== Data Preservation and Accessibility ==========================
 
     if (dmpFormat === "PDF")
       this.DMP_PDF.printHeader("Data Preservation and Accessibility", 0.05, "#d5d8dc", 20);
+    if (dmpFormat === "Markdown"){
+      this.markdown.push("---  \n");
+      this.markdown.push("## Data Preservation and Accessibility  \n");
+      this.markdown.push("---  \n");
+    }
 
     // file path(s) / URL(s) for where data will be saved
 
@@ -665,19 +721,27 @@ export class DmpFormComponent implements OnInit {
       
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
     }
 
     // Preservation Description
     if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Preservation Description**:" + this.dmp?.preservationDescription + "  \n");
     }
 
     // Describe your plans for making the data discoverable (findable) and accessible
     if (this.dmp?.dataAccess !== undefined && this.dmp?.dataAccess !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
+      if (dmpFormat === "Markdown")
+        this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.dmp?.dataAccess + "  \n");
     }    
+
+    // ================================ Export DMP ================================
     
     if (dmpFormat === "PDF")
       this.DMP_PDF.exportAsPDF();
@@ -688,8 +752,11 @@ export class DmpFormComponent implements OnInit {
   }  
 
   private markdownTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>,){
-    this.markdown.push("  \n");
-    this.markdown.push("**" + fieldName +":**  \n");
+    if (fieldName !== ""){
+      this.markdown.push("  \n");
+      this.markdown.push("**" + fieldName +":**  \n");
+      
+    }
     this.markdown.push("  \n");
 
     let headerText = "|" + tblHead.join("|") + "|  \n";
