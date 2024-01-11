@@ -675,6 +675,38 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Researchers ============================
 
+    this.markdown.push("## Researchers  \n");
+    this.markdown.push("---  \n");
+
+    // Primary NIST Contact
+    if (this.dmp?.primary_NIST_contact !== undefined){
+      let tblHeaders = ["Name", "Surname", "ORCID"];
+      let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
+      this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
+
+    }
+
+    // Contributors
+    if (this.dmp?.contributors !== undefined){
+      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID"];
+      let tblData:Array<Array<string>>=[];
+
+      for ( let i=0; i < this.dmp.contributors.length; i++){
+        let currRow: Array<string> = [];
+        currRow.push(this.dmp.contributors[i].contributor.firstName);
+        currRow.push(this.dmp.contributors[i].contributor.lastName);
+        currRow.push(this.dmp.contributors[i].institution);
+        currRow.push(this.dmp.contributors[i].role);
+        currRow.push(this.dmp.contributors[i].e_mail);
+        currRow.push(this.dmp.contributors[i].contributor.orcid);
+        tblData.push(currRow);
+      }
+      
+      this.markdownTable("Contributors", tblHeaders, tblData);
+
+    }    
+
+
 
     const blob = new Blob(this.markdown, {type: "text/plain;charset=utf-8"});
     saveAs(blob, "DMP.md");
