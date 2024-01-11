@@ -68,7 +68,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     },
     {
       id: "2",
-      format: 'MD'
+      format: 'Markdown'
     }
   ];
 
@@ -88,11 +88,9 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   }
 
   setExportFormat(){
-
     let dataFormat = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0].format;
     this.form_buttons.setexportFormat(dataFormat);
     this.form_buttons.exportFormatSubject$.next(dataFormat)
-    console.log(dataFormat);
   }
 
   dmpButtonClick(e:any){

@@ -182,11 +182,17 @@ export class DmpFormComponent implements OnInit {
             this.saveDraft();
           }
           else if (this.formButtonMessage === "Export As:"){
-            if (this.dmpExportFormatType === "PDF"){
+            if (this.dmpExportFormatType === ""){
+              alert("Please select DMP export type from the drop down menu.");
+            }
+            else if (this.dmpExportFormatType === "PDF"){
               this.generatePdfFromClass();
             }
-            else{
+            else if (this.dmpExportFormatType === "Markdown"){
               this.saveFile();
+            }
+            else{
+              alert("Please select DMP export type from the drop down menu.");
             }
           }
         }
