@@ -68,8 +68,7 @@ export class BasicInfoComponent{
           endDate: formValue.endDate,
           dmpSearchable: formValue.dmpSearchable,
           funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
-          projectDescription:formValue.projectDescription,
-          organizations:formValue.organizations
+          projectDescription:formValue.projectDescription
         })
       )
     )

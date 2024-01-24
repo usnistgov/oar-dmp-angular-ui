@@ -627,7 +627,7 @@ export class PersonelComponent implements OnInit {
     const isORCID = this.isORCID(this.crntContribOrcid);
       
     if (!isORCID && this.crntContribOrcid.length>0){
-      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+      this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
       return;
     }
 
@@ -744,7 +744,7 @@ export class PersonelComponent implements OnInit {
       return;
     }
     else if (!this.isORCID(e.orcid) && e.surname.length > 0){
-      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+      this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end.";
       return;
     }
 

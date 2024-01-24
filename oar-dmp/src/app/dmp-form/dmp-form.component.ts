@@ -274,7 +274,7 @@ export class DmpFormComponent implements OnInit {
       throw new Error("Record name is empty");
     }
     if (!this.personnelForm.isValidPrimaryContactOrcid()){
-      alert("Cannot save DMP. Ivalid ORCID format for the prmary NIST contact. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx")
+      alert("Cannot save DMP. Ivalid ORCID format for the prmary NIST contact. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end")
       throw new Error("Invalid ORCID for prmary NIST contact.");
     }
     if (this.id !==null){
