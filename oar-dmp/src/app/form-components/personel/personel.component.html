@@ -173,6 +173,7 @@
       
       
       <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+      <p *ngIf="orcidWarning" class="warning-msg">{{ orcidWarning }}</p>
 
       <table mat-table [dataSource]="dmpContributors" class="mat-elevation-z8 contribTbl">
   
@@ -293,7 +294,7 @@
     </article>
 
       
-    <p *ngIf="errorMessage" class="error-msg">{{ org_errorMessage }}</p>
+    <p *ngIf="org_errorMessage" class="error-msg">{{ org_errorMessage }}</p>
     
   
     <table mat-table [dataSource]="dmpOrganizations" class="mat-elevation-z8 form-table" id="dmpOrganizations">

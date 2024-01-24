@@ -166,7 +166,9 @@ export class PersonelComponent implements OnInit {
     e_mail:"",
     institution:""
   };
-  
+
+  orcidWarning: string = "";
+  errorMessage: string = "";
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -521,13 +523,15 @@ export class PersonelComponent implements OnInit {
     this.disableAdd=true;
     this.resetContributorFields();
   }
-
-  errorMessage: string = "";
   
   removeSelectedRows() {
     this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.dmpContributors.forEach((element)=>{
+    this.orcidWarning = "";
+    this.dmpContributors.forEach((element)=>{        
+        if (element.orcid.length == 0){
+          this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
+        }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname},
@@ -630,6 +634,9 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
       return;
     }
+    else if(this.crntContribOrcid.length == 0){
+      this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
+    }
 
     var filterOnEmail = this.dmpContributors.filter(      
       (member: any) => member.e_mail.toLowerCase() === this.crntContribEmail.toLowerCase()
@@ -679,7 +686,7 @@ export class PersonelComponent implements OnInit {
     this.dmpContributors = [newRow, ...this.dmpContributors];
 
     //update changes made to the table in the personel form
-    this.onDoneClick(newRow);
+    // this.onDoneClick(newRow);
 
     this.resetContributorFields();
 
@@ -719,6 +726,7 @@ export class PersonelComponent implements OnInit {
   }
 
   onDoneClick(e:any){
+    this.orcidWarning = "";
     if (!e.e_mail.length) {
       /**
        * NOTE:
@@ -743,20 +751,24 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Surname can't be empty";
       return;
     }
-    else if (!this.isORCID(e.orcid) && e.surname.length > 0){
+    else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
       this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end.";
       return;
-    }
+    }    
 
     this.errorMessage = '';
-    this.org_resetTable();
+    this.resetTable();
+    this.orcidWarning = "";
     this.dmpContributors.forEach((element)=>{
         if(element.id === e.id){
           element.isEdit = false;
+        }        
+        if (element.orcid.length == 0){
+          this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
-          contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
+                    contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
           e_mail: element.e_mail,
           institution: element.institution,
           role: element.role
