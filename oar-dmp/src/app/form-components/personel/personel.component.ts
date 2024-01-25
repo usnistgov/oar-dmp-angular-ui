@@ -167,9 +167,14 @@ export class PersonelComponent implements OnInit {
     institution:""
   };
 
-  orcidWarning: string = "";
-  errorMessage: string = "";
+  
+  pncOrcidWarn: string = ""; // primary NIST contact warning message
+  pncErrorMessage: string =""; //primary NIST contact error messag
 
+  contribOrcidWarn: string = ""; //contributor orcid warning message
+  errorMessage: string = ""; // contributor error message
+  static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
+  static NIST_ORCID_WARNING = "Warning: Missing primary NIST contact's ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
   static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
 
   constructor(
@@ -217,11 +222,11 @@ export class PersonelComponent implements OnInit {
     );
     // loop over resources array sent from the server and populate local copy of 
     // resources array to populate the table of resources in the user interface
-    this.orcidWarning = '';
+    this.contribOrcidWarn = '';
     personel.contributors.forEach(
       (aContributor, index) => {
         if (aContributor.contributor.orcid.length === 0){
-          this.orcidWarning = PersonelComponent.ORCID_WARNING;
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
         }
         this.dmpContributors.push({
           id:           index, 
@@ -247,8 +252,14 @@ export class PersonelComponent implements OnInit {
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       primNistContactOrcid:       personel.primary_NIST_contact.orcid,
-      contributors:               personel.contributors
+      contributors:               personel.contributors,
+      organizations:              personel.organizations
     });
+
+    this.pncOrcidWarn = '';
+    if(personel.primary_NIST_contact.orcid.length === 0){
+      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
+    }
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
@@ -277,7 +288,7 @@ export class PersonelComponent implements OnInit {
                                       orcid:formValue.primNistContactOrcid
                                     },
             contributors:           formValue.contributors,
-            organizations:formValue.organizations
+            organizations:          formValue.organizations
 
           }
         )
@@ -304,6 +315,22 @@ export class PersonelComponent implements OnInit {
 
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
+
+  pncOrcidChange(){
+    // set/reset NIST primary contact ORCID warning and error messages message if ORCID data is entered/changed
+    this.pncOrcidWarn = "";
+    this.pncErrorMessage = "";
+    let orcid = this.personelForm.value['primNistContactOrcid'];
+    if (orcid.length > 0){
+      if(!this.isValidPrimaryContactOrcid()){
+        this.pncErrorMessage = PersonelComponent.ORCID_ERROR;
+      }
+    }
+    else {
+      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
+    }
+
+  }
 
   /**
    * This function gets hard coded NIST contasts
@@ -533,10 +560,10 @@ export class PersonelComponent implements OnInit {
   removeSelectedRows() {
     this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.orcidWarning = "";
+    this.contribOrcidWarn = "";
     this.dmpContributors.forEach((element)=>{        
         if (element.orcid.length == 0){
-          this.orcidWarning = PersonelComponent.ORCID_WARNING;
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
@@ -637,11 +664,11 @@ export class PersonelComponent implements OnInit {
     const isORCID = this.isORCID(this.crntContribOrcid);
       
     if (!isORCID && this.crntContribOrcid.length>0){
-      this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
       return;
     }
     else if(this.crntContribOrcid.length == 0){
-      this.orcidWarning = PersonelComponent.ORCID_WARNING;
+      this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
@@ -692,7 +719,7 @@ export class PersonelComponent implements OnInit {
     this.dmpContributors = [newRow, ...this.dmpContributors];
 
     //update changes made to the table in the personel form
-    // this.onDoneClick(newRow);
+    this.onDoneClick(newRow);
 
     this.resetContributorFields();
 
@@ -732,7 +759,7 @@ export class PersonelComponent implements OnInit {
   }
 
   onDoneClick(e:any){
-    this.orcidWarning = "";
+    this.contribOrcidWarn = "";
     if (!e.e_mail.length) {
       /**
        * NOTE:
@@ -758,19 +785,19 @@ export class PersonelComponent implements OnInit {
       return;
     }
     else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
-      this.errorMessage = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end.";
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
       return;
     }    
 
     this.errorMessage = '';
     this.resetTable();
-    this.orcidWarning = "";
+    this.contribOrcidWarn = "";
     this.dmpContributors.forEach((element)=>{
         if(element.id === e.id){
           element.isEdit = false;
         }        
         if (element.orcid.length == 0){
-          this.orcidWarning = PersonelComponent.ORCID_WARNING;
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({

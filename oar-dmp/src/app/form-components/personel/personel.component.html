@@ -28,9 +28,12 @@
 
       </td>
       <td class="cell-top">NIST Contact ORCID</td>
-      <td class="cell-top"><input type="text" [formControl]="personelForm.controls['primNistContactOrcid']"></td>
+      <td class="cell-top"><input type="text" [formControl]="personelForm.controls['primNistContactOrcid']" (change)="pncOrcidChange()"></td>
     </tr>
   </table>
+  
+  <p *ngIf="pncErrorMessage" class="error-msg">{{ pncErrorMessage }}</p>
+  <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>
 
   <div class="sub-category">Contributors</div>
   
@@ -157,6 +160,9 @@
   </table>
 
   <div class="dmpSubSection">
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    <p *ngIf="contribOrcidWarn" class="warning-msg">{{ contribOrcidWarn }}</p>
+
     <article class="table-header">
     
       <!-- 
@@ -169,12 +175,6 @@
     </article>
     
       
-
-      
-      
-      <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-      <p *ngIf="orcidWarning" class="warning-msg">{{ orcidWarning }}</p>
-
       <table mat-table [dataSource]="dmpContributors" class="mat-elevation-z8 contribTbl">
   
         <!-- 

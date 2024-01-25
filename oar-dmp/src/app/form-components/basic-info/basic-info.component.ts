@@ -43,8 +43,7 @@ export class BasicInfoComponent{
       dmpSearchable: basic_info.dmpSearchable,
       grant_source: basic_info.funding.grant_source,
       grant_id: basic_info.funding.grant_id,
-      projectDescription: basic_info.projectDescription,
-      organizations:basic_info.organizations
+      projectDescription: basic_info.projectDescription
     });
   }
 
