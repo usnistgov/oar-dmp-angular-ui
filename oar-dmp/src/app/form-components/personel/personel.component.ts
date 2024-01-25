@@ -600,17 +600,80 @@ export class PersonelComponent implements OnInit {
 
   }
 
+  onDoneClick(e:any){
+    this.contribOrcidWarn = "";
+    if (!e.e_mail.length) {
+      /**
+       * NOTE:
+       * e-mail validation should go here too
+       */
+      this.errorMessage = "e-mail can't be empty";
+      return;
+    }
+    else if(!e.institution.length) {
+      this.errorMessage = "Institution can't be empty";
+      return;
+    }
+    else if(!e.name.length) {
+      this.errorMessage = "Name can't be empty";
+      return;
+    }
+    else if(!e.role.length) {
+      this.errorMessage = "Role can't be empty";
+      return;
+    }
+    else if(!e.surname.length) {
+      this.errorMessage = "Surname can't be empty";
+      return;
+    }
+    else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
+      return;
+    }    
+
+    this.errorMessage = '';
+    this.resetTable();
+    this.contribOrcidWarn = "";
+    this.dmpContributors.forEach((element)=>{
+        if(element.id === e.id){
+          element.isEdit = false;
+        }        
+        if (element.orcid.length == 0){
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
+        // re populate contributors array
+        this.personelForm.value['contributors'].push({
+                    contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
+          e_mail: element.e_mail,
+          institution: element.institution,
+          role: element.role
+        });
+      }
+    )
+
+    this.disableClear=false;
+    this.disableRemove=false;
+
+  }
+
   addRow(){
 
     const regex = /[A-Z]/i;
-    
+    /*
+    * TODO:
+    Rethink when to check input. Currently this function and onDoneClick both perform
+    input validation. This one does immedeate input validation before adding row to the 
+    GUI table while onDoneClick performs validation of data that is sent to the MongoDB
+    */
 
     if (this.contributorRadioSel === "contributorExternal"){
-      
+      // TODO: regex checks only that the first value is a letter.
+      // More comprehensive input validation is necessary
+
       /**
        * Check first name
        */
-      if (this.externalContributor.contributor.firstName.match(regex)){
+      if (this.externalContributor.contributor.firstName.match(regex)){        
         this.crntContribName = this.externalContributor.contributor.firstName;
       }
       else{
@@ -756,62 +819,6 @@ export class PersonelComponent implements OnInit {
 
     // remove from the display table
     this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
-  }
-
-  onDoneClick(e:any){
-    this.contribOrcidWarn = "";
-    if (!e.e_mail.length) {
-      /**
-       * NOTE:
-       * e-mail validation should go here too
-       */
-      this.errorMessage = "e-mail can't be empty";
-      return;
-    }
-    else if(!e.institution.length) {
-      this.errorMessage = "Institution can't be empty";
-      return;
-    }
-    else if(!e.name.length) {
-      this.errorMessage = "Name can't be empty";
-      return;
-    }
-    else if(!e.role.length) {
-      this.errorMessage = "Role can't be empty";
-      return;
-    }
-    else if(!e.surname.length) {
-      this.errorMessage = "Surname can't be empty";
-      return;
-    }
-    else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
-      this.errorMessage = PersonelComponent.ORCID_ERROR;
-      return;
-    }    
-
-    this.errorMessage = '';
-    this.resetTable();
-    this.contribOrcidWarn = "";
-    this.dmpContributors.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }        
-        if (element.orcid.length == 0){
-          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-        }
-        // re populate contributors array
-        this.personelForm.value['contributors'].push({
-                    contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
-          e_mail: element.e_mail,
-          institution: element.institution,
-          role: element.role
-        });
-      }
-    )
-
-    this.disableClear=false;
-    this.disableRemove=false;
-
   }
 
   selExtContributorRole(){
