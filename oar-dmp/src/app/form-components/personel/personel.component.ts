@@ -170,6 +170,8 @@ export class PersonelComponent implements OnInit {
   orcidWarning: string = "";
   errorMessage: string = "";
 
+  static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
+
   constructor(
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
@@ -215,8 +217,12 @@ export class PersonelComponent implements OnInit {
     );
     // loop over resources array sent from the server and populate local copy of 
     // resources array to populate the table of resources in the user interface
+    this.orcidWarning = '';
     personel.contributors.forEach(
       (aContributor, index) => {
+        if (aContributor.contributor.orcid.length === 0){
+          this.orcidWarning = PersonelComponent.ORCID_WARNING;
+        }
         this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
@@ -530,7 +536,7 @@ export class PersonelComponent implements OnInit {
     this.orcidWarning = "";
     this.dmpContributors.forEach((element)=>{        
         if (element.orcid.length == 0){
-          this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
+          this.orcidWarning = PersonelComponent.ORCID_WARNING;
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
@@ -635,7 +641,7 @@ export class PersonelComponent implements OnInit {
       return;
     }
     else if(this.crntContribOrcid.length == 0){
-      this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
+      this.orcidWarning = PersonelComponent.ORCID_WARNING;
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
@@ -764,7 +770,7 @@ export class PersonelComponent implements OnInit {
           element.isEdit = false;
         }        
         if (element.orcid.length == 0){
-          this.orcidWarning = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication."
+          this.orcidWarning = PersonelComponent.ORCID_WARNING;
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
