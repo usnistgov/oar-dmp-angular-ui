@@ -12,9 +12,12 @@ export class AppComponent {
   title = 'dmp_ui2';
   readyDisplay: boolean = false;
   creds: Credentials|null = null;
+  
   authMessage: string = "You are not authenticated.";
+  /*
   loginPNG: string = '/../assets/images/checked-user.png'
   alttext: string="Icon of a user drawing with a check mark to indicated loggedin status"
+  */
   
   constructor(private dom:DomPositioningModule,
               public authService: AuthenticationService)
