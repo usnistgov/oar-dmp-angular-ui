@@ -193,7 +193,7 @@
             <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
               <!-- Switch if the column isSelected to display the checkbox in the table cell -->
               <ng-container *ngSwitchCase="'isSelected'">
-                <mat-checkbox
+                <mat-checkbox class="dmp_chk_bx"
                   (change)="element.isSelected = $event.checked"
                 ></mat-checkbox>
               </ng-container>
