@@ -112,7 +112,16 @@ div{
   }
 }
 .error-msg {
-  color: red;
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  padding: 3px;
+}
+.warning-msg{
+  background-color: #fff3cd;
+  color: #856404;
+  border-color: #ffeeba;
+  padding: 3px;
 }
 div.sticky{
   position: fixed;

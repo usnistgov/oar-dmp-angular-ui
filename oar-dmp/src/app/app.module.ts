@@ -31,7 +31,7 @@ import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-publish
 import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
 // import { ConfigModule } from './config/config.module';
-import { NistResorucesModule } from './config/nist-resources.module';
+import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
 import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 
@@ -78,7 +78,7 @@ import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
     DomPositioningModule,
     AngularResizeEventModule,
     AuthModule,
-    NistResorucesModule
+    NistResourcesModule
   ],
 
   providers: [

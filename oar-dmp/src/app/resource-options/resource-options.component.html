@@ -17,8 +17,26 @@
   
     <!-- <p>{{category | json}}</p> -->
     <div class="span_box">
-      <span class="header_span header_pad">Resources Available At NIST</span>
+      <!-- <span class="header_span header_pad">Resources Available At NIST</span> -->
+      <div class="grid-item">
+        <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
+          Reset
+        </button>
+        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+          Save Draft
+        </button>
+        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+          Export As:
+        </button>
+        
+        <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
+          <option [value]="item.id" *ngFor="let item of exportFormats">
+              {{item.format}}
+          </option>
+        </select>
+      </div>
     </div>
+    
     <div class="grid-item" *ngFor="let category of availableResources">
       <div class="cell">        
         <div>

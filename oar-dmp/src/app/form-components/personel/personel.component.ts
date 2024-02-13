@@ -9,6 +9,8 @@ import { NistContact } from '../../types/nist-contact'
 import { Validators, FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
+import { ORGANIZATIONS } from '../../types/mock-organizations';
+import { NistOrganization } from 'src/app/types/nist-organization';
 
 import {Observable} from 'rxjs';
 
@@ -68,12 +70,60 @@ const COLUMNS_SCHEMA = [
   },
 ]
 
+export interface dmpOgranizations {
+  org_id:number;
+  dmp_organization: string;  
+  id: number;
+  isEdit: boolean;
+}
+
+const ORG_COL_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'org_id',
+    type: 'text',
+    label: 'Org ID',
+  },
+  {
+    key: 'dmp_organization',
+    type: 'text',
+    label: 'Organization(s)',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
+
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
   styleUrls: ['./personel.component.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
+  // ================================
+  // used for organizations table
+  // ================================
+  org_disableAdd:boolean = true;
+  org_disableClear:boolean = true;
+  org_disableRemove:boolean = true;
+  org_errorMessage: string = '';
+  dmpOrganizations: dmpOgranizations[] = []
+  org_displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
+  org_columnsSchema: any = ORG_COL_SCHEMA;
+  fltr_NIST_Org!: Observable<NistOrganization[]>;
+  //List of all nist organizations from NIST directory
+  nistOrganizations: any = null;
+  crntOrgID:number = 0;
+  crntOrgName:string = "";
+  
+  // ================================  
 
   disableAdd:boolean = true;
   disableClear:boolean = true;
@@ -114,9 +164,18 @@ export class PersonelComponent implements OnInit {
     contributor:{firstName:"", lastName:"", orcid:""}, 
     role:"",
     e_mail:"",
-    instituion:""
+    institution:""
   };
+
   
+  pncOrcidWarn: string = ""; // primary NIST contact warning message
+  pncErrorMessage: string =""; //primary NIST contact error messag
+
+  contribOrcidWarn: string = ""; //contributor orcid warning message
+  errorMessage: string = ""; // contributor error message
+  static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
+  static NIST_ORCID_WARNING = "Warning: Missing primary NIST contact's ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
+  static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -138,7 +197,9 @@ export class PersonelComponent implements OnInit {
       dmp_contributor:            [''],
       nistContactFirstName:       [''],
       nistContactLastName:        [''],      
-      contributors:               [[]]
+      contributors:               [[]],
+      nistOrganization: [],
+      organizations: [[]]
     }
   );
 
@@ -149,10 +210,24 @@ export class PersonelComponent implements OnInit {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(personel: DMP_Meta) {
+    // loop over organizations array sent from the server and populate local copy of 
+    // organizations aray in order to populate the table of organizations in the GUI interface
+    personel.organizations.forEach( 
+      (org, index) => {        
+        this.dmpOrganizations.push({id:index, org_id:org.ORG_ID, dmp_organization:org.name, isEdit:false});
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+      
+    );
     // loop over resources array sent from the server and populate local copy of 
     // resources array to populate the table of resources in the user interface
+    this.contribOrcidWarn = '';
     personel.contributors.forEach(
       (aContributor, index) => {
+        if (aContributor.contributor.orcid.length === 0){
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
         this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
@@ -160,7 +235,7 @@ export class PersonelComponent implements OnInit {
           surname:      aContributor.contributor.lastName,
           orcid:        aContributor.contributor.orcid,
           role:         aContributor.role,
-          institution:  aContributor.instituion,
+          institution:  aContributor.institution,
           e_mail:       aContributor.e_mail
           
         });
@@ -177,8 +252,14 @@ export class PersonelComponent implements OnInit {
       nistContactFirstName:       personel.primary_NIST_contact.firstName,
       nistContactLastName:        personel.primary_NIST_contact.lastName,
       primNistContactOrcid:       personel.primary_NIST_contact.orcid,
-      contributors:               personel.contributors
+      contributors:               personel.contributors,
+      organizations:              personel.organizations
     });
+
+    this.pncOrcidWarn = '';
+    if(personel.primary_NIST_contact.orcid.length === 0){
+      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
+    }
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
@@ -206,7 +287,8 @@ export class PersonelComponent implements OnInit {
                                       lastName: formValue.nistContactLastName,
                                       orcid:formValue.primNistContactOrcid
                                     },
-            contributors:           formValue.contributors
+            contributors:           formValue.contributors,
+            organizations:          formValue.organizations
 
           }
         )
@@ -221,6 +303,11 @@ export class PersonelComponent implements OnInit {
      */
     this.getNistContacts();
 
+    /**
+     * NOTE Comment below when woking with API
+     */
+    this.getNistOrganizations();
+
   }  
 
   //List of contributors that will be aded to the DMP
@@ -228,6 +315,22 @@ export class PersonelComponent implements OnInit {
 
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
+
+  pncOrcidChange(){
+    // set/reset NIST primary contact ORCID warning and error messages message if ORCID data is entered/changed
+    this.pncOrcidWarn = "";
+    this.pncErrorMessage = "";
+    let orcid = this.personelForm.value['primNistContactOrcid'];
+    if (orcid.length > 0){
+      if(!this.isValidPrimaryContactOrcid()){
+        this.pncErrorMessage = PersonelComponent.ORCID_ERROR;
+      }
+    }
+    else {
+      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
+    }
+
+  }
 
   /**
    * This function gets hard coded NIST contasts
@@ -444,7 +547,7 @@ export class PersonelComponent implements OnInit {
       contributor:{firstName:"", lastName:"", orcid:""}, 
       role:"",
       e_mail:"",
-      instituion:""
+      institution:""
     };
   }
 
@@ -453,18 +556,20 @@ export class PersonelComponent implements OnInit {
     this.disableAdd=true;
     this.resetContributorFields();
   }
-
-  errorMessage: string = "";
   
   removeSelectedRows() {
     this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.dmpContributors.forEach((element)=>{
+    this.contribOrcidWarn = "";
+    this.dmpContributors.forEach((element)=>{        
+        if (element.orcid.length == 0){
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
           contributor:{firstName:element.name, lastName:element.surname},
           e_mail: element.e_mail,
-          instituion: element.institution,
+          institution: element.institution,
           role: element.role
         });
     });
@@ -495,17 +600,80 @@ export class PersonelComponent implements OnInit {
 
   }
 
+  onDoneClick(e:any){
+    this.contribOrcidWarn = "";
+    if (!e.e_mail.length) {
+      /**
+       * NOTE:
+       * e-mail validation should go here too
+       */
+      this.errorMessage = "e-mail can't be empty";
+      return;
+    }
+    else if(!e.institution.length) {
+      this.errorMessage = "Institution can't be empty";
+      return;
+    }
+    else if(!e.name.length) {
+      this.errorMessage = "Name can't be empty";
+      return;
+    }
+    else if(!e.role.length) {
+      this.errorMessage = "Role can't be empty";
+      return;
+    }
+    else if(!e.surname.length) {
+      this.errorMessage = "Surname can't be empty";
+      return;
+    }
+    else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
+      return;
+    }    
+
+    this.errorMessage = '';
+    this.resetTable();
+    this.contribOrcidWarn = "";
+    this.dmpContributors.forEach((element)=>{
+        if(element.id === e.id){
+          element.isEdit = false;
+        }        
+        if (element.orcid.length == 0){
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
+        // re populate contributors array
+        this.personelForm.value['contributors'].push({
+                    contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
+          e_mail: element.e_mail,
+          institution: element.institution,
+          role: element.role
+        });
+      }
+    )
+
+    this.disableClear=false;
+    this.disableRemove=false;
+
+  }
+
   addRow(){
 
     const regex = /[A-Z]/i;
-    
+    /*
+    * TODO:
+    Rethink when to check input. Currently this function and onDoneClick both perform
+    input validation. This one does immedeate input validation before adding row to the 
+    GUI table while onDoneClick performs validation of data that is sent to the MongoDB
+    */
 
     if (this.contributorRadioSel === "contributorExternal"){
-      
+      // TODO: regex checks only that the first value is a letter.
+      // More comprehensive input validation is necessary
+
       /**
        * Check first name
        */
-      if (this.externalContributor.contributor.firstName.match(regex)){
+      if (this.externalContributor.contributor.firstName.match(regex)){        
         this.crntContribName = this.externalContributor.contributor.firstName;
       }
       else{
@@ -529,7 +697,7 @@ export class PersonelComponent implements OnInit {
       /**
        * Check institution
        */
-      if (!(this.externalContributor.instituion.match(regex))){
+      if (!(this.externalContributor.institution.match(regex))){
         this.errorMessage = "Missing contributor Institution / Affiliation";
         this.extContribRole =  "";
         return;
@@ -559,8 +727,11 @@ export class PersonelComponent implements OnInit {
     const isORCID = this.isORCID(this.crntContribOrcid);
       
     if (!isORCID && this.crntContribOrcid.length>0){
-      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
       return;
+    }
+    else if(this.crntContribOrcid.length == 0){
+      this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
@@ -603,7 +774,7 @@ export class PersonelComponent implements OnInit {
       newRow.institution = this.contributorOption;
     }
     else{
-      newRow.institution = this.externalContributor.instituion;
+      newRow.institution = this.externalContributor.institution;
     }
 
     // create a new array using an existing array as one part of it 
@@ -650,57 +821,6 @@ export class PersonelComponent implements OnInit {
     this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
   }
 
-  onDoneClick(e:any){
-    if (!e.e_mail.length) {
-      /**
-       * NOTE:
-       * e-mail validation should go here too
-       */
-      this.errorMessage = "e-mail can't be empty";
-      return;
-    }
-    else if(!e.institution.length) {
-      this.errorMessage = "Institution can't be empty";
-      return;
-    }
-    else if(!e.name.length) {
-      this.errorMessage = "Name can't be empty";
-      return;
-    }
-    else if(!e.role.length) {
-      this.errorMessage = "Role can't be empty";
-      return;
-    }
-    else if(!e.surname.length) {
-      this.errorMessage = "Surname can't be empty";
-      return;
-    }
-    else if (!this.isORCID(e.orcid) && e.surname.length > 0){
-      this.errorMessage = "Ivalid ORCID format. The correct format is numeric and of the form xxxx-xxxx-xxxx-xxxx";
-      return;
-    }
-
-    this.errorMessage = '';
-    this.resetTable();
-    this.dmpContributors.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }
-        // re populate contributors array
-        this.personelForm.value['contributors'].push({
-          contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
-          e_mail: element.e_mail,
-          instituion: element.institution,
-          role: element.role
-        });
-      }
-    )
-
-    this.disableClear=false;
-    this.disableRemove=false;
-
-  }
-
   selExtContributorRole(){
     // select role for the contributors from a drop down list
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
@@ -715,7 +835,7 @@ export class PersonelComponent implements OnInit {
     this.externalContributor.contributor.firstName = "";
     this.externalContributor.contributor.lastName = "";
     this.externalContributor.contributor.orcid = "";
-    this.externalContributor.instituion = "";
+    this.externalContributor.institution = "";
     this.extContribRole = "";
     this.externalContributor.e_mail = "";
     this.contributorRadioSel = "";
@@ -725,7 +845,173 @@ export class PersonelComponent implements OnInit {
       primNistContactOrcid:       ""
     });
     this.clearTable();
+    this.org_clearTable();
   }
+
+  // ==================================================
+  // ==================================================
+  // ==================================================
+
+   /**
+   * This function gets hard coded NIST organizations
+   * Used when not working with an API for NIST people service database
+   */
+   getNistOrganizations(){    
+    // this.getNistOrganizationsFromAPI();
+    this.getNistOrganizationsNoAPI();
+
+  }
+
+  getNistOrganizationsNoAPI(){
+    //ORGANIZATIONS is declared in '../../types/mock-organizations'
+    this.nistOrganizations = ORGANIZATIONS;
+    this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
+      startWith(''),
+      map(anOrganization => {
+        const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
+        var res = orgName ? this._filter_org(orgName as string):this.nistOrganizations.slice();
+        if (res.length ===1){
+          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgName = anOrganization.name;
+
+          this.org_disableAdd = false;
+        }
+        else{
+          this.org_disableAdd = true;
+        }
+        return res;
+      }
+
+      )
+
+    );
+
+  }
+
+  displaySelectedOrganization(org:NistOrganization):string{
+    var res = org && org.ORG_ID? org.name : '';
+    return res;
+
+  }
+
+  org_removeSelectedRows() {
+    //assign unselected rows to dmpOrganizations
+    this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
+    //reset the table 
+    this.org_resetTable();
+    //repopulate the table with what's left in the array
+    this.rePopulateOrgs();
+
+    if (this.dmpOrganizations.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.org_disableClear=true;
+      this.org_disableRemove=true;
+    }
+  }
+
+  org_resetTable(){
+    this.personelForm.patchValue({
+      organizations:[]
+    })
+  }
+
+  org_clearTable(){
+    this.dmpOrganizations = []
+    this.org_resetTable();
+    this.org_disableAdd=true;
+    this.org_disableClear=true;
+    this.org_disableRemove=true;
+  }
+
+  org_addRow(){
+    const newRow = {
+      id: Date.now(),      
+      org_id:this.crntOrgID,
+      dmp_organization: this.crntOrgName,
+      isEdit: false,
+    };
+    // check that if any org id or org name is undefined 
+    // - this can happen if user types in the search box but does not select 
+    //    an actual organization from the drop down menu
+
+    if (typeof newRow.org_id === "undefined" || typeof newRow.dmp_organization === "undefined"){
+      this.org_errorMessage = "Select an existing NIST Organization";
+      return;
+
+    }
+
+    // Check if selected organization is already in the table
+    var selRow = this.dmpOrganizations.filter((u) => u.org_id === newRow.org_id);
+    if (selRow.length > 0){
+      this.org_errorMessage = "The selected Organization is already associated with this DMP.";
+      return;
+    }
+    //add new row to the dmpOrganizations array
+    this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
+
+    //reset the table
+    this.org_resetTable();
+
+    // re-populate the table with entries from dmpOrganizations array 
+    // and update the form metadata
+    this.rePopulateOrgs();
+
+    this.org_disableAdd=true;
+    this.org_disableClear=false;
+    this.org_disableRemove=false;
+  }
+
+  private rePopulateOrgs(){
+    this.dmpOrganizations.forEach(
+      (org)=>{
+        this.personelForm.value['organizations'].push(
+          {
+            ORG_ID:org.org_id,
+            name:org.dmp_organization
+          }
+        )
+      }
+    )
+  }
+
+  org_removeRow(id:any) {
+    var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+
+    // update the form metadata
+    this.personelForm.value['organizations'].forEach(
+      (value:NistOrganization, index:number)=>{
+        selRow.forEach(
+          (org)=>{
+            if (value.ORG_ID === org.org_id){
+              //remove selected organization
+              this.personelForm.value['organizations'].splice(index,1);
+            }
+          }
+        )
+      }
+    )
+
+    // remove from the display table
+    this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
+  }
+
+  private _filter_org(nistOrg:string): NistOrganization[] {
+    // add button should be disabled while filtering is being performed
+    // and should be enabled only when an existing organization has been selected
+    this.org_disableAdd = true;
+
+    const filterValues = nistOrg.toLowerCase()
+    var searchRes;
+    searchRes = this.nistOrganizations.filter(
+      (option:any) => option.name.toLowerCase().includes(filterValues)
+    );
+
+    return searchRes;
+
+  }
+
+
+
 
 
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { NistResorucesService } from '../config/nist-resoruces.service';
+import { NistResourcesService } from '../config/nist-resources.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,7 @@ import { NistResorucesService } from '../config/nist-resoruces.service';
 export class LoadResourcesService {
 
   constructor(
-    private configService: NistResorucesService
+    private configService: NistResourcesService
   ) { }
 
   getAllResources():Observable<any>{

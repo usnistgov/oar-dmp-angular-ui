@@ -21,7 +21,7 @@ import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
 import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { DomPositioningModule } from './shared/dom-positioning.module';
-import { NistResorucesModule } from './config/nist-resources.module';
+import { NistResourcesModule } from './config/nist-resources.module';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -47,7 +47,7 @@ describe('AppComponent', () => {
             DmpRoutingModule,
             DomPositioningModule,
             AngularResizeEventModule,
-            NistResorucesModule
+            NistResourcesModule
         ],
         providers: [
             { provide: AuthenticationService, useClass: MockAuthenticationService },

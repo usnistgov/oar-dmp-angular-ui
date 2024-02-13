@@ -1,19 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { NistResorucesService } from './nist-resoruces.service';
+import { NistResourcesService } from './nist-resources.service';
 
-describe('NistResorucesService', () => {
-  let service: NistResorucesService;
+describe('NistResourcesService', () => {
+  let service: NistResourcesService;
   let httpController: HttpTestingController;
   let mockdata = { "RESOURCES": [ { "resource": "Storage", "options": [] } ] };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ],
-      providers: [ NistResorucesService ]
+      providers: [ NistResourcesService ]
     });
-    service = TestBed.inject(NistResorucesService);
+    service = TestBed.inject(NistResourcesService);
     httpController = TestBed.inject(HttpTestingController);
   });
 

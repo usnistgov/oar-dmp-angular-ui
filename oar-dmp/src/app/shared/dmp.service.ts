@@ -107,7 +107,7 @@ export class DmpService {
                                   orcid:""
                                 }, 
                                 role:"Contact Person", 
-                                instituion:"NIST", 
+                                institution:"NIST", 
                                 e_mail:"nik@nist.gov"},
                                {contributor:{
                                   firstName:"Joe", 
@@ -115,7 +115,7 @@ export class DmpService {
                                   orcid:""
                                 }, 
                                 role:"Contact Person", 
-                                instituion:"IAEA", 
+                                institution:"IAEA", 
                                 e_mail:"joe@iaea.gov"}
                               ],
 

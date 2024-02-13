@@ -1,10 +1,11 @@
 
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
+  
 
   <div class="dmpSection" >
     <table>
       <tr>
-        <td><label for="name">Record Name: </label></td>
+        <td><label for="name">DMP Short Name: </label></td>
         <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled"></div></td>
       </tr>
     </table>
@@ -78,7 +79,7 @@
 
   <!-- <app-reviewer></app-reviewer> -->
 
-  <div class="form-actions">
+  <!-- <div class="form-actions">
     <button mat-button class="btn_reset" type="button" (click)="resetDmp()">
       Reset
     </button>
@@ -93,7 +94,7 @@
     >
       Publish
     </button>
-  </div>
+  </div> -->
   
   <!-- <div class="output">
     <div>Current DMP Object:</div>

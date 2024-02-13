@@ -5,7 +5,7 @@
 <div *ngIf="creds && readyDisplay">
     <!-- div dmp_hdr is used for calculating resizing of the form and positioning of the reources options -->
     <div  id="dmp_hdr" (resized)="onResized($event)"></div>  
-
+    <!-- <div class="dmp_header" >Data Management Plan</div> -->
     <div class="sticky" id="resource_options">
         <!-- 
         Here child component called resource-options expects the property named "data"
@@ -15,6 +15,7 @@
     -->
         <app-resource-options></app-resource-options>
     </div>
+    
     <div id="dmp_panel">
     <div class="dmp_user"><img [src]="loginPNG" [alt]="alttext">
         {{authMessage}}</div>

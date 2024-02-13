@@ -1,7 +1,7 @@
 //Example of passing data from parent component (app.component) to the child component (resource-options.component)
 // Start with declaring Input decorator
 //import { Component, OnInit, Input } from '@angular/core';
-import { Component, OnInit, OnChanges, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit} from '@angular/core';
 import { Subscription } from 'rxjs';
 
 
@@ -9,7 +9,9 @@ import { Subscription } from 'rxjs';
 import { ResourcesService } from '../shared/resources.service';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
+import { SubmitDmpService } from '../shared/submit-dmp.service';
 import { FilterPipe } from './filter.pipe';
+import { DropDownSelectService } from '../shared/drop-down-select.service';
 
 interface Messages {
   [key: string]: any;
@@ -36,9 +38,11 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   constructor(
     private sharedService:ResourcesService, 
     private dom:DomPositioningModule,
-    private nistResources: LoadResourcesService
+    private nistResources: LoadResourcesService,
+    private form_buttons: SubmitDmpService,
+    private dropDownService: DropDownSelectService,
     ) { 
-    console.log("resoruce-optionscomponent");
+
   }
 
   // message : any
@@ -56,6 +60,18 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
 
   availableResources: any = {};
 
+  exportType: string = "";
+  exportFormats = [
+    {
+      id: "1",
+      format: 'PDF'
+    },
+    {
+      id: "2",
+      format: 'Markdown'
+    }
+  ];
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
     this.storageSubscribe()
@@ -63,12 +79,27 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     this.databaseSubscribe()
     this.websiteSubscribe()
     this.availableResources = this.nistResources.getAllResources();
-    console.log(this.availableResources);
+    // console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
-    console.log("resoruce-options after view init");
+    // console.log("resoruce-options after view init");
     // this.dom.setDomElementTop("resources-grid-container", "dmp_hdr")
     // this.dom.horizontalDomAdjust("resource_options", "dmp_hdr")
+  }
+
+  setExportFormat(){
+    let dataFormat = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0].format;
+    this.form_buttons.setexportFormat(dataFormat);
+    this.form_buttons.exportFormatSubject$.next(dataFormat)
+  }
+
+  dmpButtonClick(e:any){
+    //send message to dmp form component indicating which button has been pressed
+    //the e event captures the text of the button so we pass tat to the form to
+    //indicate the course of action. The options should be 'Reset', 'Save Draft' and 'Publish'
+    this.form_buttons.setButtonMessage(e.currentTarget.innerText);
+    this.form_buttons.buttonSubject$.next(e.currentTarget.innerText);
+    
   }
 
   //subscribe to a particular subject

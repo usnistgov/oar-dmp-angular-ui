@@ -9,7 +9,7 @@ import { NIST_Resources } from './nist-resources.model';
 @Injectable({
   providedIn: 'root'
 })
-export class NistResorucesService {
+export class NistResourcesService {
 
   nistResources = environment.NIST_Resources;
   resources: NIST_Resources | null = null;

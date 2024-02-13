@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { NistResorucesModule } from '../config/nist-resources.module';
+import { NistResourcesModule } from '../config/nist-resources.module';
 import { ResourceOptionsComponent } from './resource-options.component';
 import { DomPositioningModule } from '../shared/dom-positioning.module';
 
@@ -11,7 +11,7 @@ describe('ResourceOptionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule, NistResorucesModule ],
+      imports: [ HttpClientTestingModule, NistResourcesModule ],
       declarations: [ ResourceOptionsComponent ],
       providers: [DomPositioningModule]
     })
