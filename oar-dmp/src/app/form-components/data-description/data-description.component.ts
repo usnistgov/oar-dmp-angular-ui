@@ -13,7 +13,7 @@ import { DataCategories } from '../../types/data-categories.type';
 })
 export class DataDescriptionComponent implements OnInit {
 
-  pyramid: string = '/../../assets/images/pyramid.png'
+  pyramid: string = 'assets/images/pyramid.png'
   alttext: string="Pyramid View of Data Categories"
 
   availableCategories:DataCategories[]=[
