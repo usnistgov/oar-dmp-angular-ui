@@ -1,8 +1,8 @@
-<div class="dmpSection">
+<div class="dmpSection">  
   <div class="header">Basic Information</div>    
   <table>
     <tr>
-      <td class="description">Title</td>
+      <td class="description">Title<span class="required_DMP_Field" >*</span></td>
       <td><input type="text" [formControl]="basicInfoForm.controls['title']" class="wide"></td>
     </tr>
     <tr class="hidden-row">
@@ -84,7 +84,7 @@
       </td>
     </tr>
     <tr>
-      <td>Project Description</td>
+      <td>Project Description<span class="required_DMP_Field" >*</span></td>
       <td><textarea name="projectDescription" cols="80" rows="5" placeholder="Description behind the science of the project"
         [formControl]="basicInfoForm.controls['projectDescription']"></textarea></td>
     </tr>

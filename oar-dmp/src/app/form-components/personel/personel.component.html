@@ -5,7 +5,7 @@
   
   <table>
     <tr>
-      <td class="description">Primary NIST Contact</td>
+      <td class="description">Primary NIST Contact <span class="required_DMP_Field" >*</span></td>
       <td>
 
         <mat-form-field class="example-full-width" appearance="fill">
@@ -36,6 +36,7 @@
   <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>
 
   <div class="sub-category">Contributors</div>
+  <p><span class="requiredField" >*</span> Required fields to add a contributor</p>
   
   <table>
     <tr>
@@ -56,7 +57,7 @@
         <div *ngIf="selectedContributor('NIST')">
           <table>
             <tr>
-              <td class="cell-top">Select NIST Contributor</td>
+              <td class="cell-top">Select NIST Contributor<span class="requiredField" >*</span></td>
               <td>
                 <mat-form-field class="example-full-width" appearance="fill">
                   <mat-label>NIST Contributor</mat-label>
@@ -83,7 +84,7 @@
               <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
             </tr>
             <tr>
-              <td>Contributor Role</td>
+              <td>Contributor Role <span class="requiredField" >*</span></td>
               <td>
                 <select
                   name="nistContribRole"
@@ -116,11 +117,11 @@
           <div *ngIf="selectedContributor('External')">
             <table>
               <tr>
-                <td>First Name</td>
+                <td>First Name<span class="requiredField" >*</span></td>
                 <td><input type="text" [(ngModel)]="externalContributor.contributor.firstName"></td>
               </tr>
               <tr>
-                <td>Last Name</td>
+                <td>Last Name<span class="requiredField" >*</span></td>
                 <td><input type="text" [(ngModel)]="externalContributor.contributor.lastName"></td>
               </tr>
               <tr>
@@ -128,15 +129,15 @@
                 <td><input type="text" [(ngModel)]="externalContributor.contributor.orcid"></td>
               </tr>
               <tr>
-                <td class="description">Institution / Affiliation</td>
+                <td class="description">Institution / Affiliation<span class="requiredField" >*</span></td>
                 <td><input type="text" [(ngModel)]="externalContributor.institution"></td>
               </tr>
               <tr>
-                <td>e-mail</td>
+                <td>e-mail<span class="requiredField" >*</span></td>
                 <td><input type="text" [(ngModel)]="externalContributor.e_mail"></td>
               </tr>
               <tr>
-                <td>Role</td>
+                <td>Role <span class="requiredField" >*</span></td>
                 <td>
                   <select
                     name="extContribRole"
