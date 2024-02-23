@@ -273,24 +273,24 @@ export class DmpFormComponent implements OnInit {
       alert("Cannot save DMP. Record name is empty.")
       throw new Error("Record name is empty");
     }
-    if (this.dmp.title === '') {
-      alert("Cannot save DMP. Title is empty.")
-      throw new Error("DMP title is empty");
-    }
-    if (this.dmp.projectDescription === '') {
-      alert("Cannot save DMP. Project description is empty.")
-      throw new Error("DMP project description is empty");
-    }
-    if (this.dmp.primary_NIST_contact.firstName === '' ) {
-      alert("Cannot save DMP. Primary contact first name is empty.")
-      throw new Error("DMP primary contact first name description is empty");
-    }
-    if (this.dmp.primary_NIST_contact.lastName === '' ) {
-      alert("Cannot save DMP. Primary contact last name is empty.")
-      throw new Error("DMP primary contact last name description is empty");
-    }
+    // if (this.dmp.title === '') {
+    //   alert("Cannot save DMP. Title is empty.")
+    //   throw new Error("DMP title is empty");
+    // }
+    // if (this.dmp.projectDescription === '') {
+    //   alert("Cannot save DMP. Project description is empty.")
+    //   throw new Error("DMP project description is empty");
+    // }
+    // if (this.dmp.primary_NIST_contact.firstName === '' ) {
+    //   alert("Cannot save DMP. Primary contact first name is empty.")
+    //   throw new Error("DMP primary contact first name description is empty");
+    // }
+    // if (this.dmp.primary_NIST_contact.lastName === '' ) {
+    //   alert("Cannot save DMP. Primary contact last name is empty.")
+    //   throw new Error("DMP primary contact last name description is empty");
+    // }
     if (!this.personnelForm.isValidPrimaryContactOrcid()){
-      alert("Cannot save DMP. Ivalid ORCID format for the prmary NIST contact. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end")
+      alert("Cannot save DMP. Invalid ORCID format for the prmary NIST contact. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end")
       throw new Error("Invalid ORCID for prmary NIST contact.");
     }
     if (this.id !==null){
