@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ObservedValueOf, Subscription } from "rxjs";
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
@@ -11,7 +11,7 @@ import { DataPreservationComponent } from '../form-components/data-preservation/
 import { DMP_Meta } from '../types/DMP.types';
 import { DmpService } from '../shared/dmp.service'
 import { SubmitDmpService } from '../shared/submit-dmp.service';//for acknowledging when form button has been 'pressed'
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 
 
@@ -104,14 +104,14 @@ export class DmpFormComponent implements OnInit {
 
   markdown:Array<string> = [];
 
-  name = new FormControl('');
+  name = new UntypedFormControl('');
   nameDisabled = false;
   nameClass:string = "mnemonicNameNew";
 
   DMP_PDF?:DmpPdf;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: UntypedFormBuilder, 
     private dmp_Service: DmpService, 
     private route: ActivatedRoute,
     private router: Router,

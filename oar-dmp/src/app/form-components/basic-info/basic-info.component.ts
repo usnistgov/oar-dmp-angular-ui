@@ -1,5 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
-import { FormBuilder, Validators} from '@angular/forms';
+import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 
@@ -78,7 +78,7 @@ export class BasicInfoComponent{
   @Output()
   formReady = of(this.basicInfoForm);
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: UntypedFormBuilder) {
     
   }
 

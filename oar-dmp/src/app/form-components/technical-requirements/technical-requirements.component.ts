@@ -2,7 +2,7 @@ import { Component, Input, Output } from '@angular/core';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 // import { DMP_Meta } from 'src/app/types/DMP.types';
 // import { SoftwareDevelopment } from 'src/app/types/software-development.type';
@@ -74,7 +74,7 @@ export class StorageNeedsComponent {
   constructor(
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
   ) { }
 
   // We want to receive the initial data from the parent component and initialize 
