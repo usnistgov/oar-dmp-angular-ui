@@ -1,5 +1,17 @@
 <div class="dmpSection">
   <div class="header">Keywords</div>  
+  <table>
+    <tr>
+        
+      <td class="cell-top">Add Keywords/Phrases as comma separated values<!--<span class="required_DMP_Field" >*</span>--></td>
+      <td class="cell-top">
+        <textarea name="projectDescription" cols="40" rows="10" placeholder="Keywords/Phrases delimited by a comma"
+        [formControl]="keyWordsForm.controls['keyWordsText']"></textarea>
+      </td>
+    </tr>
+
+  </table>
+  
   <p class="instruction"> Add / Remove keywords or phrases</p>
   
   <article class="table-header">
