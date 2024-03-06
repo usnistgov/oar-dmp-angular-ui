@@ -5,8 +5,12 @@
         
       <td class="cell-top">Add Keywords/Phrases as comma separated values<!--<span class="required_DMP_Field" >*</span>--></td>
       <td class="cell-top">
-        <textarea name="projectDescription" cols="40" rows="10" placeholder="Keywords/Phrases delimited by a comma"
-        [formControl]="keyWordsForm.controls['keyWordsText']"></textarea>
+        <textarea name="keyWordsText" cols="40" rows="10" placeholder="Keywords/Phrases delimited by a comma"
+        [(ngModel)]="keyWordsText"></textarea>
+        
+      </td>
+      <td class="cell-top">
+        <button type="button" class="button-add-row" mat-button (click)="parseKeywordsText()" [disabled]="disableAdd">Insert Multiple Keywords</button>
       </td>
     </tr>
 
@@ -21,8 +25,8 @@
       updateDMP in dmp.services.ts 
     -->
     <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
-    <button type="button" class="button-clear-table" mat-button (click)="clearKeywordsTable()" [disabled]="disableClear">Clear</button>
-    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+    <button type="button" class="button-clear-table" mat-button (click)="clearKeywordsTable()" [disabled]="disableClear">Clear Keywords</button>
+    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add Single Keyword</button>
   </article>
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
   

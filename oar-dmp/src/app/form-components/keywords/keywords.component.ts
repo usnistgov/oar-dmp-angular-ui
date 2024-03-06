@@ -2,6 +2,7 @@ import { Component, Input, Output } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
+import { TextSplitterService } from '../../shared/text-splitter.service';
 
 export interface KeyWord {
   key_word: string;
@@ -41,14 +42,17 @@ export class KeywordsComponent {
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
   keyWordSource: KeyWord[] = [];
+  keyWordsText: string = "";
 
   keyWordsForm = this.fb.group(
     {
+      keyWordsText: [''],
       keyWords:[[]]
     }
   );
 
-  constructor(private fb: UntypedFormBuilder) { 
+  constructor(private fb: UntypedFormBuilder, 
+              private textSplitter: TextSplitterService) { 
     
   }
 
@@ -188,6 +192,11 @@ export class KeywordsComponent {
       }
     )
 
+  }
+
+  parseKeywordsText(){
+    let splitText = this.textSplitter.splitText(this.keyWordsText,",");
+    console.log(splitText);
   }
 
 }
