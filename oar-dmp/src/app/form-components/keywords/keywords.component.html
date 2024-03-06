@@ -9,9 +9,9 @@
         [(ngModel)]="keyWordsText"></textarea>
         
       </td>
-      <td class="cell-top">
-        <button type="button" class="button-add-row" mat-button (click)="parseKeywordsText()" [disabled]="disableAdd">Insert Multiple Keywords</button>
-      </td>
+      <!-- <td class="cell-top">
+        <button type="button" class="button-add-row" mat-button (click)="parseKeywordsText()">Insert Multiple Keywords</button>
+      </td> -->
     </tr>
 
   </table>
@@ -26,7 +26,7 @@
     -->
     <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
     <button type="button" class="button-clear-table" mat-button (click)="clearKeywordsTable()" [disabled]="disableClear">Clear Keywords</button>
-    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add Single Keyword</button>
+    <button type="button" class="button-add-row" mat-button (click)="parseKeywordsText()" [disabled]="disableAdd">Add Keywords</button>
   </article>
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
   

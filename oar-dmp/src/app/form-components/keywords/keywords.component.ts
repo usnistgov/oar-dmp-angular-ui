@@ -43,10 +43,10 @@ export class KeywordsComponent {
   columnsSchema: any = COLUMNS_SCHEMA;
   keyWordSource: KeyWord[] = [];
   keyWordsText: string = "";
+  keyWordsIter: number = 1;
 
   keyWordsForm = this.fb.group(
     {
-      keyWordsText: [''],
       keyWords:[[]]
     }
   );
@@ -195,8 +195,42 @@ export class KeywordsComponent {
   }
 
   parseKeywordsText(){
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+
     let splitText = this.textSplitter.splitText(this.keyWordsText,",");
-    console.log(splitText);
+    splitText.forEach((kw)=>{
+      let keyWord = kw.trim();
+      // Make sure keyword is not an empty string
+      if (keyWord !==''){
+        let date = new Date();
+        date.setMilliseconds(this.keyWordsIter);
+        const newRow = {
+          id: date.getMilliseconds(),
+          key_word: kw,
+          isEdit: false,
+        };
+        // create a new array using an existing array as one part of it 
+        // using the spread operator '...'
+        this.keyWordSource = [newRow, ...this.keyWordSource];
+        this.keyWordsIter +=1;
+      }
+      
+    });
+    
+    this.resetKeyWordsForm();
+    this.keyWordSource.forEach((element)=>{
+        // re populate keywords array
+        this.keyWordsForm.value['keyWords'].push(element.key_word);
+
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+    this.keyWordsText = "";
+
+    this.disableAdd=false;
   }
 
 }
