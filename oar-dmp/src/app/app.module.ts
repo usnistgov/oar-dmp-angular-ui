@@ -38,6 +38,7 @@ import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
 import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
+import { ChipsModule } from 'primeng/chips';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,8 @@ import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
     DomPositioningModule,
     AngularResizeEventModule,
     AuthModule,
-    NistResourcesModule
+    NistResourcesModule,
+    ChipsModule
   ],
 
   providers: [

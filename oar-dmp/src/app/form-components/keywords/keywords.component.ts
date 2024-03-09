@@ -3,7 +3,6 @@ import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { TextSplitterService } from '../../shared/text-splitter.service';
-import { ChipsModule } from 'primeng/chips';
 
 export interface KeyWord {
   key_word: string;
