@@ -9,12 +9,20 @@
         [(ngModel)]="keyWordsText"></textarea>
         
       </td>
+      
       <!-- <td class="cell-top">
         <button type="button" class="button-add-row" mat-button (click)="parseKeywordsText()">Insert Multiple Keywords</button>
       </td> -->
     </tr>
+ 
 
   </table>
+  <div >
+    hello chips <br>
+    <p-chips [(ngModel)]="values" separator="," placeholder="Hint: a, b c"></p-chips>
+    <br>
+    after chips
+  </div>
   
   <p class="instruction"> Add / Remove keywords or phrases</p>
   

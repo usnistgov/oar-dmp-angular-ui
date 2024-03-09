@@ -3,6 +3,7 @@ import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { TextSplitterService } from '../../shared/text-splitter.service';
+import { ChipsModule } from 'primeng/chips';
 
 export interface KeyWord {
   key_word: string;
@@ -43,6 +44,7 @@ export class KeywordsComponent {
   columnsSchema: any = COLUMNS_SCHEMA;
   keyWordSource: KeyWord[] = [];
   keyWordsText: string = "";
+  values: string[] | undefined;
   keyWordsIter: number = 1;
 
   keyWordsForm = this.fb.group(
