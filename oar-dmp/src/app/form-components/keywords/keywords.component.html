@@ -19,7 +19,7 @@
   </table>
   
 <div class="card p-fluid">
-  <p-chips [(ngModel)]="values" separator="," placeholder="Hint: a, b, c"></p-chips>
+  <p-chips [(ngModel)]="keyWordsDisplay" separator="," placeholder="Hint: a, b, c" (onRemove)="chipRemove()" ></p-chips>
 </div>
   
   <p class="instruction"> Add / Remove keywords or phrases</p>

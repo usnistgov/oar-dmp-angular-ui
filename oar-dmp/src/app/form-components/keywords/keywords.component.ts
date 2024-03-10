@@ -42,9 +42,9 @@ export class KeywordsComponent {
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
   keyWordSource: KeyWord[] = [];
+  keyWordSrc: string[] = [];
   keyWordsText: string = "";
-  values: string[] | undefined;
-  keyWordsIter: number = 1;
+  keyWordsDisplay: string[] | undefined;
 
   keyWordsForm = this.fb.group(
     {
@@ -196,6 +196,7 @@ export class KeywordsComponent {
   }
 
   parseKeywordsText(){
+    this.keyWordsDisplay = [];
     this.disableAdd=true;
     this.disableClear=true;
     this.disableRemove=true;
@@ -204,26 +205,22 @@ export class KeywordsComponent {
     splitText.forEach((kw)=>{
       let keyWord = kw.trim();
       // Make sure keyword is not an empty string
-      if (keyWord !==''){
-        let date = new Date();
-        date.setMilliseconds(this.keyWordsIter);
-        const newRow = {
-          id: date.getMilliseconds(),
-          key_word: kw,
-          isEdit: false,
-        };
-        // create a new array using an existing array as one part of it 
-        // using the spread operator '...'
-        this.keyWordSource = [newRow, ...this.keyWordSource];
-        this.keyWordsIter +=1;
+      if (keyWord !==''){        
+        // add only if keyword doesn't aleady exist
+        if (!this.keyWordSrc.includes(keyWord)){
+          // create a new array using an existing array as one part of it 
+          // using the spread operator '...'
+          this.keyWordSrc = [keyWord, ...this.keyWordSrc];
+        }
       }
       
     });
     
     this.resetKeyWordsForm();
-    this.keyWordSource.forEach((element)=>{
+    this.keyWordSrc.forEach((element)=>{
         // re populate keywords array
-        this.keyWordsForm.value['keyWords'].push(element.key_word);
+        this.keyWordsDisplay?.push(element);
+        this.keyWordsForm.value['keyWords'].push(element);
 
         this.disableClear=false;
         this.disableRemove=false;
@@ -232,6 +229,9 @@ export class KeywordsComponent {
     this.keyWordsText = "";
 
     this.disableAdd=false;
+  }
+  chipRemove(){
+    console.log('removed a chip');
   }
 
 }
