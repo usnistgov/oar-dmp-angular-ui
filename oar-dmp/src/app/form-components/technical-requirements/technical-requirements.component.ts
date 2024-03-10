@@ -10,32 +10,6 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
-
-export interface TechnicalResources {
-  resource: string;
-  id: number;
-  isEdit: boolean;
-}
-
-const COLUMNS_SCHEMA = [
-  {
-    key: 'isSelected',
-    type: 'isSelected',
-    label: '',
-  },
-  {
-    key: 'resource',
-    type: 'text',
-    label: 'Technical Resource',
-  },
-  // Edit button column
-  {
-    key: 'isEdit',
-    type: 'isEdit',
-    label: '',
-  },
-]
-
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
@@ -43,17 +17,9 @@ const COLUMNS_SCHEMA = [
 })
 export class StorageNeedsComponent {  
   disableAdd:boolean = false;
-  disableClear:boolean = true;
-  disableRemove:boolean = true;
 
-  storageSubscription!: Subscription | null;
-  
+  storageSubscription!: Subscription | null;  
   errorMessage: string = '';
-
-  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  columnsSchema: any = COLUMNS_SCHEMA;
-  techResource: TechnicalResources[] = [];
-
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
 
   // This mimics the technical-requirements type interface from 
@@ -82,17 +48,6 @@ export class StorageNeedsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
-    // loop over resources array sent from the server and populate local copy of 
-    // resources array to populate the table of resources in the user interface
-
-    technical_requirements.technicalResources.forEach( 
-      (technicalResource, index) => {  
-        this.techResource.push({id:index, resource:technicalResource, isEdit:false});
-        this.disableClear=false;
-        this.disableRemove=false;
-      }
-    );
-
     // set initial values for technical requirements part of the form
     // to what has been sent from the server
     if (technical_requirements.softwareDevelopment.development === "yes"){
@@ -387,83 +342,12 @@ export class StorageNeedsComponent {
 
   }
   
-  onDoneClick(e:any){
-    if (!e.resource.length) {
-      this.errorMessage = "Technical Resource can't be empty";
-      return;
-    }
-
-    this.errorMessage = '';
-    this.resetTable();
-    this.techResource.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }
-        // re populate resources array
-        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
-      }
-    )
-    // Enable buttons once user entered new data into a row
-    this.disableAdd=false;
-    this.disableClear=false;
-    this.disableRemove=false;
-
-  }
-
-  removeRow(id:any) {
-    // select word from the specific id
-    var selWord = this.techResource.filter((u) => u.id === id);    
-    this.technicalRequirementsForm.value['technicalResources'].forEach((value:string,index:number) =>{
-      selWord.forEach((word)=>{
-        if(value === word.resource){
-          //remove from DmpRecord
-          this.technicalRequirementsForm.value['technicalResources'].splice(index,1);
-        }
-      });
-    });
-
-    //remove from the display table
-    this.techResource = this.techResource.filter((u) => u.id !== id);
-  }
-
-  removeSelectedRows() {
-    this.techResource = this.techResource.filter((u: any) => !u.isSelected);
-    this.resetTable();
-    this.techResource.forEach((element)=>{
-        // re populate resources array
-        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
-    });
-    if (this.techResource.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
-    }
-  }
+  
 
   clearTable(){
-    this.techResource = [];
     this.resetTable();
-     // If the table is empty disable clear and remove buttons
-    this.disableClear=true;
-    this.disableRemove=true;
   }
-
-  addRow() {
-    // Disable buttons while the user is inputting new row
-    this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
-    
-    const newRow = {
-      id: Date.now(),
-      resource: '',
-      isEdit: true,
-    };
-    // create a new array using an existing array as one part of it 
-    // using the spread operator '...'
-    this.techResource = [newRow, ...this.techResource];
-  }
-
+  
   resetTable(){
     this.technicalRequirementsForm.patchValue({
       technicalResources:[]
