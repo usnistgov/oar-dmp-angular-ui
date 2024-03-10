@@ -36,12 +36,7 @@ const COLUMNS_SCHEMA = [
 })
 export class KeywordsComponent {
 
-  disableAdd:boolean = false;
-  disableClear:boolean = true;
-  disableRemove:boolean = true;
-  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  columnsSchema: any = COLUMNS_SCHEMA;
-  keyWordSource: KeyWord[] = [];
+  disableAdd:boolean = false;  
   keyWordSrc: string[] = [];
   keyWordsText: string = "";
   keyWordsDisplay: string[] | undefined;
@@ -62,13 +57,13 @@ export class KeywordsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(key_words: DMP_Meta){
+    this.keyWordsDisplay = [];
     // loop over keywords array sent fromt he server and populat local copy of 
     // keywords aray to populate the table of keywords in the user interface
     key_words.keyWords.forEach( 
-      (word, index) => {        
-        this.keyWordSource.push({id:index, key_word:word, isEdit:false});
-        this.disableClear=false;
-        this.disableRemove=false;
+      (word) => {        
+        this.keyWordSrc.push(word);
+        this.keyWordsDisplay?.push(word);
       }
       
     );
@@ -108,81 +103,10 @@ export class KeywordsComponent {
     )
   );
 
-  
-  addRow() {
-    // Disable buttons while the user is inputing new row
-    this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
-    
-    const newRow = {
-      id: Date.now(),
-      key_word: '',
-      isEdit: true,
-    };
-    // create a new array using an existing array as one part of it 
-    // using the spread operator '...'
-    this.keyWordSource = [newRow, ...this.keyWordSource];
-
-  }
-
   errorMessage: string = '';
-  onDoneClick(e:any){
-    if (!e.key_word.length) {
-      this.errorMessage = "Keywords / Phrases can't be empty";
-      return;
-    }
-
-    this.errorMessage = '';
-    this.resetKeyWordsForm();
-    this.keyWordSource.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }
-        // re populate keywords array
-        this.keyWordsForm.value['keyWords'].push(element.key_word);
-      }
-    )
-    // Enable buttons once user entered new data into a row
-    this.disableAdd=false;
-    this.disableClear=false;
-    this.disableRemove=false;
-
-  }
-
-  removeRow(id:any) {
-    // select word from the specific id
-    var selWord = this.keyWordSource.filter((u) => u.id === id);    
-    this.keyWordsForm.value['keyWords'].forEach((value:string,index:number) =>{
-      selWord.forEach((word)=>{
-        if(value === word.key_word){
-          this.keyWordsForm.value['keyWords'].splice(index,1);
-        }
-      });
-    });
-
-    this.keyWordSource = this.keyWordSource.filter((u) => u.id !== id);
-  }
-  removeSelectedRows() {
-    this.keyWordSource = this.keyWordSource.filter((u: any) => !u.isSelected);
-    this.resetKeyWordsForm();
-    this.keyWordSource.forEach((element)=>{
-        // re populate keywords array
-        this.keyWordsForm.value['keyWords'].push(element.key_word);
-    });
-    if (this.keyWordSource.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
-    }
-  }
+  
   clearKeywordsTable(){
-    this.keyWordSource = [];
     this.resetKeyWordsForm();
-     // If the table is empty disable clear and remove buttons
-    this.disableClear=true;
-    this.disableRemove=true;
-
   }
 
   resetKeyWordsForm(){
@@ -198,8 +122,6 @@ export class KeywordsComponent {
   parseKeywordsText(){
     this.keyWordsDisplay = [];
     this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
 
     let splitText = this.textSplitter.splitText(this.keyWordsText,",");
     splitText.forEach((kw)=>{
@@ -221,9 +143,6 @@ export class KeywordsComponent {
         // re populate keywords array
         this.keyWordsDisplay?.push(element);
         this.keyWordsForm.value['keyWords'].push(element);
-
-        this.disableClear=false;
-        this.disableRemove=false;
       }
     );
     this.keyWordsText = "";
