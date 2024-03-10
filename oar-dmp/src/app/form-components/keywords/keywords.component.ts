@@ -4,31 +4,6 @@ import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { TextSplitterService } from '../../shared/text-splitter.service';
 
-export interface KeyWord {
-  key_word: string;
-  id: number;
-  isEdit: boolean;
-}
-
-const COLUMNS_SCHEMA = [
-  {
-    key: 'isSelected',
-    type: 'isSelected',
-    label: '',
-  },
-  {
-    key: 'key_word',
-    type: 'text',
-    label: 'Keywords / Phrases',
-  },
-  // Edit button column
-  {
-    key: 'isEdit',
-    type: 'isEdit',
-    label: '',
-  },
-]
-
 @Component({
   selector: 'app-keywords',
   templateUrl: './keywords.component.html',
@@ -37,9 +12,7 @@ const COLUMNS_SCHEMA = [
 export class KeywordsComponent {
 
   disableAdd:boolean = false;  
-  keyWordSrc: string[] = [];
   keyWordsText: string = "";
-  keyWordsDisplay: string[] | undefined;
 
   keyWordsForm = this.fb.group(
     {
@@ -57,17 +30,6 @@ export class KeywordsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(key_words: DMP_Meta){
-    this.keyWordsDisplay = [];
-    // loop over keywords array sent fromt he server and populat local copy of 
-    // keywords aray to populate the table of keywords in the user interface
-    key_words.keyWords.forEach( 
-      (word) => {        
-        this.keyWordSrc.push(word);
-        this.keyWordsDisplay?.push(word);
-      }
-      
-    );
-
     // set initial value of keywords form to what has been sent from the server
     this.keyWordsForm.patchValue({
       keyWords: key_words.keyWords
@@ -119,38 +81,6 @@ export class KeywordsComponent {
 
   }
 
-  parseKeywordsText(){
-    this.keyWordsDisplay = [];
-    this.disableAdd=true;
-
-    let splitText = this.textSplitter.splitText(this.keyWordsText,",");
-    splitText.forEach((kw)=>{
-      let keyWord = kw.trim();
-      // Make sure keyword is not an empty string
-      if (keyWord !==''){        
-        // add only if keyword doesn't aleady exist
-        if (!this.keyWordSrc.includes(keyWord)){
-          // create a new array using an existing array as one part of it 
-          // using the spread operator '...'
-          this.keyWordSrc = [keyWord, ...this.keyWordSrc];
-        }
-      }
-      
-    });
-    
-    this.resetKeyWordsForm();
-    this.keyWordSrc.forEach((element)=>{
-        // re populate keywords array
-        this.keyWordsDisplay?.push(element);
-        this.keyWordsForm.value['keyWords'].push(element);
-      }
-    );
-    this.keyWordsText = "";
-
-    this.disableAdd=false;
-  }
-  chipRemove(){
-    console.log('removed a chip');
-  }
+  
 
 }
