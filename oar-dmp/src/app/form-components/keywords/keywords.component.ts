@@ -11,9 +11,6 @@ import { TextSplitterService } from '../../shared/text-splitter.service';
 })
 export class KeywordsComponent {
 
-  disableAdd:boolean = false;  
-  keyWordsText: string = "";
-
   keyWordsForm = this.fb.group(
     {
       keyWords:[[]]
