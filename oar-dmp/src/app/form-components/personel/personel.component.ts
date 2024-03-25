@@ -959,6 +959,8 @@ export class PersonelComponent implements OnInit {
     this.org_disableAdd=true;
     this.org_disableClear=false;
     this.org_disableRemove=false;
+    // reset the form field to make it clear that one can add multiple orgs
+    this.personelForm.controls['nistOrganization'].setValue("");
   }
 
   private rePopulateOrgs(){
