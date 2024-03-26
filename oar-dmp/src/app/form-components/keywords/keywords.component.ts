@@ -2,7 +2,6 @@ import { Component, Input, Output } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
-import { TextSplitterService } from '../../shared/text-splitter.service';
 
 @Component({
   selector: 'app-keywords',
@@ -19,8 +18,7 @@ export class KeywordsComponent {
     }
   );
 
-  constructor(private fb: UntypedFormBuilder, 
-              private textSplitter: TextSplitterService) { 
+  constructor(private fb: UntypedFormBuilder) { 
     
   }
 
