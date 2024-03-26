@@ -21,6 +21,7 @@ export class StorageNeedsComponent {
   storageSubscription!: Subscription | null;  
   errorMessage: string = '';
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
+  separatorExp: RegExp = /,|;/;
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts

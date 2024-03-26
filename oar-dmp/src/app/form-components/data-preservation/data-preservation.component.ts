@@ -9,6 +9,7 @@ import { DMP_Meta } from '../../types/DMP.types';
   styleUrls: ['./data-preservation.component.scss', '../form-table.scss']
 })
 export class DataPreservationComponent {
+  separatorExp: RegExp = /,|;/;
   
   preservationForm = this.fb.group(
     {

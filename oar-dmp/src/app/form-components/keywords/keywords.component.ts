@@ -11,6 +11,8 @@ import { TextSplitterService } from '../../shared/text-splitter.service';
 })
 export class KeywordsComponent {
 
+  separatorExp: RegExp = /,|;/;
+
   keyWordsForm = this.fb.group(
     {
       keyWords:[[]]
