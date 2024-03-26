@@ -1,18 +1,14 @@
 <div class="dmpSection">
   <div class="header">Data Description</div> 
-  <table>
-    <tr>
-      <td>Description Of Generated Data</td>
-      <td><textarea 
-        name="dmpDescription" 
-        cols="40" 
-        rows="5" 
-        placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"
-        [formControl]="dataDescriptionForm.controls['dataDescription']"
-        ></textarea>
-      </td>
-    </tr>
-  </table>
+ 
+  <p>Description Of Generated Data</p>
+  <textarea 
+    name="dmpDescription" 
+    cols="80" 
+    rows="7" 
+    placeholder="The type of data that is expected to be generated and plan on what to do with the collected data"
+    [formControl]="dataDescriptionForm.controls['dataDescription']"
+    ></textarea>
 
   <div class="sub-header">Select categories of the data that will be generated</div>
 

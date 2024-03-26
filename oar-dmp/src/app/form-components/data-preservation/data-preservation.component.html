@@ -2,26 +2,26 @@
   <div class="header">Data Preservation and Accessibility</div>
   <table>
     <tr>
-      <td>Preservation Description</td>
-      <td><textarea 
+      <p>Preservation Description</p>
+      <textarea 
         name="dmpDescription" 
-        cols="40" 
-        rows="5" 
+        cols="80" 
+        rows="7" 
         placeholder="Provide a description of the storage backup method to be used or how data will be preserved in the long-term."
         [formControl]="preservationForm.controls['preservationDescription']"
         ></textarea>
-      </td>
+      
     </tr>
     <tr>
-      <td>Describe your plans for making the<br>data discoverable (findable) and accessible</td>
-      <td><textarea 
+      <p>Describe your plans for making the<br>data discoverable (findable) and accessible</p>
+      <textarea 
         name="dmpDiscoverability" 
-        cols="40" 
-        rows="5" 
+        cols="80" 
+        rows="7" 
         placeholder="Describe what steps will be taken to ensure that potential customers who do not already know the data will be able to find them (discoverability) and then obtain them for use (accessibility)."
         [formControl]="preservationForm.controls['dataAccess']"
         ></textarea>
-      </td>
+      
     </tr>
   </table>
   <div class="sub-category">Provide the file path(s) / URL(s) for where you will be saving your data (if known)</div>
