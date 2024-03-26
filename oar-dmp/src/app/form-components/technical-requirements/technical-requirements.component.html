@@ -9,7 +9,7 @@
   
   <table >
     <tr>
-      <td class="description">Estimated Data Size</td>
+      <td class="description"><div class ="dmp_tooltip">Estimated Data Size<span class="dmp_tooltiptext">Is it total size over the project life or per year?</span></div></td>
       <td>
         <input type="text" placeholder="Numeric value" (change)="setDataSize($event)" 
         [formControl]="technicalRequirementsForm.controls['dataSize']" >
