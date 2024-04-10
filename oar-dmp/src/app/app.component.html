@@ -2,27 +2,52 @@
     <app-header appVersion="1.0"></app-header>
 </div>
 
+  
+<div class="my_row">
+  
+    <div class="dmp-col-8">
+        form
+    </div>
+    
+    <div class="dmp-col-4">
+        resources
+    </div>
+  
+</div>
+
 <div *ngIf="creds && readyDisplay">
+    
     <!-- div dmp_hdr is used for calculating resizing of the form and positioning of the reources options -->
-    <div  id="dmp_hdr" (resized)="onResized($event)"></div>  
+    <!-- <div  id="dmp_hdr" (resized)="onResized($event)"></div>   -->
     <!-- <div class="dmp_header" >Data Management Plan</div> -->
-    <div class="sticky" id="resource_options">
+    <!-- <div class="sticky" id="resource_options"> -->
         <!-- 
         Here child component called resource-options expects the property named "data"
         whose value is stored in the "resourceCompMessage" variable
     
     <app-resource-options [data]="resourceCompMessage"></app-resource-options>
     -->
-        <app-resource-options></app-resource-options>
+        <!-- <app-resource-options></app-resource-options> -->
+    <!-- </div> -->
+
+    <div class="my_row">
+        <div class="dmp-col-8">
+            <div id="dmp_panel">
+                <!-- <div class="dmp_user"><img [src]="loginPNG" [alt]="alttext">
+                    {{authMessage}}</div> -->
+                <div class="dmp_header" >Data Management Plan</div>
+                
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+        <div class="dmp-col-4">
+            <div class="sticky" id="resource_options">
+                <app-resource-options></app-resource-options>
+            </div>
+        </div>
     </div>
     
-    <div id="dmp_panel">
-    <!-- <div class="dmp_user"><img [src]="loginPNG" [alt]="alttext">
-        {{authMessage}}</div> -->
-    <div class="dmp_header" >Data Management Plan</div>
     
-    <router-outlet></router-outlet>
-    </div>
 
 </div>
 

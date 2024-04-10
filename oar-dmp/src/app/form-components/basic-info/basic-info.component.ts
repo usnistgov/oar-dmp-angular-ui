@@ -8,7 +8,7 @@ import {Observable} from 'rxjs';
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
-  styleUrls: ['./basic-info.component.scss', '../form-table.scss']
+  styleUrls: ['./basic-info.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class BasicInfoComponent{
   

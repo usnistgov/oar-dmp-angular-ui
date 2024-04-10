@@ -1,3 +1,65 @@
+* {
+  box-sizing: border-box;
+}
+
+.my_row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+[class*="dmp-col-"] {
+  float: left;
+  padding: 15px;
+}
+
+/* For mobile phones: */
+[class*="dmp-col-"] {
+  width: 100%;
+}
+
+@media only screen and (min-width: 1830px) {
+  /* For desktop: */
+  .dmp-col-1 {width: 8.33%;}
+  .dmp-col-2 {width: 16.66%;}
+  .dmp-col-3 {width: 25%;}
+  .dmp-col-4 {width: 33.33%;}
+  .dmp-col-5 {width: 41.66%;}
+  .dmp-col-6 {width: 50%;}
+  .dmp-col-7 {width: 58.33%;}
+  .dmp-col-8 {width: 66.66%;}
+  .dmp-col-9 {width: 75%;}
+  .dmp-col-10 {width: 83.33%;}
+  .dmp-col-11 {width: 91.66%;}
+  .dmp-col-12 {width: 100%;}
+  div.sticky{
+    position: fixed;
+    // top: 95px;
+    // left: 623px;
+  }
+}
+
+.flexbox {
+	display: flex;
+	.stretch {
+		flex: 1;
+	}
+	.normal {
+		flex: 0;
+		margin: 0 0 0 1rem;
+	}
+	div {
+		input {
+			padding: .5em 1em;
+			width: 100%;
+		}
+		button {
+			padding: .5em 1em;
+			white-space: nowrap;
+		}
+	}
+}
+
 $font-stack: Helvetica, sans-serif;
 $primary-color: #333;
 $dmp_margin_left: 35px;
@@ -123,11 +185,7 @@ div{
   border-color: #ffeeba;
   padding: 3px;
 }
-div.sticky{
-  position: fixed;
-  // top: 95px;
-  // left: 623px;
-}
+
 div.dmp_info_panel{
   margin-left: $dmp_margin_left;
 }

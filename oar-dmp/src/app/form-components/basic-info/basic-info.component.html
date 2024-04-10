@@ -3,7 +3,14 @@
   <table>
     <tr>
       <td class="description">Title<!--<span class="required_DMP_Field" >*</span>--></td>
-      <td><input type="text" [formControl]="basicInfoForm.controls['title']" class="wide"></td>
+      <td>
+        <section class="flexbox">
+          <div class="stretch">
+            <input type="text" [formControl]="basicInfoForm.controls['title']" placeholder="Title..." />
+          </div>
+        </section>
+        
+      </td>
     </tr>
     <tr class="hidden-row">
       <td class="description">DMP Idntifier</td>
