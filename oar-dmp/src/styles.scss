@@ -174,16 +174,22 @@ div{
   }
 }
 .error-msg {
-  color: #721c24;
   background-color: #f8d7da;
+  color: #721c24;  
+  border-style: solid;
+  border-width: 2px;
   border-color: #f5c6cb;
-  padding: 3px;
+  border-radius: 10px;
+  padding: 12px;
 }
 .warning-msg{
   background-color: #fff3cd;
   color: #856404;
-  border-color: #ffeeba;
-  padding: 3px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #fde559;
+  border-radius: 10px;
+  padding: 12px;
 }
 
 div.dmp_info_panel{
