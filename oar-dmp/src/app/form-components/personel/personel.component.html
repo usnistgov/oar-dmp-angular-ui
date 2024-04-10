@@ -1,18 +1,19 @@
 
 <div class="dmpSection">
   <div class="header">Researchers</div>
-
   
-  <table>
-    <tr>
-      <td class="description">Primary NIST Contact <!--<span class="required_DMP_Field" >*</span>--></td>
-      <td>
-
-        <mat-form-field class="example-full-width" appearance="fill">
+  <div class="dmp-frm-container">
+    <div class="row">
+      <div class="col-25">
+        <label for="primary_nist_contact">Primary NIST Contact <!--<span class="required_DMP_Field" >*</span>--></label>
+      </div>
+      <div class="col-75">
+        <mat-form-field class="example-full-width" appearance="fill" >
           <mat-label>NIST Contact</mat-label>
           <input type="text"
                  placeholder="Pick one"
                  aria-label="Nist Contact"
+                 style="background-color: rgb(252, 252, 252);"
                  matInput
                  [formControl]="personelForm.controls['primary_NIST_contact']"
                  [matAutocomplete]="primary_NIST_contact">
@@ -25,14 +26,19 @@
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
+  
+      </div>
+    </div>
 
-      </td>      
-    </tr>
-    <tr>
-      <td class="description">NIST Contact ORCID</td>
-      <td class="cell-top"><input type="text" [formControl]="personelForm.controls['primNistContactOrcid']" (change)="pncOrcidChange()"></td>
-    </tr>
-  </table>
+    <div class="row">
+      <div class="col-25">
+        <label for="nist_contact_orcid">NIST Contact ORCID</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="nist_contact_orcid" [formControl]="personelForm.controls['primNistContactOrcid']" (change)="pncOrcidChange()" style="max-width: 200px;">
+      </div>
+    </div>
+  </div>
   
   <p *ngIf="pncErrorMessage" class="error-msg">{{ pncErrorMessage }}</p>
   <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>

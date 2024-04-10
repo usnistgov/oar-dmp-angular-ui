@@ -104,7 +104,7 @@ const ORG_COL_SCHEMA = [
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['./personel.component.scss', '../form-table.scss']
+  styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
   // ================================
