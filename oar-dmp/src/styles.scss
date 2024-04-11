@@ -17,7 +17,7 @@ body {
   border: none;
   border-bottom: 2px solid rgba(128, 128, 128, 0.418);
   // margin-right: 0.5rem;
-  margin-left: $dmp_margin_left;
+  // margin-left: $dmp_margin_left;
   // width: 600px;
 }
 
@@ -186,4 +186,28 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     // top: 95px;
     // left: 623px;
   }
+}
+
+#DmpPublished, #PageError, #PageNotFound{
+  font: 2em sans-serif;  
+  border-radius: 8px;
+  p{
+    padding: 10px;
+  }
+}
+
+#DmpPublished{
+  background-color: rgb(242, 253, 221);
+}
+
+#PageError{
+  background-color: rgb(253, 221, 221);
+}
+
+#PageNotFound{
+  background-color: rgb(221, 246, 253);
+}
+
+@media only screen and (min-width: 1830px) {
+  #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
 }
