@@ -47,7 +47,7 @@
 
     <div class="row">
       <div class="col-25">
-        Contributor
+        Add a Contributor
       </div>
       <div class="col-75">
         <!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
@@ -62,7 +62,7 @@
             (click)="setContributor('NIST')"
             (change)="onContributorChange($event.target)"
           >
-          <label for="contributorNIST">NIST employee / associate</label>
+          <label for="contributorNIST">NIST Employee / Associate</label>
         </div>
         
         <!-- ======================================================= -->        
@@ -186,7 +186,7 @@
         <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
       </article>
       
-        
+      <div style="overflow-x:auto;">
         <table mat-table [dataSource]="dmpContributors" class="mat-elevation-z8 contribTbl">
     
           <!-- 
@@ -260,26 +260,30 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>    
-      
+      </div>
     </div>
     <br/>
     <div class="dmpSubSection">
       <div class="sub-category">Organization(s) Associated With This DMP</div>  
-      <p class="instruction"> Add / Remove Organization(s) associated with this DMP</p>  
-      <table>
-        <tr>
-          <td>Select an organization associated with this DMP</td>
-          <td>
+      <p class="instruction"> Add / Remove Organization(s) associated with this DMP</p> 
+
+      <div class="dmp-container">
+        <div class="row">
+          <div class="col-30">
+            Select an organization 
+            associated with this DMP
+          </div>
+          <div class="col-70">
             <mat-form-field class="example-full-width" appearance="fill" style="width:400px;">
               <!-- <mat-label>NIST Organization</mat-label> -->
               <input type="text"
-                     placeholder="Type to search ..."
-                     aria-label="NIST Organization"
-                     style="background-color: rgb(252, 252, 252);"
-                     matInput
-                     [formControl]="personelForm.controls['nistOrganization']"
-                     [matAutocomplete]="nistOrganization"
-                     >
+                    placeholder="Type to search ..."
+                    aria-label="NIST Organization"
+                    style="background-color: rgb(252, 252, 252);"
+                    matInput
+                    [formControl]="personelForm.controls['nistOrganization']"
+                    [matAutocomplete]="nistOrganization"
+                    >
               <mat-autocomplete 
                 #nistOrganization="matAutocomplete"
                 [displayWith]="displaySelectedOrganization"
@@ -289,9 +293,9 @@
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-          </td>
-        </tr>
-      </table>
+          </div>
+        </div>
+      </div> 
   
       <article class="table-header">
         
@@ -308,57 +312,58 @@
       <p *ngIf="org_errorMessage" class="error-msg">{{ org_errorMessage }}</p>
       
     
-      <table mat-table [dataSource]="dmpOrganizations" class="mat-elevation-z8 form-table" id="dmpOrganizations">
+      <div style="overflow-x:auto;">
+        <table mat-table [dataSource]="dmpOrganizations" class="mat-elevation-z8 form-table" id="dmpOrganizations">
+        
+          <!-- 
+            iterate over columns 
+          -->
+          <ng-container [matColumnDef]="col.key" *ngFor="let col of org_columnsSchema">
+            <!-- 
+              table headers 
+            -->
+            <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+            <!-- 
+              table cells 
+            -->
+            <td mat-cell *matCellDef="let element">  
+              <!-- table cell display default cell display -->
+              <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+                <!-- Switch if the column isSelected to display the checkbox in the table cell -->
+                <ng-container *ngSwitchCase="'isSelected'">
+                  <mat-checkbox
+                    (change)="element.isSelected = $event.checked"
+                  ></mat-checkbox>
+                </ng-container>
       
-        <!-- 
-          iterate over columns 
-        -->
-        <ng-container [matColumnDef]="col.key" *ngFor="let col of org_columnsSchema">
-          <!-- 
-            table headers 
-          -->
-          <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
-          <!-- 
-            table cells 
-          -->
-          <td mat-cell *matCellDef="let element">  
-            <!-- table cell display default cell display -->
-            <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
-              <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-              <ng-container *ngSwitchCase="'isSelected'">
-                <mat-checkbox
-                  (change)="element.isSelected = $event.checked"
-                ></mat-checkbox>
-              </ng-container>
-    
-              <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-              <div class="btn-edit" *ngSwitchCase="'isEdit'">
-                <button
-                  mat-button
-                  class="button-remove"
-                  (click)="org_removeRow(element.id)"
-                >
-                  Delete
-                </button>
+                <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
+                <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                  <button
+                    mat-button
+                    class="button-remove"
+                    (click)="org_removeRow(element.id)"
+                  >
+                    Delete
+                  </button>
+                </div>
+                
+                <!-- default cell -->
+                <span *ngSwitchDefault>
+                  {{ element[col.key] }}
+                </span>
               </div>
-              
-              <!-- default cell -->
-              <span *ngSwitchDefault>
-                {{ element[col.key] }}
-              </span>
-            </div>
-    
-           
-    
-          </td>
-        </ng-container>
       
-        <tr mat-header-row *matHeaderRowDef="org_displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: org_displayedColumns;"></tr>
-      </table>
+            
+      
+            </td>
+          </ng-container>
+        
+          <tr mat-header-row *matHeaderRowDef="org_displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: org_displayedColumns;"></tr>
+        </table>
+      </div>
     </div>
 
   </div>
-  <br/>
   
 </div>
