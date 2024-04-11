@@ -1,6 +1,7 @@
 <div class="dmpSection">
-  <div class="header">Ethical Issues</div> 
-  <div>Are there any ethical issues related to the data that this DMP describes?</div>
+  <div class="header">Ethical Issues</div>
+  <div class="dmp-frm-container"> 
+    <div class="dmp-frm-label">Are there any ethical issues related to the data that this DMP describes?</div>
     <div>
       <input type="radio" id="ethicalIssuesY" name="ethicalIssues" value="yes" (click)="setEthicalIssues('yes')" 
       [formControl]="ethicalIsuesForm.controls['ethicalIssue']"
@@ -32,21 +33,20 @@
           ></textarea>
         </div>
       </div>
-    </div>  
-    <table>
-      <tr>
-        <td class="description">Does the data generated in this project contain PII or BII?</td>
-        <td>
-          <input type="radio" id="PIIY" name="PII" value="yes" 
+    </div>
+    <div>
+      <span class="dmp-frm-label">Does the data generated in this project contain PII or BII?</span>
+    </div>
+    <div>
+      <input type="radio" id="PIIY" name="PII" value="yes" 
           [formControl]="ethicalIsuesForm.controls['ethicalPII']"
           >
-          <label for="PIIY">Yes</label>
+      <label for="PIIY">Yes</label>
 
-          <input type="radio" id="PIIN" name="PII" value="no" 
-          [formControl]="ethicalIsuesForm.controls['ethicalPII']"
-          >
-          <label for="PIIN">No</label>
-        </td>
-      </tr>
-    </table>
+      <input type="radio" id="PIIN" name="PII" value="no" 
+      [formControl]="ethicalIsuesForm.controls['ethicalPII']"
+      >
+      <label for="PIIN">No</label>
+    </div>
+  </div> 
 </div>
