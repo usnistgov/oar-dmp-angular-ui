@@ -9,7 +9,7 @@ import { DataCategories } from '../../types/data-categories.type';
 @Component({
   selector: 'app-data-description',
   templateUrl: './data-description.component.html',
-  styleUrls: ['./data-description.component.scss']
+  styleUrls: ['./data-description.component.scss', '../form-layout.scss']
 })
 export class DataDescriptionComponent implements OnInit {
 

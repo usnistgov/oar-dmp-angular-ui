@@ -6,7 +6,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 @Component({
   selector: 'app-keywords',
   templateUrl: './keywords.component.html',
-  styleUrls: ['./keywords.component.scss', '../form-table.scss']
+  styleUrls: ['./keywords.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class KeywordsComponent {
 

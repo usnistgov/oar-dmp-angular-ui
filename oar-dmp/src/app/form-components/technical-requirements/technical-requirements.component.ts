@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
-  styleUrls: ['./technical-requirements.component.scss', '../form-table.scss']
+  styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class StorageNeedsComponent {  
   disableAdd:boolean = false;

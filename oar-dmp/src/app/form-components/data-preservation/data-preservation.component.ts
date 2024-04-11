@@ -6,7 +6,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 @Component({
   selector: 'app-data-preservation',
   templateUrl: './data-preservation.component.html',
-  styleUrls: ['./data-preservation.component.scss', '../form-table.scss']
+  styleUrls: ['./data-preservation.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class DataPreservationComponent {
   separatorExp: RegExp = /,|;/;

@@ -6,7 +6,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 @Component({
   selector: 'app-ethical-issues',
   templateUrl: './ethical-issues.component.html',
-  styleUrls: ['./ethical-issues.component.scss']
+  styleUrls: ['./ethical-issues.component.scss', '../form-layout.scss']
 })
 export class EthicalIssuesComponent {
 
