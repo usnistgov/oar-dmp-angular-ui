@@ -35,7 +35,7 @@
       </div>
     </div>
     <div>
-      <span class="dmp-frm-label">Does the data generated in this project contain PII or BII?</span>
+      <span class="dmp-frm-label">Does the data generated in this project contain PII or BII or other sensitive data?</span>
     </div>
     <div>
       <input type="radio" id="PIIY" name="PII" value="yes" 
@@ -47,6 +47,13 @@
       [formControl]="ethicalIsuesForm.controls['ethicalPII']"
       >
       <label for="PIIN">No</label>
+    </div>
+    <div>
+      <b>Security and Privacy</b><br>
+      Title:<br>
+      <input type="text" id="security_title" name="security_title" required minlength="4" maxlength="8" size="10" /><br>
+      Description:<br>
+      <input type="text" id="security_description" name="security_description" required minlength="4" maxlength="8" size="10" /><br>
     </div>
   </div> 
 </div>
