@@ -62,7 +62,7 @@
 
 $font-stack: Helvetica, sans-serif;
 $primary-color: #333;
-$dmp_margin_left: 35px;
+$dmp_margin_left: 12px;
 
 body {
   font: 100% $font-stack;
@@ -191,12 +191,6 @@ div{
   border-radius: 10px;
   padding: 12px;
 }
-
-div.dmp_info_panel{
-  margin-left: $dmp_margin_left;
-}
-
-
 
 
 html, body { height: 100%; }
