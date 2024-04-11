@@ -6,25 +6,29 @@
     color change div
   </div> 
   -->
-  
-  <table >
-    <tr>
-      <td class="description"><div class ="dmp_tooltip">Estimated Data Size<span class="dmp_tooltiptext">Is it total size over the project life or per year?</span></div></td>
-      <td>
-        <input type="text" placeholder="Numeric value" (change)="setDataSize($event)" 
+
+  <div class="dmp-frm-container">
+    <div class="row">
+      <div class="col-20">
+        <label for="estimated_data_size"><div class ="dmp_tooltip">Estimated Data Size<span class="dmp_tooltiptext">Is it total size over the project life or per year?</span></div></label>
+      </div>
+      <div class="col-80">
+        <input type="text" id="estimated_data_size" placeholder="Numeric value" (change)="setDataSize($event)" 
         [formControl]="technicalRequirementsForm.controls['dataSize']" >
 
-        <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" >
+        <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" style="padding: 5px;">
           <option [value]="item.id" *ngFor="let item of dataUnits">
               {{item.size}}
           </option>
         </select>
+      </div>
+    </div>
 
-      </td>
-    </tr>
-    <tr>
-      <td class="description">Software Development</td>
-      <td>
+    <div class="row">
+      <div class="col-20">
+        Software Development
+      </div>
+      <div class="col-80">
         <input type="radio" id="softwareDevY" name="softwareDevelopment" value="yes" (click)="setSoftwareDev('yes')"
         [formControl]="technicalRequirementsForm.controls['development']"
         >
@@ -89,16 +93,16 @@
             </tr>
           </table>
 
-
         </div>
-      </td>
-    </tr>
-  </table>
-  <div class="sub-category">Technical resources equipment needed/used</div>
-  <p>Copy/Paste or manually type in Keywords/Phrases as comma separated values: <i>Hint: a, b, c</i></p>  
-  <div class="p-fluid">
-    <p-chips [formControl]="technicalRequirementsForm.controls['technicalResources']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips>
+      </div>
+    </div>
+
+    <div class="sub-category">Technical resources equipment needed/used</div>
+    <p>Copy/Paste or manually type in Keywords/Phrases as comma separated values: <i>Hint: a, b, c</i></p>  
+    <div class="p-fluid">
+      <p-chips [formControl]="technicalRequirementsForm.controls['technicalResources']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips>
+    </div>
+
   </div>
-  
-  <br/>    
+    
 </div>
