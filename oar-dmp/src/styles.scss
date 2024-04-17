@@ -183,6 +183,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .dmp-col-12 {width: 100%;}
   div.sticky{
     position: fixed;
+    min-width: 600px;//required for FIrefox
     // top: 95px;
     // left: 623px;
   }
