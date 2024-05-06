@@ -16,7 +16,11 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class StorageNeedsComponent {  
-  disableAdd:boolean = false;
+  // ================================  
+
+  disableAdd:boolean = true;
+  disableClear:boolean = true;
+  disableRemove:boolean = true;
 
   storageSubscription!: Subscription | null;  
   errorMessage: string = '';
@@ -342,6 +346,9 @@ export class StorageNeedsComponent {
     this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
 
   }
+
+  removeSelectedRows() {}
+  addRow(){}
   
   
 

@@ -99,13 +99,28 @@
 
     <div class="sub-category">Instruments needed/used</div>
 
-    <div>
-      <b>Instruments used</b><br>
-      Instrument Name:<br>
-      <input type="text" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
-      Instrument Description / URL Landing Page:<br>
-      <input type="text" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>
+    <b>Instruments used</b><br>
+    <div class="dmp-frm-row">
+      <div class="dmp-col-3">        
+        Instrument Name:<br>
+        <input type="text" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
+      </div>
+      <div class="dmp-col-9">
+        Instrument Description / URL Landing Page:<br>
+        <input type="text" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>  
+      </div>
     </div>
+
+    <article class="table-header">
+      
+      <!-- 
+        set button type to 'button' to prevent it from acting like a submit button and triggering
+        updateDMP in dmp.services.ts 
+      -->
+      <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
+      <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
+      <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+    </article>
 
   </div>
     
