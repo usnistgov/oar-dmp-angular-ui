@@ -10,6 +10,37 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
+export interface Instrument {  
+  name: string;
+  description_url: string;
+  id: number;
+  isEdit: boolean;
+}
+
+const INSTR_COL_SCHEMA = [
+  {
+    key: 'isSelected',
+    type: 'isSelected',
+    label: '',
+  },
+  {
+    key: 'name',
+    type: 'text',
+    label: 'Instrument Name',
+  },
+  {
+    key: 'description_url',
+    type: 'text',
+    label: 'Description / URL Landing Page',
+  },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+]
+
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
@@ -22,10 +53,17 @@ export class StorageNeedsComponent {
   disableClear:boolean = true;
   disableRemove:boolean = true;
 
+  instr_displayedColumns: string[] = INSTR_COL_SCHEMA.map((col) => col.key);
+  instr_columnsSchema: any = INSTR_COL_SCHEMA;
+
+  // ================================  
+
   storageSubscription!: Subscription | null;  
   errorMessage: string = '';
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
+
+  dmpInstruments: Instrument[] = []
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
