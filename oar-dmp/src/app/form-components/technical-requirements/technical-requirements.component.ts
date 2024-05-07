@@ -78,7 +78,8 @@ export class StorageNeedsComponent {
       softwareUse: [''],
       softwareDatabase: [''],
       softwareWebsite: [''],
-      technicalResources: [[]]
+      technicalResources: [[]],
+      instruments: [[]]
     }
   );
   
@@ -105,7 +106,8 @@ export class StorageNeedsComponent {
         softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
         softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
         softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
-        technicalResources:             technical_requirements.technicalResources
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
       });
     }
     else{
@@ -119,7 +121,8 @@ export class StorageNeedsComponent {
         softwareUse:                    "",
         softwareDatabase:               "",
         softwareWebsite:                "",
-        technicalResources:             technical_requirements.technicalResources
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
       });
     }
     
