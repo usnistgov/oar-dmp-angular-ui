@@ -6,11 +6,12 @@ import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 // import { DMP_Meta } from 'src/app/types/DMP.types';
 // import { SoftwareDevelopment } from 'src/app/types/software-development.type';
+import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
-export interface Instrument {  
+export interface InstrTblRow {  
   name: string;
   description_url: string;
   id: number;
@@ -59,6 +60,12 @@ export class StorageNeedsComponent {
   crntInstrName: string = "";
   crntInstrURL: string = "";
 
+  dmpInstrument: Instrument={
+    name:"",
+    dresription_url:""
+
+  } 
+
   // ================================  
 
   storageSubscription!: Subscription | null;  
@@ -66,7 +73,7 @@ export class StorageNeedsComponent {
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
 
-  dmpInstruments: Instrument[] = []
+  dmpInstrumentsTbl: InstrTblRow[] = []
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -156,7 +163,8 @@ export class StorageNeedsComponent {
                                             "softwareDatabase":formValue.softwareDatabase,
                                             "softwareWebsite":formValue.softwareWebsite
                                           },
-          technicalResources:             formValue.technicalResources
+          technicalResources:             formValue.technicalResources,
+          instruments:                    formValue.instruments
         })
       )
 
@@ -405,9 +413,9 @@ export class StorageNeedsComponent {
       isEdit: false,
     };
 
-    // create a new array using an existing array as one part of it 
+    // add new row to the dmpInstrumentsTbl array 
     // using the spread operator '...'
-    this.dmpInstruments = [newRow, ...this.dmpInstruments];
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
     
 
     //update changes made to the table in the personel form
