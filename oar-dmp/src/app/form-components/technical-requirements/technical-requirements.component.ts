@@ -56,6 +56,9 @@ export class StorageNeedsComponent {
   instr_displayedColumns: string[] = INSTR_COL_SCHEMA.map((col) => col.key);
   instr_columnsSchema: any = INSTR_COL_SCHEMA;
 
+  crntInstrName: string = "";
+  crntInstrURL: string = "";
+
   // ================================  
 
   storageSubscription!: Subscription | null;  
@@ -386,7 +389,42 @@ export class StorageNeedsComponent {
   }
 
   removeSelectedRows() {}
-  addRow(){}
+  addRow(){
+    // Disable buttons while the user is inputing new row
+    this.disableAdd=true;
+    this.disableClear=true;
+    this.disableRemove=true;
+
+    const newRow = {
+      id: Date.now(),
+      name: this.crntInstrName,
+      description_url:this.crntInstrURL,
+      isEdit: false,
+    };
+
+    // create a new array using an existing array as one part of it 
+    // using the spread operator '...'
+    this.dmpInstruments = [newRow, ...this.dmpInstruments];
+    
+
+    //update changes made to the table in the personel form
+    this.onDoneClick(newRow);
+
+    this.resetInstrumentFields();
+
+  }
+
+  onDoneClick(e:any){
+
+  }
+
+  /**
+   * Resets form fields for DMP Instruments
+   */
+  private resetInstrumentFields(){
+
+
+  }
   
   
 
