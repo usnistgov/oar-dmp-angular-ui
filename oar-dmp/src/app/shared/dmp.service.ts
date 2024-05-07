@@ -65,6 +65,7 @@ export class DmpService {
     sizeUnit:                 "GB",
     softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
     technicalResources:       [],
+    instruments:              [],
     
     // Ethical Issues Meta data
     ethical_issues:           {
@@ -127,6 +128,9 @@ export class DmpService {
     sizeUnit:                 "GB",
     softwareDevelopment:      {development:"yes", softwareUse:"both", softwareDatabase: "yes", softwareWebsite: "yes"},
     technicalResources:       ['Mass Spectrometer', 'Microsope'],
+    instruments:              [{name:"instrument1 name example", dresription_url:"description - url example1"}, 
+                              {name:"instrument2 name example", dresription_url:"description - url example2"}
+    ],
     
     // Ethical Issues Meta data
     ethical_issues:           {
