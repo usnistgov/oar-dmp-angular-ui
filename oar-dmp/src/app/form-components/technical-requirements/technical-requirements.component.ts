@@ -399,7 +399,24 @@ export class StorageNeedsComponent {
 
   }
 
-  removeSelectedRows() {}
+  removeSelectedRows() {
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
+    this.resetTable();
+
+    this.dmpInstrumentsTbl.forEach((element)=>{        
+      // re populate instruments array
+      this.technicalRequirementsForm.value['instruments'].push({
+        name:element.name,
+        description_url: element.description_url
+      });
+    });
+    if (this.dmpInstrumentsTbl.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+  }
+
   addRow(){
     // Disable buttons while the user is inputing new row
     this.disableAdd=true;
@@ -463,6 +480,9 @@ export class StorageNeedsComponent {
    * Resets form fields for DMP Instruments
    */
   private resetInstrumentFields(){
+    this.errorMessage = "";
+
+    this.dmpInstrument = {name:"", description_url:""};
 
 
   }
