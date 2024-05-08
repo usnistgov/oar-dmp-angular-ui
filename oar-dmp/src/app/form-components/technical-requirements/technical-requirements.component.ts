@@ -104,6 +104,24 @@ export class StorageNeedsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
+    // loop over instruments array sent from the server and populate local copy of 
+    // instruments array to populate the table of instruments in the user interface
+
+    technical_requirements.instruments.forEach(
+      (anInstrument, index) => {
+        this.dmpInstrumentsTbl.push({
+          id:               index, 
+          isEdit:           false, 
+          name:             anInstrument.name,
+          description_url:  anInstrument.description_url,
+
+          
+        });
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    )
+
     // set initial values for technical requirements part of the form
     // to what has been sent from the server
     if (technical_requirements.softwareDevelopment.development === "yes"){
@@ -440,7 +458,7 @@ export class StorageNeedsComponent {
     this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
     
 
-    //update changes made to the table in the personel form
+    //update changes made to the table in the form
     this.onDoneClick(newRow);
 
     this.resetInstrumentFields();
