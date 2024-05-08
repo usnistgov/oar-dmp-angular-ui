@@ -426,6 +426,33 @@ export class StorageNeedsComponent {
   }
 
   onDoneClick(e:any){
+    if (!e.name.length) {
+      this.errorMessage = "Instrument name can't be empty";
+      return;
+    }
+    else if(!e.description_url.length) {
+      this.errorMessage = "Description / URL can't be empty";
+      return;
+    }
+
+    this.errorMessage = '';
+    this.resetTable();// check if this step is needed
+    
+    this.dmpInstrumentsTbl.forEach((element)=>{
+      if(element.id === e.id){
+        element.isEdit = false;
+      } 
+
+      // re populate instruments array
+      this.technicalRequirementsForm.value['instruments'].push({
+        name: element.name,
+        description_url: element.description_url
+      });
+    }
+  )
+
+  this.disableClear=false;
+  this.disableRemove=false;
 
   }
 
@@ -445,7 +472,7 @@ export class StorageNeedsComponent {
   
   resetTable(){
     this.technicalRequirementsForm.patchValue({
-      technicalResources:[]
+      instruments:[]
     })
   }
 
@@ -465,6 +492,9 @@ export class StorageNeedsComponent {
       softwareUse:          null,
       softwareDatabase:     null,
       softwareWebsite:      null
+    })
+    this.technicalRequirementsForm.patchValue({
+      technicalResources:[]
     })
     this.clearTable();
     
