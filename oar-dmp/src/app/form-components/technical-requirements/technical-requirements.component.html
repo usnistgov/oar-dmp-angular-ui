@@ -103,11 +103,11 @@
     <div class="dmp-frm-row">
       <div class="dmp-col-3">        
         Instrument Name:<br>
-        <input type="text" [(ngModel)]="dmpInstrument.name" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
+        <input type="text" [(ngModel)]="dmpInstrument.name" (input)="checkInstrData($event)" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
       </div>
       <div class="dmp-col-9">
         Instrument Description / URL Landing Page:<br>
-        <input type="text" [(ngModel)]="dmpInstrument.dresription_url" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>  
+        <input type="text" [(ngModel)]="dmpInstrument.description_url" (input)="checkInstrData($event)" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>  
       </div>
     </div>
 

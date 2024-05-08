@@ -62,7 +62,7 @@ export class StorageNeedsComponent {
 
   dmpInstrument: Instrument={
     name:"",
-    dresription_url:""
+    description_url:""
 
   } 
 
@@ -406,6 +406,9 @@ export class StorageNeedsComponent {
     this.disableClear=true;
     this.disableRemove=true;
 
+    this.crntInstrName = this.dmpInstrument.name;
+    this.crntInstrURL = this.dmpInstrument.description_url
+
     const newRow = {
       id: Date.now(),
       name: this.crntInstrName,
@@ -474,6 +477,16 @@ export class StorageNeedsComponent {
     this.technicalRequirementsForm.patchValue({
       instruments:[]
     })
+  }
+
+  checkInstrData(e:any){
+    // Check if both Instrument Name and Description/url have been filled out
+    if (this.dmpInstrument.name !== '' && this.dmpInstrument.description_url !== ''){
+      this.disableAdd = false;      
+    }
+    else{
+      this.disableAdd = true;
+    }
   }
 
   resetTechnicalRequirements(){
