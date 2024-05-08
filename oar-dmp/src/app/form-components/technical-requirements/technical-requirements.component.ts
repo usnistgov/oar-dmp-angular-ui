@@ -66,6 +66,8 @@ export class StorageNeedsComponent {
 
   } 
 
+  dmpInstrumentsTbl: InstrTblRow[] = []
+
   // ================================  
 
   storageSubscription!: Subscription | null;  
@@ -73,7 +75,7 @@ export class StorageNeedsComponent {
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
 
-  dmpInstrumentsTbl: InstrTblRow[] = []
+  
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -490,7 +492,10 @@ export class StorageNeedsComponent {
   
 
   clearTable(){
+    this.dmpInstrumentsTbl = []
     this.resetTable();
+    this.disableClear=true;
+    this.disableRemove=true;
   }
   
   resetTable(){
