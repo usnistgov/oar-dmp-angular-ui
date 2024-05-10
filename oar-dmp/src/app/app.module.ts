@@ -84,7 +84,7 @@ import { ChipsModule } from 'primeng/chips';
   ],
 
   providers: [
-    fakeBackendProvider,
+    // fakeBackendProvider,
     // { provide: RELEASE_INFO, useValue: RELEASE },
     // { provide: CONFIG_URL, useValue: environment.configUrl }
   ],
