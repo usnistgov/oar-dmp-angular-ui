@@ -456,12 +456,14 @@ export class DmpFormComponent implements OnInit {
     }
 
     // End Date
+    /*
     if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
       if (dmpFormat === "PDF")
         this.DMP_PDF.printTextField("End Date", this.dmp?.endDate);
       if (dmpFormat === "Markdown") 
         this.markdown.push("**End Date:** " + this.dmp?.endDate + "  \n");
     }
+    */
 
     // Make DMP searchable
     if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){

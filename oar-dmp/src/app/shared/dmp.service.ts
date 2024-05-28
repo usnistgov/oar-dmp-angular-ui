@@ -46,7 +46,7 @@ export class DmpService {
     //Basic Info Meta data
     title:                    '',
     startDate:                '',
-    endDate:                  '',
+    // endDate:                  '',
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
@@ -93,7 +93,7 @@ export class DmpService {
     //Basic Info Meta data
     title:                    'Example Title',
     startDate:                '2022-09-28',
-    endDate:                  '2023-09-28',
+    // endDate:                  '2023-09-28',
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:'12345'},
     projectDescription:       'Example Project Description',
