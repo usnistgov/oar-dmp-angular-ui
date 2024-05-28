@@ -100,8 +100,12 @@
           "link":"https://inet.nist.gov/oism/controlled-unclassified-information-cui"
         },
         {
-          "text":"Policies, Directives, and NIST's Public Access Plan",
+          "text":"Policies, Directives, and Public Access",
           "link":"https://www.nist.gov/open/policies-directives-and-nists-public-access-plan"
+        },
+        {
+          "text":"Research Protections Office",
+          "link":"https://inet.nist.gov/lp/rpo"
         }
       ]
     },
