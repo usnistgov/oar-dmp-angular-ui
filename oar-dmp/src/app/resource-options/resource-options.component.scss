@@ -24,22 +24,22 @@
   border-radius: 3px;
   /* unvisited link */
   a:link {
-    color: rgb(30, 65, 224);
+    color: #1E4187;
   }
 
   /* visited link */
   a:visited {
-    color:  rgb(30, 65, 224);
+    color:  #1E4187;
   }
 
   /* mouse over link */
   a:hover {
-    color: rgb(83, 53, 255);
+    color: #5A3F64;
   }
 
   /* selected link */
   a:active {
-    color: blue;
+    color: #661A64;
   } 
 
 }
@@ -53,7 +53,7 @@
   display: table-cell;
 }
 .selected{
-  background-color: rgb(201, 201, 201);
+  background-color: #F1F1F2;
 }
 
 div {

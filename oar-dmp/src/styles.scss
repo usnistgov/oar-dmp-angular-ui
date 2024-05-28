@@ -31,9 +31,9 @@ div{
       left: 0px;
     };
     text-align: center;
-    background: #1a7bbc;
+    background: #1A52BC;
     color: white;
-    font-size: larger;
+    font-size: 20px;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     
@@ -113,11 +113,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .dmp_tooltip .dmp_tooltiptext {
   visibility: hidden;
   width: 120px;
-  background-color: #555;
-  color: #fff;
+  background-color: #ffffff;
+  color: #000000;
   text-align: center;
   padding: 5px 0;
+  border-style: solid;
+  border-width: 2px;
   border-radius: 6px;
+  border-color: #333;
+  font-size: small;
+  font-style: normal;
+  font-weight: normal;
 
   /* Position the dmp_tooltip text */
   position: absolute;

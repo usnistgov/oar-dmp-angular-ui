@@ -4,6 +4,7 @@
 // .instruction{
 //   font-size: large;   
 // }
+$button_red: #B20000;
 
 .btn-edit {
   text-align: right;
@@ -17,20 +18,20 @@
 
 .button-clear-table {
   line-height: 20px;
-  background: #ec2c2c;
+  background: $button_red;
   color: #fffdfd;
 }
 
 .button-remove-rows {
   line-height: 20px;
   background: #e9e8e8;
-  color: #ec2c2c;
-  border: 1px solid #ec2c2c;
+  color: $button_red;
+  border: 1px solid $button_red;
 }
 
 .button-remove {
   line-height: 20px;
-  color: #ec2c2c;
+  color: $button_red;
 }
 .button-edit{
   line-height: 20px;
