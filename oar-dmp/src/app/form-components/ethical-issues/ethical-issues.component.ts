@@ -30,7 +30,7 @@ export class EthicalIssuesComponent {
       ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
       ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
       ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description,
-      ethicalPII:               ethicalIssues.ethical_issues.dmp_PII 
+      // ethicalPII:               ethicalIssues.ethical_issues.dmp_PII 
     });
   }
 
@@ -53,7 +53,7 @@ export class EthicalIssuesComponent {
             ethical_issues_exist:           formValue.ethicalIssue,
             ethical_issues_description:     formValue.ethicalIssueDescription,
             ethical_issues_report:          formValue.ethicalReport,
-            dmp_PII:                        formValue.ethicalPII
+            // dmp_PII:                        formValue.ethicalPII
           }               
           
         })

@@ -678,6 +678,7 @@ export class DmpFormComponent implements OnInit {
       }
 
       // Does the data generated in this project contain PII or BII?
+      /*
       if(this.dmp?.ethical_issues.dmp_PII !== ""){
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Does the data generated in this project contain PII or BII?", 
@@ -685,6 +686,7 @@ export class DmpFormComponent implements OnInit {
         if (dmpFormat === "Markdown")
           this.markdown.push("**Does the data generated in this project contain PII or BII?:** " + this.dmp?.ethical_issues.dmp_PII + "  \n");
       }
+      */
     }
 
     // ========================================= Data Description ===========================

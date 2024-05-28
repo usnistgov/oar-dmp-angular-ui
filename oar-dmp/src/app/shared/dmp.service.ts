@@ -72,7 +72,7 @@ export class DmpService {
                                 ethical_issues_exist:         'no', 
                                 ethical_issues_description:   '', 
                                 ethical_issues_report:        '', 
-                                dmp_PII:                      'no'
+                                // dmp_PII:                      'no'
                               },
 
     // Data Description Meta data
@@ -137,7 +137,7 @@ export class DmpService {
                                 ethical_issues_exist:         'yes', 
                                 ethical_issues_description:   'Ethical Issues Description paragraph example', 
                                 ethical_issues_report:        'Ethical Report paragraph example', 
-                                dmp_PII:                      'yes'
+                                // dmp_PII:                      'yes'
                               },
 
     // Data Description Meta data
