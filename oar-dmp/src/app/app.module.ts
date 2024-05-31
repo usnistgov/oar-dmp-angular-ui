@@ -84,9 +84,9 @@ import { ChipsModule } from 'primeng/chips';
   ],
 
   providers: [
-    // fakeBackendProvider,
-    { provide: RELEASE_INFO, useValue: RELEASE },
-    { provide: CONFIG_URL, useValue: environment.configUrl }
+    fakeBackendProvider,
+    // { provide: RELEASE_INFO, useValue: RELEASE },
+    // { provide: CONFIG_URL, useValue: environment.configUrl }
   ],
 
   bootstrap: [AppComponent]
