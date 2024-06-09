@@ -1,1 +1,99 @@
-<p>security-and-privacy works!</p>
+<div class="dmpSection">
+  <div class="header">Ethical Issues</div>
+  <div class="dmp-frm-container"> 
+    <div>
+      <b>Security and Privacy</b><br><br>
+      Select Data Sensitivity Level(s):<br>
+      <input 
+        type="checkbox" 
+        id="dataSensitivityLow" 
+        name="dataSensitivityLow"
+        value="Low"
+        [checked]="dataSensitivityMap.get('Low')"
+        (click)="dataSensitivityChange($event)" 
+                  
+      >&nbsp;<label for="dataSensitivityLow"> Low </label>
+
+
+      <input 
+        type="checkbox" 
+        id="dataSensitivityMedium" 
+        name="dataSensitivityMedium"
+        value="Medium"
+        [checked]="dataSensitivityMap.get('Medium')"
+        (click)="dataSensitivityChange($event)" 
+                  
+      >&nbsp;<label for="dataSensitivityMedium"> Medium </label>
+
+
+      <input 
+        type="checkbox" 
+        id="dataSensitivityHigh" 
+        name="dataSensitivityHigh"
+        value="High"
+        [checked]="dataSensitivityMap.get('High')"
+        (click)="dataSensitivityChange($event)" 
+                  
+      >&nbsp;<label for="dataSensitivityHigh"> High </label>
+      <br>
+      <div *ngIf="showCUI_chk">
+        Controlled Unclassified Information (CUI):<br>
+        <input 
+          type="checkbox" 
+          id="cuiBII" 
+          name="cuiBII"
+          value="BII"
+          [checked]="cuiMap.get('BII')"
+          (click)="cuiChange($event)" 
+                    
+        >&nbsp;<label for="cuiBII"> BII </label>
+
+
+        <input 
+          type="checkbox" 
+          id="cuiPII" 
+          name="cuiPII"
+          value="PII"
+          [checked]="cuiMap.get('PII')"
+          (click)="cuiChange($event)" 
+                    
+        >&nbsp;<label for="cuiPII"> PII </label>
+
+        <input 
+          type="checkbox" 
+          id="cuiEAR" 
+          name="cuiEAR"
+          value="Export Controlled (EAR)"
+          [checked]="cuiMap.get('Export Controlled (EAR)')"
+          (click)="cuiChange($event)" 
+                    
+        >&nbsp;<label for="cuiEAR"> Export Controlled (EAR) </label>
+
+        <input 
+          type="checkbox" 
+          id="cuiITAR" 
+          name="cuiITAR"
+          value="ITAR"
+          [checked]="cuiMap.get('ITAR')"
+          (click)="cuiChange($event)" 
+                    
+        >&nbsp;<label for="cuiITAR"> ITAR </label>
+
+
+        <input 
+          type="checkbox" 
+          id="cuiProprietary" 
+          name="cuiProprietary"
+          value="Proprietary"
+          [checked]="cuiMap.get('Proprietary')"
+          (click)="cuiChange($event)" 
+                    
+        >&nbsp;<label for="cuiProprietary"> Proprietary </label>
+
+
+        
+        <br>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,33 +9,13 @@ import { DMP_Meta } from '../../types/DMP.types';
   styleUrls: ['./ethical-issues.component.scss', '../form-layout.scss']
 })
 export class EthicalIssuesComponent {
-
-  dataSensitivityMap = new Map([
-    ['Low', false],
-    ['Medium', false],
-    ['High', false]
-  ]);
-
-  cuiMap = new Map([
-    ['BII', false],
-    ['PII', false],
-    ['Export Controlled (EAR)', false],
-    ['ITAR', false],
-    ['Proprietary', false]
-  ]);
-
-  showCUI_chk: boolean = false;
-
   // Let's start with a child component that is responsible for a part of the form. 
   // The component injects the FormBuilder and creates a new form group with their 
   // form controls, validators and any other configuration
   ethicalIsuesForm = this.fb.group({
     ethicalIssue: ['', Validators.required],
     ethicalIssueDescription: [''],
-    ethicalReport: [''],
-    dataSensitivity: [[]],
-    dataCUI:[[]]
-    // ethicalPII: ['', Validators.required]
+    ethicalReport: ['']
 
   });
 
@@ -44,41 +24,11 @@ export class EthicalIssuesComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(ethicalIssues: DMP_Meta) {
-    if(ethicalIssues.ethical_issues.data_sensitivity !== undefined){
-      ethicalIssues.ethical_issues.data_sensitivity.forEach (
-        (value)=>{
-          // populate map for displaying check marks on the GUI form
-          this.dataSensitivityMap.set(value,true)
-
-          this.showCUI();
-        }
-      );
-    }
-    else{
-      // initialize arrays if they don't exist in od DMP records
-      ethicalIssues.ethical_issues.data_sensitivity = [];
-    }
-
-    if(ethicalIssues.ethical_issues.cui !== undefined){
-      ethicalIssues.ethical_issues.cui.forEach (
-        (value)=>{
-          // populate map for displaying check marks on the GUI form
-          this.cuiMap.set(value,true)
-        }
-      );
-    }
-    else{
-      // initialize arrays if they don't exist in od DMP records
-      ethicalIssues.ethical_issues.cui = [];
-    }
 
     this.ethicalIsuesForm.patchValue({
       ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
       ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
-      ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description,      
-      // ethicalPII:               ethicalIssues.ethical_issues.dmp_PII 
-      dataSensitivity:          ethicalIssues.ethical_issues.data_sensitivity,
-      dataCUI:                  ethicalIssues.ethical_issues.cui
+      ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
     });
   }
 
@@ -100,10 +50,7 @@ export class EthicalIssuesComponent {
           ethical_issues: {
             ethical_issues_exist:           formValue.ethicalIssue,
             ethical_issues_description:     formValue.ethicalIssueDescription,
-            ethical_issues_report:          formValue.ethicalReport,
-            // dmp_PII:                        formValue.ethicalPII
-            data_sensitivity:               formValue.dataSensitivity,
-            cui:                            formValue.dataCUI
+            ethical_issues_report:          formValue.ethicalReport
           }               
           
         })
@@ -161,51 +108,7 @@ export class EthicalIssuesComponent {
 
   }
 
-  dataSensitivityChange(e:any){
-    this.dataSensitivityMap.set(e.target.defaultValue,e.target.checked)
-
-    this.showCUI();
-
-    // pass by reference
-    let data_sensitivity = this.ethicalIsuesForm.value['dataSensitivity'] as string[];
-
-    if (e.target.checked){      
-      data_sensitivity.push(e.target.defaultValue);
-    }
-    else{
-      data_sensitivity.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          data_sensitivity.splice(index,1)
-        });
-    }
-  }
-
-  cuiChange(e:any){
-    this.cuiMap.set(e.target.defaultValue,e.target.checked)
-
-    // pass by reference
-    let CUI = this.ethicalIsuesForm.value['dataCUI'] as string[];
-
-    if (e.target.checked){      
-      CUI.push(e.target.defaultValue);
-    }
-    else{
-      CUI.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          CUI.splice(index,1)
-        });
-    }
-  }
-
-  private showCUI(){
-    // set flag whether to show CUI check marks on the GUI form
-    if (this.dataSensitivityMap.get('Medium') || this.dataSensitivityMap.get('High')){
-      this.showCUI_chk = true;
-    }
-    else{
-      this.showCUI_chk = false;
-    }
-  }
+  
 
 
 }

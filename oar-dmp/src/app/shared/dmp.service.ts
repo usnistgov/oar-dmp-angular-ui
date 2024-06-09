@@ -71,11 +71,13 @@ export class DmpService {
     ethical_issues:           {
                                 ethical_issues_exist:         'no', 
                                 ethical_issues_description:   '', 
-                                ethical_issues_report:        '', 
-                                // dmp_PII:                      'no'
+                                ethical_issues_report:        ''
+                                
+                              },
+    security_and_privacy:       {
                                 data_sensitivity:             [],
                                 cui:                          []
-                              },
+                              },                              
 
     // Data Description Meta data
     dataDescription:          '',
@@ -138,8 +140,10 @@ export class DmpService {
     ethical_issues:           {
                                 ethical_issues_exist:         'yes', 
                                 ethical_issues_description:   'Ethical Issues Description paragraph example', 
-                                ethical_issues_report:        'Ethical Report paragraph example', 
-                                // dmp_PII:                      'yes'
+                                ethical_issues_report:        'Ethical Report paragraph example'
+                              },
+
+    security_and_privacy:     {
                                 data_sensitivity:             ['Low', 'Medium'],
                                 cui:                          [ 'BII']
                               },
