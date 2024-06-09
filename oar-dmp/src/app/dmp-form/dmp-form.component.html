@@ -60,6 +60,15 @@
     ></app-ethical-issues>
   </div>
 
+  <!-- SECURITY AND PRIVACE -->
+  <div id="security_and_privacy_section">
+    <app-security-and-privacy
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('securityAndPrivacy', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-security-and-privacy>
+  </div>
+
   <!-- DATA DESCRIPTION -->
   <div id="data_description_section">
     <app-data-description
