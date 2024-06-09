@@ -39,6 +39,7 @@ import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
 import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
 import { ChipsModule } from 'primeng/chips';
+import { SecurityAndPrivacyComponent } from './form-components/security-and-privacy/security-and-privacy.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { ChipsModule } from 'primeng/chips';
     PageNotFoundComponent,
     PageErrorComponent,
     PageDmpPublishedComponent,
-    FilterPipe
+    FilterPipe,
+    SecurityAndPrivacyComponent
   ],
   imports: [
     BrowserModule,
