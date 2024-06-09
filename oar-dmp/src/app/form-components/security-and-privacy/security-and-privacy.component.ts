@@ -42,9 +42,9 @@ export class SecurityAndPrivacyComponent {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
-  set initialDMP_Meta(dmpMeta: DMP_Meta) {
-    if(dmpMeta.security_and_privacy.data_sensitivity !== undefined){
-      dmpMeta.security_and_privacy.data_sensitivity.forEach (
+  set initialDMP_Meta(securityAndPrivacy: DMP_Meta) {
+    if(securityAndPrivacy.security_and_privacy.data_sensitivity !== undefined){
+      securityAndPrivacy.security_and_privacy.data_sensitivity.forEach (
         (value)=>{
           // populate map for displaying check marks on the GUI form
           this.dataSensitivityMap.set(value,true)
@@ -55,11 +55,11 @@ export class SecurityAndPrivacyComponent {
     }
     else{
       // initialize arrays if they don't exist in od DMP records
-      dmpMeta.security_and_privacy.data_sensitivity = [];
+      securityAndPrivacy.security_and_privacy.data_sensitivity = [];
     }
 
-    if(dmpMeta.security_and_privacy.cui !== undefined){
-      dmpMeta.security_and_privacy.cui.forEach (
+    if(securityAndPrivacy.security_and_privacy.cui !== undefined){
+      securityAndPrivacy.security_and_privacy.cui.forEach (
         (value)=>{
           // populate map for displaying check marks on the GUI form
           this.cuiMap.set(value,true)
@@ -68,12 +68,12 @@ export class SecurityAndPrivacyComponent {
     }
     else{
       // initialize arrays if they don't exist in od DMP records
-      dmpMeta.security_and_privacy.cui = [];
+      securityAndPrivacy.security_and_privacy.cui = [];
     }
 
     this.securityAndPrivacyForm.patchValue({
-      dataSensitivity:          dmpMeta.security_and_privacy.data_sensitivity,
-      dataCUI:                  dmpMeta.security_and_privacy.cui
+      dataSensitivity:          securityAndPrivacy.security_and_privacy.data_sensitivity,
+      dataCUI:                  securityAndPrivacy.security_and_privacy.cui
     });
   }
 

@@ -6,6 +6,7 @@ import { PersonelComponent } from '../form-components/personel/personel.componen
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { StorageNeedsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
+import { SecurityAndPrivacyComponent } from '../form-components/security-and-privacy/security-and-privacy.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
 import { DataPreservationComponent } from '../form-components/data-preservation/data-preservation.component';
 import { DMP_Meta } from '../types/DMP.types';
@@ -39,6 +40,7 @@ interface DMPForm {
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   technicalRequirements?:ObservedValueOf<StorageNeedsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
+  securityAndPrivacy?: ObservedValueOf<SecurityAndPrivacyComponent["formReady"]>;
   dataDescription?: ObservedValueOf<DataDescriptionComponent["formReady"]>;
   dataPreservation?: ObservedValueOf<DataPreservationComponent["formReady"]>;
   
