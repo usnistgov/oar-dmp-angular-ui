@@ -655,6 +655,31 @@ export class DmpFormComponent implements OnInit {
     // ========================================= Security and Privacy =======================
 
     this.PrintSectionHeading("Security and Privacy", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    
+    if(this.dmp?.security_and_privacy.data_sensitivity !== undefined){
+      let tblHeaders = ["Data Sensitivity Level(s)"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.security_and_privacy.data_sensitivity.length; i++){
+        tblData.push([this.dmp.security_and_privacy.data_sensitivity[i]])
+      }
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
+
+      // if data sensitivyt levels have been selected check if there is extra metadata on CUI
+      if(this.dmp?.security_and_privacy.cui !== undefined){
+        tblHeaders = ["Controlled Unclassified Information (CUI)"];
+        tblData = [];
+        for ( let i=0; i < this.dmp.security_and_privacy.cui.length; i++){
+          tblData.push([this.dmp.security_and_privacy.cui[i]])
+        }
+        if (dmpFormat === "PDF")
+          this.DMP_PDF.printTable("", tblHeaders, tblData);
+        if (dmpFormat === "Markdown")
+          this.markdownTable("", tblHeaders, tblData);
+      }
+    }
 
 
 
