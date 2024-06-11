@@ -54,7 +54,6 @@ export class DmpService {
 
     //Personel
     primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
-    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [],
 
     //Keywords
