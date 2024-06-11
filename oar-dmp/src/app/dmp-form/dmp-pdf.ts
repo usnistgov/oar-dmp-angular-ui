@@ -68,6 +68,18 @@ export class DmpPdf{
     this.yOffset += (1 + this.marginTop ) * (12/this.ppi);
   }
 
+  printTextLine(fieldValue:string, fontSize:number=12, fontType:string="Helvetica"){
+    let lineStartY = this.yOffset+(fontSize/this.ppi);
+
+    this.newPageCheck(lineStartY);
+
+    // set font type to bold
+    this.PDF.setFont(fontType, "bold").setFontSize(fontSize);
+    let splitText = this.PDF.splitTextToSize(fieldValue, this.paragraphWidth)
+    this.addMultipleLines(splitText,fontSize);
+    // this.yOffset += (1 + this.marginTop ) * (12/this.ppi);
+  }
+
   printTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>, fontSize:number=12, fontType:string="Helvetica"){
     let lineStartY = this.yOffset+(fontSize/this.ppi);
 
@@ -79,7 +91,7 @@ export class DmpPdf{
     let splitText = this.PDF.splitTextToSize(fieldName, this.paragraphWidth)
     this.addMultipleLines(splitText,fontSize);
 
-    autoTable(this.PDF, {head:[tblHead], body:tblBody, startY:this.yOffset/*, headStyles:{fillColor:"138d75"}*/});
+    autoTable(this.PDF, {head:[tblHead], body:tblBody, startY:this.yOffset, headStyles:{fillColor:"d6e0f5", textColor:"0d0d0d"}});
 
     // Get they coordinate where the table ended
     let finalY = (this.PDF as any).lastAutoTable.finalY;

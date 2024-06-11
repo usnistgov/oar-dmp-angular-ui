@@ -435,7 +435,7 @@ export class DmpFormComponent implements OnInit {
       this.markdown.push("# Data Management Plan  \n");
     }
 
-    this.PrintSectionHeading("Basic Information", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Basic Information", "#1A52BC", dmpFormat, this.DMP_PDF);
     
 
     // Title
@@ -504,7 +504,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Researchers ============================
 
-    this.PrintSectionHeading("Researchers", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     // Primary NIST Contact
     if (this.dmp?.primary_NIST_contact !== undefined){
@@ -542,7 +542,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================== Keywords / Phrases ============================
 
-    this.PrintSectionHeading("Keywords / Phrases", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Keywords / Phrases", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     //Keywords / Phrases
     if(this.dmp?.keyWords !== undefined){
@@ -560,7 +560,7 @@ export class DmpFormComponent implements OnInit {
 
     // =========================== Technical Requirements =========================
 
-    this.PrintSectionHeading("Technical Requirements", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Technical Requirements", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
@@ -616,9 +616,26 @@ export class DmpFormComponent implements OnInit {
         this.markdownTable("", tblHeaders, tblData);
     }
 
+    // Instruments needed/used
+    if(this.dmp?.instruments !== undefined){
+      let tblHeaders = ["Instrument Name", "Description / URL Landing Page"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.instruments.length; i++){
+        let currRow: Array<string> = [];        
+        currRow.push(this.dmp.instruments[i].name);
+        currRow.push(this.dmp.instruments[i].description_url);
+        tblData.push(currRow);
+      }
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Instruments needed/used", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Instruments needed/used", tblHeaders, tblData);
+    }
+
     // ========================================= Ethical Issues ===========================
 
-    this.PrintSectionHeading("Ethical Issues", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Ethical Issues", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     if(this.dmp?.ethical_issues !== undefined){
       //Are there any ethical issues related to the data that this DMP describes?
@@ -654,7 +671,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================================= Security and Privacy =======================
 
-    this.PrintSectionHeading("Security and Privacy", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Security and Privacy", "#1A52BC", dmpFormat, this.DMP_PDF);
     
     if(this.dmp?.security_and_privacy.data_sensitivity !== undefined){
       let tblHeaders = ["Data Sensitivity Level(s)"];
@@ -685,7 +702,7 @@ export class DmpFormComponent implements OnInit {
 
     // ========================================= Data Description ===========================
 
-    this.PrintSectionHeading("Data Description", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Data Description", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
       if (dmpFormat === "PDF")
@@ -710,7 +727,7 @@ export class DmpFormComponent implements OnInit {
 
     // ======================== Data Preservation and Accessibility ==========================
 
-    this.PrintSectionHeading("Data Preservation and Accessibility", "#d5d8dc", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Data Preservation and Accessibility", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     // file path(s) / URL(s) for where data will be saved
 
