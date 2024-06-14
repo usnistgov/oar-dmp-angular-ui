@@ -1,4 +1,4 @@
-# NIST Data Management Pan User Interface
+# NIST Data Management Plan User Interface
 
 The Data Management Planning Component provides a tool that allows a NIST researcher to plan out how data will managed throughout the lifecycle of a research project.
 
