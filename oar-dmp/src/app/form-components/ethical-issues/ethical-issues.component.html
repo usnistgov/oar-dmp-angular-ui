@@ -1,6 +1,14 @@
 <div class="dmpSection">
-  <div class="header">Ethical Issues</div>
+  <div class="header">Ethical Concerns</div>
   <div class="dmp-frm-container"> 
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="IRB_Number">IRB Number</label><span class="span_info">(study number)</span>
+      </div>
+      <div class="col-75">
+        <input type="text" id="IRB_Number" [formControl]="ethicalIsuesForm.controls['irb_number']" placeholder="IRB Number..." />
+      </div>
+    </div>
     <div class="dmp-frm-label">Are there any ethical issues related to the data that this DMP describes?</div>
     <div>
       <input type="radio" id="ethicalIssuesY" name="ethicalIssues" value="yes" (click)="setEthicalIssues('yes')" 
@@ -34,7 +42,8 @@
         </div>
       </div>
     </div>
-    <!--
+    
+    <!--IRB Number
     <div>
       <span class="dmp-frm-label">Does the data generated in this project contain PII or BII or other sensitive data?</span>
     </div>
