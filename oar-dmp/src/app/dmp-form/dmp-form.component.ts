@@ -443,7 +443,7 @@ export class DmpFormComponent implements OnInit {
       if (dmpFormat === "PDF") 
         this.DMP_PDF.printTextField("Title", this.dmp?.title);
       if (dmpFormat === "Markdown") 
-        this.markdown.push("**Basic Information:** " + this.dmp?.title + "  \n");
+        this.markdown.push("**Title:** " + this.dmp?.title + "  \n");
     }
 
     // Start Date
@@ -635,7 +635,14 @@ export class DmpFormComponent implements OnInit {
 
     // ========================================= Ethical Issues ===========================
 
-    this.PrintSectionHeading("Ethical Issues", "#1A52BC", dmpFormat, this.DMP_PDF);
+    this.PrintSectionHeading("Ethical Concerns", "#1A52BC", dmpFormat, this.DMP_PDF);
+
+    if (this.dmp?.ethical_issues.irb_number !== undefined && this.dmp?.ethical_issues.irb_number !== null){
+      if (dmpFormat === "PDF") 
+        this.DMP_PDF.printTextField("IRB number", this.dmp?.ethical_issues.irb_number);
+      if (dmpFormat === "Markdown") 
+        this.markdown.push("**IRB number:** " + this.dmp?.ethical_issues.irb_number + "  \n");
+    }
 
     if(this.dmp?.ethical_issues !== undefined){
       //Are there any ethical issues related to the data that this DMP describes?
