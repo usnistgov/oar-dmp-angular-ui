@@ -13,6 +13,7 @@ export class EthicalIssuesComponent {
   // The component injects the FormBuilder and creates a new form group with their 
   // form controls, validators and any other configuration
   ethicalIsuesForm = this.fb.group({
+    IRBNumber: [''],
     ethicalIssue: ['', Validators.required],
     ethicalIssueDescription: [''],
     ethicalReport: ['']
@@ -26,6 +27,7 @@ export class EthicalIssuesComponent {
   set initialDMP_Meta(ethicalIssues: DMP_Meta) {
 
     this.ethicalIsuesForm.patchValue({
+      IRBNumber:                ethicalIssues.ethical_issues.irb_number,
       ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
       ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
       ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
@@ -48,6 +50,7 @@ export class EthicalIssuesComponent {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to this part of the form 
           ethical_issues: {
+            irb_number:                     formValue.IRBNumber,
             ethical_issues_exist:           formValue.ethicalIssue,
             ethical_issues_description:     formValue.ethicalIssueDescription,
             ethical_issues_report:          formValue.ethicalReport

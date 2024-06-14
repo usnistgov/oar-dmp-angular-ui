@@ -68,6 +68,7 @@ export class DmpService {
     
     // Ethical Issues Meta data
     ethical_issues:           {
+                                irb_number:                   '',
                                 ethical_issues_exist:         'no', 
                                 ethical_issues_description:   '', 
                                 ethical_issues_report:        ''
