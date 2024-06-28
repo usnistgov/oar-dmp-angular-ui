@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { FormArray, UntypedFormBuilder, FormControl } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { DataCategories } from '../../types/data-categories.type';
@@ -9,7 +9,7 @@ import { DataCategories } from '../../types/data-categories.type';
 @Component({
   selector: 'app-data-description',
   templateUrl: './data-description.component.html',
-  styleUrls: ['./data-description.component.scss']
+  styleUrls: ['../form-layout.scss', './data-description.component.scss']
 })
 export class DataDescriptionComponent implements OnInit {
 
@@ -76,7 +76,7 @@ export class DataDescriptionComponent implements OnInit {
     //resources service to talk between two components 
     // (DataDescriptionComponent and ResourceOptionsComponent)
     private sharedService: ResourcesService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) { }
 
   resetCheckboxes(){
@@ -155,9 +155,9 @@ export class DataDescriptionComponent implements OnInit {
   }
 
   dataCategoryChange(e:any) {
-    this.setStorageTier(e.target.defaultValue,e.target.checked);
+    this.setStorageTier(e.target.defaultValue,e.target.checked);    
     
-    
+    // pass by reference
     let dataCategories = this.dataDescriptionForm.value['dataCategories'] as string[];
 
     if (e.target.checked){      

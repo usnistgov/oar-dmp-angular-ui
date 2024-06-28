@@ -24,7 +24,7 @@ COPY cacerts/README.md cacerts/*.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 ENV NODE_EXTRA_CA_CERTS /etc/ssl/certs/ca-certificates.crt
 
-COPY node-*-sha256.txt /tmp
+COPY node-*-sha256.txt /tmp/
 RUN arch=`dpkg --print-architecture` && \
     { [ "$arch" != "amd64" ] || arch="x64"; } && echo $arch > /etc/plat-arch
 RUN cd /tmp && arch=`cat /etc/plat-arch`  \

@@ -10,3 +10,11 @@
 table {
   border-collapse: collapse;
 }
+
+/* Responsive layout - when the screen is less than 1040px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 1040px) {
+  .col-20, .col-25, .col-30, .col-70, .col-75, .col-80, [type=submit] {
+    width: 100%;
+    margin-top: 0;
+  }
+}

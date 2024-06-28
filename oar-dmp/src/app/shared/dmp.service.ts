@@ -46,7 +46,7 @@ export class DmpService {
     //Basic Info Meta data
     title:                    '',
     startDate:                '',
-    endDate:                  '',
+    // endDate:                  '',
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
@@ -54,7 +54,6 @@ export class DmpService {
 
     //Personel
     primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
-    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
     contributors:             [],
 
     //Keywords
@@ -65,14 +64,20 @@ export class DmpService {
     sizeUnit:                 "GB",
     softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
     technicalResources:       [],
+    instruments:              [],
     
     // Ethical Issues Meta data
     ethical_issues:           {
+                                irb_number:                   '',
                                 ethical_issues_exist:         'no', 
                                 ethical_issues_description:   '', 
-                                ethical_issues_report:        '', 
-                                dmp_PII:                      'no'
+                                ethical_issues_report:        ''
+                                
                               },
+    security_and_privacy:       {
+                                data_sensitivity:             [],
+                                cui:                          []
+                              },                              
 
     // Data Description Meta data
     dataDescription:          '',
@@ -82,68 +87,6 @@ export class DmpService {
     preservationDescription:  '',
     dataAccess:               '',
     pathsURLs:                []
-
-  };
-
-
-  // For demo purposes we just store the DmpRecord here in the service
-  // In a real world application you would make a request to the backend
-  private DmpRecord: DMP_Meta = {
-    //Basic Info Meta data
-    title:                    'Example Title',
-    startDate:                '2022-09-28',
-    endDate:                  '2023-09-28',
-    dmpSearchable:            'yes',
-    funding:                  {grant_source:'Grant Number', grant_id:'12345'},
-    projectDescription:       'Example Project Description',
-    organizations:            [],
-
-    //Personel
-    primary_NIST_contact:     {firstName:"Niksa", lastName:"Blonder", orcid:""},
-    // NIST_DMP_Reviewer:        {firstName:"Ray", lastName:"Plante"},
-    contributors:             [{contributor:{
-                                  firstName:"Niksa", 
-                                  lastName:"Blonder",
-                                  orcid:""
-                                }, 
-                                role:"Contact Person", 
-                                institution:"NIST", 
-                                e_mail:"nik@nist.gov"},
-                               {contributor:{
-                                  firstName:"Joe", 
-                                  lastName:"Dalton",
-                                  orcid:""
-                                }, 
-                                role:"Contact Person", 
-                                institution:"IAEA", 
-                                e_mail:"joe@iaea.gov"}
-                              ],
-
-    //Keywords
-    keyWords:                 ['Trace Elements', 'Stable Isotope Ratios'],
-
-    //Technical Resources
-    dataSize:                 105,
-    sizeUnit:                 "GB",
-    softwareDevelopment:      {development:"yes", softwareUse:"both", softwareDatabase: "yes", softwareWebsite: "yes"},
-    technicalResources:       ['Mass Spectrometer', 'Microsope'],
-    
-    // Ethical Issues Meta data
-    ethical_issues:           {
-                                ethical_issues_exist:         'yes', 
-                                ethical_issues_description:   'Ethical Issues Description paragraph example', 
-                                ethical_issues_report:        'Ethical Report paragraph example', 
-                                dmp_PII:                      'yes'
-                              },
-
-    // Data Description Meta data
-    dataDescription:          'Data Description Example',
-    dataCategories:           ['Working', 'Derived'],
-
-    // Data Preservation Meta data
-    preservationDescription:  'Data preservation description example text',
-    dataAccess:               'Data access description example text',
-    pathsURLs:                ['https://github.com/exampleuser/example_set', 'https://example.com']
 
   };
 

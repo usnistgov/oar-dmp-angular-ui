@@ -1,18 +1,26 @@
+
 $font-stack: Helvetica, sans-serif;
 $primary-color: #333;
-$dmp_margin_left: 35px;
+$dmp_margin_left: 12px;
+
+* {
+  box-sizing: border-box;
+}
+
 
 body {
   font: 100% $font-stack;
   color: $primary-color;
 }
+
 .dmpSection {
   border: none;
   border-bottom: 2px solid rgba(128, 128, 128, 0.418);
   // margin-right: 0.5rem;
-  margin-left: $dmp_margin_left;
+  // margin-left: $dmp_margin_left;
   // width: 600px;
 }
+
 div{
   
   .header{
@@ -23,9 +31,9 @@ div{
       left: 0px;
     };
     text-align: center;
-    background: #1a7bbc;
+    background: #1A52BC;
     color: white;
-    font-size: larger;
+    font-size: 20px;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     
@@ -71,69 +79,142 @@ div{
   }
 }
 
-.container{
-  width: 100%;
-  /* center a div insie another div*/
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-
-.centered-div{
-  width: 90%;
-}
-
-.list {
-  padding: 1rem;
-  width: 50%;
-  height: 6rem;
-  border: 0.1rem solid grey;
-  overflow: auto;
-}
-
-.add-list-container{
-  input {
-    border: none;
-    border-bottom: 0.1rem solid rgba(128, 128, 128, 0.418);
-    margin-right: 0.5rem;
-    width: 98%;
-    display: flex;
-  }
-  button{
-    width: 100px;
-    border: none;
-    color: white;
-    font-weight: 400;
-    cursor: pointer;
-    background-color: rgb(0, 53, 139);
-    margin-top: 0.5rem;
-  }
-}
 .error-msg {
-  color: #721c24;
   background-color: #f8d7da;
+  color: #721c24;  
+  border-style: solid;
+  border-width: 2px;
   border-color: #f5c6cb;
-  padding: 3px;
+  border-radius: 10px;
+  padding: 12px;
 }
 .warning-msg{
   background-color: #fff3cd;
   color: #856404;
-  border-color: #ffeeba;
-  padding: 3px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #fde559;
+  border-radius: 10px;
+  padding: 12px;
 }
-div.sticky{
-  position: fixed;
-  // top: 95px;
-  // left: 623px;
-}
-div.dmp_info_panel{
-  margin-left: $dmp_margin_left;
-}
-
-
 
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Tooltip container */
+.dmp_tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.dmp_tooltip .dmp_tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  padding: 5px 0;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 6px;
+  border-color: #333;
+  font-size: small;
+  font-style: normal;
+  font-weight: normal;
+
+  /* Position the dmp_tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in dmp_tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.dmp_tooltip .dmp_tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the dmp_tooltip text when you mouse over the dmp_tooltip container */
+.dmp_tooltip:hover .dmp_tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.dmp-frm-row {
+	&:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+}
+
+[class*="dmp-col-"] {
+  float: left;
+  padding: 15px;
+}
+
+/* For mobile phones: */
+[class*="dmp-col-"] {
+  width: 100%;
+}
+
+@media only screen and (min-width: 1830px) {
+  /* For desktop: */
+  .dmp-col-1 {width: 8.33%;}
+  .dmp-col-2 {width: 16.66%;}
+  .dmp-col-3 {width: 25%;}
+  .dmp-col-4 {width: 33.33%;}
+  .dmp-col-5 {width: 41.66%;}
+  .dmp-col-6 {width: 50%;}
+  .dmp-col-7 {width: 58.33%;}
+  .dmp-col-8 {width: 66.66%;}
+  .dmp-col-9 {width: 75%;}
+  .dmp-col-10 {width: 83.33%;}
+  .dmp-col-11 {width: 91.66%;}
+  .dmp-col-12 {width: 100%;}
+  div.sticky{
+    position: fixed;
+    min-width: 600px;//required for FIrefox
+    // top: 95px;
+    // left: 623px;
+  }
+}
+
+#DmpPublished, #PageError, #PageNotFound{
+  font: 2em sans-serif;  
+  border-radius: 8px;
+  p{
+    padding: 10px;
+  }
+}
+
+#DmpPublished{
+  background-color: rgb(242, 253, 221);
+}
+
+#PageError{
+  background-color: rgb(253, 221, 221);
+}
+
+#PageNotFound{
+  background-color: rgb(221, 246, 253);
+}
+
+@media only screen and (min-width: 1830px) {
+  #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
+}

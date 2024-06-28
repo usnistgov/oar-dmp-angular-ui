@@ -6,7 +6,7 @@ import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from '../../types/nist-contact'
 
-import { Validators, FormBuilder } from '@angular/forms';
+import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ORGANIZATIONS } from '../../types/mock-organizations';
@@ -104,7 +104,7 @@ const ORG_COL_SCHEMA = [
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['./personel.component.scss', '../form-table.scss']
+  styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
   // ================================
@@ -180,7 +180,7 @@ export class PersonelComponent implements OnInit {
   constructor(
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) {
     /**
      * NOTE uncoment this when pulling data from API with a backend database
@@ -959,6 +959,8 @@ export class PersonelComponent implements OnInit {
     this.org_disableAdd=true;
     this.org_disableClear=false;
     this.org_disableRemove=false;
+    // reset the form field to make it clear that one can add multiple orgs
+    this.personelForm.controls['nistOrganization'].setValue("");
   }
 
   private rePopulateOrgs(){
