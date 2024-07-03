@@ -404,11 +404,14 @@ export class PersonelComponent implements OnInit {
 
 
   getNistContactsFromAPI(){
+    // ---------------------------------------------------------------------------------------------
+    //                              PRIMARY NIST CONTACT
+    // ---------------------------------------------------------------------------------------------
     // Below line gets executed anytime the user types - or the input value changes
     this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
       startWith(''),
       map (value => {
-          var res:NistContact[] = [];
+          let res:NistContact[] = [];
 
           const name = typeof value === 'string'; //checks the type of input value
 
@@ -420,7 +423,7 @@ export class PersonelComponent implements OnInit {
               nistContactLastName:  value.lastName,
               primNistContactOrcid: value.orcid
             });
-            this.personelForm.value['primNistContactOrcid'] = value.orcid;
+            this.personelForm.value['primNistContactOrcid'] = value.orcid; // automatically populate orcid field
             return res;
           }
 
@@ -433,8 +436,8 @@ export class PersonelComponent implements OnInit {
               // nist people can be blank if return has no match
               if(nistPeople){
                 for(var i=0; i<nistPeople.length; i++) {
-                  let temp_val = nistPeople[i];
                   res.push({
+                    // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
                     displayName:nistPeople[i].displayName,
                     firstName:nistPeople[i].firstName,
                     lastName:nistPeople[i].lastName,
@@ -456,51 +459,83 @@ export class PersonelComponent implements OnInit {
             nistContactLastName:  '',
             primNistContactOrcid: ''
           });
-          this.personelForm.value['primNistContactOrcid'] = '';
+          this.personelForm.value['primNistContactOrcid'] = ''; // automatically clear orcid field
 
           return res;
 
         }
       )
     );
+    // ---------------------------------------------------------------------------------------------
+    //                              NIST CONTRIBUTOR
+    // ---------------------------------------------------------------------------------------------
+    this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+      startWith(''),
+      map (contributor => {
+          let res:NistContact[] = [];
 
-    // this.apiService.get_NIST_Personnel('').subscribe(
-    //   {
-    //     next: (v) => {
-    //       /**
-    //        * Get list of nist employees from MongoDB and set to nistContacts array
-    //        * that is used for drop down select
-    //        */
-    //       this.nistContacts = v;
-          
-    //       this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
-    //         startWith(''),
-    //         map (value => {
+          const name = typeof contributor === 'string'; //checks the type of input value
+
+          if (!name){ 
+            // if value is not string that means the user has picked a selection from dropdown suggestion box
+            // so return an empty array to clear the dropdown suggestion box and set form values accordingly
+            this.crntContribName = contributor.firstName;
+            this.crntContribSurname = contributor.lastName;
+            this.crntContribEmail = contributor.emailAddress;
+
+            this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+            if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+              // If contributor role has been selected and nist contributor has been picked then allow
+              // for adding a contributor to the table
+              this.disableAdd=false;
+            }
+
+            this.nistContribOrcid = contributor.orcid; // automatically populate orcid field
+            return res;
+          }
+
+          if (contributor.trim().length < 2){
+            return res;
+          }
+
+          this.apiService.get_NIST_Personnel(contributor).subscribe(
+            (nistPeople: any[]) => {
+              // nist people can be blank if return has no match
+              if(nistPeople){
+                for(var i=0; i<nistPeople.length; i++) {
+                  let temp_val = nistPeople[i];
+                  res.push({
+                    // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
+                    displayName:nistPeople[i].displayName,
+                    firstName:nistPeople[i].firstName,
+                    lastName:nistPeople[i].lastName,
+                    orcid:nistPeople[i].orcid,
+                    divisionName:nistPeople[i].divisionName,
+                    emailAddress:nistPeople[i].emailAddress,
+  
+                  });
+                }
+              }
               
-    //             /**
-    //              * The optional chaining ?. operator in TypeScript value?.firstName
-    //              * 
-    //              * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
-    //              * using dot notation to access a nested property of an object, but instead of causing an 
-    //              * error if the reference is nullish, it short-circuits returning undefined.
-    //              * 
-    //              * if value is a string return value else return concatenation of value.firstName and value.lastName
-    //              * */
+            }
+          );
 
-    //             const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
-    //             var res = name ? this._filter(name as string): this.nistContacts.slice();
+          // clear values until the user has picked a selection. 
+          // This forces the form to accept only values that were selected from the dropdown menu
+          this.crntContribName = '';
+          this.crntContribSurname = '';
+          this.crntContribEmail = '';
+          this.nistContribOrcid = '';
 
-    //             if (res.length ===1){
-    //               this.personelForm.patchValue({
-    //                 nistContactFirstName: value.firstName,
-    //                 nistContactLastName:  value.lastName,
-    //               })
-    //             }
-    //             return res;
+          return res;
 
-    //           }
-    //         )
-    //       );
+        }
+      )
+
+    );
+
+
 
     //       this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
     //         startWith(''),
