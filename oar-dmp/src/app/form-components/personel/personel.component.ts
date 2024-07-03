@@ -413,13 +413,13 @@ export class PersonelComponent implements OnInit {
           const name = typeof value === 'string'; //checks the type of input value
 
           if (!name){ 
-            //if value is not string that means the user has picked a selection from dropdown suggestion box so return empty array
-            // and set form values accordingly
+            // if value is not string that means the user has picked a selection from dropdown suggestion box
+            // so return an empty array to clear the dropdown suggestion box and set form values accordingly
             this.personelForm.patchValue({
               nistContactFirstName: value.firstName,
               nistContactLastName:  value.lastName,
               primNistContactOrcid: value.orcid
-            })
+            });
             this.personelForm.value['primNistContactOrcid'] = value.orcid;
             return res;
           }
@@ -448,26 +448,16 @@ export class PersonelComponent implements OnInit {
               
             }
           );
-        
-          /**
-           * The optional chaining ?. operator in TypeScript value?.firstName
-           * 
-           * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
-           * using dot notation to access a nested property of an object, but instead of causing an 
-           * error if the reference is nullish, it short-circuits returning undefined.
-           * 
-           * if value is a string return value else return concatenation of value.firstName and value.lastName
-           * */
 
-          // const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
-          // var res = name ? this._filter(name as string): this.nistContacts.slice();
+          // Patch empty value until the user has picked a selection. 
+          // This forces the form to accept only values that were selected from the dropdown menu
+          this.personelForm.patchValue({
+            nistContactFirstName: '',
+            nistContactLastName:  '',
+            primNistContactOrcid: ''
+          });
+          this.personelForm.value['primNistContactOrcid'] = '';
 
-          // if (res.length ===1){
-          //   this.personelForm.patchValue({
-          //     nistContactFirstName: value.firstName,
-          //     nistContactLastName:  value.lastName,
-          //   })
-          // }
           return res;
 
         }

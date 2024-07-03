@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class DmpAPIService {
-  nsdtoken:String = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOSVNUX0FTRCIsImF1ZCI6IkFTRF9BUEkiLCJleHAiOjE3MjAwMjgxMTcsImlhdCI6MTcxOTk0MTcxNywiY2xpZW50X2lkIjoiTUlEQVMifQ.pzsRGGiWk2-uyahYdsBaLJ7AqdBcpCFOVdn-kpCiVIc';
+  nsdtoken:String = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOSVNUX0FTRCIsImF1ZCI6IkFTRF9BUEkiLCJleHAiOjE3MjAxMDkyMjUsImlhdCI6MTcyMDAyMjgyNSwiY2xpZW50X2lkIjoiTUlEQVMifQ.9PvD_Y6g-iCgOdiiYuvzI35xm-jPYknkAFt7UArlTSE';
   initialPeopleParams = {
     "hasCPRRoles": false,
     "hasInactivePeople": false,
