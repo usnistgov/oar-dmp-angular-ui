@@ -25,6 +25,7 @@ export interface DataContributor {
   isEdit: boolean;
 }
 
+
 // Schema for Contributors data table
 const COLUMNS_SCHEMA = [
   {
@@ -306,7 +307,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
-    this.getNistOrganizations();
+    // this.getNistOrganizations();
 
   }  
 
@@ -337,13 +338,14 @@ export class PersonelComponent implements OnInit {
    * Used when not working with an API for NIST contacts database
    */
   getNistContacts(){    
-    // this.getNistContactsFromAPI();
-    this.getNistContactsNoAPI();
+    // this.getNistContactsNoAPI();
+    this.getNistContactsFromAPI();
 
   }
 
   getNistContactsNoAPI(){
     this.nistContacts = NIST_STAFF;
+    // Below line gets executed anytime the user types - or the input value changes
     this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
       startWith(''),
       map (value => {
@@ -373,6 +375,7 @@ export class PersonelComponent implements OnInit {
       )
     );
 
+    // Below line gets executed anytime the user types - or the input value changes
     this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
       startWith(''),
       map (contributor => {             
@@ -401,71 +404,141 @@ export class PersonelComponent implements OnInit {
 
 
   getNistContactsFromAPI(){
-    this.apiService.get_NIST_Personnel().subscribe(
-      {
-        next: (v) => {
-          /**
-           * Get list of nist employees from MongoDB and set to nistContacts array
-           * that is used for drop down select
-           */
-          this.nistContacts = v;
-          
-          this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
-            startWith(''),
-            map (value => {
+    // Below line gets executed anytime the user types - or the input value changes
+    this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
+      startWith(''),
+      map (value => {
+          var res:NistContact[] = [];
+
+          const name = typeof value === 'string'; //checks the type of input value
+
+          if (!name){ 
+            //if value is not string that means the user has picked a selection from dropdown suggestion box so return empty array
+            // and set form values accordingly
+            this.personelForm.patchValue({
+              nistContactFirstName: value.firstName,
+              nistContactLastName:  value.lastName,
+              primNistContactOrcid: value.orcid
+            })
+            this.personelForm.value['primNistContactOrcid'] = value.orcid;
+            return res;
+          }
+
+          if (value.trim().length < 2){
+            return res;
+          }
+
+          this.apiService.get_NIST_Personnel(value).subscribe(
+            (nistPeople: any[]) => {
+              // nist people can be blank if return has no match
+              if(nistPeople){
+                for(var i=0; i<nistPeople.length; i++) {
+                  let temp_val = nistPeople[i];
+                  res.push({
+                    displayName:nistPeople[i].displayName,
+                    firstName:nistPeople[i].firstName,
+                    lastName:nistPeople[i].lastName,
+                    orcid:nistPeople[i].orcid,
+                    divisionName:nistPeople[i].divisionName,
+                    emailAddress:nistPeople[i].emailAddress,
+  
+                  });
+                }
+              }
               
-                /**
-                 * The optional chaining ?. operator in TypeScript value?.firstName
-                 * 
-                 * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
-                 * using dot notation to access a nested property of an object, but instead of causing an 
-                 * error if the reference is nullish, it short-circuits returning undefined.
-                 * 
-                 * if value is a string return value else return concatenation of value.firstName and value.lastName
-                 * */
-
-                const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
-                var res = name ? this._filter(name as string): this.nistContacts.slice();
-
-                if (res.length ===1){
-                  this.personelForm.patchValue({
-                    nistContactFirstName: value.firstName,
-                    nistContactLastName:  value.lastName,
-                  })
-                }
-                return res;
-
-              }
-            )
+            }
           );
+        
+          /**
+           * The optional chaining ?. operator in TypeScript value?.firstName
+           * 
+           * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+           * using dot notation to access a nested property of an object, but instead of causing an 
+           * error if the reference is nullish, it short-circuits returning undefined.
+           * 
+           * if value is a string return value else return concatenation of value.firstName and value.lastName
+           * */
 
-          this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
-            startWith(''),
-            map (contributor => {             
-                
-                const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
-                var res3 = name ? this._filter(name as string): this.nistContacts.slice();
-                
-                if (res3.length ===1){
-                  this.crntContribName = contributor.firstName;
-                  this.crntContribSurname = contributor.lastName;
-                  this.crntContribEmail = contributor.e_mail;
+          // const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+          // var res = name ? this._filter(name as string): this.nistContacts.slice();
 
-                  this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+          // if (res.length ===1){
+          //   this.personelForm.patchValue({
+          //     nistContactFirstName: value.firstName,
+          //     nistContactLastName:  value.lastName,
+          //   })
+          // }
+          return res;
 
-                  if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-                    this.disableAdd=false;
-                  }
-                }
-                return res3;
-
-              }
-            )
-          );
-        },
-        error: (e) => console.error(e) 
-      }
+        }
+      )
     );
+
+    // this.apiService.get_NIST_Personnel('').subscribe(
+    //   {
+    //     next: (v) => {
+    //       /**
+    //        * Get list of nist employees from MongoDB and set to nistContacts array
+    //        * that is used for drop down select
+    //        */
+    //       this.nistContacts = v;
+          
+    //       this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
+    //         startWith(''),
+    //         map (value => {
+              
+    //             /**
+    //              * The optional chaining ?. operator in TypeScript value?.firstName
+    //              * 
+    //              * The question mark dot (?.) syntax is called optional chaining in TypeScript and is like 
+    //              * using dot notation to access a nested property of an object, but instead of causing an 
+    //              * error if the reference is nullish, it short-circuits returning undefined.
+    //              * 
+    //              * if value is a string return value else return concatenation of value.firstName and value.lastName
+    //              * */
+
+    //             const name = typeof value === 'string' ? value : value?.firstName + " " + value?.lastName;
+    //             var res = name ? this._filter(name as string): this.nistContacts.slice();
+
+    //             if (res.length ===1){
+    //               this.personelForm.patchValue({
+    //                 nistContactFirstName: value.firstName,
+    //                 nistContactLastName:  value.lastName,
+    //               })
+    //             }
+    //             return res;
+
+    //           }
+    //         )
+    //       );
+
+    //       this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+    //         startWith(''),
+    //         map (contributor => {             
+                
+    //             const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
+    //             var res3 = name ? this._filter(name as string): this.nistContacts.slice();
+                
+    //             if (res3.length ===1){
+    //               this.crntContribName = contributor.firstName;
+    //               this.crntContribSurname = contributor.lastName;
+    //               this.crntContribEmail = contributor.e_mail;
+
+    //               this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+    //               if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+    //                 this.disableAdd=false;
+    //               }
+    //             }
+    //             return res3;
+
+    //           }
+    //         )
+    //       );
+    //     },
+    //     error: (e) => console.error(e) 
+    //   }
+    // );
   }
 
   private _filter(nistPerson: string): NistContact[] {
@@ -1010,6 +1083,24 @@ export class PersonelComponent implements OnInit {
 
     return searchRes;
 
+  }
+
+  // this function gets executed on iput change and on focus change
+  p_filter(){
+    
+    let a = this.personelForm.controls['primary_NIST_contact'].value;
+    if (a.length > 1){
+      // search if two or more characters were entered
+      console.log(a);
+      this.apiService.get_NIST_Personnel(a).subscribe(
+        (value: any[]) => {
+          for(var i=0; i<value.length; i++) {
+            let temp_val = value[i];
+            let temp2=2;
+          }
+        }
+      );
+    }
   }
 
 

@@ -16,7 +16,9 @@
                  style="background-color: rgb(252, 252, 252);"
                  matInput
                  [formControl]="personelForm.controls['primary_NIST_contact']"
-                 [matAutocomplete]="primary_NIST_contact">
+                 [matAutocomplete]="primary_NIST_contact"
+                 
+                 >
           <mat-autocomplete 
             #primary_NIST_contact="matAutocomplete"
             [displayWith]="displaySelectedContact"
