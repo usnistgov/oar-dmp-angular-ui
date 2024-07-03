@@ -423,7 +423,13 @@ export class PersonelComponent implements OnInit {
               nistContactLastName:  value.lastName,
               primNistContactOrcid: value.orcid
             });
-            this.personelForm.value['primNistContactOrcid'] = value.orcid; // automatically populate orcid field
+
+            if(value.orcid){
+              this.personelForm.value['primNistContactOrcid'] = value.orcid; // automatically populate orcid field
+              this.pncOrcidChange(); // fire off orcid change to determine whether to show warning message  
+            }
+            
+            
             return res;
           }
 
@@ -481,7 +487,11 @@ export class PersonelComponent implements OnInit {
             // so return an empty array to clear the dropdown suggestion box and set form values accordingly
             this.crntContribName = contributor.firstName;
             this.crntContribSurname = contributor.lastName;
-            this.crntContribEmail = contributor.emailAddress;
+            if(contributor.emailAddress){
+              // email can apparently be null - Planchard Joshua is/was an example
+              this.crntContribEmail = contributor.emailAddress;
+            }
+            
 
             this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
 
@@ -491,7 +501,11 @@ export class PersonelComponent implements OnInit {
               this.disableAdd=false;
             }
 
-            this.nistContribOrcid = contributor.orcid; // automatically populate orcid field
+            if(contributor.orcid){
+              //orcid can be null so assign it only if it is not null
+              this.nistContribOrcid = contributor.orcid; // automatically populate orcid field if it is not null
+            }
+            
             return res;
           }
 
