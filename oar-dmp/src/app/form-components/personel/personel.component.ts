@@ -969,8 +969,34 @@ export class PersonelComponent implements OnInit {
    * Used when not working with an API for NIST people service database
    */
    getNistOrganizations(){    
-    // this.getNistOrganizationsFromAPI();
-    this.getNistOrganizationsNoAPI();
+    this.getNistOrganizationsFromAPI();
+    // this.getNistOrganizationsNoAPI();
+
+  }
+
+  getNistOrganizationsFromAPI(){
+    //ORGANIZATIONS is declared in '../../types/mock-organizations'
+    this.nistOrganizations = ORGANIZATIONS;
+    this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
+      startWith(''),
+      map(anOrganization => {
+        const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
+        var res = orgName ? this._filter_org(orgName as string):this.nistOrganizations.slice();
+        if (res.length ===1){
+          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgName = anOrganization.name;
+
+          this.org_disableAdd = false;
+        }
+        else{
+          this.org_disableAdd = true;
+        }
+        return res;
+      }
+
+      )
+
+    );
 
   }
 
