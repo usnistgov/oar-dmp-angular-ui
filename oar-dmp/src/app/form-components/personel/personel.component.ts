@@ -1,20 +1,20 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/mock-roles';
-import { NIST_STAFF } from '../../types/nist-staff-mock.type'; //possibly need to comment this out
+import { NIST_STAFF, NIST_CONTACT } from '../../types/nist-staff-mock.type'; //possibly need to comment this out
 import { Contributor } from '../../types/contributor.type';
 import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from '../../types/nist-contact'
 
 import { Validators, UntypedFormBuilder } from '@angular/forms';
-import { defer, map, of, startWith } from 'rxjs';
+import { defer, map, of, startWith, lastValueFrom } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
 
 import {Observable} from 'rxjs';
 
-export interface DataContributor {  
+interface DataContributor {  
   name: string;
   surname: string;
   institution: string;
@@ -71,7 +71,7 @@ const COLUMNS_SCHEMA = [
   },
 ]
 
-export interface dmpOgranizations {
+interface dmpOgranizations {
   org_id:number;
   dmp_organization: string;  
   id: number;
@@ -160,6 +160,10 @@ export class PersonelComponent implements OnInit {
   fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<NistContact[]>;
 
+  nistPeople!: any;
+  NISTOUDivisionGroup!: Array<any>;
+
+
   // Default values of external contributor
   externalContributor: Contributor={
     contributor:{firstName:"", lastName:"", orcid:""}, 
@@ -177,6 +181,8 @@ export class PersonelComponent implements OnInit {
   static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
   static NIST_ORCID_WARNING = "Warning: Missing primary NIST contact's ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
   static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
+
+  people:Array<NistContact> =[] ;
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -307,7 +313,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
-    // this.getNistOrganizations();
+    this.getNistOrganizations();
 
   }  
 
@@ -431,32 +437,44 @@ export class PersonelComponent implements OnInit {
             
             
             return res;
+            // this.people = [];
+            // return this.people;
           }
 
           if (value.trim().length < 2){
-            return res;
+            this.people = [];//reset search results
           }
 
-          this.apiService.get_NIST_Personnel(value).subscribe(
-            (nistPeople: any[]) => {
-              // nist people can be blank if return has no match
-              if(nistPeople){
-                for(var i=0; i<nistPeople.length; i++) {
-                  res.push({
-                    // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
-                    displayName:nistPeople[i].displayName,
-                    firstName:nistPeople[i].firstName,
-                    lastName:nistPeople[i].lastName,
-                    orcid:nistPeople[i].orcid,
-                    divisionName:nistPeople[i].divisionName,
-                    emailAddress:nistPeople[i].emailAddress,
-  
-                  });
-                }
+          if (value.trim().length === 2 && this.people.length ===0){
+            // query people service and cache results
+            this.apiService.get_NIST_Personnel(value).then(
+              (nistPeople: any[]) => {
+                this.people = [];
+                // nist people can be blank if return has no match
+                if(nistPeople){
+                  for(var i=0; i<nistPeople.length; i++) {
+                    this.people.push({
+                      // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
+                      displayName:nistPeople[i].displayName,
+                      firstName:nistPeople[i].firstName,
+                      lastName:nistPeople[i].lastName,
+                      orcid:nistPeople[i].orcid,
+                      divisionName:nistPeople[i].divisionName,
+                      emailAddress:nistPeople[i].emailAddress,
+    
+                    });
+                  }
+                  // this.people = nistPeople;
+                  console.log(this.people);
+                  res = this.people;
+                  
+                }                
               }
-              
-            }
-          );
+            );
+          }
+          else{
+            res = this._filter(value as string);
+          }
 
           // Patch empty value until the user has picked a selection. 
           // This forces the form to accept only values that were selected from the dropdown menu
@@ -466,9 +484,7 @@ export class PersonelComponent implements OnInit {
             primNistContactOrcid: ''
           });
           this.personelForm.value['primNistContactOrcid'] = ''; // automatically clear orcid field
-
           return res;
-
         }
       )
     );
@@ -513,12 +529,12 @@ export class PersonelComponent implements OnInit {
             return res;
           }
 
-          this.apiService.get_NIST_Personnel(contributor).subscribe(
+          
+          this.apiService.get_NIST_Personnel(contributor).then(
             (nistPeople: any[]) => {
               // nist people can be blank if return has no match
               if(nistPeople){
                 for(var i=0; i<nistPeople.length; i++) {
-                  let temp_val = nistPeople[i];
                   res.push({
                     // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
                     displayName:nistPeople[i].displayName,
@@ -534,6 +550,7 @@ export class PersonelComponent implements OnInit {
               
             }
           );
+          
 
           // clear values until the user has picked a selection. 
           // This forces the form to accept only values that were selected from the dropdown menu
@@ -581,6 +598,21 @@ export class PersonelComponent implements OnInit {
   }
 
   private _filter(nistPerson: string): NistContact[] {
+    //split name on comma to get last name
+    // Beacuase the person name in the gui is displayed as <last name>, <first name> delimited by comma and white space
+    // filterValues[1] = last name
+    // filterValues[0] = first name String(person.year).startsWith('198')
+    const filterValues = nistPerson.toLowerCase().split(",");
+    var searchRes;
+
+    searchRes = this.people.filter(
+      (option:any) => option.lastName.toLowerCase().startsWith(filterValues[0])
+    );
+
+    return searchRes;
+  }
+
+  private old_filter(nistPerson: string): NistContact[] {
     //split name on white space to get first name and last name
     // Beacuase the person name in the gui is displayed as <first name> <last name> delimited by white space
     // filterValues[1] = last name
@@ -969,6 +1001,24 @@ export class PersonelComponent implements OnInit {
    * Used when not working with an API for NIST people service database
    */
    getNistOrganizations(){    
+    this.nistOrganizations = [];
+    // Get list of all OUs
+    this.apiService.get_NISTOUDivisionGroup().then(
+      (DivsAndGroups:any[])=>{
+        if(DivsAndGroups){
+          for(let i=0; i < DivsAndGroups.length; i++){
+            // Cache the results taking only ou Id and full name
+            this.nistOrganizations.push(
+              {
+              ORG_ID:DivsAndGroups[i].orG_ID,
+              name:DivsAndGroups[i].orG_Name,
+              }
+            );
+            
+          }
+        }
+      }
+    );
     this.getNistOrganizationsFromAPI();
     // this.getNistOrganizationsNoAPI();
 
@@ -976,20 +1026,26 @@ export class PersonelComponent implements OnInit {
 
   getNistOrganizationsFromAPI(){
     //ORGANIZATIONS is declared in '../../types/mock-organizations'
-    this.nistOrganizations = ORGANIZATIONS;
+    // this.nistOrganizations = ORGANIZATIONS;
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
       startWith(''),
       map(anOrganization => {
-        const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
-        var res = orgName ? this._filter_org(orgName as string):this.nistOrganizations.slice();
-        if (res.length ===1){
+        let res:Array<any> = [];
+        const orgName = typeof anOrganization ==='string';
+
+        if (!orgName){
+          // if value is not string that means the user has picked a selection from dropdown suggestion box
+          // so return an empty array to clear the dropdown suggestion box and set form values accordingly
           this.crntOrgID = anOrganization.ORG_ID;
           this.crntOrgName = anOrganization.name;
 
           this.org_disableAdd = false;
+
         }
         else{
+          res =this._filter_org(anOrganization as string);
           this.org_disableAdd = true;
+
         }
         return res;
       }
@@ -1149,6 +1205,7 @@ export class PersonelComponent implements OnInit {
     return searchRes;
 
   }
+  /**
 
   // this function gets executed on iput change and on focus change
   p_filter(){
@@ -1167,6 +1224,7 @@ export class PersonelComponent implements OnInit {
       );
     }
   }
+     */
 
 
 

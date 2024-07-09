@@ -1,54 +1,56 @@
 
-interface NIST_CONTACT{
+export interface NIST_CONTACT{
   id: string,
   firstName: string,
   lastName: string,
-  e_mail: string,
-  group: string
+  emailAddress: string,
+  divisionName: string
 
 }
+
+
 export const NIST_STAFF: NIST_CONTACT[] =[
   {
     id: '62a15043e09aeb466c831481', 
     firstName: 'Niksa',
     lastName: 'Blonder',
-    e_mail: 'Nik@nist.gov',
-    group: 'Chemical Informatics Group'
+    emailAddress: 'Nik@nist.gov',
+    divisionName: 'Chemical Informatics Group'
   },
   {
     id: '62a15043e09aeb466c831482', 
     firstName: 'Ray',
     lastName: 'Plante',
-    e_mail: 'ray@nist.gov',
-    group: 'ODI'
+    emailAddress: 'ray@nist.gov',
+    divisionName: 'ODI'
   },
   {
     id: '62a15043e09aeb466c831483', 
     firstName: 'Gretchen',
     lastName: 'Greene',
-    e_mail: 'gretchen@nist.gov',
-    group: 'ODI'
+    emailAddress: 'gretchen@nist.gov',
+    divisionName: 'ODI'
   },
   {
     id: '62a15043e09aeb466c831484', 
     firstName: 'Charles',
     lastName: 'Matthew',
-    e_mail: 'Charles@nist.gov',
-    group: 'Biological Research Group'
+    emailAddress: 'Charles@nist.gov',
+    divisionName: 'Biological Research Group'
   },
   {
     id: '62a15043e09aeb466c831484', 
     firstName: 'Jerry',
     lastName: 'Tyler',
-    e_mail: 'Tyler@nist.gov',
-    group: 'Optical Radiation Group'
+    emailAddress: 'Tyler@nist.gov',
+    divisionName: 'Optical Radiation Group'
   },
   {
     id: '62a15043e09aeb466c831484', 
     firstName: 'Jeremy',
     lastName: 'Walter',
-    e_mail: 'Walter@nist.gov',
-    group: 'Remote Sensing Group'
+    emailAddress: 'Walter@nist.gov',
+    divisionName: 'Remote Sensing Group'
   },
 
 ]
