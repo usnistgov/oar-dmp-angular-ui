@@ -9,7 +9,7 @@ import { NistContact } from '../../types/nist-contact'
 import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith, lastValueFrom } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
-import { ORGANIZATIONS } from '../../types/mock-organizations';
+// import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
 
 import {Observable} from 'rxjs';
@@ -72,7 +72,7 @@ const COLUMNS_SCHEMA = [
 ]
 
 interface dmpOgranizations {
-  org_id:number;
+  org_cd:string;
   dmp_organization: string;  
   id: number;
   isEdit: boolean;
@@ -85,7 +85,7 @@ const ORG_COL_SCHEMA = [
     label: '',
   },
   {
-    key: 'org_id',
+    key: 'org_cd',
     type: 'text',
     label: 'Org ID',
   },
@@ -122,6 +122,7 @@ export class PersonelComponent implements OnInit {
   //List of all nist organizations from NIST directory
   nistOrganizations: any = null;
   crntOrgID:number = 0;
+  crntOrgCD:string ="";
   crntOrgName:string = "";
   
   // ================================  
@@ -221,7 +222,7 @@ export class PersonelComponent implements OnInit {
     // organizations aray in order to populate the table of organizations in the GUI interface
     personel.organizations.forEach( 
       (org, index) => {        
-        this.dmpOrganizations.push({id:index, org_id:org.ORG_ID, dmp_organization:org.name, isEdit:false});
+        this.dmpOrganizations.push({id:index, org_cd:org.ORG_CD, dmp_organization:org.name, isEdit:false});
         this.disableClear=false;
         this.disableRemove=false;
       }
@@ -1010,7 +1011,7 @@ export class PersonelComponent implements OnInit {
             // Cache the results taking only ou Id and full name
             this.nistOrganizations.push(
               {
-              ORG_ID:DivsAndGroups[i].orG_ID,
+              ORG_CD:DivsAndGroups[i].orG_CD,
               name:DivsAndGroups[i].orG_Name,
               }
             );
@@ -1036,7 +1037,7 @@ export class PersonelComponent implements OnInit {
         if (!orgName){
           // if value is not string that means the user has picked a selection from dropdown suggestion box
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgCD = anOrganization.ORG_CD;
           this.crntOrgName = anOrganization.name;
 
           this.org_disableAdd = false;
@@ -1058,14 +1059,14 @@ export class PersonelComponent implements OnInit {
 
   getNistOrganizationsNoAPI(){
     //ORGANIZATIONS is declared in '../../types/mock-organizations'
-    this.nistOrganizations = ORGANIZATIONS;
+    this.nistOrganizations = []//ORGANIZATIONS;
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
       startWith(''),
       map(anOrganization => {
         const orgName = typeof anOrganization ==='string' ? anOrganization : anOrganization?.name
         var res = orgName ? this._filter_org(orgName as string):this.nistOrganizations.slice();
         if (res.length ===1){
-          this.crntOrgID = anOrganization.ORG_ID;
+          this.crntOrgCD = anOrganization.ORG_CD;
           this.crntOrgName = anOrganization.name;
 
           this.org_disableAdd = false;
@@ -1083,7 +1084,7 @@ export class PersonelComponent implements OnInit {
   }
 
   displaySelectedOrganization(org:NistOrganization):string{
-    var res = org && org.ORG_ID? org.name : '';
+    var res = org && org.ORG_CD? org.name : '';
     return res;
 
   }
@@ -1120,7 +1121,7 @@ export class PersonelComponent implements OnInit {
   org_addRow(){
     const newRow = {
       id: Date.now(),      
-      org_id:this.crntOrgID,
+      org_cd:this.crntOrgCD,
       dmp_organization: this.crntOrgName,
       isEdit: false,
     };
@@ -1128,14 +1129,14 @@ export class PersonelComponent implements OnInit {
     // - this can happen if user types in the search box but does not select 
     //    an actual organization from the drop down menu
 
-    if (typeof newRow.org_id === "undefined" || typeof newRow.dmp_organization === "undefined"){
+    if (typeof newRow.org_cd === "undefined" || typeof newRow.dmp_organization === "undefined"){
       this.org_errorMessage = "Select an existing NIST Organization";
       return;
 
     }
 
     // Check if selected organization is already in the table
-    var selRow = this.dmpOrganizations.filter((u) => u.org_id === newRow.org_id);
+    var selRow = this.dmpOrganizations.filter((u) => u.org_cd === newRow.org_cd);
     if (selRow.length > 0){
       this.org_errorMessage = "The selected Organization is already associated with this DMP.";
       return;
@@ -1162,7 +1163,7 @@ export class PersonelComponent implements OnInit {
       (org)=>{
         this.personelForm.value['organizations'].push(
           {
-            ORG_ID:org.org_id,
+            ORG_CD:org.org_cd,
             name:org.dmp_organization
           }
         )
@@ -1178,7 +1179,7 @@ export class PersonelComponent implements OnInit {
       (value:NistOrganization, index:number)=>{
         selRow.forEach(
           (org)=>{
-            if (value.ORG_ID === org.org_id){
+            if (value.ORG_CD === org.org_cd){
               //remove selected organization
               this.personelForm.value['organizations'].splice(index,1);
             }

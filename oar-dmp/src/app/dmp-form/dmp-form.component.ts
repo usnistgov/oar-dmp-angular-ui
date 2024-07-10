@@ -493,7 +493,7 @@ export class DmpFormComponent implements OnInit {
       let tblHeaders = ["Org ID", "Organization(s)"];
       let tblData:Array<Array<string>>=[];
       for ( let i=0; i < this.dmp.organizations.length; i++){
-        tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
+        tblData.push([this.dmp.organizations[i].ORG_CD.toString(), this.dmp.organizations[i].name])
       }
 
       if (dmpFormat === "PDF")
