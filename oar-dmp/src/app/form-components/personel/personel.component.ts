@@ -92,7 +92,7 @@ const ORG_COL_SCHEMA = [
   {
     key: 'dmp_organization',
     type: 'text',
-    label: 'Organization(s)',
+    label: 'Organization',
   },
   // Edit button column
   {
