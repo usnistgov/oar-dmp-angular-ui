@@ -163,6 +163,7 @@ export class PersonelComponent implements OnInit {
 
   nistPeople!: any;
   NISTOUDivisionGroup!: Array<any>;
+  initializing!:boolean;
 
 
   // Default values of external contributor
@@ -309,6 +310,7 @@ export class PersonelComponent implements OnInit {
     /**
      * NOTE Comment below when woking with API
      */
+    this.initializing = true;//set this flag the first time the form is loaded
     this.getNistContacts();
 
     /**
@@ -477,14 +479,22 @@ export class PersonelComponent implements OnInit {
             res = this._filter(value as string);
           }
 
-          // Patch empty value until the user has picked a selection. 
-          // This forces the form to accept only values that were selected from the dropdown menu
-          this.personelForm.patchValue({
-            nistContactFirstName: '',
-            nistContactLastName:  '',
-            primNistContactOrcid: ''
-          });
-          this.personelForm.value['primNistContactOrcid'] = ''; // automatically clear orcid field
+          // Don't patch empty values if the form is loading for the first time because it will clear
+          // data that has come from the retreiving an existing record from database
+          if (!this.initializing){
+            // Patch empty value until the user has picked a selection. 
+            // This forces the form to accept only values that were selected from the dropdown menu
+            this.personelForm.patchValue({
+              nistContactFirstName: '',
+              nistContactLastName:  '',
+              primNistContactOrcid: ''
+            });
+            this.personelForm.value['primNistContactOrcid'] = ''; // automatically clear orcid field
+          }
+          // set initialization flag to false once the record has been loaded
+          this.initializing = false;
+
+          
           return res;
         }
       )
