@@ -173,7 +173,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 100%;
 }
 
-@media only screen and (min-width: 1700px) {
+@media only screen and (min-width: 1490px) {
   /* For desktop: */
   .dmp-col-1 {width: 8.33%;}
   .dmp-col-2 {width: 16.66%;}
@@ -215,6 +215,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: rgb(221, 246, 253);
 }
 
-@media only screen and (min-width: 1700px) {
+@media only screen and (min-width: 1490px) {
   #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
 }
