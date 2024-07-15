@@ -44,6 +44,106 @@
     <p *ngIf="pncErrorMessage" class="error-msg">{{ pncErrorMessage }}</p>
     <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>
 
+    <!-- <br/> -->
+    <div >
+
+      <div class="dmp-container">
+        <div class="dmp-frm-row">
+          <div class="col-30" style="padding-top: 20px;">
+            Select an organization 
+            responsible for this DMP
+          </div>
+          <div class="col-70">
+            <mat-form-field class="example-full-width" appearance="fill" style="width:400px;">
+              <!-- <mat-label>NIST Organization</mat-label> -->
+              <input type="text"
+                    placeholder="Type to search ..."
+                    aria-label="NIST Organization"
+                    style="background-color: rgb(252, 252, 252);"
+                    matInput
+                    [formControl]="personelForm.controls['nistOrganization']"
+                    [matAutocomplete]="nistOrganization"
+                    >
+              <mat-autocomplete 
+                #nistOrganization="matAutocomplete"
+                [displayWith]="displaySelectedOrganization"
+              >
+                <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
+                  {{option.name}}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+        </div>
+      </div> 
+  
+      <article class="table-header">
+        
+        <!-- 
+          set button type to 'button' to prevent it from acting like a submit button and triggering
+          updateDMP in dmp.services.ts 
+        -->
+        <button type="button" class="button-remove-rows" mat-button (click)="org_removeSelectedRows()" [disabled]="org_disableRemove">Remove Selected</button>
+        <button type="button" class="button-clear-table" mat-button (click)="org_clearTable()" [disabled]="org_disableClear">Clear</button>
+        <button type="button" class="button-add-row" mat-button (click)="org_addRow()" [disabled]="org_disableAdd">Add</button>
+      </article>
+  
+        
+      <p *ngIf="org_errorMessage" class="error-msg">{{ org_errorMessage }}</p>
+      
+    
+      <div style="overflow-x:auto;">
+        <table mat-table [dataSource]="dmpOrganizations" class="mat-elevation-z8 form-table" id="dmpOrganizations">
+        
+          <!-- 
+            iterate over columns 
+          -->
+          <ng-container [matColumnDef]="col.key" *ngFor="let col of org_columnsSchema">
+            <!-- 
+              table headers 
+            -->
+            <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+            <!-- 
+              table cells 
+            -->
+            <td mat-cell *matCellDef="let element">  
+              <!-- table cell display default cell display -->
+              <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+                <!-- Switch if the column isSelected to display the checkbox in the table cell -->
+                <ng-container *ngSwitchCase="'isSelected'">
+                  <mat-checkbox
+                    (change)="element.isSelected = $event.checked"
+                  ></mat-checkbox>
+                </ng-container>
+      
+                <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
+                <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                  <button
+                    mat-button
+                    class="button-remove"
+                    (click)="org_removeRow(element.id)"
+                  >
+                    Delete
+                  </button>
+                </div>
+                
+                <!-- default cell -->
+                <span *ngSwitchDefault>
+                  {{ element[col.key] }}
+                </span>
+              </div>
+      
+            
+      
+            </td>
+          </ng-container>
+        
+          <tr mat-header-row *matHeaderRowDef="org_displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: org_displayedColumns;"></tr>
+        </table>
+      </div>
+    </div>
+
     <div class="sub-category">Contributors</div>
     <p><span class="requiredField" >*</span> Required fields to add a contributor</p>
 
@@ -262,107 +362,6 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>    
-      </div>
-    </div>
-    <br/>
-    <div >
-      <div class="sub-category">Organization(s) Responsible for this DMP</div>  
-      <p class="instruction"> Add / Remove Organization(s) responsible for this DMP</p> 
-
-      <div class="dmp-container">
-        <div class="dmp-frm-row">
-          <div class="col-30" style="padding-top: 20px;">
-            Select an organization 
-            responsible for this DMP
-          </div>
-          <div class="col-70">
-            <mat-form-field class="example-full-width" appearance="fill" style="width:400px;">
-              <!-- <mat-label>NIST Organization</mat-label> -->
-              <input type="text"
-                    placeholder="Type to search ..."
-                    aria-label="NIST Organization"
-                    style="background-color: rgb(252, 252, 252);"
-                    matInput
-                    [formControl]="personelForm.controls['nistOrganization']"
-                    [matAutocomplete]="nistOrganization"
-                    >
-              <mat-autocomplete 
-                #nistOrganization="matAutocomplete"
-                [displayWith]="displaySelectedOrganization"
-              >
-                <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
-                  {{option.name}}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-          </div>
-        </div>
-      </div> 
-  
-      <article class="table-header">
-        
-        <!-- 
-          set button type to 'button' to prevent it from acting like a submit button and triggering
-          updateDMP in dmp.services.ts 
-        -->
-        <button type="button" class="button-remove-rows" mat-button (click)="org_removeSelectedRows()" [disabled]="org_disableRemove">Remove Selected</button>
-        <button type="button" class="button-clear-table" mat-button (click)="org_clearTable()" [disabled]="org_disableClear">Clear</button>
-        <button type="button" class="button-add-row" mat-button (click)="org_addRow()" [disabled]="org_disableAdd">Add</button>
-      </article>
-  
-        
-      <p *ngIf="org_errorMessage" class="error-msg">{{ org_errorMessage }}</p>
-      
-    
-      <div style="overflow-x:auto;">
-        <table mat-table [dataSource]="dmpOrganizations" class="mat-elevation-z8 form-table" id="dmpOrganizations">
-        
-          <!-- 
-            iterate over columns 
-          -->
-          <ng-container [matColumnDef]="col.key" *ngFor="let col of org_columnsSchema">
-            <!-- 
-              table headers 
-            -->
-            <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
-            <!-- 
-              table cells 
-            -->
-            <td mat-cell *matCellDef="let element">  
-              <!-- table cell display default cell display -->
-              <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
-                <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-                <ng-container *ngSwitchCase="'isSelected'">
-                  <mat-checkbox
-                    (change)="element.isSelected = $event.checked"
-                  ></mat-checkbox>
-                </ng-container>
-      
-                <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-                <div class="btn-edit" *ngSwitchCase="'isEdit'">
-                  <button
-                    mat-button
-                    class="button-remove"
-                    (click)="org_removeRow(element.id)"
-                  >
-                    Delete
-                  </button>
-                </div>
-                
-                <!-- default cell -->
-                <span *ngSwitchDefault>
-                  {{ element[col.key] }}
-                </span>
-              </div>
-      
-            
-      
-            </td>
-          </ng-container>
-        
-          <tr mat-header-row *matHeaderRowDef="org_displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: org_displayedColumns;"></tr>
-        </table>
       </div>
     </div>
 
