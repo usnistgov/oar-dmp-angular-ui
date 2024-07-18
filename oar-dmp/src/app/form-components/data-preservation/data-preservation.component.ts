@@ -1,5 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 
@@ -50,7 +50,7 @@ export class DataPreservationComponent {
     }
   );
 
-  constructor(private fb: FormBuilder) { 
+  constructor(private fb: UntypedFormBuilder) { 
 
   }
 

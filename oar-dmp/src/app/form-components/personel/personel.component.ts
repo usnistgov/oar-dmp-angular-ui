@@ -6,7 +6,7 @@ import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from '../../types/nist-contact'
 
-import { Validators, FormBuilder } from '@angular/forms';
+import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ORGANIZATIONS } from '../../types/mock-organizations';
@@ -180,7 +180,7 @@ export class PersonelComponent implements OnInit {
   constructor(
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) {
     /**
      * NOTE uncoment this when pulling data from API with a backend database

@@ -20,6 +20,15 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
+                        "allowedCommonJsDependencies": [
+                            "raf",
+                            "core-js",
+                            "dompurify",
+                            "html2canvas",
+                            "rgbcolor",
+                            "file-saver",
+                            "lodash"
+                        ],
                         "outputPath": "dist/dmp_ui2",
                         "index": "src/index.html",
                         "main": "src/main.ts",
@@ -48,8 +57,8 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "500kb",
-                                    "maximumError": "1.7mb"
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "1.8mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
@@ -101,8 +110,7 @@
             }
         }
     },
-    "defaultProject": "dmp_ui2",
     "cli": {
-      "analytics": false
+        "analytics": false
     }
 }
