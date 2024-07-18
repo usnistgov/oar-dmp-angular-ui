@@ -8,7 +8,7 @@ import {Observable} from 'rxjs';
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
-  styleUrls: ['./basic-info.component.scss', '../form-table.scss']
+  styleUrls: ['./basic-info.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class BasicInfoComponent{
   
@@ -39,7 +39,7 @@ export class BasicInfoComponent{
     this.basicInfoForm.patchValue({
       title: basic_info.title,
       startDate: basic_info.startDate,
-      endDate: basic_info.endDate,
+      // endDate: basic_info.endDate,
       dmpSearchable: basic_info.dmpSearchable,
       grant_source: basic_info.funding.grant_source,
       grant_id: basic_info.funding.grant_id,
@@ -64,7 +64,7 @@ export class BasicInfoComponent{
           // to our part of the form 
           title: formValue.title,
           startDate: formValue.startDate,
-          endDate: formValue.endDate,
+          // endDate: formValue.endDate,
           dmpSearchable: formValue.dmpSearchable,
           funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
           projectDescription:formValue.projectDescription

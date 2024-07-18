@@ -6,14 +6,11 @@
   // background-color: rgb(162, 171, 168);
   
 }
-.header_pad{
-  padding: 5px 0px 20px;
-}
 
 #resources-grid-container {      
   display: grid;
   // define two columns of 330px each
-  grid-template-columns:repeat(2, 290px);
+  // grid-template-columns:repeat(2, 290px);
   background-color: #1a7bbc;;
   padding: 5px;
   border-radius: 8px;
@@ -27,22 +24,22 @@
   border-radius: 3px;
   /* unvisited link */
   a:link {
-    color: rgb(30, 65, 224);
+    color: #1E4187;
   }
 
   /* visited link */
   a:visited {
-    color:  rgb(30, 65, 224);
+    color:  #1E4187;
   }
 
   /* mouse over link */
   a:hover {
-    color: rgb(83, 53, 255);
+    color: #5A3F64;
   }
 
   /* selected link */
   a:active {
-    color: blue;
+    color: #661A64;
   } 
 
 }
@@ -56,7 +53,7 @@
   display: table-cell;
 }
 .selected{
-  background-color: rgb(201, 201, 201);
+  background-color: #F1F1F2;
 }
 
 div {

@@ -1,10 +1,97 @@
 <div class="dmpSection">  
-  <div class="header">Basic Information</div>    
+  <div class="header">Basic Information</div>
+  <div class="dmp-frm-container">
+    
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="title">Title</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="title" [formControl]="basicInfoForm.controls['title']" placeholder="Title..." />
+      </div>
+    </div>
+
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="start_date">Start Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="start_date" [formControl]="basicInfoForm.controls['startDate']">
+      </div>
+    </div>
+
+    <!-- 
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="end_date">End Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="end_date" [formControl]="basicInfoForm.controls['endDate']">
+      </div>
+    </div> 
+    -->
+
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="make_dmp_searchable">Make DMP Searchable</label>
+      </div>
+      <div class="col-75" id="make_dmp_searchable">
+        <input type="radio" id="searchDMPY" name="searchDMP" value="yes" [checked]='true' [formControl]="basicInfoForm.controls['dmpSearchable']">
+        <label for="searchDMPY">Yes</label>
+
+        <input type="radio" id="searchDMPN" name="searchDMP" value="no" [formControl]="basicInfoForm.controls['dmpSearchable']">
+        <label for="searchDMPN">No</label>
+      </div>
+    </div>
+
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="funding">Funding</label>
+      </div>
+      <div class="col-75" id="funding">
+        <div>
+          <input type="radio" id="operatingUnit" name="grant_source" value="Operating Unit" checked 
+          [formControl]="basicInfoForm.controls['grant_source']">
+          <label for="operatingUnit">Operating Unit</label>
+        </div>
+        <div>
+          <input type="radio" id="divProjTrkNum" name="grant_source" value="Division Project Tracking Number" 
+          [formControl]="basicInfoForm.controls['grant_source']">
+          <label for="divProjTrkNum">Division Project Tracking Number</label>
+        </div>
+        <div>
+          <input type="radio" id="grantNum" name="grant_source" value="Grant Number"
+          [formControl]="basicInfoForm.controls['grant_source']">
+          <label for="grantNum">Grant Number</label>
+        </div>
+        <div>
+          <input type="radio" id="contractNum" name="grant_source" value="Contract Number"
+          [formControl]="basicInfoForm.controls['grant_source']">
+          <label for="contractNum">Contract Number</label>
+        </div>
+        <div>
+          Funding Number:&nbsp;
+          <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['grant_id']" style="max-width: 200px;">
+        </div>
+
+      </div>
+    </div>
+
+    
+    <div class="dmp-frm-row">
+      <div class="col-25">
+        <label for="project_description">Project Description<!--<span class="required_DMP_Field" >*</span>--></label>
+      </div>
+      <div class="col-75">
+        <textarea id="project_description" name="projectDescription" rows="5" placeholder="Description behind the science of the project"
+        [formControl]="basicInfoForm.controls['projectDescription']"></textarea>
+      </div>
+    </div>
+
+  </div>  
+
   <table>
-    <tr>
-      <td class="description">Title<!--<span class="required_DMP_Field" >*</span>--></td>
-      <td><input type="text" [formControl]="basicInfoForm.controls['title']" class="wide"></td>
-    </tr>
+    
     <tr class="hidden-row">
       <td class="description">DMP Idntifier</td>
       <!-- hide this  -->
@@ -32,62 +119,13 @@
         <input type="text" placeholder="DMP Idntifier">
       </td>
     </tr>
-    <tr>
-      <td class="description">Start Date</td>
-      <td><input type="date" [formControl]="basicInfoForm.controls['startDate']"></td>
-    </tr>
-    <tr>
-      <td class="description">End Date</td>
-      <td><input type="date" [formControl]="basicInfoForm.controls['endDate']"></td>
-    </tr>
-    <tr>
-      <td class="description">Make DMP searchable</td>
-      <!-- move this into basic information section -->
-      <td>
-        <div>
-          <input type="radio" id="searchDMPY" name="searchDMP" value="yes" [checked]='true' [formControl]="basicInfoForm.controls['dmpSearchable']">
-          <label for="searchDMPY">Yes</label>
+    
 
-          <input type="radio" id="searchDMPN" name="searchDMP" value="no" [formControl]="basicInfoForm.controls['dmpSearchable']">
-          <label for="searchDMPN">No</label>
-        </div>          
-      </td>
-    </tr>
-    <tr>
-      <td class="description">Funding</td>
-      <td>
-        <div>
-          <input type="radio" id="operatingUnit" name="grant_source" value="Operating Unit" checked 
-          [formControl]="basicInfoForm.controls['grant_source']">
-          <label for="operatingUnit">Operating Unit</label>
-        </div>
-        <div>
-          <input type="radio" id="divProjTrkNum" name="grant_source" value="Division Project Tracking Number" 
-          [formControl]="basicInfoForm.controls['grant_source']">
-          <label for="divProjTrkNum">Division Project Tracking Number</label>
-        </div>
-        <div>
-          <input type="radio" id="grantNum" name="grant_source" value="Grant Number"
-          [formControl]="basicInfoForm.controls['grant_source']">
-          <label for="grantNum">Grant Number</label>
-        </div>
-        <div>
-          <input type="radio" id="contractNum" name="grant_source" value="Contract Number"
-          [formControl]="basicInfoForm.controls['grant_source']">
-          <label for="contractNum">Contract Number</label>
-        </div>
-        <div>
-          Funding Number:&nbsp;
-          <input type="text" placeholder="Funding Number" [formControl]="basicInfoForm.controls['grant_id']">
-        </div>
-        
-      </td>
-    </tr>
+  
     <tr>
         
-      <td>Project Description<!--<span class="required_DMP_Field" >*</span>--></td>
-      <td><textarea name="projectDescription" cols="80" rows="5" placeholder="Description behind the science of the project"
-        [formControl]="basicInfoForm.controls['projectDescription']"></textarea></td>
+      <td></td>
+      <td></td>
     </tr>
     
     

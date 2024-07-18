@@ -1,112 +1,32 @@
 <div class="dmpSection">
   <div class="header">Data Preservation and Accessibility</div>
+  <div class="dmp-frm-container">
+    <p><span class="dmp-frm-label">Preservation Description</span></p>
+    <textarea 
+      name="dmpDescription" 
+      cols="80" 
+      rows="7" 
+      placeholder="Provide a description of the storage backup method to be used or how data will be preserved in the long-term."
+      [formControl]="preservationForm.controls['preservationDescription']"
+      ></textarea>
 
-  <p class="instruction"> Provide the file path(s) / URL(s) for where you will be saving your data (if known)</p>
-  <article class="table-header">
-    
-    <!-- 
-      set button type to 'button' to prevent it from acting like a submit button and triggering
-      updateDMP in dmp.services.ts 
-    -->
-    <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
-    <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
-    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
-  </article>
-  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-  
+    <p><span class="dmp-frm-label">Describe your plans for making the<br>data discoverable (findable) and accessible</span></p>
+    <textarea 
+      name="dmpDiscoverability" 
+      cols="80" 
+      rows="7" 
+      placeholder="Describe what steps will be taken to ensure that potential customers who do not already know the data will be able to find them (discoverability) and then obtain them for use (accessibility)."
+      [formControl]="preservationForm.controls['dataAccess']"
+      ></textarea>
 
-  <table mat-table [dataSource]="pathSource" class="mat-elevation-z8 form-table">
-  
-    <!-- 
-      iterate over columns 
-    -->
-    <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
-      <!-- 
-        table headers 
-      -->
-      <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
-      <!-- 
-        table cells 
-      -->
-      <td mat-cell *matCellDef="let element">  
-        <!-- table cell display default cell display -->
-        <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
-          <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-          <ng-container *ngSwitchCase="'isSelected'">
-            <mat-checkbox
-              (change)="element.isSelected = $event.checked"
-            ></mat-checkbox>
-          </ng-container>
+    <div class="sub-category">Provide the file path(s) / URL(s) for where you will be saving your data (if known)</div>
+    <p class="instruction">Copy/Paste or manually type in path(s) / URL(s) as comma separated values: <i>Hint: a, b, c</i></p>
+    <div class="p-fluid">
+      
+      <p-chips [formControl]="preservationForm.controls['pathsURLs']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips>
+    </div>
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
-          <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-          <div class="btn-edit" *ngSwitchCase="'isEdit'">
-            <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
-              Edit
-            </button>
-            <button
-              mat-button
-              class="button-remove"
-              (click)="removeRow(element.id)"
-            >
-              Delete
-            </button>
-          </div>
-          
-          <!-- default cell -->
-          <span *ngSwitchDefault>
-            {{ element[col.key] }}
-          </span>
-        </div>
-
-        <!-- table cell display if edit button has been clicked -->
-        <div [ngSwitch]="col.type" *ngIf="element.isEdit">
-          <!-- no input for the selected checkbox column cell -->
-          <div *ngSwitchCase="'isSelected'"></div>
-          
-          <!-- Switch if the column isEdit to display the Done button in the table cell -->
-          <div class="btn-edit" *ngSwitchCase="'isEdit'">
-            <button type="button" mat-button (click)="onDoneClick(element)">
-              Done
-            </button>
-          </div>
-
-          <!-- default column cell -->
-          <mat-form-field class="form-input" *ngSwitchDefault>
-            <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
-          </mat-form-field>
-
-        </div>
-
-      </td>
-    </ng-container>
-  
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>    
-
-  <table>
-    <tr>
-      <td>Preservation Description</td>
-      <td><textarea 
-        name="dmpDescription" 
-        cols="40" 
-        rows="5" 
-        placeholder="Provide a description of the storage backup method to be used or how data will be preserved in the long-term."
-        [formControl]="preservationForm.controls['preservationDescription']"
-        ></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td>Describe your plans for making the<br>data discoverable (findable) and accessible</td>
-      <td><textarea 
-        name="dmpDiscoverability" 
-        cols="40" 
-        rows="5" 
-        placeholder="Describe what steps will be taken to ensure that potential customers who do not already know the data will be able to find them (discoverability) and then obtain them for use (accessibility)."
-        [formControl]="preservationForm.controls['dataAccess']"
-        ></textarea>
-      </td>
-    </tr>
-  </table>
+  </div>
   
 </div>

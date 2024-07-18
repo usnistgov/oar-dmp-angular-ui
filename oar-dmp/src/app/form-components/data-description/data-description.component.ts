@@ -9,7 +9,7 @@ import { DataCategories } from '../../types/data-categories.type';
 @Component({
   selector: 'app-data-description',
   templateUrl: './data-description.component.html',
-  styleUrls: ['./data-description.component.scss']
+  styleUrls: ['../form-layout.scss', './data-description.component.scss']
 })
 export class DataDescriptionComponent implements OnInit {
 
@@ -155,9 +155,9 @@ export class DataDescriptionComponent implements OnInit {
   }
 
   dataCategoryChange(e:any) {
-    this.setStorageTier(e.target.defaultValue,e.target.checked);
+    this.setStorageTier(e.target.defaultValue,e.target.checked);    
     
-    
+    // pass by reference
     let dataCategories = this.dataDescriptionForm.value['dataCategories'] as string[];
 
     if (e.target.checked){      

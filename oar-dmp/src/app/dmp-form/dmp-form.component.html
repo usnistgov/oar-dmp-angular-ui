@@ -2,7 +2,7 @@
 <form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
   
 
-  <div class="dmpSection" >
+  <div class="dmpSection" style="padding-left: 12px;">
     <p><span class="req_DMP_Field" >*</span> Required fields to save/create a DMP record</p>
     <table>
       <tr>
@@ -58,6 +58,15 @@
       (formReady)="addChildForm('ethicalIssues', $event)"
       (valueChange)="patchDMP($event)"
     ></app-ethical-issues>
+  </div>
+
+  <!-- SECURITY AND PRIVACE -->
+  <div id="security_and_privacy_section">
+    <app-security-and-privacy
+      [initialDMP_Meta] ="initialDMP" 
+      (formReady)="addChildForm('securityAndPrivacy', $event)"
+      (valueChange)="patchDMP($event)"
+    ></app-security-and-privacy>
   </div>
 
   <!-- DATA DESCRIPTION -->

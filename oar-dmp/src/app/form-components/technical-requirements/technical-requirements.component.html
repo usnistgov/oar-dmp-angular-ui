@@ -1,30 +1,28 @@
 <div class="dmpSection">
   <div class="header">Technical Requirements</div> 
-  
-  <!-- 
-  <div id="myDiv1" [ngClass]="{'cMB':dataSetSize==='MB',  'cTB':dataSetSize==='TB',  'cGB':dataSetSize==='GB'}">
-    color change div
-  </div> 
-  -->
-  
-  <table >
-    <tr>
-      <td class="description">Estimated Data Size</td>
-      <td>
-        <input type="text" placeholder="Numeric value" (change)="setDataSize($event)" 
+
+  <div class="dmp-frm-container">
+    <div class="dmp-frm-row">
+      <div class="col-20">
+        <label for="estimated_data_size"><div class ="dmp_tooltip">Estimated Data Size<span class="dmp_tooltiptext">Is it total size over the project life or per year?</span></div></label>
+      </div>
+      <div class="col-80">
+        <input type="text" id="estimated_data_size" placeholder="Numeric value" (change)="setDataSize($event)" 
         [formControl]="technicalRequirementsForm.controls['dataSize']" >
 
-        <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" >
+        <select name="dataSize" [(ngModel)]="dataSize" (change)="selDataSize()" style="padding: 5px;">
           <option [value]="item.id" *ngFor="let item of dataUnits">
               {{item.size}}
           </option>
         </select>
+      </div>
+    </div>
 
-      </td>
-    </tr>
-    <tr>
-      <td class="description">Software Development</td>
-      <td>
+    <div class="dmp-frm-row">
+      <div class="col-20">
+        Software Development
+      </div>
+      <div class="col-80">
         <input type="radio" id="softwareDevY" name="softwareDevelopment" value="yes" (click)="setSoftwareDev('yes')"
         [formControl]="technicalRequirementsForm.controls['development']"
         >
@@ -89,92 +87,118 @@
             </tr>
           </table>
 
-
         </div>
-      </td>
-    </tr>
-  </table>
-  <div class="sub-category">Technical resources equipment needed/used</div>
-  <article class="table-header">
+      </div>
+    </div>
+
+    <div class="sub-category">Technical resources equipment needed/used</div>
+    <p class="chips-info" style="padding-top: 20px;">Copy/Paste or manually type in  equipment needed/used as comma separated values: <i>Hint: a, b, c</i></p>  
+    <div class="p-fluid">
+      <p-chips [formControl]="technicalRequirementsForm.controls['technicalResources']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips>
+    </div>
+
+    <div class="sub-category">Instruments needed/used</div>
+
+    <b>Instruments used</b><br>
+    <div class="dmp-frm-row">
+      <div class="dmp-col-3">        
+        Instrument Name:<br>
+        <input type="text" [(ngModel)]="dmpInstrument.name" (input)="checkInstrData($event)" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
+      </div>
+      <div class="dmp-col-9">
+        Instrument Description / URL Landing Page:<br>
+        <input type="text" [(ngModel)]="dmpInstrument.description_url" (input)="checkInstrData($event)" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>  
+      </div>
+    </div>
+
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+    <article class="table-header">
+      
+      <!-- 
+        set button type to 'button' to prevent it from acting like a submit button and triggering
+        updateDMP in dmp.services.ts 
+      -->
+      <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
+      <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
+      <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+    </article>
+
+    <div style="overflow-x:auto;">
+      <table mat-table [dataSource]="dmpInstrumentsTbl" class="mat-elevation-z8 contribTbl">
+      
+        <!-- 
+          iterate over columns 
+        -->
+        <ng-container [matColumnDef]="col.key" *ngFor="let col of instr_columnsSchema">
+          <!-- 
+            table headers 
+          -->
+          <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+          <!-- 
+            table cells 
+          -->
+          <td mat-cell *matCellDef="let element">  
+            <!-- table cell display default cell display -->
+            <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+              <!-- Switch if the column isSelected to display the checkbox in the table cell -->
+              <ng-container *ngSwitchCase="'isSelected'">
+                <mat-checkbox class="dmp_chk_bx"
+                  (change)="element.isSelected = $event.checked"
+                ></mat-checkbox>
+              </ng-container>
     
-    <!-- 
-      set button type to 'button' to prevent it from acting like a submit button and triggering
-      updateDMP in dmp.services.ts 
-    -->
-    <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
-    <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
-    <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
-  </article>
-  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-  
-
-  <table mat-table [dataSource]="techResource" class="mat-elevation-z8 form-table">
-  
-    <!-- 
-      iterate over columns 
-    -->
-    <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
-      <!-- 
-        table headers 
-      -->
-      <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
-      <!-- 
-        table cells 
-      -->
-      <td mat-cell *matCellDef="let element">  
-        <!-- table cell display default cell display -->
-        <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
-          <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-          <ng-container *ngSwitchCase="'isSelected'">
-            <mat-checkbox
-              (change)="element.isSelected = $event.checked"
-            ></mat-checkbox>
-          </ng-container>
-
-          <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-          <div class="btn-edit" *ngSwitchCase="'isEdit'">
-            <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
-              Edit
-            </button>
-            <button
-              mat-button
-              class="button-remove"
-              (click)="removeRow(element.id)"
-            >
-              Delete
-            </button>
-          </div>
-          
-          <!-- default cell -->
-          <span *ngSwitchDefault>
-            {{ element[col.key] }}
-          </span>
-        </div>
-
-        <!-- table cell display if edit button has been clicked -->
-        <div [ngSwitch]="col.type" *ngIf="element.isEdit">
-          <!-- no input for the selected checkbox column cell -->
-          <div *ngSwitchCase="'isSelected'"></div>
-          
-          <!-- Switch if the column isEdit to display the Done button in the table cell -->
-          <div class="btn-edit" *ngSwitchCase="'isEdit'">
-            <button type="button" mat-button (click)="onDoneClick(element)">
-              Done
-            </button>
-          </div>
-
-          <!-- default column cell -->
-          <mat-form-field class="form-input" *ngSwitchDefault>
-            <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
-          </mat-form-field>
-
-        </div>
-
-      </td>
-    </ng-container>
-  
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-  <br/>    
+              <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
+              <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                <span *ngIf="element.institution !== 'NIST'">
+                  <!--
+                    Display edit button only for non NIST contacts
+                  -->
+                  <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
+                    Edit
+                  </button>
+                </span>
+                <button
+                  mat-button
+                  class="button-remove"
+                  (click)="removeRow(element.id)"
+                >
+                  Delete
+                </button>
+              </div>
+              
+              <!-- default cell -->
+              <span *ngSwitchDefault>
+                {{ element[col.key] }}
+              </span>
+            </div>
+    
+            <!-- table cell display if edit button has been clicked -->
+            <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+              <!-- no input for the selected checkbox column cell -->
+              <div *ngSwitchCase="'isSelected'"></div>
+              
+              <!-- Switch if the column isEdit to display the Done button in the table cell -->
+              <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                <button type="button" mat-button (click)="onDoneClick(element)">
+                  Done
+                </button>
+              </div>
+    
+              <!-- default column cell -->
+              <mat-form-field class="form-input" *ngSwitchDefault>
+                <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+              </mat-form-field>
+    
+            </div>
+    
+          </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="instr_displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: instr_displayedColumns;"></tr>
+      </table>
+    </div>
+  </div>
+    
 </div>

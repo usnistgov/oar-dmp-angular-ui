@@ -6,27 +6,33 @@ import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 // import { DMP_Meta } from 'src/app/types/DMP.types';
 // import { SoftwareDevelopment } from 'src/app/types/software-development.type';
+import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
-
-export interface TechnicalResources {
-  resource: string;
+export interface InstrTblRow {  
+  name: string;
+  description_url: string;
   id: number;
   isEdit: boolean;
 }
 
-const COLUMNS_SCHEMA = [
+const INSTR_COL_SCHEMA = [
   {
     key: 'isSelected',
     type: 'isSelected',
     label: '',
   },
   {
-    key: 'resource',
+    key: 'name',
     type: 'text',
-    label: 'Technical Resource',
+    label: 'Instrument Name',
+  },
+  {
+    key: 'description_url',
+    type: 'text',
+    label: 'Description / URL Landing Page',
   },
   // Edit button column
   {
@@ -39,22 +45,37 @@ const COLUMNS_SCHEMA = [
 @Component({
   selector: 'app-technical-requirements',
   templateUrl: './technical-requirements.component.html',
-  styleUrls: ['./technical-requirements.component.scss', '../form-table.scss']
+  styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class StorageNeedsComponent {  
-  disableAdd:boolean = false;
+  // ================================  
+
+  disableAdd:boolean = true;
   disableClear:boolean = true;
   disableRemove:boolean = true;
 
-  storageSubscription!: Subscription | null;
-  
+  instr_displayedColumns: string[] = INSTR_COL_SCHEMA.map((col) => col.key);
+  instr_columnsSchema: any = INSTR_COL_SCHEMA;
+
+  crntInstrName: string = "";
+  crntInstrURL: string = "";
+
+  dmpInstrument: Instrument={
+    name:"",
+    description_url:""
+
+  } 
+
+  dmpInstrumentsTbl: InstrTblRow[] = []
+
+  // ================================  
+
+  storageSubscription!: Subscription | null;  
   errorMessage: string = '';
-
-  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  columnsSchema: any = COLUMNS_SCHEMA;
-  techResource: TechnicalResources[] = [];
-
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
+  separatorExp: RegExp = /,|;/;
+
+  
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -66,7 +87,8 @@ export class StorageNeedsComponent {
       softwareUse: [''],
       softwareDatabase: [''],
       softwareWebsite: [''],
-      technicalResources: [[]]
+      technicalResources: [[]],
+      instruments: [[]]
     }
   );
   
@@ -82,16 +104,23 @@ export class StorageNeedsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
-    // loop over resources array sent from the server and populate local copy of 
-    // resources array to populate the table of resources in the user interface
+    // loop over instruments array sent from the server and populate local copy of 
+    // instruments array to populate the table of instruments in the user interface
 
-    technical_requirements.technicalResources.forEach( 
-      (technicalResource, index) => {  
-        this.techResource.push({id:index, resource:technicalResource, isEdit:false});
+    technical_requirements.instruments.forEach(
+      (anInstrument, index) => {
+        this.dmpInstrumentsTbl.push({
+          id:               index, 
+          isEdit:           false, 
+          name:             anInstrument.name,
+          description_url:  anInstrument.description_url,
+
+          
+        });
         this.disableClear=false;
         this.disableRemove=false;
       }
-    );
+    )
 
     // set initial values for technical requirements part of the form
     // to what has been sent from the server
@@ -104,7 +133,8 @@ export class StorageNeedsComponent {
         softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
         softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
         softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
-        technicalResources:             technical_requirements.technicalResources
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
       });
     }
     else{
@@ -118,7 +148,8 @@ export class StorageNeedsComponent {
         softwareUse:                    "",
         softwareDatabase:               "",
         softwareWebsite:                "",
-        technicalResources:             technical_requirements.technicalResources
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
       });
     }
     
@@ -152,7 +183,8 @@ export class StorageNeedsComponent {
                                             "softwareDatabase":formValue.softwareDatabase,
                                             "softwareWebsite":formValue.softwareWebsite
                                           },
-          technicalResources:             formValue.technicalResources
+          technicalResources:             formValue.technicalResources,
+          instruments:                    formValue.instruments
         })
       )
 
@@ -386,88 +418,118 @@ export class StorageNeedsComponent {
     this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
 
   }
-  
-  onDoneClick(e:any){
-    if (!e.resource.length) {
-      this.errorMessage = "Technical Resource can't be empty";
-      return;
-    }
-
-    this.errorMessage = '';
-    this.resetTable();
-    this.techResource.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }
-        // re populate resources array
-        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
-      }
-    )
-    // Enable buttons once user entered new data into a row
-    this.disableAdd=false;
-    this.disableClear=false;
-    this.disableRemove=false;
-
-  }
-
-  removeRow(id:any) {
-    // select word from the specific id
-    var selWord = this.techResource.filter((u) => u.id === id);    
-    this.technicalRequirementsForm.value['technicalResources'].forEach((value:string,index:number) =>{
-      selWord.forEach((word)=>{
-        if(value === word.resource){
-          //remove from DmpRecord
-          this.technicalRequirementsForm.value['technicalResources'].splice(index,1);
-        }
-      });
-    });
-
-    //remove from the display table
-    this.techResource = this.techResource.filter((u) => u.id !== id);
-  }
 
   removeSelectedRows() {
-    this.techResource = this.techResource.filter((u: any) => !u.isSelected);
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
     this.resetTable();
-    this.techResource.forEach((element)=>{
-        // re populate resources array
-        this.technicalRequirementsForm.value['technicalResources'].push(element.resource);
+
+    this.dmpInstrumentsTbl.forEach((element)=>{        
+      // re populate instruments array
+      this.technicalRequirementsForm.value['instruments'].push({
+        name:element.name,
+        description_url: element.description_url
+      });
     });
-    if (this.techResource.length === 0){
+    if (this.dmpInstrumentsTbl.length === 0){
       // If the table is empty disable clear and remove buttons
       this.disableClear=true;
       this.disableRemove=true;
     }
   }
 
-  clearTable(){
-    this.techResource = [];
-    this.resetTable();
-     // If the table is empty disable clear and remove buttons
-    this.disableClear=true;
-    this.disableRemove=true;
-  }
-
-  addRow() {
-    // Disable buttons while the user is inputting new row
+  addRow(){
+    // Disable buttons while the user is inputing new row
     this.disableAdd=true;
     this.disableClear=true;
     this.disableRemove=true;
-    
+
+    this.crntInstrName = this.dmpInstrument.name;
+    this.crntInstrURL = this.dmpInstrument.description_url
+
     const newRow = {
       id: Date.now(),
-      resource: '',
-      isEdit: true,
+      name: this.crntInstrName,
+      description_url:this.crntInstrURL,
+      isEdit: false,
     };
-    // create a new array using an existing array as one part of it 
+
+    // add new row to the dmpInstrumentsTbl array 
     // using the spread operator '...'
-    this.techResource = [newRow, ...this.techResource];
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
+    
+
+    //update changes made to the table in the form
+    this.onDoneClick(newRow);
+
+    this.resetInstrumentFields();
+
   }
 
+  onDoneClick(e:any){
+    if (!e.name.length) {
+      this.errorMessage = "Instrument name can't be empty";
+      return;
+    }
+    else if(!e.description_url.length) {
+      this.errorMessage = "Description / URL can't be empty";
+      return;
+    }
+
+    this.errorMessage = '';
+    this.resetTable();// check if this step is needed
+    
+    this.dmpInstrumentsTbl.forEach((element)=>{
+      if(element.id === e.id){
+        element.isEdit = false;
+      } 
+
+      // re populate instruments array
+      this.technicalRequirementsForm.value['instruments'].push({
+        name: element.name,
+        description_url: element.description_url
+      });
+    }
+  )
+
+  this.disableClear=false;
+  this.disableRemove=false;
+
+  }
+
+  /**
+   * Resets form fields for DMP Instruments
+   */
+  private resetInstrumentFields(){
+    this.errorMessage = "";
+
+    this.dmpInstrument = {name:"", description_url:""};
+
+
+  }
+  
+  
+
+  clearTable(){
+    this.dmpInstrumentsTbl = []
+    this.resetTable();
+    this.disableClear=true;
+    this.disableRemove=true;
+  }
+  
   resetTable(){
     this.technicalRequirementsForm.patchValue({
-      technicalResources:[]
+      instruments:[]
     })
+  }
+
+  checkInstrData(e:any){
+    // Check if both Instrument Name and Description/url have been filled out
+    if (this.dmpInstrument.name !== '' && this.dmpInstrument.description_url !== ''){
+      this.disableAdd = false;      
+    }
+    else{
+      this.disableAdd = true;
+    }
   }
 
   resetTechnicalRequirements(){
@@ -486,6 +548,9 @@ export class StorageNeedsComponent {
       softwareUse:          null,
       softwareDatabase:     null,
       softwareWebsite:      null
+    })
+    this.technicalRequirementsForm.patchValue({
+      technicalResources:[]
     })
     this.clearTable();
     

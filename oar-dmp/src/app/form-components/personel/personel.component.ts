@@ -104,7 +104,7 @@ const ORG_COL_SCHEMA = [
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
-  styleUrls: ['./personel.component.scss', '../form-table.scss']
+  styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class PersonelComponent implements OnInit {
   // ================================
@@ -959,6 +959,8 @@ export class PersonelComponent implements OnInit {
     this.org_disableAdd=true;
     this.org_disableClear=false;
     this.org_disableRemove=false;
+    // reset the form field to make it clear that one can add multiple orgs
+    this.personelForm.controls['nistOrganization'].setValue("");
   }
 
   private rePopulateOrgs(){
