@@ -167,7 +167,7 @@ export class PersonelComponent implements OnInit {
   extContribOrcid: string = "";
   extContribRole: string = "";
 
-  primNistContactOrcid: string = "";
+  pcOrcid: string = "";
 
   contributorRoles = ROLES; // sets hardcoded roles values
   
@@ -219,13 +219,13 @@ export class PersonelComponent implements OnInit {
   personelForm = this.fb.group(
     {
       primary_NIST_contact:       ['', Validators.required],
-      primNistContactOrcid:       [''],
+      pcOrcid:                    [''],
       dmp_contributor:            [''],
-      // nistContactFirstName:       [''],
-      // nistContactLastName:        [''],      
+      // pcFirstName:       [''],
+      // pcLastName:        [''],      
       contributors:               [[]],
-      nistOrganization: [],
-      organizations: [[]]
+      nistOrganization:           [],
+      organizations:              [[]]
     }
   );
 
@@ -291,9 +291,9 @@ export class PersonelComponent implements OnInit {
                                     lastName:personel.primary_NIST_contact.lastName,
                                     orcid:personel.primary_NIST_contact.orcid
                                   },
-      nistContactFirstName:       personel.primary_NIST_contact.firstName,
-      nistContactLastName:        personel.primary_NIST_contact.lastName,
-      primNistContactOrcid:       personel.primary_NIST_contact.orcid,
+      pcFirstName:       personel.primary_NIST_contact.firstName,
+      pcLastName:        personel.primary_NIST_contact.lastName,
+      pcOrcid:       personel.primary_NIST_contact.orcid,
       contributors:               personel.contributors,
       organizations:              personel.organizations
     });
@@ -377,7 +377,7 @@ export class PersonelComponent implements OnInit {
     // set/reset NIST primary contact ORCID warning and error messages message if ORCID data is entered/changed
     this.pncOrcidWarn = "";
     this.pncErrorMessage = "";
-    let orcid = this.personelForm.value['primNistContactOrcid'];
+    let orcid = this.personelForm.value['pcOrcid'];
     if (orcid.length > 0){
       if(!this.isValidPrimaryContactOrcid()){
         this.pncErrorMessage = PersonelComponent.ORCID_ERROR;
@@ -421,8 +421,8 @@ export class PersonelComponent implements OnInit {
 
           if (res.length ===1){
             this.personelForm.patchValue({
-              nistContactFirstName: value.firstName,
-              nistContactLastName:  value.lastName,
+              pcFirstName: value.firstName,
+              pcLastName:  value.lastName,
             })
           }
           return res;
@@ -475,13 +475,13 @@ export class PersonelComponent implements OnInit {
             // if value is not string that means the user has picked a selection from dropdown suggestion box
             // so return an empty array to clear the dropdown suggestion box and set form values accordingly
             this.personelForm.patchValue({
-              nistContactFirstName: value.firstName,
-              nistContactLastName:  value.lastName,
-              primNistContactOrcid: value.orcid
+              pcFirstName: value.firstName,
+              pcLastName:  value.lastName,
+              pcOrcid: value.orcid
             });
 
             if(value.orcid){
-              this.personelForm.value['primNistContactOrcid'] = value.orcid; // automatically populate orcid field
+              this.personelForm.value['pcOrcid'] = value.orcid; // automatically populate orcid field
               this.pncOrcidChange(); // fire off orcid change to determine whether to show warning message  
             }
             
@@ -543,11 +543,11 @@ export class PersonelComponent implements OnInit {
             // Patch empty value until the user has picked a selection. 
             // This forces the form to accept only values that were selected from the dropdown menu
             this.personelForm.patchValue({
-              nistContactFirstName: '',
-              nistContactLastName:  '',
-              primNistContactOrcid: ''
+              pcFirstName: '',
+              pcLastName:  '',
+              pcOrcid: ''
             });
-            this.personelForm.value['primNistContactOrcid'] = ''; // automatically clear orcid field
+            this.personelForm.value['pcOrcid'] = ''; // automatically clear orcid field
           }
           // set initialization flag to false once the record has been loaded
           this.initializing = false;
@@ -1078,7 +1078,7 @@ export class PersonelComponent implements OnInit {
   }
 
   isValidPrimaryContactOrcid(){    
-    let orcid = this.personelForm.value['primNistContactOrcid'];
+    let orcid = this.personelForm.value['pcOrcid'];
     if (orcid.length > 0){
       return this.isORCID(orcid);
     }
@@ -1129,9 +1129,9 @@ export class PersonelComponent implements OnInit {
     this.externalContributor.emailAddress = "";
     this.contributorRadioSel = "";
     this.personelForm.patchValue({
-      nistContactFirstName:       "",
-      nistContactLastName:        "",
-      primNistContactOrcid:       ""
+      pcFirstName:       "",
+      pcLastName:        "",
+      pcOrcid:       ""
     });
     this.clearTable();
     this.org_clearTable();
