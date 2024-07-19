@@ -442,7 +442,7 @@ export class PersonelComponent implements OnInit {
           if (res3.length ===1){            
             this.crntContribName = contributor.firstName;
             this.crntContribSurname = contributor.lastName;
-            this.crntContribEmail = contributor.e_mail;
+            this.crntContribEmail = contributor.emailAddress;
 
             this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
 
@@ -672,7 +672,7 @@ export class PersonelComponent implements OnInit {
     //             if (res3.length ===1){
     //               this.crntContribName = contributor.firstName;
     //               this.crntContribSurname = contributor.lastName;
-    //               this.crntContribEmail = contributor.e_mail;
+    //               this.crntContribEmail = contributor.emailAddress;
 
     //               this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
 
@@ -1009,7 +1009,7 @@ export class PersonelComponent implements OnInit {
     }
 
     var filterOnEmail = this.dmpContributors.filter(      
-      (member: any) => member.e_mail.toLowerCase() === this.crntContribEmail.toLowerCase()
+      (member: any) => member.emailAddress.toLowerCase() === this.crntContribEmail.toLowerCase()
     );
 
     if(filterOnEmail.length > 0){
