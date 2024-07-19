@@ -524,12 +524,12 @@ export class DmpFormComponent implements OnInit {
 
       for ( let i=0; i < this.dmp.contributors.length; i++){
         let currRow: Array<string> = [];
-        currRow.push(this.dmp.contributors[i].contributor.firstName);
-        currRow.push(this.dmp.contributors[i].contributor.lastName);
+        currRow.push(this.dmp.contributors[i].firstName);
+        currRow.push(this.dmp.contributors[i].lastName);
         currRow.push(this.dmp.contributors[i].institution);
         currRow.push(this.dmp.contributors[i].role);
-        currRow.push(this.dmp.contributors[i].e_mail);
-        currRow.push(this.dmp.contributors[i].contributor.orcid);
+        currRow.push(this.dmp.contributors[i].emailAddress);
+        currRow.push(this.dmp.contributors[i].orcid);
         tblData.push(currRow);
       }
       

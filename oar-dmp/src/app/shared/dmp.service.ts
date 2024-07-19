@@ -53,7 +53,12 @@ export class DmpService {
     organizations:            [],
 
     //Personel
-    primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
+    primary_NIST_contact:     {
+      firstName:"", lastName:"", orcid:"", emailAddress:"",
+      groupOrgID:0, groupNumber:"", groupName:"",
+      divisionOrgID:0, divisionNumber:"", divisionName:"",
+      ouOrgID:0, ouNumber:"", ouName:"",
+    },
     contributors:             [],
 
     //Keywords

@@ -14,13 +14,7 @@ import { NistOrganization } from 'src/app/types/nist-organization';
 
 import {Observable} from 'rxjs';
 
-interface DataContributor {  
-  name: string;
-  surname: string;
-  institution: string;
-  role: string;
-  e_mail: string;
-  orcid:string;
+interface DataContributor extends Contributor{
   id: number;
   isEdit: boolean;
 }
@@ -34,12 +28,12 @@ const COLUMNS_SCHEMA = [
     label: '',
   },
   {
-    key: 'name',
+    key: 'firstName',
     type: 'text',
     label: 'Name',
   },
   {
-    key: 'surname',
+    key: 'lastName',
     type: 'text',
     label: 'Surname',
   },
@@ -54,7 +48,7 @@ const COLUMNS_SCHEMA = [
     label: 'Role',
   },
   {
-    key: 'e_mail',
+    key: 'emailAddress',
     type: 'text',
     label: 'e-mail',
   },
@@ -62,6 +56,11 @@ const COLUMNS_SCHEMA = [
     key: 'orcid',
     type: 'text',
     label: 'ORCID',
+  },
+  {
+    key: 'groupNumber',
+    type: 'text',
+    label: 'ORG ID',
   },
   // Edit button column
   {
@@ -143,10 +142,24 @@ export class PersonelComponent implements OnInit {
   sel_EXT_ContribRole: boolean = false;
 
   crntContribName: string = "";
-  crntContribSurname: string = "";
-  crntContribEmail: string = "";
+  crntContribSurname: string = "";  
   crntContribOrcid: string = "";
+  crntContribEmail: string = "";
+
+  crntContribGroupOrgID: number = 0;  
+  crntContribGroupNumber: string = "";
+  crntContribGroupName: string = "";
+
+  crntContribDivisionOrgID: number = 0;  
+  crntContribDivisionNumber: string = "";
+  crntContribDivisionName: string = "";
+
+  crntContribOuOrgID: number = 0;  
+  crntContribOuNumber: string = "";
+  crntContribOuName: string = "";
+
   crntContribRole: string = "";
+  
   
   nistContribOrcid: string = "";
   nistContribRole: string = "";
@@ -168,9 +181,13 @@ export class PersonelComponent implements OnInit {
 
   // Default values of external contributor
   externalContributor: Contributor={
-    contributor:{firstName:"", lastName:"", orcid:""}, 
+    
+    firstName:"", lastName:"", orcid:"", emailAddress:"", 
+    groupOrgID:0, groupNumber:"", groupName:"",
+    divisionOrgID:0, divisionNumber:"", divisionName:"",
+    ouOrgID:0, ouNumber:"", ouName:"",
+    
     role:"",
-    e_mail:"",
     institution:""
   };
 
@@ -204,8 +221,8 @@ export class PersonelComponent implements OnInit {
       primary_NIST_contact:       ['', Validators.required],
       primNistContactOrcid:       [''],
       dmp_contributor:            [''],
-      nistContactFirstName:       [''],
-      nistContactLastName:        [''],      
+      // nistContactFirstName:       [''],
+      // nistContactLastName:        [''],      
       contributors:               [[]],
       nistOrganization: [],
       organizations: [[]]
@@ -234,18 +251,34 @@ export class PersonelComponent implements OnInit {
     this.contribOrcidWarn = '';
     personel.contributors.forEach(
       (aContributor, index) => {
-        if (aContributor.contributor.orcid.length === 0){
+        if (aContributor.orcid.length === 0){
           this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
         }
         this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
-          name:         aContributor.contributor.firstName,
-          surname:      aContributor.contributor.lastName,
-          orcid:        aContributor.contributor.orcid,
+      
+          firstName:        aContributor.firstName,
+          lastName:         aContributor.lastName,
+          orcid:            aContributor.orcid,
+          emailAddress:     aContributor.emailAddress,
+
+          groupOrgID:       aContributor.groupOrgID,
+          groupNumber:      aContributor.groupNumber,
+          groupName:        aContributor.groupName,
+
+          divisionOrgID:    aContributor.divisionOrgID,
+          divisionNumber:   aContributor.divisionNumber,
+          divisionName:     aContributor.divisionName,
+
+          ouOrgID:          aContributor.ouOrgID,
+          ouNumber:         aContributor.ouNumber,
+          ouName:           aContributor.ouName,
+       
+      
           role:         aContributor.role,
-          institution:  aContributor.institution,
-          e_mail:       aContributor.e_mail
+          institution:  aContributor.institution
+          
           
         });
         this.disableClear=false;
@@ -292,9 +325,23 @@ export class PersonelComponent implements OnInit {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           {
-            primary_NIST_contact:   { firstName:formValue.nistContactFirstName, 
-                                      lastName: formValue.nistContactLastName,
-                                      orcid:formValue.primNistContactOrcid
+            primary_NIST_contact:   { 
+                                      firstName:      formValue.primary_NIST_contact.firstName, 
+                                      lastName:       formValue.primary_NIST_contact.lastName,
+                                      orcid:          formValue.primary_NIST_contact.orcid,
+                                      emailAddress:   formValue.primary_NIST_contact.emailAddress,
+                                      
+                                      groupOrgID:     formValue.primary_NIST_contact.groupOrgID,
+                                      groupNumber:    formValue.primary_NIST_contact.groupNumber,
+                                      groupName:      formValue.primary_NIST_contact.groupName,
+
+                                      divisionOrgID:  formValue.primary_NIST_contact.divisionOrgID,
+                                      divisionNumber: formValue.primary_NIST_contact.divisionNumber,
+                                      divisionName:   formValue.primary_NIST_contact.divisionName,
+
+                                      ouOrgID:        formValue.primary_NIST_contact.ouOrgID,
+                                      ouNumber:       formValue.primary_NIST_contact.ouNumber,
+                                      ouName:         formValue.primary_NIST_contact.ouName
                                     },
             contributors:           formValue.contributors,
             organizations:          formValue.organizations
@@ -461,9 +508,20 @@ export class PersonelComponent implements OnInit {
                       displayName:nistPeople[i].displayName,
                       firstName:nistPeople[i].firstName,
                       lastName:nistPeople[i].lastName,
-                      orcid:nistPeople[i].orcid,
-                      divisionName:nistPeople[i].divisionName,
+                      orcid:nistPeople[i].orcid,                      
                       emailAddress:nistPeople[i].emailAddress,
+
+                      groupOrgID:nistPeople[i].groupOrgID,
+                      groupNumber:nistPeople[i].groupNumber,
+                      groupName:nistPeople[i].groupName,
+
+                      divisionOrgID:nistPeople[i].divisionOrgID,
+                      divisionNumber:nistPeople[i].divisionNumber,
+                      divisionName:nistPeople[i].divisionName,
+
+                      ouOrgID:nistPeople[i].ouOrgID,
+                      ouNumber:nistPeople[i].ouNumber,
+                      ouName:nistPeople[i].divisionName
     
                     });
                   }
@@ -514,10 +572,29 @@ export class PersonelComponent implements OnInit {
             // so return an empty array to clear the dropdown suggestion box and set form values accordingly
             this.crntContribName = contributor.firstName;
             this.crntContribSurname = contributor.lastName;
+            
+            if(contributor.orcid){
+              //orcid can be null so assign it only if it is not null
+              this.nistContribOrcid = contributor.orcid; // automatically populate orcid field if it is not null
+            }
+
             if(contributor.emailAddress){
               // email can apparently be null - Planchard Joshua is/was an example
               this.crntContribEmail = contributor.emailAddress;
             }
+
+            this.crntContribGroupOrgID = contributor.groupOrgID;
+            this.crntContribGroupNumber = contributor.groupNumber;
+            this.crntContribGroupName = contributor.groupName;
+
+            this.crntContribDivisionOrgID = contributor.divisionOrgID;
+            this.crntContribDivisionNumber = contributor.divisionNumber;
+            this.crntContribDivisionName = contributor.divisionName;
+
+            this.crntContribOuOrgID = contributor.ouOrgID;
+            this.crntContribOuNumber = contributor.ouNumber;
+            this.crntContribOuName = contributor.ouName;
+
             
 
             this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
@@ -526,11 +603,6 @@ export class PersonelComponent implements OnInit {
               // If contributor role has been selected and nist contributor has been picked then allow
               // for adding a contributor to the table
               this.disableAdd=false;
-            }
-
-            if(contributor.orcid){
-              //orcid can be null so assign it only if it is not null
-              this.nistContribOrcid = contributor.orcid; // automatically populate orcid field if it is not null
             }
             
             return res;
@@ -551,9 +623,20 @@ export class PersonelComponent implements OnInit {
                     displayName:nistPeople[i].displayName,
                     firstName:nistPeople[i].firstName,
                     lastName:nistPeople[i].lastName,
-                    orcid:nistPeople[i].orcid,
-                    divisionName:nistPeople[i].divisionName,
+                    orcid:nistPeople[i].orcid,                      
                     emailAddress:nistPeople[i].emailAddress,
+
+                    groupOrgID:nistPeople[i].groupOrgID,
+                    groupNumber:nistPeople[i].groupNumber,
+                    groupName:nistPeople[i].groupName,
+
+                    divisionOrgID:nistPeople[i].divisionOrgID,
+                    divisionNumber:nistPeople[i].divisionNumber,
+                    divisionName:nistPeople[i].divisionName,
+
+                    ouOrgID:nistPeople[i].ouOrgID,
+                    ouNumber:nistPeople[i].ouNumber,
+                    ouName:nistPeople[i].ouName
   
                   });
                 }
@@ -699,9 +782,13 @@ export class PersonelComponent implements OnInit {
     // reset external collaborator data fields    
     this.extContribRole =  "";
     this.externalContributor = {
-      contributor:{firstName:"", lastName:"", orcid:""}, 
+      
+      firstName:"", lastName:"", orcid:"", emailAddress:"", 
+      groupOrgID:0, groupNumber:"", groupName:"",
+      divisionOrgID:0, divisionNumber:"", divisionName:"",
+      ouOrgID:0, ouNumber:"", ouName:"",
+  
       role:"",
-      e_mail:"",
       institution:""
     };
   }
@@ -722,8 +809,24 @@ export class PersonelComponent implements OnInit {
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
-          contributor:{firstName:element.name, lastName:element.surname},
-          e_mail: element.e_mail,
+          
+          firstName:element.firstName, 
+          lastName:element.lastName,
+          orcid: element.orcid,
+          emailAddress: element.emailAddress,
+
+          groupOrgID:element.groupOrgID,
+          groupNumber:element.groupNumber,
+          groupName:element.groupName,
+
+          divisionOrgID:element.divisionOrgID,
+          divisionNumber:element.divisionNumber,
+          divisionName:element.divisionName,
+
+          ouOrgID:element.ouOrgID,
+          ouNumber:element.ouNumber,
+          ouName:element.ouName,
+          
           institution: element.institution,
           role: element.role
         });
@@ -757,7 +860,7 @@ export class PersonelComponent implements OnInit {
 
   onDoneClick(e:any){
     this.contribOrcidWarn = "";
-    if (!e.e_mail.length) {
+    if (!e.emailAddress.length) {
       /**
        * NOTE:
        * e-mail validation should go here too
@@ -769,7 +872,7 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Institution can't be empty";
       return;
     }
-    else if(!e.name.length) {
+    else if(!e.firstName.length) {
       this.errorMessage = "Name can't be empty";
       return;
     }
@@ -777,7 +880,7 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Role can't be empty";
       return;
     }
-    else if(!e.surname.length) {
+    else if(!e.lastName.length) {
       this.errorMessage = "Surname can't be empty";
       return;
     }
@@ -798,8 +901,24 @@ export class PersonelComponent implements OnInit {
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
-                    contributor:{firstName:element.name, lastName:element.surname, orcid:element.orcid},
-          e_mail: element.e_mail,
+          
+          firstName:element.firstName, 
+          lastName:element.lastName,
+          orcid: element.orcid,
+          emailAddress: element.emailAddress,
+
+          groupOrgID:element.groupOrgID,
+          groupNumber:element.groupNumber,
+          groupName:element.groupName,
+
+          divisionOrgID:element.divisionOrgID,
+          divisionNumber:element.divisionNumber,
+          divisionName:element.divisionName,
+
+          ouOrgID:element.ouOrgID,
+          ouNumber:element.ouNumber,
+          ouName:element.ouName,
+          
           institution: element.institution,
           role: element.role
         });
@@ -828,8 +947,8 @@ export class PersonelComponent implements OnInit {
       /**
        * Check first name
        */
-      if (this.externalContributor.contributor.firstName.match(regex)){        
-        this.crntContribName = this.externalContributor.contributor.firstName;
+      if (this.externalContributor.firstName.match(regex)){        
+        this.crntContribName = this.externalContributor.firstName;
       }
       else{
         this.errorMessage = "Missing contributor First Name";
@@ -840,8 +959,8 @@ export class PersonelComponent implements OnInit {
       /**
        * Check last name
        */
-      if (this.externalContributor.contributor.lastName.match(regex)){
-        this.crntContribSurname = this.externalContributor.contributor.lastName;
+      if (this.externalContributor.lastName.match(regex)){
+        this.crntContribSurname = this.externalContributor.lastName;
       }
       else{
         this.errorMessage = "Missing contributor Last Name";
@@ -861,8 +980,8 @@ export class PersonelComponent implements OnInit {
       /**
        * Check e-mail
        */
-      if (this.externalContributor.e_mail.match(regex)){
-        this.crntContribEmail = this.externalContributor.e_mail;
+      if (this.externalContributor.emailAddress.match(regex)){
+        this.crntContribEmail = this.externalContributor.emailAddress;
       }
       else{
         this.errorMessage = "Missing contributor First Name";
@@ -871,7 +990,7 @@ export class PersonelComponent implements OnInit {
       }
 
       // add ORCID field
-      this.crntContribOrcid = this.externalContributor.contributor.orcid;      
+      this.crntContribOrcid = this.externalContributor.orcid;      
     }
     else{
       //we're adding a nist contributor so assign orcid text field
@@ -915,13 +1034,28 @@ export class PersonelComponent implements OnInit {
     this.sel_NIST_ContribRole = false;
 
     const newRow = {
-      id: Date.now(),
-      name: this.crntContribName,
-      surname:this.crntContribSurname,
-      orcid:this.crntContribOrcid,
-      e_mail:this.crntContribEmail,
+      
+      firstName: this.crntContribName,
+      lastName: this.crntContribSurname,
+      orcid: this.crntContribOrcid,
+      emailAddress: this.crntContribEmail,
+
+      groupOrgID:this.crntContribGroupOrgID,
+      groupNumber:this.crntContribGroupNumber,
+      groupName:this.crntContribGroupName,
+
+      divisionOrgID:this.crntContribDivisionOrgID,
+      divisionNumber:this.crntContribDivisionNumber,
+      divisionName:this.crntContribDivisionName,
+
+      ouOrgID:this.crntContribOuOrgID,
+      ouNumber:this.crntContribOuNumber,
+      ouName:this.crntContribOuName,
+
       institution:"",
       role:this.crntContribRole,
+      
+      id: Date.now(),
       isEdit: false,
     };
     
@@ -965,7 +1099,7 @@ export class PersonelComponent implements OnInit {
          * Some check could be performed as a future feature to ensure that
          * when adding a new contributor the e-mail is unique and always present field
          */
-        if(value.e_mail === word.e_mail){
+        if(value.emailAddress === word.emailAddress){
           //remove from DmpRecord
           this.personelForm.value['contributors'].splice(index,1);
         }
@@ -987,12 +1121,12 @@ export class PersonelComponent implements OnInit {
     
     this.nistContribRole = "";
     this.nistContribOrcid = "";
-    this.externalContributor.contributor.firstName = "";
-    this.externalContributor.contributor.lastName = "";
-    this.externalContributor.contributor.orcid = "";
+    this.externalContributor.firstName = "";
+    this.externalContributor.lastName = "";
+    this.externalContributor.orcid = "";
     this.externalContributor.institution = "";
     this.extContribRole = "";
-    this.externalContributor.e_mail = "";
+    this.externalContributor.emailAddress = "";
     this.contributorRadioSel = "";
     this.personelForm.patchValue({
       nistContactFirstName:       "",
@@ -1008,12 +1142,12 @@ export class PersonelComponent implements OnInit {
   // ==================================================
 
    /**
-   * This function gets hard coded NIST organizations
-   * Used when not working with an API for NIST people service database
+   * This function gets all NIST organizations by querying people service
+   * 
    */
    getNistOrganizations(){    
     this.nistOrganizations = [];
-    // Get list of all OUs
+    // preload list of all OUs by making a call to people service
     this.apiService.get_NISTOUDivisionGroup().then(
       (DivsAndGroups:any[])=>{
         if(DivsAndGroups){
