@@ -243,12 +243,10 @@ export class PersonelComponent implements OnInit {
     private apiService: DmpAPIService,
     private fb: UntypedFormBuilder
   ) {
-    /**
-     * NOTE uncoment this when pulling data from API with a backend database
-     */
-    // this.getNistContactsFromAPI(); //sets values from API service
-    // console.log(" PersonelComponent constructor");
-
+    // console.log("PersonelComponent constructor");
+    this.initializing = true;//set this flag the first time the form is loaded
+    this.getNistContactsFromAPI();    
+    this.getNistOrganizations();
   }
 
   personelForm = this.fb.group(
@@ -263,8 +261,6 @@ export class PersonelComponent implements OnInit {
       organizations:              [[]]
     }
   );
-
-  
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 
@@ -313,7 +309,6 @@ export class PersonelComponent implements OnInit {
       
           role:         aContributor.role,
           institution:  aContributor.institution
-          
           
         });
         this.disableClear=false;
@@ -404,17 +399,6 @@ export class PersonelComponent implements OnInit {
 
   ngOnInit(): void {
     // console.log(" PersonelComponent ngOnInit");
-    /**
-     * NOTE Comment below when woking with API
-     */
-    this.initializing = true;//set this flag the first time the form is loaded
-    this.getNistContacts();
-
-    /**
-     * NOTE Comment below when woking with API
-     */
-    this.getNistOrganizations();
-
   }  
 
   //List of contributors that will be aded to the DMP
@@ -436,16 +420,6 @@ export class PersonelComponent implements OnInit {
     else {
       this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
     }
-
-  }
-
-  /**
-   * This function gets hard coded NIST contasts
-   * Used when not working with an API for NIST contacts database
-   */
-  getNistContacts(){    
-    // this.getNistContactsNoAPI();
-    this.getNistContactsFromAPI();
 
   }
 
@@ -489,11 +463,7 @@ export class PersonelComponent implements OnInit {
 
             this.org_addRow()
             
-            
-            
             return res;
-            // this.people = [];
-            // return this.people;
           }
 
           if (value.trim().length < 2){
@@ -664,36 +634,6 @@ export class PersonelComponent implements OnInit {
       )
 
     );
-
-
-
-    //       this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
-    //         startWith(''),
-    //         map (contributor => {             
-                
-    //             const name = typeof contributor === 'string' ? contributor : contributor?.firstName + " " + contributor?.lastName;
-    //             var res3 = name ? this._filter(name as string): this.nistContacts.slice();
-                
-    //             if (res3.length ===1){
-    //               this.crntContribName = contributor.firstName;
-    //               this.crntContribSurname = contributor.lastName;
-    //               this.crntContribEmail = contributor.emailAddress;
-
-    //               this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-    //               if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-    //                 this.disableAdd=false;
-    //               }
-    //             }
-    //             return res3;
-
-    //           }
-    //         )
-    //       );
-    //     },
-    //     error: (e) => console.error(e) 
-    //   }
-    // );
   }
 
   private _filter(nistPerson: string): NistContact[] {
@@ -1176,13 +1116,10 @@ export class PersonelComponent implements OnInit {
       }
     );
     this.searchNistOrganizations();
-    // this.getNistOrganizationsNoAPI();
 
   }
 
   searchNistOrganizations(){
-    //ORGANIZATIONS is declared in '../../types/mock-organizations'
-    // this.nistOrganizations = ORGANIZATIONS;
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
       startWith(''),
       map(anOrganization => {
@@ -1342,12 +1279,14 @@ export class PersonelComponent implements OnInit {
     };
 
     // Check if selected organization is already in the table
-    //TO DO: see how to disable identical rows.
-    // var selRow = this.dmpOrganizations.filter((u) => u.org_cd === newRow.org_cd);
-    // if (selRow.length > 0){
-    //   this.org_errorMessage = "The selected Organization is already associated with this DMP.";
-    //   return;
-    // }
+    // all three values combined are a unique value in a row
+    
+    const selRow = this.dmpOrganizations.filter(
+      (u) => u.groupName === newRow.groupName && u.divisionName === newRow.divisionName && u.ouName === newRow.ouName);
+    if (selRow.length > 0){
+      this.org_errorMessage = "The selected Organization is already associated with this DMP.";
+      return;
+    }
     //add new row to the dmpOrganizations array
     this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
 
