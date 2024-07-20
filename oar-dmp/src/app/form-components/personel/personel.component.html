@@ -69,7 +69,7 @@
                 [displayWith]="displaySelectedOrganization"
               >
                 <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
-                  {{option.name}}
+                  {{option.orG_Name}}
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
