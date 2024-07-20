@@ -474,6 +474,19 @@ export class PersonelComponent implements OnInit {
               pcOrcid: value.orcid
             });
             // update organization automatically too
+            this.orgGroupNumber = value.groupNumber;
+            this.orgGroupOrgID = value.groupOrgID;
+            this.orgGroupName = value.groupName;
+
+            this.orgDivisionNumber = value.divisionNumber;
+            this.orgDivisionOrgID = value.divisionOrgID;
+            this.orgDivisionName = value.divisionName;
+
+            this.orgOuNumber = value.ouNumber;
+            this.orgOuOrgID = value.ouOrgID;  
+            this.orgOuName = value.ouName;
+
+            this.org_addRow()
             
             
             
@@ -512,7 +525,7 @@ export class PersonelComponent implements OnInit {
 
                       ouOrgID:nistPeople[i].ouOrgID,
                       ouNumber:nistPeople[i].ouNumber,
-                      ouName:nistPeople[i].divisionName
+                      ouName:nistPeople[i].ouName
     
                     });
                   }
