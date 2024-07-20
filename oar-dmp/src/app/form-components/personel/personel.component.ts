@@ -10,6 +10,7 @@ import { defer, map, of, startWith, lastValueFrom } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 // import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
+import { ResponsibleOrganizations } from 'src/app/types/responsible-organizations.type';
 
 import {Observable} from 'rxjs';
 
@@ -1339,15 +1340,6 @@ export class PersonelComponent implements OnInit {
       divisionName:this.orgDivisionName,
       ouName:this.orgOuName
     };
-    // check that if any org id or org name is undefined 
-    // - this can happen if user types in the search box but does not select 
-    //    an actual organization from the drop down menu
-
-    if (typeof newRow.ouName === "undefined" ){
-      this.org_errorMessage = "Select an existing NIST Organization";
-      return;
-
-    }
 
     // Check if selected organization is already in the table
     //TO DO: see how to disable identical rows.
@@ -1388,16 +1380,18 @@ export class PersonelComponent implements OnInit {
   }
 
   org_removeRow(id:any) {
-    //TO DO:
-    // Figure out how to delete a row
     var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
 
     // update the form metadata
     this.personelForm.value['organizations'].forEach(
-      (value:NistOrganization, index:number)=>{
+      (value:ResponsibleOrganizations, index:number)=>{
         selRow.forEach(
           (org)=>{
-            if (value.orG_ID === org.id){
+            if (
+              value.divisionName === org.divisionName &&
+              value.groupName === org.groupName &&
+              value.ouName === org.ouName
+            ){
               //remove selected organization
               this.personelForm.value['organizations'].splice(index,1);
             }
