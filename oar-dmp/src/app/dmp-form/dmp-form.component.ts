@@ -488,19 +488,7 @@ export class DmpFormComponent implements OnInit {
         this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
     }
 
-    //Organization(s) Associated With This DMP
-    if(this.dmp?.organizations !== undefined){
-      let tblHeaders = ["Org ID", "Organization(s)"];
-      let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.organizations.length; i++){
-        tblData.push([this.dmp.organizations[i].divisionName, this.dmp.organizations[i].groupName])
-      }
-
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-    }
+    
 
     // ========================== Researchers ============================
 
@@ -517,9 +505,23 @@ export class DmpFormComponent implements OnInit {
         this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
     }
 
+    //Organization(s) Associated With This DMP
+    if(this.dmp?.organizations !== undefined){
+      let tblHeaders = ["Group Name", "Division Name", "OU Name"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.organizations.length; i++){
+        tblData.push([this.dmp.organizations[i].groupName, this.dmp.organizations[i].divisionName, this.dmp.organizations[i].ouName])
+      }
+
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
+    }
+
     // Contributors
     if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID"];
+      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID", "ORG ID"];
       let tblData:Array<Array<string>>=[];
 
       for ( let i=0; i < this.dmp.contributors.length; i++){
@@ -530,6 +532,7 @@ export class DmpFormComponent implements OnInit {
         currRow.push(this.dmp.contributors[i].role);
         currRow.push(this.dmp.contributors[i].emailAddress);
         currRow.push(this.dmp.contributors[i].orcid);
+        currRow.push(this.dmp.contributors[i].groupNumber);
         tblData.push(currRow);
       }
       
@@ -736,21 +739,6 @@ export class DmpFormComponent implements OnInit {
 
     this.PrintSectionHeading("Data Preservation and Accessibility", "#1A52BC", dmpFormat, this.DMP_PDF);
 
-    // file path(s) / URL(s) for where data will be saved
-
-    if(this.dmp?.pathsURLs !== undefined){
-      let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
-      let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.pathsURLs.length; i++){
-        tblData.push([this.dmp.pathsURLs[i]])
-      }
-      
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("", tblHeaders, tblData);
-    }
-
     // Preservation Description
     if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
       if (dmpFormat === "PDF")
@@ -766,6 +754,21 @@ export class DmpFormComponent implements OnInit {
       if (dmpFormat === "Markdown")
         this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.dmp?.dataAccess + "  \n");
     }    
+
+    // file path(s) / URL(s) for where data will be saved
+
+    if(this.dmp?.pathsURLs !== undefined){
+      let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.pathsURLs.length; i++){
+        tblData.push([this.dmp.pathsURLs[i]])
+      }
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
+    }
 
     // ================================ Export DMP ================================
     
