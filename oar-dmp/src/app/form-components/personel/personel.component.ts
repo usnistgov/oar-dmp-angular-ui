@@ -720,8 +720,31 @@ export class PersonelComponent implements OnInit {
     this.crntContribRole = "";
 
     // Reset NIST employe / associate fields
+    this.crntContribName = "";
+    this.crntContribSurname = "";  
+    this.crntContribOrcid = "";
+    this.crntContribEmail = "";
+
+    this.crntContribGroupOrgID = 0;  
+    this.crntContribGroupNumber = "";
+    this.crntContribGroupName = "";
+
+    this.crntContribDivisionOrgID = 0;  
+    this.crntContribDivisionNumber = "";
+    this.crntContribDivisionName = "";
+
+    this.crntContribOuOrgID = 0;  
+    this.crntContribOuNumber = "";
+    this.crntContribOuName = "";
+
+    this.crntContribRole = "";
+    
+    
+    this.nistContribOrcid = "";
     this.nistContribRole = "";
-    this.nistContribOrcid = ""    ;
+
+    this.extContribOrcid = "";
+    this.extContribRole = "";
     this.personelForm.controls['dmp_contributor'].setValue("");
 
     // reset external collaborator data fields    
