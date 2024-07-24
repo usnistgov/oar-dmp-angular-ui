@@ -6,8 +6,8 @@ import { Observable, lastValueFrom } from 'rxjs';
   providedIn: 'root'
 })
 export class DmpAPIService {
-  // 30 day token: expires August 3rd 2024
-  nsdtoken:String = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOSVNUX0FTRCIsImF1ZCI6IkFTRF9BUEkiLCJleHAiOjE3MjI3ODAwODYsImlhdCI6MTcyMDE4ODA4NiwiY2xpZW50X2lkIjoiTUlEQVMifQ.6KeQmi_eq7YLQMVevW3iA_WPZdUgJG3-T11WtxVwVyo';
+  // 30 day token: created 07/24/2024
+  nsdtoken:String = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOSVNUX0FTRCIsImF1ZCI6IkFTRF9BUEkiLCJleHAiOjE3MjQ0MzQwMDYsImlhdCI6MTcyMTg0MjAwNiwiY2xpZW50X2lkIjoiTUlEQVMifQ._20JDU3OevHi4wAOuYb9hxGECCrlsp8xX_N31kpvvjk';
   initialPeopleParams = {
     "hasCPRRoles": false,
     "hasInactivePeople": false,
