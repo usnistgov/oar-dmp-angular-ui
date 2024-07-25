@@ -86,9 +86,9 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   ],
 
   providers: [
-    // fakeBackendProvider,
-    { provide: RELEASE_INFO, useValue: RELEASE },
-    { provide: CONFIG_URL, useValue: environment.configUrl }
+    fakeBackendProvider,
+    // { provide: RELEASE_INFO, useValue: RELEASE },
+    // { provide: CONFIG_URL, useValue: environment.configUrl }
   ],
 
   bootstrap: [AppComponent]
