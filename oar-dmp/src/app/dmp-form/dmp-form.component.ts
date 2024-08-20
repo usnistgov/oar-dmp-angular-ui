@@ -548,11 +548,11 @@ export class DmpFormComponent implements OnInit {
     this.PrintSectionHeading("Keywords / Phrases", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     //Keywords / Phrases
-    if(this.dmp?.keyWords !== undefined){
+    if(this.dmp?.keywords !== undefined){
       let tblHeaders = ["Keywords / Phrases"];
       let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.keyWords.length; i++){
-        tblData.push([this.dmp.keyWords[i]])
+      for ( let i=0; i < this.dmp.keywords.length; i++){
+        tblData.push([this.dmp.keywords[i]])
       }
       
       if (dmpFormat === "PDF")
