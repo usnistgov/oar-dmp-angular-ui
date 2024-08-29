@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
-import { ROLES } from '../../types/mock-roles';
+import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
 import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
