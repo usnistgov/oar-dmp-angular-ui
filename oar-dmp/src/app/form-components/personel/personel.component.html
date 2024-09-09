@@ -36,15 +36,15 @@
             <tr>
               <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
               <td class="cell-top">
-                <input type="radio" id="primCntcY" name="primCntc" value="yes" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
+                <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personelForm.controls['primaryNistContact']">
                 <label for="primCntcY">Yes</label>
 
-                <input type="radio" id="primCntcN" name="primCntc" value="no" [formControl]="personelForm.controls['primaryNistContact']">
+                <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
                 <label for="primCntcN">No</label>
               </td>
             </tr>
             <tr>
-              <td class="cell-top">Select NIST Contributor<span class="requiredField" >*</span></td>
+              <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
               <td>
                 <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">
                   <!-- <mat-label>NIST Contributor</mat-label> -->
@@ -68,11 +68,11 @@
               </td>
             </tr>
             <tr>
-              <td class="cell-top">NIST Contributor ORCID</td>
+              <td class="cell-top">ORCID</td>
               <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
             </tr>
             <tr>
-              <td>Contributor Role <span class="requiredField" >*</span></td>
+              <td>Role</td>
               <td>
                 <select
                   name="nistContribRole"
@@ -123,7 +123,7 @@
                 <td><input type="text" [(ngModel)]="externalContributor.emailAddress"></td>
               </tr>
               <tr>
-                <td>Role <span class="requiredField" >*</span></td>
+                <td>Role</td>
                 <td>
                   <select
                     name="extContribRole"
@@ -238,7 +238,7 @@
       </div>
     </div>
 
-    <div class="sub-category">Organizations associated with this DMP</div>
+    <div class="sub-category">Organizations responsible for this DMP</div>
     <!-- <br/> -->
     <div >
 
