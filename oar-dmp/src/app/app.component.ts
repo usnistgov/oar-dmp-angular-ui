@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ResizedEvent } from 'angular-resize-event';
 import { DomPositioningModule } from './shared/dom-positioning.module';
-import { Credentials, AuthenticationService } from 'oarng';
+import { Credentials, AuthenticationService, StaffDirectoryService } from 'oarng';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +21,8 @@ export class AppComponent {
   
   
   constructor(private dom:DomPositioningModule,
-              public authService: AuthenticationService)
+              public authService: AuthenticationService,
+              private sdsvc: StaffDirectoryService)
   { }
 
   width: number = 0;
@@ -33,7 +34,8 @@ export class AppComponent {
             if (info.token) {
                 // Authenticated
                 this.creds = info;
-                this.authMessage = "Welcome, "+(this.creds.userAttributes.userName || this.creds.userId)
+                this.authMessage = "Welcome, "+(this.creds.userAttributes.userName || this.creds.userId);
+                this.sdsvc.setAuthToken(info.token)
             }
             else
                 this.authMessage = "You are not logged in.";

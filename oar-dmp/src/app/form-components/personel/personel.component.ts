@@ -14,6 +14,9 @@ import { ResponsibleOrganizations } from 'src/app/types/responsible-organization
 
 import {Observable} from 'rxjs';
 
+import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
+// import { error } from 'console';
+
 interface DataContributor extends Contributor{
   id: number;
   isEdit: boolean;
@@ -238,10 +241,16 @@ export class PersonelComponent implements OnInit {
 
   people:Array<NistContact> =[] ;
 
+  index: SDSIndex|null = null;
+  suggestions: SDSuggestion[] = []
+  selectedSuggestion: SDSuggestion|null = null;
+  selectedRec: any = null;
+
   constructor(
     private dropDownService: DropDownSelectService,
     private apiService: DmpAPIService,
-    private fb: UntypedFormBuilder
+    private fb: UntypedFormBuilder,
+    private sdsvc: StaffDirectoryService
   ) {
     // console.log("PersonelComponent constructor");
     this.initializing = true;//set this flag the first time the form is loaded
@@ -583,11 +592,42 @@ export class PersonelComponent implements OnInit {
             return res;
           }
 
-          if (contributor.trim().length < 2){
+          if (contributor.trim().length >= 2){
+
+            if (! this.index) {
+                this.sdsvc.getPeopleIndexFor(contributor).subscribe(
+                  idx => {
+                      // save it to use with subsequent typing
+                      this.index = idx;
+                      if (this.index != null) {
+                          // pull out the matching suggestions
+                          this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
+                      }
+                  },
+                  er => {
+                    console.log(er.message);
+                  }
+                );
+            }
+            else {
+                // we already have a downloaded index; just pull out the matching suggestions
+                this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
+                console.log(this.suggestions)
+            }
+          }
+          else if (this.index) {
+            // if the input was cleared, clear out our index and suggestions
+            this.index = null;
+            this.suggestions = [];
             return res;
           }
+          
+          
 
           
+
+          
+          /**
           this.apiService.get_NIST_Personnel(contributor).then(
             (nistPeople: any[]) => {
               // nist people can be blank if return has no match
@@ -619,7 +659,7 @@ export class PersonelComponent implements OnInit {
               
             }
           );
-          
+          */
 
           // clear values until the user has picked a selection. 
           // This forces the form to accept only values that were selected from the dropdown menu

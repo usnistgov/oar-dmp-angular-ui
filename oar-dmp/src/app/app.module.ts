@@ -37,7 +37,7 @@ import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
-import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule } from 'oarng';
+import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule, AuthenticationService, MockAuthenticationService } from 'oarng';
 import { ChipsModule } from 'primeng/chips';
 import { SecurityAndPrivacyComponent } from './form-components/security-and-privacy/security-and-privacy.component';
 
@@ -63,7 +63,9 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    AuthModule,
+    // AuthModule,
+    ConfigModule,
+    StaffDirModule,
     FrameModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
@@ -80,15 +82,15 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     DmpRoutingModule,
     DomPositioningModule,
     AngularResizeEventModule,
-    AuthModule,
     NistResourcesModule,
     ChipsModule
   ],
 
   providers: [
-    fakeBackendProvider,
-    // { provide: RELEASE_INFO, useValue: RELEASE },
-    // { provide: CONFIG_URL, useValue: environment.configUrl }
+    // fakeBackendProvider,
+    { provide: RELEASE_INFO, useValue: RELEASE },
+    { provide: CONFIG_URL, useValue: environment.configUrl },
+    { provide: AuthenticationService, useClass:MockAuthenticationService }
   ],
 
   bootstrap: [AppComponent]
