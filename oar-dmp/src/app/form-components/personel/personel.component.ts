@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
 import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
-import { DmpAPIService } from '../../shared/dmp-api.service';
+// TODO: delete dmp-api.service as we don't need it anymore
+// import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from '../../types/nist-contact'
 
@@ -12,7 +13,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { NistOrganization } from 'src/app/types/nist-organization';
 import { ResponsibleOrganizations } from 'src/app/types/responsible-organizations.type';
 
-import {Observable} from 'rxjs';
+import {Observable, switchMap} from 'rxjs';
 
 import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
 // import { error } from 'console';
@@ -210,7 +211,8 @@ export class PersonelComponent implements OnInit {
   contributorRoles = ROLES; // sets hardcoded roles values
   
   fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
-  fltr_NIST_Contributor!: Observable<NistContact[]>;
+  // fltr_NIST_Contributor!: Observable<NistContact[]>;
+  fltr_NIST_Contributor!: Observable<SDSuggestion[]>;
 
   nistPeople!: any;
   NISTOUDivisionGroup!: Array<any>;
@@ -248,7 +250,7 @@ export class PersonelComponent implements OnInit {
 
   constructor(
     private dropDownService: DropDownSelectService,
-    private apiService: DmpAPIService,
+    // private apiService: DmpAPIService,
     private fb: UntypedFormBuilder,
     private sdsvc: StaffDirectoryService
   ) {
@@ -433,6 +435,9 @@ export class PersonelComponent implements OnInit {
   }
 
   getNistContactsFromAPI(){
+    /**
+     TODO remove below commented code since we son't be using separate primary nist contact anymore
+     but rather add it as a contributor role
     // ---------------------------------------------------------------------------------------------
     //                              PRIMARY NIST CONTACT
     // ---------------------------------------------------------------------------------------------
@@ -541,94 +546,118 @@ export class PersonelComponent implements OnInit {
         }
       )
     );
+     */
     // ---------------------------------------------------------------------------------------------
     //                              NIST CONTRIBUTOR
     // ---------------------------------------------------------------------------------------------
     this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
       startWith(''),
       map (contributor => {
-          let res:NistContact[] = [];
+          // let res:NistContact[] = [];
+          let res:SDSuggestion[] = [];
 
           const name = typeof contributor === 'string'; //checks the type of input value
 
           if (!name){ 
             // if value is not string that means the user has picked a selection from dropdown suggestion box
             // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-            this.crntContribName = contributor.firstName;
-            this.crntContribSurname = contributor.lastName;
-            
-            if(contributor.orcid){
-              //orcid can be null so assign it only if it is not null
-              this.nistContribOrcid = contributor.orcid; // automatically populate orcid field if it is not null
+            contributor.getRecord().subscribe({
+              next: (rec:any) => {
+                  this.selectedRec = rec;
+                  this.crntContribName = rec.firstName;
+                  this.crntContribSurname = rec.lastName;
+
+                  if(rec.orcid){
+                    //orcid can be null so assign it only if it is not null
+                    this.nistContribOrcid = rec.orcid; // automatically populate orcid field if it is not null
+                  }
+
+                  if(rec.emailAddress){
+                    // email can apparently be null - Planchard Joshua is/was an example
+                    this.crntContribEmail = rec.emailAddress;
+                  }
+
+                  this.crntContribGroupOrgID = rec.groupOrgID;
+                  this.crntContribGroupNumber = rec.groupNumber;
+                  this.crntContribGroupName = rec.groupName;
+
+                  this.crntContribDivisionOrgID = rec.divisionOrgID;
+                  this.crntContribDivisionNumber = rec.divisionNumber;
+                  this.crntContribDivisionName = rec.divisionName;
+
+                  this.crntContribOuOrgID = rec.ouOrgID;
+                  this.crntContribOuNumber = rec.ouNumber;
+                  this.crntContribOuName = rec.ouName;
+
+                  
+
+                  this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+                  if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+                    // If contributor role has been selected and nist contributor has been picked then allow
+                    // for adding a contributor to the table
+                    this.disableAdd=false;
+                  }
+                  return res;
+              }
             }
-
-            if(contributor.emailAddress){
-              // email can apparently be null - Planchard Joshua is/was an example
-              this.crntContribEmail = contributor.emailAddress;
-            }
-
-            this.crntContribGroupOrgID = contributor.groupOrgID;
-            this.crntContribGroupNumber = contributor.groupNumber;
-            this.crntContribGroupName = contributor.groupName;
-
-            this.crntContribDivisionOrgID = contributor.divisionOrgID;
-            this.crntContribDivisionNumber = contributor.divisionNumber;
-            this.crntContribDivisionName = contributor.divisionName;
-
-            this.crntContribOuOrgID = contributor.ouOrgID;
-            this.crntContribOuNumber = contributor.ouNumber;
-            this.crntContribOuName = contributor.ouName;
-
-            
-
-            this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-            if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-              // If contributor role has been selected and nist contributor has been picked then allow
-              // for adding a contributor to the table
-              this.disableAdd=false;
-            }
-            
+             
+           );            
             return res;
           }
 
-          if (contributor.trim().length >= 2){
+          
+          
+          if (contributor.trim().length >= 1){
 
             if (! this.index) {
                 this.sdsvc.getPeopleIndexFor(contributor).subscribe(
-                  idx => {
+                  {
+                    next: idx => {
                       // save it to use with subsequent typing
                       this.index = idx;
                       if (this.index != null) {
                           // pull out the matching suggestions
                           this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
+                          res = this.suggestions;
+                          console.log(this.suggestions);                          
                       }
-                  },
-                  er => {
-                    console.log(er.message);
-                  }
+                      return res;
+                      
+                    },
+                    error: er => {
+                      console.log(er.message);
+                    },
+                    complete: ()=>{
+                      // return res;
+                      console.log('completed people search');
+                    }
+                    
+                 }
                 );
             }
             else {
                 // we already have a downloaded index; just pull out the matching suggestions
                 this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
+                res = this.suggestions;
                 console.log(this.suggestions)
+                return res;
             }
+            // return res;
           }
           else if (this.index) {
             // if the input was cleared, clear out our index and suggestions
             this.index = null;
             this.suggestions = [];
+            res = this.suggestions;
             return res;
           }
-          
-          
 
           
 
           
           /**
-          this.apiService.get_NIST_Personnel(contributor).then(
+          this.apiService.get_NIST_Personnel(contrib).then(
             (nistPeople: any[]) => {
               // nist people can be blank if return has no match
               if(nistPeople){
@@ -674,6 +703,7 @@ export class PersonelComponent implements OnInit {
       )
 
     );
+
   }
 
   private _filter(nistPerson: string): NistContact[] {
@@ -717,8 +747,8 @@ export class PersonelComponent implements OnInit {
   }
 
 
-  displaySelectedContact(name:NistContact):string{
-    var res = name && name.firstName ? name.lastName + ", " + name.firstName : '';
+  displaySelectedContact(name:SDSuggestion):string{
+    var res = name && name.display ? name.display : '';
     return res;
 
   }
@@ -1155,6 +1185,8 @@ export class PersonelComponent implements OnInit {
    */
    getNistOrganizations(){    
     this.nistOrganizations = [];
+    //TODO implement organizations search here - commented out old code
+    /**
     // preload list of all OUs by making a call to people service
     this.apiService.get_NISTOUDivisionGroup().then(
       (DivsAndGroups:any[])=>{
@@ -1178,6 +1210,7 @@ export class PersonelComponent implements OnInit {
         }
       }
     );
+    */
     this.searchNistOrganizations();
 
   }
