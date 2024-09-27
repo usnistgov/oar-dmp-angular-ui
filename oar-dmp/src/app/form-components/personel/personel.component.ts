@@ -13,7 +13,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { NistOrganization } from 'src/app/types/nist-organization';
 import { ResponsibleOrganizations } from 'src/app/types/responsible-organizations.type';
 
-import {Observable, switchMap} from 'rxjs';
+import {Observable, switchMap, tap} from 'rxjs';
 
 import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
 // import { error } from 'console';
@@ -435,315 +435,126 @@ export class PersonelComponent implements OnInit {
   }
 
   getNistContactsFromAPI(){
-    /**
-     TODO remove below commented code since we son't be using separate primary nist contact anymore
-     but rather add it as a contributor role
-    // ---------------------------------------------------------------------------------------------
-    //                              PRIMARY NIST CONTACT
-    // ---------------------------------------------------------------------------------------------
-    // Below line gets executed anytime the user types - or the input value changes
-    this.fltr_Prim_NIST_Contact = this.personelForm.controls['primary_NIST_contact'].valueChanges.pipe(
-      startWith(''),
-      map (value => {
-          let res:NistContact[] = [];
-
-          const name = typeof value === 'string'; //checks the type of input value
-
-          if (!name){ 
-            if(value.orcid){
-              this.personelForm.value['pcOrcid'] = value.orcid; // automatically populate orcid field
-              this.pncOrcidChange(); // fire off orcid change to determine whether to show warning message  
-            }
-
-            // if value is not string that means the user has picked a selection from dropdown suggestion box
-            // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-            this.personelForm.patchValue({
-              pcFirstName: value.firstName,
-              pcLastName:  value.lastName,
-              pcOrcid: value.orcid
-            });
-            // update organization automatically too
-            this.orgGroupNumber = value.groupNumber;
-            this.orgGroupOrgID = value.groupOrgID;
-            this.orgGroupName = value.groupName;
-
-            this.orgDivisionNumber = value.divisionNumber;
-            this.orgDivisionOrgID = value.divisionOrgID;
-            this.orgDivisionName = value.divisionName;
-
-            this.orgOuNumber = value.ouNumber;
-            this.orgOuOrgID = value.ouOrgID;  
-            this.orgOuName = value.ouName;
-
-            this.org_addRow()
-            
-            return res;
-          }
-
-          if (value.trim().length < 2){
-            this.people = [];//reset search results
-          }
-
-          if (value.trim().length === 2 && this.people.length ===0){
-            // query people service and cache results
-            this.apiService.get_NIST_Personnel(value).then(
-              (nistPeople: any[]) => {
-                this.people = [];
-                // nist people can be blank if return has no match
-                if(nistPeople){
-                  for(var i=0; i<nistPeople.length; i++) {
-                    this.people.push({
-                      // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
-                      displayName:nistPeople[i].displayName,
-                      firstName:nistPeople[i].firstName,
-                      lastName:nistPeople[i].lastName,
-                      orcid:nistPeople[i].orcid,                      
-                      emailAddress:nistPeople[i].emailAddress,
-
-                      groupOrgID:nistPeople[i].groupOrgID,
-                      groupNumber:nistPeople[i].groupNumber,
-                      groupName:nistPeople[i].groupName,
-
-                      divisionOrgID:nistPeople[i].divisionOrgID,
-                      divisionNumber:nistPeople[i].divisionNumber,
-                      divisionName:nistPeople[i].divisionName,
-
-                      ouOrgID:nistPeople[i].ouOrgID,
-                      ouNumber:nistPeople[i].ouNumber,
-                      ouName:nistPeople[i].ouName
-    
-                    });
-                  }
-                  // this.people = nistPeople;
-                  console.log(this.people);
-                  res = this.people;
-                  
-                }                
-              }
-            );
-          }
-          else{
-            res = this._filter(value as string);
-          }
-
-          // Don't patch empty values if the form is loading for the first time because it will clear
-          // data that has come from the retreiving an existing record from database
-          if (!this.initializing){
-            // Patch empty value until the user has picked a selection. 
-            // This forces the form to accept only values that were selected from the dropdown menu
-            this.personelForm.patchValue({
-              pcFirstName: '',
-              pcLastName:  '',
-              pcOrcid: ''
-            });
-            this.personelForm.value['pcOrcid'] = ''; // automatically clear orcid field
-          }
-          // set initialization flag to false once the record has been loaded
-          this.initializing = false;
-
-          
-          return res;
-        }
-      )
-    );
-     */
     // ---------------------------------------------------------------------------------------------
     //                              NIST CONTRIBUTOR
     // ---------------------------------------------------------------------------------------------
     this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
       startWith(''),
+      switchMap(keyStroke => {
+        
+        console.log(keyStroke);
+
+        // clear values until the user has picked a selection. 
+        // This forces the form to accept only values that were selected from the dropdown menu
+        this.crntContribName = '';
+        this.crntContribSurname = '';
+        this.crntContribEmail = '';
+        this.nistContribOrcid = '';
+
+        const usrInput = typeof keyStroke === 'string'; //checks the type of input value
+        if (!usrInput){ 
+          // if value is not string that means the user has picked a selection from dropdown suggestion box
+          // so return an empty array to clear the dropdown suggestion box and set form values accordingly
+          let res:SDSuggestion[] = [];
+          keyStroke.getRecord().subscribe({
+            next: (rec:any) => {
+              
+              this.selectedRec = rec;
+              this.crntContribName = rec.firstName;
+              this.crntContribSurname = rec.lastName;
+
+              if(rec.orcid){
+                //orcid can be null so assign it only if it is not null
+                this.nistContribOrcid = rec.orcid; // automatically populate orcid field if it is not null
+              }
+
+              if(rec.emailAddress){
+                // email can apparently be null - Planchard Joshua is/was an example
+                this.crntContribEmail = rec.emailAddress;
+              }
+
+              this.crntContribGroupOrgID = rec.groupOrgID;
+              this.crntContribGroupNumber = rec.groupNumber;
+              this.crntContribGroupName = rec.groupName;
+
+              this.crntContribDivisionOrgID = rec.divisionOrgID;
+              this.crntContribDivisionNumber = rec.divisionNumber;
+              this.crntContribDivisionName = rec.divisionName;
+
+              this.crntContribOuOrgID = rec.ouOrgID;
+              this.crntContribOuNumber = rec.ouNumber;
+              this.crntContribOuName = rec.ouName;
+
+              
+
+              this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+
+              if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+                // If contributor role has been selected and nist contributor has been picked then allow
+                // for adding a contributor to the table
+                this.disableAdd=false;
+              }
+              return res;
+              
+            }
+          });
+          return res;
+          
+        }
+
+        if (keyStroke.trim().length >= 2){
+
+          if (! this.index) {
+            // this.sdsvc.getPeopleIndexFor(keyStroke);
+              return this.sdsvc.getPeopleIndexFor(keyStroke).pipe(
+                map( e => {
+                  this.index = e;
+                  if (this.index != null) {
+                      // pull out the matching suggestions
+                      this.suggestions = (this.index as SDSIndex).getSuggestions(keyStroke);
+                      // res = this.suggestions;
+                      console.log(this.suggestions);
+                  }
+                  return this.suggestions;
+                })
+                
+              )
+          }
+          
+        }
+        return keyStroke;
+      }),
+     
       map (contributor => {
+
+          console.log(contributor);
+
           // let res:NistContact[] = [];
           let res:SDSuggestion[] = [];
 
-          const name = typeof contributor === 'string'; //checks the type of input value
+          const usrInput = typeof contributor === 'string'; //checks the type of input value
 
-          if (!name){ 
-            // if value is not string that means the user has picked a selection from dropdown suggestion box
-            // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-            contributor.getRecord().subscribe({
-              next: (rec:any) => {
-                  this.selectedRec = rec;
-                  this.crntContribName = rec.firstName;
-                  this.crntContribSurname = rec.lastName;
-
-                  if(rec.orcid){
-                    //orcid can be null so assign it only if it is not null
-                    this.nistContribOrcid = rec.orcid; // automatically populate orcid field if it is not null
-                  }
-
-                  if(rec.emailAddress){
-                    // email can apparently be null - Planchard Joshua is/was an example
-                    this.crntContribEmail = rec.emailAddress;
-                  }
-
-                  this.crntContribGroupOrgID = rec.groupOrgID;
-                  this.crntContribGroupNumber = rec.groupNumber;
-                  this.crntContribGroupName = rec.groupName;
-
-                  this.crntContribDivisionOrgID = rec.divisionOrgID;
-                  this.crntContribDivisionNumber = rec.divisionNumber;
-                  this.crntContribDivisionName = rec.divisionName;
-
-                  this.crntContribOuOrgID = rec.ouOrgID;
-                  this.crntContribOuNumber = rec.ouNumber;
-                  this.crntContribOuName = rec.ouName;
-
-                  
-
-                  this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-                  if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-                    // If contributor role has been selected and nist contributor has been picked then allow
-                    // for adding a contributor to the table
-                    this.disableAdd=false;
-                  }
-                  return res;
-              }
-            }
-             
-           );            
-            return res;
+          if (!usrInput){ 
+            // if value is not string that means that we need to display initial drop down suggestions            
+            return this.suggestions;
           }
-
-          
-          
-          if (contributor.trim().length >= 1){
-
-            if (! this.index) {
-                this.sdsvc.getPeopleIndexFor(contributor).subscribe(
-                  {
-                    next: idx => {
-                      // save it to use with subsequent typing
-                      this.index = idx;
-                      if (this.index != null) {
-                          // pull out the matching suggestions
-                          this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
-                          res = this.suggestions;
-                          console.log(this.suggestions);                          
-                      }
-                      return res;
-                      
-                    },
-                    error: er => {
-                      console.log(er.message);
-                    },
-                    complete: ()=>{
-                      // return res;
-                      console.log('completed people search');
-                    }
-                    
-                 }
-                );
-            }
-            else {
-                // we already have a downloaded index; just pull out the matching suggestions
-                this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
-                res = this.suggestions;
-                console.log(this.suggestions)
-                return res;
-            }
-            // return res;
+          else if (typeof contributor === 'string' &&contributor.trim().length >= 2 && this.index){
+             // we already have a downloaded index; just pull out the matching suggestions
+             this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
+             return this.suggestions;
           }
-          else if (this.index) {
+          else if (typeof contributor === 'string' &&contributor.trim().length < 2 && this.index){
             // if the input was cleared, clear out our index and suggestions
             this.index = null;
             this.suggestions = [];
-            res = this.suggestions;
-            return res;
+            return this.suggestions;
           }
 
-          
-
-          
-          /**
-          this.apiService.get_NIST_Personnel(contrib).then(
-            (nistPeople: any[]) => {
-              // nist people can be blank if return has no match
-              if(nistPeople){
-                for(var i=0; i<nistPeople.length; i++) {
-                  res.push({
-                    // We are only using metadata for firstName, lastName and orcid but other data could be used int he future
-                    displayName:nistPeople[i].displayName,
-                    firstName:nistPeople[i].firstName,
-                    lastName:nistPeople[i].lastName,
-                    orcid:nistPeople[i].orcid,                      
-                    emailAddress:nistPeople[i].emailAddress,
-
-                    groupOrgID:nistPeople[i].groupOrgID,
-                    groupNumber:nistPeople[i].groupNumber,
-                    groupName:nistPeople[i].groupName,
-
-                    divisionOrgID:nistPeople[i].divisionOrgID,
-                    divisionNumber:nistPeople[i].divisionNumber,
-                    divisionName:nistPeople[i].divisionName,
-
-                    ouOrgID:nistPeople[i].ouOrgID,
-                    ouNumber:nistPeople[i].ouNumber,
-                    ouName:nistPeople[i].ouName
-  
-                  });
-                }
-              }
-              
-            }
-          );
-          */
-
-          // clear values until the user has picked a selection. 
-          // This forces the form to accept only values that were selected from the dropdown menu
-          this.crntContribName = '';
-          this.crntContribSurname = '';
-          this.crntContribEmail = '';
-          this.nistContribOrcid = '';
-
           return res;
-
         }
       )
-
     );
 
-  }
-
-  private _filter(nistPerson: string): NistContact[] {
-    //split name on comma to get last name
-    // Beacuase the person name in the gui is displayed as <last name>, <first name> delimited by comma and white space
-    // filterValues[1] = last name
-    // filterValues[0] = first name String(person.year).startsWith('198')
-    const filterValues = nistPerson.toLowerCase().split(",");
-    var searchRes;
-
-    searchRes = this.people.filter(
-      (option:any) => option.lastName.toLowerCase().startsWith(filterValues[0])
-    );
-
-    return searchRes;
-  }
-
-  private old_filter(nistPerson: string): NistContact[] {
-    //split name on white space to get first name and last name
-    // Beacuase the person name in the gui is displayed as <first name> <last name> delimited by white space
-    // filterValues[1] = last name
-    // filterValues[0] = first name
-    const filterValues = nistPerson.toLowerCase().split(" ");
-    var searchRes;
-
-    if (filterValues.length > 1){
-      // if split resulted in more than a single word/entry search first on last name then first name
-      searchRes = this.nistContacts.filter(        
-        (option:any) => option.lastName.toLowerCase().includes(filterValues[1] || option.firstName.toLowerCase().includes(filterValues[0]) )
-      );
-
-    }
-    else{
-      //here we have only one entry in the filterValues array, so search just on that one value matching first on last name then first name
-      searchRes = this.nistContacts.filter(
-        (option:any) => option.lastName.toLowerCase().includes(filterValues[0]) || option.firstName.toLowerCase().includes(filterValues[0])
-      );
-
-    }
-    return searchRes;
   }
 
 
