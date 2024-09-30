@@ -243,10 +243,10 @@ export class PersonelComponent implements OnInit {
 
   people:Array<NistContact> =[] ;
 
-  index: SDSIndex|null = null;
+  sd_index: SDSIndex|null = null;
   suggestions: SDSuggestion[] = []
-  selectedSuggestion: SDSuggestion|null = null;
-  selectedRec: any = null;
+  // selectedSuggestion: SDSuggestion|null = null;
+  // selectedRec: any = null;
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -439,11 +439,7 @@ export class PersonelComponent implements OnInit {
     //                              NIST CONTRIBUTOR
     // ---------------------------------------------------------------------------------------------
     this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
-      startWith(''),
-      switchMap(keyStroke => {
-        
-        console.log(keyStroke);
-
+      switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
         this.crntContribName = '';
@@ -451,18 +447,16 @@ export class PersonelComponent implements OnInit {
         this.crntContribEmail = '';
         this.nistContribOrcid = '';
 
-        const usrInput = typeof keyStroke === 'string'; //checks the type of input value
-        if (!usrInput){ 
+        const val = typeof usrInput === 'string'; //checks the type of input value
+        if (!val){ 
           // if value is not string that means the user has picked a selection from dropdown suggestion box
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-          let res:SDSuggestion[] = [];
-          keyStroke.getRecord().subscribe({
-            next: (rec:any) => {
-              
-              this.selectedRec = rec;
+          return usrInput.getRecord().pipe(
+            map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
+              console.log(rec);
               this.crntContribName = rec.firstName;
               this.crntContribSurname = rec.lastName;
-
+              
               if(rec.orcid){
                 //orcid can be null so assign it only if it is not null
                 this.nistContribOrcid = rec.orcid; // automatically populate orcid field if it is not null
@@ -485,8 +479,6 @@ export class PersonelComponent implements OnInit {
               this.crntContribOuNumber = rec.ouNumber;
               this.crntContribOuName = rec.ouName;
 
-              
-
               this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
 
               if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
@@ -494,25 +486,27 @@ export class PersonelComponent implements OnInit {
                 // for adding a contributor to the table
                 this.disableAdd=false;
               }
-              return res;
-              
-            }
-          });
-          return res;
-          
+              // clear sarch suggestions since the user has selected an option from drop down menu
+              this.sd_index = null;
+              this.suggestions = [];
+              // retuns an empty array to the next function in the pipe -> in this case a map function
+              return this.suggestions;
+            })
+          );
         }
 
-        if (keyStroke.trim().length >= 2){
+        if (usrInput.trim().length >= 2){
+          // this is where initial querying of people service occurs if user has typed more than two characters
 
-          if (! this.index) {
-            // this.sdsvc.getPeopleIndexFor(keyStroke);
-              return this.sdsvc.getPeopleIndexFor(keyStroke).pipe(
-                map( e => {
-                  this.index = e;
-                  if (this.index != null) {
+          if (! this.sd_index) {
+              // if initial query was not performed yet, query people service based on first two letters
+              // and return array of suggestions that will be passed to the next function in the pipe
+              return this.sdsvc.getPeopleIndexFor(usrInput).pipe(
+                map( idx => {
+                  this.sd_index = idx;
+                  if (this.sd_index != null) {
                       // pull out the matching suggestions
-                      this.suggestions = (this.index as SDSIndex).getSuggestions(keyStroke);
-                      // res = this.suggestions;
+                      this.suggestions = (this.sd_index as SDSIndex).getSuggestions(usrInput);
                       console.log(this.suggestions);
                   }
                   return this.suggestions;
@@ -522,35 +516,35 @@ export class PersonelComponent implements OnInit {
           }
           
         }
-        return keyStroke;
-      }),
-     
-      map (contributor => {
+        // pass user input as a string array to the next function in the pipe -> in this case the map function
+        return [usrInput];
+      }),     
+      map (pipedValue => {
+          // Data that comes here is piped in from the previous function in the pipeline in this case switchMap function
 
-          console.log(contributor);
+          const val = typeof pipedValue === 'string'; //checks the type of value passed down by the switchMap function
 
-          // let res:NistContact[] = [];
-          let res:SDSuggestion[] = [];
-
-          const usrInput = typeof contributor === 'string'; //checks the type of input value
-
-          if (!usrInput){ 
-            // if value is not string that means that we need to display initial drop down suggestions            
+          if (!val){ 
+            // if value is not string that means that one of two thing have happened:
+            // 1) we need to display initial drop down suggestions based on initial people query results
+            // 2) the user has selected an option from the drop down menu in which case the suggestions array is empty so we return it
             return this.suggestions;
           }
-          else if (typeof contributor === 'string' &&contributor.trim().length >= 2 && this.index){
-             // we already have a downloaded index; just pull out the matching suggestions
-             this.suggestions = (this.index as SDSIndex).getSuggestions(contributor);
-             return this.suggestions;
+          else if (typeof pipedValue === 'string' && pipedValue.trim().length >= 2 && this.sd_index){
+            // we already have a downloaded index; just pull out the matching suggestions
+            // and return the array of suggestions for the dropdown menu 
+            this.suggestions = (this.sd_index as SDSIndex).getSuggestions(pipedValue);
+            return this.suggestions;
           }
-          else if (typeof contributor === 'string' &&contributor.trim().length < 2 && this.index){
+          else if (typeof pipedValue === 'string' && pipedValue.trim().length < 2 && this.sd_index){
             // if the input was cleared, clear out our index and suggestions
-            this.index = null;
+            this.sd_index = null;
             this.suggestions = [];
             return this.suggestions;
           }
 
-          return res;
+          // if number of characters entered are less than two return an empty array
+          return [];
         }
       )
     );
@@ -572,8 +566,10 @@ export class PersonelComponent implements OnInit {
 
   selectedContributor(name: string): boolean{
     if (!this.contributorOption) { // if no radio button is selected, always return false so nothing is shown  
+      console.log("no contributor selected")
       return false;  
     }  
+    console.log("selected contributor: "+name);
     return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
 
   }  

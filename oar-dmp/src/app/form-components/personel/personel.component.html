@@ -23,72 +23,73 @@
             type="radio" 
             id="contributorNIST" 
             name="contributor" 
-            value="NIST" 
+            value="NIST"
             (click)="setContributor('NIST')"
             (change)="onContributorChange($event.target)"
           >
           <label for="contributorNIST">NIST Employee / Associate</label>
+          <!-- ======================================================= -->        
+          <div *ngIf="selectedContributor('NIST')" class="contributor-box">
+            <table>
+              <!-- <tr>
+                <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
+                <td class="cell-top">
+                  <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personelForm.controls['primaryNistContact']">
+                  <label for="primCntcY">Yes</label>
+
+                  <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
+                  <label for="primCntcN">No</label>
+                </td>
+              </tr> -->
+              <tr>
+                <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
+                <td>
+                  <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">
+                    <!-- <mat-label>NIST Contributor</mat-label> -->
+                    <input type="text"
+                          placeholder="Type to search ..."
+                          aria-label="Nist Contributor"
+                          style="background-color: rgb(252, 252, 252);"
+                          matInput
+                          [formControl]="personelForm.controls['dmp_contributor']"
+                          [matAutocomplete]="dmp_contributor">
+                    <mat-autocomplete 
+                      #dmp_contributor="matAutocomplete"
+                      [displayWith]="displaySelectedContact"
+                    >
+                      <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
+                        {{contrib.display}}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+
+                </td>
+              </tr>
+              <tr>
+                <td class="cell-top">ORCID</td>
+                <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
+              </tr>
+              <tr>
+                <td>Role</td>
+                <td>
+                  <select
+                    name="nistContribRole"
+                    [(ngModel)]="nistContribRole"
+                    (change)="selContributorRole()"
+                  >
+                    <option [value]="role.id" *ngFor="let role of contributorRoles">
+                        {{role.value}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+
+            </table>
+          </div>
         </div>
         
-        <!-- ======================================================= -->        
-        <div *ngIf="selectedContributor('NIST')" class="contributor-box">
-          <table>
-            <tr>
-              <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
-              <td class="cell-top">
-                <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personelForm.controls['primaryNistContact']">
-                <label for="primCntcY">Yes</label>
-
-                <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
-                <label for="primCntcN">No</label>
-              </td>
-            </tr>
-            <tr>
-              <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
-              <td>
-                <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">
-                  <!-- <mat-label>NIST Contributor</mat-label> -->
-                  <input type="text"
-                         placeholder="Type to search ..."
-                         aria-label="Nist Contributor"
-                         style="background-color: rgb(252, 252, 252);"
-                         matInput
-                         [formControl]="personelForm.controls['dmp_contributor']"
-                         [matAutocomplete]="dmp_contributor">
-                  <mat-autocomplete 
-                    #dmp_contributor="matAutocomplete"
-                    [displayWith]="displaySelectedContact"
-                  >
-                    <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
-                      {{contrib.display}}
-                    </mat-option>
-                  </mat-autocomplete>
-                </mat-form-field>
-
-              </td>
-            </tr>
-            <tr>
-              <td class="cell-top">ORCID</td>
-              <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
-            </tr>
-            <tr>
-              <td>Role</td>
-              <td>
-                <select
-                  name="nistContribRole"
-                  [(ngModel)]="nistContribRole"
-                  (change)="selContributorRole()"
-                >
-                  <option [value]="role.id" *ngFor="let role of contributorRoles">
-                      {{role.value}}
-                  </option>
-
-                </select>
-              </td>
-            </tr>
-
-          </table>
-        </div>
+        
         <!-- ======================================================= -->   
         <div>
           <input 
