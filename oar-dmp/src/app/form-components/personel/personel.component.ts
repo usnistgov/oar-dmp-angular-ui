@@ -235,6 +235,7 @@ export class PersonelComponent implements OnInit {
     divisionOrgID:0, divisionNumber:"", divisionName:"",
     ouOrgID:0, ouNumber:"", ouName:"",
     
+    primary_contact:"",
     role:"",
     institution:""
   };
@@ -325,9 +326,9 @@ export class PersonelComponent implements OnInit {
           ouNumber:         aContributor.ouNumber,
           ouName:           aContributor.ouName,
        
-      
-          role:         aContributor.role,
-          institution:  aContributor.institution
+          primary_contact:  aContributor.primary_contact,
+          role:             aContributor.role,
+          institution:      aContributor.institution
           
         });
         this.disableClear=false;
@@ -336,36 +337,9 @@ export class PersonelComponent implements OnInit {
     )
 
     this.personelForm.patchValue({
-      primary_NIST_contact:       { 
-                                    firstName:        personel.primary_NIST_contact.firstName,
-                                    lastName:         personel.primary_NIST_contact.lastName,
-                                    orcid:            personel.primary_NIST_contact.orcid,
-                                    emailAddress:     personel.primary_NIST_contact.emailAddress,
-
-                                    groupOrgID:       personel.primary_NIST_contact.groupOrgID,
-                                    groupNumber:      personel.primary_NIST_contact.groupNumber,
-                                    groupName:        personel.primary_NIST_contact.groupName,
-
-                                    divisionOrgID:    personel.primary_NIST_contact.divisionOrgID,
-                                    divisionNumber:   personel.primary_NIST_contact.divisionNumber,
-                                    divisionName:     personel.primary_NIST_contact.divisionName,
-
-                                    ouOrgID:          personel.primary_NIST_contact.ouOrgID,
-                                    ouNumber:         personel.primary_NIST_contact.ouNumber,
-                                    ouName:           personel.primary_NIST_contact.ouName
-       
-                                  },
-      pcFirstName:       personel.primary_NIST_contact.firstName,
-      pcLastName:        personel.primary_NIST_contact.lastName,
-      pcOrcid:       personel.primary_NIST_contact.orcid,
       contributors:               personel.contributors,
       organizations:              personel.organizations
     });
-
-    this.pncOrcidWarn = '';
-    if(personel.primary_NIST_contact.orcid.length === 0){
-      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
-    }
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
@@ -389,24 +363,6 @@ export class PersonelComponent implements OnInit {
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
           {
-            primary_NIST_contact:   { 
-                                      firstName:      formValue.primary_NIST_contact.firstName, 
-                                      lastName:       formValue.primary_NIST_contact.lastName,
-                                      orcid:          formValue.primary_NIST_contact.orcid,
-                                      emailAddress:   formValue.primary_NIST_contact.emailAddress,
-                                      
-                                      groupOrgID:     formValue.primary_NIST_contact.groupOrgID,
-                                      groupNumber:    formValue.primary_NIST_contact.groupNumber,
-                                      groupName:      formValue.primary_NIST_contact.groupName,
-
-                                      divisionOrgID:  formValue.primary_NIST_contact.divisionOrgID,
-                                      divisionNumber: formValue.primary_NIST_contact.divisionNumber,
-                                      divisionName:   formValue.primary_NIST_contact.divisionName,
-
-                                      ouOrgID:        formValue.primary_NIST_contact.ouOrgID,
-                                      ouNumber:       formValue.primary_NIST_contact.ouNumber,
-                                      ouName:         formValue.primary_NIST_contact.ouName
-                                    },
             contributors:           formValue.contributors,
             organizations:          formValue.organizations
 
@@ -653,6 +609,7 @@ export class PersonelComponent implements OnInit {
       divisionOrgID:0, divisionNumber:"", divisionName:"",
       ouOrgID:0, ouNumber:"", ouName:"",
   
+      primary_contact:"No", // by default eternal contact can't be a primary contact
       role:"",
       institution:""
     };
@@ -917,6 +874,7 @@ export class PersonelComponent implements OnInit {
       ouNumber:this.crntContribOuNumber,
       ouName:this.crntContribOuName,
 
+      primary_contact: this.primaryContactSelection,
       institution:"",
       role:this.crntContribRole,
       
