@@ -42,6 +42,22 @@
                 </td>
               </tr> -->
               <tr>
+                <td>Primary Contact</td>
+                <td>
+                  <select
+                    name="primaryContact"
+                    [(ngModel)]="primaryContact"
+                    (change)="selPrimaryContact()"
+                    
+                  >
+                    <option *ngFor="let option of primaryContactOptions" [value]="option.id" >
+                        {{option.value}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+              <tr>
                 <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
                 <td>
                   <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">

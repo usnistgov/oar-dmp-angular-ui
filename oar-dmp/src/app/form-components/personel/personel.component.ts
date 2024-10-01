@@ -18,6 +18,11 @@ import {Observable, switchMap, tap} from 'rxjs';
 import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
 // import { error } from 'console';
 
+interface primaryContactValues {
+  id: number;
+  value: string;
+}
+
 interface DataContributor extends Contributor{
   id: number;
   isEdit: boolean;
@@ -197,11 +202,14 @@ export class PersonelComponent implements OnInit {
   crntContribOuNumber: string = "";
   crntContribOuName: string = "";
 
-  crntContribRole: string = "";
-  
+  crntContribRole: string = "";  
   
   nistContribOrcid: string = "";
   nistContribRole: string = "";
+
+  primaryContact: string = "";
+  primaryContactSelection: string = "";
+  primaryContactOptions: Array<primaryContactValues> = [{id:0, value:'Yes'}, {id:1, value:'No'}]
 
   extContribOrcid: string = "";
   extContribRole: string = "";
@@ -451,9 +459,10 @@ export class PersonelComponent implements OnInit {
         if (!val){ 
           // if value is not string that means the user has picked a selection from dropdown suggestion box
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
+
+          // returning result made to an async call
           return usrInput.getRecord().pipe(
             map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
-              console.log(rec);
               this.crntContribName = rec.firstName;
               this.crntContribSurname = rec.lastName;
               
@@ -501,6 +510,8 @@ export class PersonelComponent implements OnInit {
           if (! this.sd_index) {
               // if initial query was not performed yet, query people service based on first two letters
               // and return array of suggestions that will be passed to the next function in the pipe
+
+              // returning result from an async call
               return this.sdsvc.getPeopleIndexFor(usrInput).pipe(
                 map( idx => {
                   this.sd_index = idx;
@@ -558,22 +569,25 @@ export class PersonelComponent implements OnInit {
 
   }
 
-  private contributorOption: string="false";
-  setContributor(e:string):void{
-    this.contributorOption = e;
-
-  }
-
   selectedContributor(name: string): boolean{
     if (!this.contributorOption) { // if no radio button is selected, always return false so nothing is shown  
-      console.log("no contributor selected")
       return false;  
     }  
-    console.log("selected contributor: "+name);
     return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
 
   }  
-  
+
+  private contributorOption: string="false";
+  setContributor(e:string):void{
+    this.contributorOption = e;
+    
+    if (e === 'NIST'){
+      // If we're selecting a nist contact, set by default that NIST conatct will not be a primary contact
+      this.primaryContact = '1'; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
+      this.selPrimaryContact(); // trigger dropdown selection so by default dropdown will be set to No value
+    }
+
+  }  
   
   selContributorRole(){
     // select role for the contributors from a drop down list
@@ -585,7 +599,13 @@ export class PersonelComponent implements OnInit {
       this.disableAdd=false;
     }
 
-  }  
+  }
+
+  selPrimaryContact(){
+    // select role for the contributors from a drop down list
+    this.primaryContactSelection = this.dropDownService.getDropDownSelection(this.primaryContact, this.primaryContactOptions)[0].value;
+
+  } 
   
   private contributorRadioSel: string="";
 
