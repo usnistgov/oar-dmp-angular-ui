@@ -474,7 +474,6 @@ export class PersonelComponent implements OnInit {
                   if (this.sd_index != null) {
                       // pull out the matching suggestions
                       this.suggestions = (this.sd_index as SDSIndex).getSuggestions(usrInput);
-                      console.log(this.suggestions);
                   }
                   return this.suggestions;
                 })
@@ -538,12 +537,16 @@ export class PersonelComponent implements OnInit {
     this.contributorOption = e;
     
     if (e === 'NIST'){
-      // If we're selecting a nist contact, set by default that NIST conatct will not be a primary contact
-      this.primaryContact = '1'; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
-      this.selPrimaryContact(); // trigger dropdown selection so by default dropdown will be set to No value
+      this.resetPrimaryContact();
     }
 
   }  
+
+  private resetPrimaryContact(){
+    // If we're selecting a nist contact, set by default that NIST conatct will not be a primary contact
+    this.primaryContact = '1'; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
+    this.selPrimaryContact(); // trigger dropdown selection so by default dropdown will be set to No value
+  }
   
   selContributorRole(){
     // select role for the contributors from a drop down list
@@ -569,6 +572,7 @@ export class PersonelComponent implements OnInit {
    * Resets form fields for Contributor personnel
    */
   private resetContributorFields(){
+    this.resetPrimaryContact();
     this.errorMessage = "";
     this.crntContribRole = "";
 
@@ -609,7 +613,7 @@ export class PersonelComponent implements OnInit {
       divisionOrgID:0, divisionNumber:"", divisionName:"",
       ouOrgID:0, ouNumber:"", ouName:"",
   
-      primary_contact:"No", // by default eternal contact can't be a primary contact
+      primary_contact:"",
       role:"",
       institution:""
     };
@@ -617,7 +621,7 @@ export class PersonelComponent implements OnInit {
 
   onContributorChange(value:any){    
     this.contributorRadioSel=value.id;
-    this.disableAdd=true;
+    this.disableAdd=true;    
     this.resetContributorFields();
   }
   
@@ -649,6 +653,7 @@ export class PersonelComponent implements OnInit {
           ouNumber:element.ouNumber,
           ouName:element.ouName,
           
+          primary_contact: element.primary_contact,
           institution: element.institution,
           role: element.role
         });
@@ -741,6 +746,7 @@ export class PersonelComponent implements OnInit {
           ouNumber:element.ouNumber,
           ouName:element.ouName,
           
+          primary_contact: element.primary_contact,
           institution: element.institution,
           role: element.role
         });

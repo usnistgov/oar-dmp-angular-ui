@@ -494,17 +494,6 @@ export class DmpFormComponent implements OnInit {
 
     this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
 
-    // Primary NIST Contact
-    if (this.dmp?.primary_NIST_contact !== undefined){
-      let tblHeaders = ["Name", "Surname", "ORCID"];
-      let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
-    
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("Primary NIST Contact", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
-    }
-
     //Organization(s) Associated With This DMP
     if(this.dmp?.organizations !== undefined){
       let tblHeaders = ["Group Name", "Division Name", "OU Name"];
