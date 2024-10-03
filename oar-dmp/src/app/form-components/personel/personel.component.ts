@@ -7,7 +7,7 @@ import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { NistContact } from '../../types/nist-contact'
 
 import { Validators, UntypedFormBuilder } from '@angular/forms';
-import { defer, map, of, startWith, lastValueFrom } from 'rxjs';
+import { defer, map, of, startWith, lastValueFrom, catchError } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 // import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
@@ -140,7 +140,7 @@ export class PersonelComponent implements OnInit {
   dmpOrganizations: dmpOgranizations[] = []
   org_displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
   org_columnsSchema: any = ORG_COL_SCHEMA;
-  fltr_NIST_Org!: Observable<NistOrganization[]>;
+  fltr_NIST_Org!: Observable<SDSuggestion[]>;
 
   //List of all nist organizations from NIST directory
   nistOrganizations: Array<NistOrganization> = [];
@@ -227,7 +227,6 @@ export class PersonelComponent implements OnInit {
 
   contributorRoles = ROLES; // sets hardcoded roles values
   
-  fltr_Prim_NIST_Contact!: Observable<NistContact[]>;
   // fltr_NIST_Contributor!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<SDSuggestion[]>;
 
@@ -249,10 +248,6 @@ export class PersonelComponent implements OnInit {
     institution:""
   };
 
-  
-  pncOrcidWarn: string = ""; // primary NIST contact warning message
-  pncErrorMessage: string =""; //primary NIST contact error messag
-
   contribOrcidWarn: string = ""; //contributor orcid warning message
   errorMessage: string = ""; // contributor error message
   static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
@@ -261,10 +256,20 @@ export class PersonelComponent implements OnInit {
 
   people:Array<NistContact> =[] ;
 
-  sd_index: SDSIndex|null = null;
-  suggestions: SDSuggestion[] = []
-  // selectedSuggestion: SDSuggestion|null = null;
-  // selectedRec: any = null;
+  // =====================
+  //  for people service
+  // =====================
+
+  minPromptLength = 2;                  // don't do any searching of people service unless we have 2 chars
+  // for people search
+  sd_index: SDSIndex|null = null;       // the index we will download after the first minPromptLength (2) characters are typed
+  suggestions: SDSuggestion[] = []      // the current list of suggested completions matching what has been typed so far.
+
+  //for organizations search
+  org_index: SDSIndex|null = null;      // the index we will download after the first minPromptLength (2) characters are typed
+  orgSuggestions: SDSuggestion[] = []   // the current list of suggested completions matching what has been typed so far.
+
+  parentOrgs: Array<any> = []; // parent organizations
 
   constructor(
     private dropDownService: DropDownSelectService,
@@ -455,7 +460,7 @@ export class PersonelComponent implements OnInit {
           );
         }
 
-        if (usrInput.trim().length >= 2){
+        if (usrInput.trim().length >= this.minPromptLength){
           // this is where initial querying of people service occurs if user has typed more than two characters
 
           if (! this.sd_index) {
@@ -513,7 +518,7 @@ export class PersonelComponent implements OnInit {
   }
 
 
-  displaySelectedContact(name:SDSuggestion):string{
+  displaySelectedSDSuggestion(name:SDSuggestion):string{
     var res = name && name.display ? name.display : '';
     return res;
 
@@ -1032,129 +1037,163 @@ export class PersonelComponent implements OnInit {
         }
       }
     );
-    */
-    this.searchNistOrganizations();
-
-  }
-
-  searchNistOrganizations(){
+    */ 
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
-      startWith(''),
-      map(anOrganization => {
-        let res:Array<any> = [];
-        const orgName = typeof anOrganization ==='string';
-
-        if (!orgName){
+      switchMap(usrInput => {
+        const val = typeof usrInput === 'string'; //checks the type of input value
+        if (!val){
           // if value is not string that means the user has picked a selection from dropdown suggestion box
-          // This is where we determine how far to search for parent organizations
           /**
            * If it's a group we need to find the lab that groups division belongs to
            * If it's a division then we set group to null
            * If it's a lab then division and group are null
            */
 
-          /**
-           * Case 1:
-           * User selected a group from dropdown menu
-           * In this case orG_LVL_ID = 3
-           * 
-           * We already have parent org ID - but we need to find parent org Name 
-           * and the same for the parent of the parent
-           */
-          if (anOrganization.orG_LVL_ID === 3){
-            this.orgGroupNumber = anOrganization.orG_CD;
-            this.orgGroupOrgID = anOrganization.orG_ID;
-            this.orgGroupName = anOrganization.orG_Name;
+          // Make async call to get parent organizations of the corganization selected by the user
+          return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(                
+            map((recs:any) =>{
+              let index:number =0;
+              // loop through the list of parent organizations with first
+              // element in the array being the organization that was selected by the user
+              while(index < recs?.length ){
+                console.log(recs[index]);
+                let anOrganization = recs[index];
+                /**
+                 * Case 1:
+                 * User selected a group from dropdown menu
+                 * In this case orG_LVL_ID = 3
+                 */
+                if (anOrganization.orG_LVL_ID === 3){
+                  this.orgGroupNumber = anOrganization.orG_CD;
+                  this.orgGroupOrgID = anOrganization.orG_ID;
+                  this.orgGroupName = anOrganization.orG_Name;
 
-            this.orgDivisionNumber = anOrganization.parenT_ORG_CD;
-            this.orgDivisionOrgID = anOrganization.parenT_ORG_ID;            
+                  index++;
+                  let divisionData = recs[index];
+
+                  this.orgDivisionNumber = divisionData.orG_CD;
+                  this.orgDivisionOrgID = divisionData.orG_ID;      
+                  this.orgDivisionName = divisionData.orG_Name;
+
+                  // find parent of the parent info
+                  index++;
+                  let OUData = recs[index];
+
+                  this.orgOuNumber = OUData.orG_CD;
+                  this.orgOuOrgID = OUData.orG_ID;
+                  this.orgOuName = OUData.orG_Name;
+                  break;
+                } 
+                /**
+                 * Case 2:
+                 * User selected a division from dropdown menu
+                 * In this case orG_LVL_ID = 2 or 4
+                 */               
+                else if(
+                  anOrganization.orG_LVL_ID === 2 ||
+                  anOrganization.orG_LVL_ID === 4
+                ){
+
+                  this.orgGroupNumber = null;
+                  this.orgGroupOrgID = null;
+                  this.orgGroupName = null;
+
+                  this.orgDivisionNumber = anOrganization.orG_CD;
+                  this.orgDivisionOrgID = anOrganization.orG_ID;
+                  this.orgDivisionName = anOrganization.orG_Name
+
+                  index++;
+                  let OUData = recs[index];
+
+                  this.orgOuNumber = OUData.orG_CD;
+                  this.orgOuOrgID = OUData.orG_ID;
+                  this.orgOuName = OUData.orG_Name;
+                  break;
+                }
+                else{
+                  /**
+                   * Case 3:
+                   * User selected a top level organization from dropdown menu
+                   * In this case parenT_ORG_CD is null
+                   */
+                  this.orgGroupNumber = null;
+                  this.orgGroupOrgID = null;
+                  this.orgGroupName = null;
+      
+                  this.orgDivisionNumber = null;
+                  this.orgDivisionOrgID = null;
+                  this.orgDivisionName = null;
+      
+                  this.orgOuNumber = anOrganization.orG_CD;
+                  this.orgOuOrgID = anOrganization.orG_ID;  
+                  this.orgOuName = anOrganization.orG_Name;
+                  break;
+      
+                }
+              }
+              this.org_disableAdd = false;
+              // clear sarch suggestions since the user has selected an option from drop down menu
+              this.org_index = null;
+              this.orgSuggestions = []
+              console.log(recs);
+              return []
+            })
+          )
+
+        }
+        if (usrInput.trim().length >= 2){
+          if (! this.org_index) {
             
-            // find parent division info:
-            let srchParent = this._filter_orgID(anOrganization.parenT_ORG_ID);
-            this.orgDivisionName = srchParent[0].orG_Name;
-
-            // find parent of the parent info
-            let serchGrParent = this._filter_orgID(srchParent[0].parenT_ORG_ID);
-            this.orgOuNumber = serchGrParent[0].orG_CD;
-            this.orgOuOrgID = serchGrParent[0].orG_ID;
-            this.orgOuName = serchGrParent[0].orG_Name;
+            return this.sdsvc.getOrgsIndexFor(usrInput).pipe(
+              map(pi => {
+                // save it to use with subsequent typing
+                this.org_index = pi;
+                if (this.org_index != null) {
+                  // pull out the matching suggestions
+                  this.orgSuggestions = (this.org_index as SDSIndex).getSuggestions(usrInput);
+                }
+                return this.orgSuggestions;
+              }),
+              catchError( err => {
+                console.log('Failed to pull orgs index for "'+usrInput+'": '+err)
+                return [];
+              })
+            );
           }
-          else if(
-            anOrganization.orG_LVL_ID === 2 ||
-            anOrganization.orG_LVL_ID === 4
-          ){
-            /**
-             * Case 2:
-             * User selected a division from dropdown menu
-             * In this case orG_LVL_ID = 2
-             * 
-             * We already have parent org ID - but we need to find parent org Name 
-             */
-
-            this.orgGroupNumber = null;
-            this.orgGroupOrgID = null;
-            this.orgGroupName = null;
-
-            this.orgDivisionNumber = anOrganization.orG_CD;
-            this.orgDivisionOrgID = anOrganization.orG_ID;
-            this.orgDivisionName = anOrganization.orG_Name
-
-            this.orgOuNumber = anOrganization.parenT_ORG_CD;
-            this.orgOuOrgID = anOrganization.parenT_ORG_ID;  
-
-            let srchParent = this._filter_orgID(anOrganization.parenT_ORG_ID);
-            this.orgOuName = srchParent[0].orG_Name;
-
-            //find parent
-
-          }
-          else{
-            /**
-             * Case 3:
-             * User selected a top level organization from dropdown menu
-             * In this case parenT_ORG_CD is null
-             */
-            this.orgGroupNumber = null;
-            this.orgGroupOrgID = null;
-            this.orgGroupName = null;
-
-            this.orgDivisionNumber = null;
-            this.orgDivisionOrgID = null;
-            this.orgDivisionName = null;
-
-            this.orgOuNumber = anOrganization.orG_CD;
-            this.orgOuOrgID = anOrganization.orG_ID;  
-            this.orgOuName = anOrganization.orG_Name;
-
-          }
-          // this.orG_ID = anOrganization.orG_ID;          
-          // this.orG_Name = anOrganization.orG_Name;
-          // this.orG_CD = anOrganization.orG_CD;
-          // this.orG_LVL_ID = anOrganization.orG_LVL_ID;
-          // this.orG_ACRNM = anOrganization.orG_ACRNM;
-          // this.orG_SHORT_NAME = anOrganization.orG_SHORT_NAME;
-          // this.parenT_ORG_CD = anOrganization.parenT_ORG_CD;
-          // this.parenT_ORG_ID = anOrganization.parenT_ORG_ID;
-          this.org_disableAdd = false;
-
         }
-        else{
-          res =this._filter_orgName(anOrganization as string);
-          this.org_disableAdd = true;
+        // pass user input as a string array to the next function in the pipe -> in this case the map function
+        return [usrInput];
+      }),
+      map(pipedValue => {
+        let res:Array<any> = [];
+        const val = typeof pipedValue ==='string';
 
+        if (!val){ 
+          // if value is not string that means that one of two thing have happened:
+          // 1) we need to display initial drop down suggestions based on initial people query results
+          // 2) the user has selected an option from the drop down menu in which case the suggestions array is empty so we return it
+          return this.orgSuggestions;
         }
-        return res;
-      }
+        else if (typeof pipedValue === 'string' && pipedValue.trim().length >= 2 && this.org_index){
+          // we already have a downloaded index; just pull out the matching suggestions
+          // and return the array of suggestions for the dropdown menu 
+          this.orgSuggestions = (this.org_index as SDSIndex).getSuggestions(pipedValue);
+          return this.orgSuggestions;
+        }
+        else if (typeof pipedValue === 'string' && pipedValue.trim().length < 2 && this.org_index){
+          // if the input was cleared, clear out our index and suggestions
+          this.org_index = null;
+          this.orgSuggestions = [];
+          return this.orgSuggestions;
+        }
 
-      )
+        // if number of characters entered are less than two return an empty array
+        return [];
+
+        
+      })
 
     );
-
-  }
-
-  displaySelectedOrganization(org:NistOrganization):string{
-    var res = org && org.orG_Name? org.orG_Name : '';
-    return res;
 
   }
 

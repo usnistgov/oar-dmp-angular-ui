@@ -4,10 +4,6 @@
   
   <div class="dmp-frm-container">
    
-    <p *ngIf="pncErrorMessage" class="error-msg">{{ pncErrorMessage }}</p>
-    <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>
-
-
     <p><span class="requiredField" >*</span> Required fields to add a contributor</p>
 
     <div class="dmp-frm-row">
@@ -71,7 +67,7 @@
                           [matAutocomplete]="dmp_contributor">
                     <mat-autocomplete 
                       #dmp_contributor="matAutocomplete"
-                      [displayWith]="displaySelectedContact"
+                      [displayWith]="displaySelectedSDSuggestion"
                     >
                       <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
                         {{contrib.display}}
@@ -278,10 +274,10 @@
                     >
               <mat-autocomplete 
                 #nistOrganization="matAutocomplete"
-                [displayWith]="displaySelectedOrganization"
+                [displayWith]="displaySelectedSDSuggestion"
               >
                 <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
-                  {{option.orG_Name}}
+                  {{option.display}}
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
