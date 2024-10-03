@@ -142,9 +142,6 @@ export class PersonelComponent implements OnInit {
   org_columnsSchema: any = ORG_COL_SCHEMA;
   fltr_NIST_Org!: Observable<SDSuggestion[]>;
 
-  //List of all nist organizations from NIST directory
-  nistOrganizations: Array<NistOrganization> = [];
-
   // ================================  
 
   orG_ID:number = 0;
@@ -1002,42 +999,13 @@ export class PersonelComponent implements OnInit {
     this.org_clearTable();
   }
 
-  // ==================================================
-  // ==================================================
-  // ==================================================
 
    /**
    * This function gets all NIST organizations by querying people service
    * 
    */
-   getNistOrganizations(){    
-    this.nistOrganizations = [];
-    //TODO implement organizations search here - commented out old code
-    /**
-    // preload list of all OUs by making a call to people service
-    this.apiService.get_NISTOUDivisionGroup().then(
-      (DivsAndGroups:any[])=>{
-        if(DivsAndGroups){
-          for(let i=0; i < DivsAndGroups.length; i++){
-            // Cache the results taking only ou Id and full name
-            this.nistOrganizations.push(
-              {
-                orG_ID:DivsAndGroups[i].orG_ID,
-                orG_Name:DivsAndGroups[i].orG_Name,
-                orG_CD:DivsAndGroups[i].orG_CD,
-                orG_LVL_ID:DivsAndGroups[i].orG_LVL_ID,
-                orG_ACRNM:DivsAndGroups[i].orG_ACRNM,
-                orG_SHORT_NAME:DivsAndGroups[i].orG_SHORT_NAME,
-                parenT_ORG_CD:DivsAndGroups[i].parenT_ORG_CD,
-                parenT_ORG_ID:DivsAndGroups[i].parenT_ORG_ID
-              }
-            );
-            
-          }
-        }
-      }
-    );
-    */ 
+   getNistOrganizations(){ 
+
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
       switchMap(usrInput => {
         const val = typeof usrInput === 'string'; //checks the type of input value
@@ -1300,60 +1268,6 @@ export class PersonelComponent implements OnInit {
     this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
   }
 
-  private _filter_orgName(nistOrg:string): NistOrganization[] {
-    // add button should be disabled while filtering is being performed
-    // and should be enabled only when an existing organization has been selected
-    this.org_disableAdd = true;
-
-    const filterValues = nistOrg.toLowerCase()
-    var searchRes;
-    searchRes = this.nistOrganizations.filter(      
-      // (option:any) => option.orG_Name.toLowerCase().includes(filterValues) -> searches anywhere 
-      // Perform filter on name starting with the input provided
-      (option:any) => option.orG_Name.toLowerCase().startsWith(filterValues)
-    );
-
-    return searchRes;
-
-  }
-
-  private _filter_orgID(nistOrg:number): NistOrganization[] {
-    // add button should be disabled while filtering is being performed
-    // and should be enabled only when an existing organization has been selected
-    this.org_disableAdd = true;
-
-    var searchRes;
-    searchRes = this.nistOrganizations.filter(
-      (option:any) => option.orG_ID === nistOrg
-    );
-
-    return searchRes;
-
-  }
-  /**
-
-  // this function gets executed on iput change and on focus change
-  p_filter(){
-    
-    let a = this.personelForm.controls['primary_NIST_contact'].value;
-    if (a.length > 1){
-      // search if two or more characters were entered
-      console.log(a);
-      this.apiService.get_NIST_Personnel(a).subscribe(
-        (value: any[]) => {
-          for(var i=0; i<value.length; i++) {
-            let temp_val = value[i];
-            let temp2=2;
-          }
-        }
-      );
-    }
-  }
-     */
-
-
-
-
-
+  
 
 }
