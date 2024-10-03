@@ -923,6 +923,12 @@ export class PersonelComponent implements OnInit {
     
     if (this.contributorOption == "NIST"){
       newRow.institution = this.contributorOption;
+      // check if the new contributor is a primary contact and if so find their OU
+      if (this.primaryContactSelection === 'Yes'){
+        
+        let orgs = this.getAssociatedOrganizations(this.crntContribGroupOrgID);
+        this.org_addRow();
+      }
     }
     else{
       newRow.institution = this.externalContributor.institution;
@@ -933,7 +939,7 @@ export class PersonelComponent implements OnInit {
     this.dmpContributors = [newRow, ...this.dmpContributors];
 
     //update changes made to the table in the personel form
-    this.onDoneClick(newRow);
+    this.onDoneClick(newRow);    
 
     this.resetContributorFields();
 
@@ -1016,97 +1022,7 @@ export class PersonelComponent implements OnInit {
            * If it's a division then we set group to null
            * If it's a lab then division and group are null
            */
-
-          // Make async call to get parent organizations of the corganization selected by the user
-          return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(                
-            map((recs:any) =>{
-              let index:number =0;
-              // loop through the list of parent organizations with first
-              // element in the array being the organization that was selected by the user
-              while(index < recs?.length ){
-                console.log(recs[index]);
-                let anOrganization = recs[index];
-                /**
-                 * Case 1:
-                 * User selected a group from dropdown menu
-                 * In this case orG_LVL_ID = 3
-                 */
-                if (anOrganization.orG_LVL_ID === 3){
-                  this.orgGroupNumber = anOrganization.orG_CD;
-                  this.orgGroupOrgID = anOrganization.orG_ID;
-                  this.orgGroupName = anOrganization.orG_Name;
-
-                  index++;
-                  let divisionData = recs[index];
-
-                  this.orgDivisionNumber = divisionData.orG_CD;
-                  this.orgDivisionOrgID = divisionData.orG_ID;      
-                  this.orgDivisionName = divisionData.orG_Name;
-
-                  // find parent of the parent info
-                  index++;
-                  let OUData = recs[index];
-
-                  this.orgOuNumber = OUData.orG_CD;
-                  this.orgOuOrgID = OUData.orG_ID;
-                  this.orgOuName = OUData.orG_Name;
-                  break;
-                } 
-                /**
-                 * Case 2:
-                 * User selected a division from dropdown menu
-                 * In this case orG_LVL_ID = 2 or 4
-                 */               
-                else if(
-                  anOrganization.orG_LVL_ID === 2 ||
-                  anOrganization.orG_LVL_ID === 4
-                ){
-
-                  this.orgGroupNumber = null;
-                  this.orgGroupOrgID = null;
-                  this.orgGroupName = null;
-
-                  this.orgDivisionNumber = anOrganization.orG_CD;
-                  this.orgDivisionOrgID = anOrganization.orG_ID;
-                  this.orgDivisionName = anOrganization.orG_Name
-
-                  index++;
-                  let OUData = recs[index];
-
-                  this.orgOuNumber = OUData.orG_CD;
-                  this.orgOuOrgID = OUData.orG_ID;
-                  this.orgOuName = OUData.orG_Name;
-                  break;
-                }
-                else{
-                  /**
-                   * Case 3:
-                   * User selected a top level organization from dropdown menu
-                   * In this case parenT_ORG_CD is null
-                   */
-                  this.orgGroupNumber = null;
-                  this.orgGroupOrgID = null;
-                  this.orgGroupName = null;
-      
-                  this.orgDivisionNumber = null;
-                  this.orgDivisionOrgID = null;
-                  this.orgDivisionName = null;
-      
-                  this.orgOuNumber = anOrganization.orG_CD;
-                  this.orgOuOrgID = anOrganization.orG_ID;  
-                  this.orgOuName = anOrganization.orG_Name;
-                  break;
-      
-                }
-              }
-              this.org_disableAdd = false;
-              // clear sarch suggestions since the user has selected an option from drop down menu
-              this.org_index = null;
-              this.orgSuggestions = []
-              console.log(recs);
-              return []
-            })
-          )
+          return this.getAssociatedOrganizations(usrInput.id);
 
         }
         if (usrInput.trim().length >= 2){
@@ -1163,6 +1079,100 @@ export class PersonelComponent implements OnInit {
 
     );
 
+  }
+
+  private getAssociatedOrganizations(orgID:number){
+    // Make async call to get parent organizations of the corganization selected by the user
+    return this.sdsvc.getParentOrgs(orgID, true).pipe(                
+      map((recs:any) =>{
+        let index:number =0;
+        // loop through the list of parent organizations with first
+        // element in the array being the organization that was selected by the user
+        while(index < recs?.length ){
+          console.log(recs[index]);
+          let anOrganization = recs[index];
+          /**
+           * Case 1:
+           * User selected a group from dropdown menu
+           * In this case orG_LVL_ID = 3
+           */
+          if (anOrganization.orG_LVL_ID === 3){
+            this.orgGroupNumber = anOrganization.orG_CD;
+            this.orgGroupOrgID = anOrganization.orG_ID;
+            this.orgGroupName = anOrganization.orG_Name;
+
+            index++;
+            let divisionData = recs[index];
+
+            this.orgDivisionNumber = divisionData.orG_CD;
+            this.orgDivisionOrgID = divisionData.orG_ID;      
+            this.orgDivisionName = divisionData.orG_Name;
+
+            // find parent of the parent info
+            index++;
+            let OUData = recs[index];
+
+            this.orgOuNumber = OUData.orG_CD;
+            this.orgOuOrgID = OUData.orG_ID;
+            this.orgOuName = OUData.orG_Name;
+            break;
+          } 
+          /**
+           * Case 2:
+           * User selected a division from dropdown menu
+           * In this case orG_LVL_ID = 2 or 4
+           */               
+          else if(
+            anOrganization.orG_LVL_ID === 2 ||
+            anOrganization.orG_LVL_ID === 4
+          ){
+
+            this.orgGroupNumber = null;
+            this.orgGroupOrgID = null;
+            this.orgGroupName = null;
+
+            this.orgDivisionNumber = anOrganization.orG_CD;
+            this.orgDivisionOrgID = anOrganization.orG_ID;
+            this.orgDivisionName = anOrganization.orG_Name
+
+            index++;
+            let OUData = recs[index];
+
+            this.orgOuNumber = OUData.orG_CD;
+            this.orgOuOrgID = OUData.orG_ID;
+            this.orgOuName = OUData.orG_Name;
+            break;
+          }
+          else{
+            /**
+             * Case 3:
+             * User selected a top level organization from dropdown menu
+             * In this case parenT_ORG_CD is null
+             */
+            this.orgGroupNumber = null;
+            this.orgGroupOrgID = null;
+            this.orgGroupName = null;
+
+            this.orgDivisionNumber = null;
+            this.orgDivisionOrgID = null;
+            this.orgDivisionName = null;
+
+            this.orgOuNumber = anOrganization.orG_CD;
+            this.orgOuOrgID = anOrganization.orG_ID;  
+            this.orgOuName = anOrganization.orG_Name;
+            break;
+
+          }
+        }
+        this.org_disableAdd = false;
+        // clear sarch suggestions since the user has selected an option from drop down menu
+        this.org_index = null;
+        this.orgSuggestions = []
+        console.log(recs);
+        return []
+      })
+    )
+    
   }
 
   org_removeSelectedRows() {
