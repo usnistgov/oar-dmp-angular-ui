@@ -81,10 +81,10 @@
 
                 </td>
               </tr>
-              <tr>
+              <!-- <tr>
                 <td class="cell-top">ORCID</td>
                 <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
-              </tr>
+              </tr> -->
               <tr>
                 <td>Role</td>
                 <td>
@@ -196,14 +196,14 @@
               <!-- table cell display default cell display -->
               <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
                 <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-                <ng-container *ngSwitchCase="'isSelected'">
+                <ng-container *ngSwitchCase="'isSelected'" >
                   <mat-checkbox class="dmp_chk_bx"
                     (change)="element.isSelected = $event.checked"
                   ></mat-checkbox>
                 </ng-container>
       
                 <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-                <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                <div class="btn-edit" *ngSwitchCase="'isEdit'" style="width: 65px;">
                   <span *ngIf="element.institution !== 'NIST'">
                     <!--
                       Display edit button only for non NIST contacts

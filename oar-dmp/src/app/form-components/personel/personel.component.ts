@@ -16,6 +16,8 @@ import { ResponsibleOrganizations } from 'src/app/types/responsible-organization
 import {Observable, switchMap, tap} from 'rxjs';
 
 import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
+
+import * as _ from 'lodash';
 // import { error } from 'console';
 
 interface primaryContactValues {
@@ -35,6 +37,12 @@ const COLUMNS_SCHEMA = [
     type: 'isSelected',
     label: '',
   },
+  // Edit button column
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
   {
     key: 'firstName',
     type: 'text',
@@ -46,10 +54,20 @@ const COLUMNS_SCHEMA = [
     label: 'Surname',
   },
   {
+    key: 'primary_contact',
+    type: 'text',
+    label: 'Primary Contact',
+  },
+  {
     key: 'institution',
     type: 'text',
     label: 'Institution',
   },
+  {
+    key: 'groupNumber',
+    type: 'text',
+    label: 'ORG ID',
+  },  
   {
     key: 'role',
     type: 'text',
@@ -65,17 +83,8 @@ const COLUMNS_SCHEMA = [
     type: 'text',
     label: 'ORCID',
   },
-  {
-    key: 'groupNumber',
-    type: 'text',
-    label: 'ORG ID',
-  },
-  // Edit button column
-  {
-    key: 'isEdit',
-    type: 'isEdit',
-    label: '',
-  },
+  
+  
 ]
 
 interface dmpOgranizations {
@@ -179,8 +188,8 @@ export class PersonelComponent implements OnInit {
   dmpContributors: DataContributor[] = []
 
   // flags to determine if select drop down has been used
-  sel_NIST_Contributor: boolean = false; 
-  sel_NIST_ContribRole: boolean = false;
+  // sel_NIST_Contributor: boolean = false; 
+  // sel_NIST_ContribRole: boolean = false;
   
   sel_EXT_Contributor: boolean = false;
   sel_EXT_ContribRole: boolean = false;
@@ -382,22 +391,6 @@ export class PersonelComponent implements OnInit {
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
 
-  pncOrcidChange(){
-    // set/reset NIST primary contact ORCID warning and error messages message if ORCID data is entered/changed
-    this.pncOrcidWarn = "";
-    this.pncErrorMessage = "";
-    let orcid = this.personelForm.value['pcOrcid'];
-    if (orcid.length > 0){
-      if(!this.isValidPrimaryContactOrcid()){
-        this.pncErrorMessage = PersonelComponent.ORCID_ERROR;
-      }
-    }
-    else {
-      this.pncOrcidWarn = PersonelComponent.NIST_ORCID_WARNING;
-    }
-
-  }
-
   getNistContactsFromAPI(){
     // ---------------------------------------------------------------------------------------------
     //                              NIST CONTRIBUTOR
@@ -444,16 +437,18 @@ export class PersonelComponent implements OnInit {
               this.crntContribOuNumber = rec.ouNumber;
               this.crntContribOuName = rec.ouName;
 
-              this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
+              // this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
 
-              if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-                // If contributor role has been selected and nist contributor has been picked then allow
-                // for adding a contributor to the table
-                this.disableAdd=false;
-              }
+              // if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+              //   // If contributor role has been selected and nist contributor has been picked then allow
+              //   // for adding a contributor to the table
+              //   this.disableAdd=false;
+              // }
               // clear sarch suggestions since the user has selected an option from drop down menu
               this.sd_index = null;
               this.suggestions = [];
+              // enable adding of contact to contributors list
+              this.disableAdd=false;
               // retuns an empty array to the next function in the pipe -> in this case a map function
               return this.suggestions;
             })
@@ -538,6 +533,12 @@ export class PersonelComponent implements OnInit {
     
     if (e === 'NIST'){
       this.resetPrimaryContact();
+      // disable add button to make sure that the user has selected a contributor from the drop-down menu
+      this.disableAdd=true;
+    }
+    else{
+      // enable add button and perform user input check manually to make sure that all required metadata has been entered
+      this.disableAdd=false;
     }
 
   }  
@@ -552,11 +553,11 @@ export class PersonelComponent implements OnInit {
     // select role for the contributors from a drop down list
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles)[0].value;
 
-    this.sel_NIST_ContribRole = true; // indicates that drop down select has been performed
+    // this.sel_NIST_ContribRole = true; // indicates that drop down select has been performed
 
-    if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-      this.disableAdd=false;
-    }
+    // if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
+    //   this.disableAdd=false;
+    // }
 
   }
 
@@ -621,7 +622,6 @@ export class PersonelComponent implements OnInit {
 
   onContributorChange(value:any){    
     this.contributorRadioSel=value.id;
-    this.disableAdd=true;    
     this.resetContributorFields();
   }
   
@@ -703,10 +703,6 @@ export class PersonelComponent implements OnInit {
       this.errorMessage = "Name can't be empty";
       return;
     }
-    else if(!e.role.length) {
-      this.errorMessage = "Role can't be empty";
-      return;
-    }
     else if(!e.lastName.length) {
       this.errorMessage = "Surname can't be empty";
       return;
@@ -714,7 +710,8 @@ export class PersonelComponent implements OnInit {
     else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
       this.errorMessage = PersonelComponent.ORCID_ERROR;
       return;
-    }    
+    }
+
 
     this.errorMessage = '';
     this.resetTable();
@@ -725,6 +722,39 @@ export class PersonelComponent implements OnInit {
         }        
         if (element.orcid.length == 0){
           this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
+        
+        // if contributor that we're adding/edditing is external by default the divisionOrgID will be 0 and other institutional values need to be empty too
+        // so we can use that to make sure that certin fields if manually edited remain empty or within default values
+        // for example assigning primary contact as yes to an external contributor should not be allowed
+
+        if(element.divisionOrgID === 0){
+
+          element.groupOrgID = 0;
+          element.groupNumber ='';
+          element.groupName ='';
+
+          element.divisionOrgID = 0;
+          element.divisionNumber ='';
+          element.divisionName ='';
+
+          element.ouOrgID = 0;
+          element.ouNumber ='';
+          element.ouName ='';
+
+          // prevent users erroniously assigning primary contact to an external contributor
+          element.primary_contact = 'No'; 
+
+          // make sure that role is from accepted values          
+          let editedRole = [];                    
+          editedRole = _.filter(this.contributorRoles,{value:String(element.role)}); //search roles on value 
+          if (editedRole.length === 0){
+            //if search yielded no results set role to an empty string
+            element.role = '';
+          }
+            
+          
+
         }
         // re populate contributors array
         this.personelForm.value['contributors'].push({
@@ -780,7 +810,7 @@ export class PersonelComponent implements OnInit {
       }
       else{
         this.errorMessage = "Missing contributor First Name";
-        this.extContribRole =  "";
+        // this.extContribRole =  "";
         return;
       }
 
@@ -792,7 +822,7 @@ export class PersonelComponent implements OnInit {
       }
       else{
         this.errorMessage = "Missing contributor Last Name";
-        this.extContribRole =  "";
+        // this.extContribRole =  "";
         return;
       }
 
@@ -801,7 +831,7 @@ export class PersonelComponent implements OnInit {
        */
       if (!(this.externalContributor.institution.match(regex))){
         this.errorMessage = "Missing contributor Institution / Affiliation";
-        this.extContribRole =  "";
+        // this.extContribRole =  "";
         return;
       }
 
@@ -812,8 +842,8 @@ export class PersonelComponent implements OnInit {
         this.crntContribEmail = this.externalContributor.emailAddress;
       }
       else{
-        this.errorMessage = "Missing contributor First Name";
-        this.extContribRole =  "";
+        this.errorMessage = "Missing contributor e-mail";
+        // this.extContribRole =  "";
         return;
       }
 
@@ -836,6 +866,7 @@ export class PersonelComponent implements OnInit {
       this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
     }
 
+    // We're using email as an id for a person assuming that each contributor will have unique email address
     var filterOnEmail = this.dmpContributors.filter(      
       (member: any) => member.emailAddress.toLowerCase() === this.crntContribEmail.toLowerCase()
     );
@@ -847,7 +878,7 @@ export class PersonelComponent implements OnInit {
       this.disableAdd = false;
       this.disableClear = false;
       this.disableRemove = false;
-      this.extContribRole =  "";
+      // this.extContribRole =  "";
       return;
 
     }
@@ -858,8 +889,8 @@ export class PersonelComponent implements OnInit {
     this.disableRemove=true;
 
     //reset dropdown selection flags
-    this.sel_NIST_Contributor = false;
-    this.sel_NIST_ContribRole = false;
+    // this.sel_NIST_Contributor = false;
+    // this.sel_NIST_ContribRole = false;
 
     const newRow = {
       
@@ -942,8 +973,8 @@ export class PersonelComponent implements OnInit {
   selExtContributorRole(){
     // select role for the contributors from a drop down list
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
-    this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
-    this.disableAdd=false;
+    // this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
+    // this.disableAdd=false;
   }
 
   resetPersonnelForm(){
