@@ -453,8 +453,12 @@ export class PersonelComponent implements OnInit {
               this.disableAdd=false;
               // retuns an empty array to the next function in the pipe -> in this case a map function
               return this.suggestions;
+            }),
+            catchError( err => {
+              console.log('Failed to pull people record'+err)
+              return []
             })
-          );
+          )
         }
 
         if (usrInput.trim().length >= this.minPromptLength){
@@ -473,6 +477,10 @@ export class PersonelComponent implements OnInit {
                       this.suggestions = (this.sd_index as SDSIndex).getSuggestions(usrInput);
                   }
                   return this.suggestions;
+                }),
+                catchError( err => {
+                  console.log('Failed to pull people index for "'+usrInput+'"'+err)
+                  return [];
                 })
                 
               )
@@ -1075,6 +1083,10 @@ export class PersonelComponent implements OnInit {
         return [];
 
         
+      }),
+      catchError( err => {
+        console.log('Failed to pull orgs index'+err)
+        return [];
       })
 
     );
@@ -1170,6 +1182,10 @@ export class PersonelComponent implements OnInit {
         this.orgSuggestions = []
         console.log(recs);
         return []
+      }),
+      catchError( err => {
+        console.log('Failed to pull orgs for index "'+orgID+'"'+err)
+        return [];
       })
     )
     
