@@ -393,6 +393,8 @@ export class PersonelComponent implements OnInit {
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
 
+  presonID: number = 0;
+
   getNistContactsFromAPI(){
     // ---------------------------------------------------------------------------------------------
     //                              NIST CONTRIBUTOR
@@ -412,6 +414,7 @@ export class PersonelComponent implements OnInit {
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
 
           // returning result made to an async call
+          this.presonID = usrInput.id;
           return usrInput.getRecord().pipe(
             map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
               this.crntContribName = rec.firstName;
@@ -934,8 +937,101 @@ export class PersonelComponent implements OnInit {
       // check if the new contributor is a primary contact and if so find their OU
       if (this.primaryContactSelection === 'Yes'){
         
-        let orgs = this.getAssociatedOrganizations(this.crntContribGroupOrgID);
-        this.org_addRow();
+        this.sdsvc.getOrgsFor(this.presonID).subscribe({
+          next: (recs:any) =>{
+            let index:number =0;
+            // loop through the list of parent organizations with first
+            // element in the array being the organization that was selected by the user
+            while(index < recs?.length ){
+              console.log(recs[index]);
+              let anOrganization = recs[index];
+              /**
+               * Case 1:
+               * User selected a group from dropdown menu
+               * In this case orG_LVL_ID = 3
+               */
+              if (anOrganization.orG_LVL_ID === 3){
+                this.orgGroupNumber = anOrganization.orG_CD;
+                this.orgGroupOrgID = anOrganization.orG_ID;
+                this.orgGroupName = anOrganization.orG_Name;
+    
+                index++;
+                let divisionData = recs[index];
+    
+                this.orgDivisionNumber = divisionData.orG_CD;
+                this.orgDivisionOrgID = divisionData.orG_ID;      
+                this.orgDivisionName = divisionData.orG_Name;
+    
+                // find parent of the parent info
+                index++;
+                let OUData = recs[index];
+    
+                this.orgOuNumber = OUData.orG_CD;
+                this.orgOuOrgID = OUData.orG_ID;
+                this.orgOuName = OUData.orG_Name;
+                break;
+              } 
+              /**
+               * Case 2:
+               * User selected a division from dropdown menu
+               * In this case orG_LVL_ID = 2 or 4
+               */               
+              else if(
+                anOrganization.orG_LVL_ID === 2 ||
+                anOrganization.orG_LVL_ID === 4
+              ){
+    
+                this.orgGroupNumber = null;
+                this.orgGroupOrgID = null;
+                this.orgGroupName = null;
+    
+                this.orgDivisionNumber = anOrganization.orG_CD;
+                this.orgDivisionOrgID = anOrganization.orG_ID;
+                this.orgDivisionName = anOrganization.orG_Name
+    
+                index++;
+                let OUData = recs[index];
+    
+                this.orgOuNumber = OUData.orG_CD;
+                this.orgOuOrgID = OUData.orG_ID;
+                this.orgOuName = OUData.orG_Name;
+                break;
+              }
+              else{
+                /**
+                 * Case 3:
+                 * User selected a top level organization from dropdown menu
+                 * In this case parenT_ORG_CD is null
+                 */
+                this.orgGroupNumber = null;
+                this.orgGroupOrgID = null;
+                this.orgGroupName = null;
+    
+                this.orgDivisionNumber = null;
+                this.orgDivisionOrgID = null;
+                this.orgDivisionName = null;
+    
+                this.orgOuNumber = anOrganization.orG_CD;
+                this.orgOuOrgID = anOrganization.orG_ID;  
+                this.orgOuName = anOrganization.orG_Name;
+                break;
+    
+              }
+            }
+            this.org_disableAdd = false;
+            // clear sarch suggestions since the user has selected an option from drop down menu
+            this.org_index = null;
+            this.orgSuggestions = []
+            this.org_addRow();
+            console.log(recs);
+            // return []
+          },
+          error: (err: any) => {
+            console.log(err);
+            
+          }
+        })
+        
       }
     }
     else{
