@@ -20,6 +20,8 @@ import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
 import * as _ from 'lodash';
 // import { error } from 'console';
 
+// used for dropdown menu containing values "Yes" and "No" to indicate
+// wheter a NIST DMP contributor is a primary contact
 interface primaryContactValues {
   id: number;
   value: string;
@@ -31,7 +33,7 @@ interface DataContributor extends Contributor{
 }
 
 // Schema for Contributors data table
-const COLUMNS_SCHEMA = [
+const CONTRIB_COL_SCHEMA = [
   {
     key: 'isSelected',
     type: 'isSelected',
@@ -124,6 +126,8 @@ const ORG_COL_SCHEMA = [
   },
 ]
 
+const NOT_PRIMARY_CONTACT: string = '1';
+
 @Component({
   selector: 'app-personel',
   templateUrl: './personel.component.html',
@@ -142,16 +146,6 @@ export class PersonelComponent implements OnInit {
   org_columnsSchema: any = ORG_COL_SCHEMA;
   fltr_NIST_Org!: Observable<SDSuggestion[]>;
 
-  // ================================  
-
-  orG_ID:number = 0;
-  orG_Name:string = "";
-  orG_CD:string = "";
-  orG_LVL_ID:number = 0;
-  orG_ACRNM:string = "";
-  orG_SHORT_NAME:string = "";
-  parenT_ORG_CD:number = 0;
-  parenT_ORG_ID:string = "";
 
   // ================================  
   /** 
@@ -164,33 +158,26 @@ export class PersonelComponent implements OnInit {
    * those are top level orgs so they are level 1
    */
   // ================================  
-  orgGroupOrgID!:any;
-  orgGroupNumber!:any;
-  orgGroupName!:any;
+  orgGroupOrgID!:number;
+  orgGroupNumber!:string;
+  orgGroupName!:string;
 
-  orgDivisionOrgID!:any;
-  orgDivisionNumber!:any;
-  orgDivisionName!:any;
+  orgDivisionOrgID!:number;
+  orgDivisionNumber!:string;
+  orgDivisionName!:string;
 
-  orgOuOrgID!:any;
-  orgOuNumber!:any;
-  orgOuName!:any;
+  orgOuOrgID!:number;
+  orgOuNumber!:string;
+  orgOuName!:string;
 
   disableAdd:boolean = true;
   disableClear:boolean = true;
   disableRemove:boolean = true;
 
-  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
-  columnsSchema: any = COLUMNS_SCHEMA;
+  contrib_dispCols: string[] = CONTRIB_COL_SCHEMA.map((col) => col.key);
+  contrib_colSchema: any = CONTRIB_COL_SCHEMA;
   dmpContributors: DataContributor[] = []
-
-  // flags to determine if select drop down has been used
-  // sel_NIST_Contributor: boolean = false; 
-  // sel_NIST_ContribRole: boolean = false;
   
-  sel_EXT_Contributor: boolean = false;
-  sel_EXT_ContribRole: boolean = false;
-
   crntContribName: string = "";
   crntContribSurname: string = "";  
   crntContribOrcid: string = "";
@@ -216,8 +203,9 @@ export class PersonelComponent implements OnInit {
   primaryContact: string = "";
   primaryContactSelection: string = "";
   primaryContactOptions: Array<primaryContactValues> = [{id:0, value:'Yes'}, {id:1, value:'No'}]
+  
 
-  extContribOrcid: string = "";
+  // extContribOrcid: string = "";
   extContribRole: string = "";
 
   pcOrcid: string = "";
@@ -545,7 +533,7 @@ export class PersonelComponent implements OnInit {
     this.contributorOption = e;
     
     if (e === 'NIST'){
-      this.resetPrimaryContact();
+      this.setPrimContact(NOT_PRIMARY_CONTACT);
       // disable add button to make sure that the user has selected a contributor from the drop-down menu
       this.disableAdd=true;
     }
@@ -556,9 +544,9 @@ export class PersonelComponent implements OnInit {
 
   }  
 
-  private resetPrimaryContact(){
+  private setPrimContact(val:string){
     // If we're selecting a nist contact, set by default that NIST conatct will not be a primary contact
-    this.primaryContact = '1'; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
+    this.primaryContact = val; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
     this.selPrimaryContact(); // trigger dropdown selection so by default dropdown will be set to No value
   }
   
@@ -586,9 +574,8 @@ export class PersonelComponent implements OnInit {
    * Resets form fields for Contributor personnel
    */
   private resetContributorFields(){
-    this.resetPrimaryContact();
+    this.setPrimContact(NOT_PRIMARY_CONTACT);
     this.errorMessage = "";
-    this.crntContribRole = "";
 
     // Reset NIST employe / associate fields
     this.crntContribName = "";
@@ -608,18 +595,17 @@ export class PersonelComponent implements OnInit {
     this.crntContribOuNumber = "";
     this.crntContribOuName = "";
 
-    this.crntContribRole = "";
-    
+    this.crntContribRole = "";    
     
     this.nistContribOrcid = "";
     this.nistContribRole = "";
 
-    this.extContribOrcid = "";
-    this.extContribRole = "";
+    // this.extContribOrcid = "";
+    // this.extContribRole = "";
     this.personelForm.controls['dmp_contributor'].setValue("");
 
     // reset external collaborator data fields    
-    this.extContribRole =  "";
+    // this.extContribRole =  "";
     this.externalContributor = {
       
       firstName:"", lastName:"", orcid:"", emailAddress:"", 
@@ -803,7 +789,9 @@ export class PersonelComponent implements OnInit {
 
   addRow(){
 
-    const regex = /[A-Z]/i;
+    const regex = /\b([A-ZÀ-ÿ][-,. ']*)+/i;
+    // email regex taken from https://emailregex.com/index.html
+    const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     /*
     * TODO:
     Rethink when to check input. Currently this function and onDoneClick both perform
@@ -822,7 +810,7 @@ export class PersonelComponent implements OnInit {
         this.crntContribName = this.externalContributor.firstName;
       }
       else{
-        this.errorMessage = "Missing contributor First Name";
+        this.errorMessage = "Missing or invalid contributor First Name";
         // this.extContribRole =  "";
         return;
       }
@@ -834,7 +822,7 @@ export class PersonelComponent implements OnInit {
         this.crntContribSurname = this.externalContributor.lastName;
       }
       else{
-        this.errorMessage = "Missing contributor Last Name";
+        this.errorMessage = "Missing or invalid contributor Last Name";
         // this.extContribRole =  "";
         return;
       }
@@ -843,7 +831,7 @@ export class PersonelComponent implements OnInit {
        * Check institution
        */
       if (!(this.externalContributor.institution.match(regex))){
-        this.errorMessage = "Missing contributor Institution / Affiliation";
+        this.errorMessage = "Missing or invalid contributor Institution / Affiliation";
         // this.extContribRole =  "";
         return;
       }
@@ -851,11 +839,11 @@ export class PersonelComponent implements OnInit {
       /**
        * Check e-mail
        */
-      if (this.externalContributor.emailAddress.match(regex)){
+      if (this.externalContributor.emailAddress.match(email_regex)){
         this.crntContribEmail = this.externalContributor.emailAddress;
       }
       else{
-        this.errorMessage = "Missing contributor e-mail";
+        this.errorMessage = "Missing or invalid contributor e-mail";
         // this.extContribRole =  "";
         return;
       }
@@ -891,19 +879,9 @@ export class PersonelComponent implements OnInit {
       this.disableAdd = false;
       this.disableClear = false;
       this.disableRemove = false;
-      // this.extContribRole =  "";
       return;
 
     }
-
-    // Disable buttons while the user is inputing new row
-    this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
-
-    //reset dropdown selection flags
-    // this.sel_NIST_Contributor = false;
-    // this.sel_NIST_ContribRole = false;
 
     const newRow = {
       
@@ -939,15 +917,11 @@ export class PersonelComponent implements OnInit {
         
         this.sdsvc.getOrgsFor(this.presonID).subscribe({
           next: (recs:any) =>{
-            this.setResponsibleOrgs(recs);
-            
-            this.org_disableAdd = false;
+            this.setResponsibleOrgs(recs);            
             // clear sarch suggestions since the user has selected an option from drop down menu
             this.org_index = null;
             this.orgSuggestions = []
             this.org_addRow();
-            // console.log(recs);
-            // return []
           },
           error: (err: any) => {
             console.log('Failed to pull orgs for index "'+this.presonID+'"'+err)
@@ -1014,9 +988,9 @@ export class PersonelComponent implements OnInit {
         anOrganization.orG_LVL_ID === 4
       ){
 
-        this.orgGroupNumber = null;
-        this.orgGroupOrgID = null;
-        this.orgGroupName = null;
+        this.orgGroupNumber = "";
+        this.orgGroupOrgID = 0;
+        this.orgGroupName = "";
 
         this.orgDivisionNumber = anOrganization.orG_CD;
         this.orgDivisionOrgID = anOrganization.orG_ID;
@@ -1036,13 +1010,13 @@ export class PersonelComponent implements OnInit {
          * User selected a top level organization from dropdown menu
          * In this case parenT_ORG_CD is null
          */
-        this.orgGroupNumber = null;
-        this.orgGroupOrgID = null;
-        this.orgGroupName = null;
+        this.orgGroupNumber = "";
+        this.orgGroupOrgID = 0;
+        this.orgGroupName = "";
 
-        this.orgDivisionNumber = null;
-        this.orgDivisionOrgID = null;
-        this.orgDivisionName = null;
+        this.orgDivisionNumber = "";
+        this.orgDivisionOrgID = 0;
+        this.orgDivisionName = "";
 
         this.orgOuNumber = anOrganization.orG_CD;
         this.orgOuOrgID = anOrganization.orG_ID;  
@@ -1086,11 +1060,9 @@ export class PersonelComponent implements OnInit {
     this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
   }
 
-  selExtContributorRole(){
+  private selExtContributorRole(){
     // select role for the contributors from a drop down list
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
-    // this.sel_EXT_ContribRole = true; // indicates that drop down select has been performed
-    // this.disableAdd=false;
   }
 
   resetPersonnelForm(){

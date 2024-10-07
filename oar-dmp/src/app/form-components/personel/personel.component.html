@@ -125,7 +125,7 @@
               </tr>
               <tr>
                 <td>Contributor ORCID</td>
-                <td><input type="text" [(ngModel)]="externalContributor.contriorcid"></td>
+                <td><input type="text" [(ngModel)]="externalContributor.orcid"></td>
               </tr>
               <tr>
                 <td class="description">Institution / Affiliation<span class="requiredField" >*</span></td>
@@ -180,7 +180,7 @@
           <!-- 
             iterate over columns 
           -->
-          <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
+          <ng-container [matColumnDef]="col.key" *ngFor="let col of contrib_colSchema">
             <!-- 
               table headers 
             -->
@@ -245,8 +245,8 @@
             </td>
           </ng-container>
         
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-header-row *matHeaderRowDef="contrib_dispCols"></tr>
+          <tr mat-row *matRowDef="let row; columns: contrib_dispCols;"></tr>
         </table>    
       </div>
     </div>
