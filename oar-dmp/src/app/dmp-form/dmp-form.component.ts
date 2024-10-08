@@ -291,10 +291,7 @@ export class DmpFormComponent implements OnInit {
     //   alert("Cannot save DMP. Primary contact last name is empty.")
     //   throw new Error("DMP primary contact last name description is empty");
     // }
-    if (!this.personnelForm.isValidPrimaryContactOrcid()){
-      alert("Cannot save DMP. Invalid ORCID format for the prmary NIST contact. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end")
-      throw new Error("Invalid ORCID for prmary NIST contact.");
-    }
+    
     if (this.id !==null){
       // If id is not null then update dmp with the current id
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(

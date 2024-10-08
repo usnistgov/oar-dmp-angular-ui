@@ -32,6 +32,15 @@ interface DataContributor extends Contributor{
   isEdit: boolean;
 }
 
+interface externalContributor{
+  firstName: string;
+  lastName:string;
+  orcid:string;
+  institution:string;
+  emailAddress:string;
+  role:string;
+}
+
 // Schema for Contributors data table
 const CONTRIB_COL_SCHEMA = [
   {
@@ -127,6 +136,10 @@ const ORG_COL_SCHEMA = [
 ]
 
 const NOT_PRIMARY_CONTACT: string = '1';
+const name_regex = /\b([A-ZÀ-ÿ][-,. ']*)+/i;
+// email regex taken from https://emailregex.com/index.html
+const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 
 @Component({
   selector: 'app-personel',
@@ -200,25 +213,16 @@ export class PersonelComponent implements OnInit {
   nistContribOrcid: string = "";
   nistContribRole: string = "";
 
+  extContribRole: string = "";
+
   primaryContact: string = "";
   primaryContactSelection: string = "";
   primaryContactOptions: Array<primaryContactValues> = [{id:0, value:'Yes'}, {id:1, value:'No'}]
   
-
-  // extContribOrcid: string = "";
-  extContribRole: string = "";
-
-  pcOrcid: string = "";
-
   contributorRoles = ROLES; // sets hardcoded roles values
   
   // fltr_NIST_Contributor!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<SDSuggestion[]>;
-
-  nistPeople!: any;
-  NISTOUDivisionGroup!: Array<any>;
-  initializing!:boolean;
-
 
   // Default values of external contributor
   externalContributor: Contributor={
@@ -236,11 +240,8 @@ export class PersonelComponent implements OnInit {
   contribOrcidWarn: string = ""; //contributor orcid warning message
   errorMessage: string = ""; // contributor error message
   static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
-  static NIST_ORCID_WARNING = "Warning: Missing primary NIST contact's ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
   static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
-
-  people:Array<NistContact> =[] ;
-
+  
   // =====================
   //  for people service
   // =====================
@@ -253,9 +254,7 @@ export class PersonelComponent implements OnInit {
   //for organizations search
   org_index: SDSIndex|null = null;      // the index we will download after the first minPromptLength (2) characters are typed
   orgSuggestions: SDSuggestion[] = []   // the current list of suggested completions matching what has been typed so far.
-
-  parentOrgs: Array<any> = []; // parent organizations
-
+  
   constructor(
     private dropDownService: DropDownSelectService,
     // private apiService: DmpAPIService,
@@ -263,18 +262,13 @@ export class PersonelComponent implements OnInit {
     private sdsvc: StaffDirectoryService
   ) {
     // console.log("PersonelComponent constructor");
-    this.initializing = true;//set this flag the first time the form is loaded
     this.getNistContactsFromAPI();    
     this.getNistOrganizations();
   }
 
   personelForm = this.fb.group(
     {
-      primary_NIST_contact:       ['', Validators.required],
-      pcOrcid:                    [''],
       dmp_contributor:            [''],
-      // pcFirstName:       [''],
-      // pcLastName:        [''],      
       contributors:               [[]],
       nistOrganization:           [],
       organizations:              [[]]
@@ -430,13 +424,6 @@ export class PersonelComponent implements OnInit {
               this.crntContribOuNumber = rec.ouNumber;
               this.crntContribOuName = rec.ouName;
 
-              // this.sel_NIST_Contributor = true; // indicates that drop down select has been performed
-
-              // if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-              //   // If contributor role has been selected and nist contributor has been picked then allow
-              //   // for adding a contributor to the table
-              //   this.disableAdd=false;
-              // }
               // clear sarch suggestions since the user has selected an option from drop down menu
               this.sd_index = null;
               this.suggestions = [];
@@ -554,18 +541,16 @@ export class PersonelComponent implements OnInit {
     // select role for the contributors from a drop down list
     this.crntContribRole = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles)[0].value;
 
-    // this.sel_NIST_ContribRole = true; // indicates that drop down select has been performed
+  }
 
-    // if (this.sel_NIST_ContribRole && this.sel_NIST_Contributor){
-    //   this.disableAdd=false;
-    // }
-
+  selExtContributorRole(){
+    // select role for the contributors from a drop down list
+    this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
   }
 
   selPrimaryContact(){
     // select role for the contributors from a drop down list
     this.primaryContactSelection = this.dropDownService.getDropDownSelection(this.primaryContact, this.primaryContactOptions)[0].value;
-
   } 
   
   private contributorRadioSel: string="";
@@ -600,12 +585,10 @@ export class PersonelComponent implements OnInit {
     this.nistContribOrcid = "";
     this.nistContribRole = "";
 
-    // this.extContribOrcid = "";
-    // this.extContribRole = "";
+    this.extContribRole = "";
+    
     this.personelForm.controls['dmp_contributor'].setValue("");
 
-    // reset external collaborator data fields    
-    // this.extContribRole =  "";
     this.externalContributor = {
       
       firstName:"", lastName:"", orcid:"", emailAddress:"", 
@@ -622,6 +605,7 @@ export class PersonelComponent implements OnInit {
   onContributorChange(value:any){    
     this.contributorRadioSel=value.id;
     this.resetContributorFields();
+    this.resetWarningAndErrorMessages();
   }
   
   removeSelectedRows() {
@@ -672,6 +656,7 @@ export class PersonelComponent implements OnInit {
 
   clearTable(){
     this.dmpContributors = [];
+    this.resetWarningAndErrorMessages();
     this.resetTable();
      // If the table is empty disable clear and remove buttons
     this.disableClear=true;
@@ -685,102 +670,88 @@ export class PersonelComponent implements OnInit {
   }
 
   onDoneClick(e:any){
+    // Perform input validation here when user is editing an exising external contributor data
     this.contribOrcidWarn = "";
-    if (!e.emailAddress.length) {
-      /**
-       * NOTE:
-       * e-mail validation should go here too
-       */
-      this.errorMessage = "e-mail can't be empty";
-      return;
-    }
-    else if(!e.institution.length) {
-      this.errorMessage = "Institution can't be empty";
-      return;
-    }
-    else if(!e.firstName.length) {
-      this.errorMessage = "Name can't be empty";
-      return;
-    }
-    else if(!e.lastName.length) {
-      this.errorMessage = "Surname can't be empty";
-      return;
-    }
-    else if (!this.isORCID(e.orcid) && e.orcid.length > 0){
-      this.errorMessage = PersonelComponent.ORCID_ERROR;
-      return;
+    let externalContrib:externalContributor = {
+      firstName:e.firstName,
+      lastName:e.lastName,
+      orcid:e.orcid,
+      institution:e.institution,
+      emailAddress:e.emailAddress,
+      role:this.crntContribRole
     }
 
+    let isValidExtcontrib = this.validateExternalContributorInput(externalContrib);
+    if (isValidExtcontrib){
+      // add ORCID field
+      this.crntContribOrcid = e.orcid;
+    }
+    else{
+      return;
+    }
 
     this.errorMessage = '';
     this.resetTable();
-    this.contribOrcidWarn = "";
-    this.dmpContributors.forEach((element)=>{
-        if(element.id === e.id){
-          element.isEdit = false;
-        }        
-        if (element.orcid.length == 0){
-          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-        }
-        
-        // if contributor that we're adding/edditing is external by default the divisionOrgID will be 0 and other institutional values need to be empty too
-        // so we can use that to make sure that certin fields if manually edited remain empty or within default values
-        // for example assigning primary contact as yes to an external contributor should not be allowed
-
-        if(element.divisionOrgID === 0){
-
-          element.groupOrgID = 0;
-          element.groupNumber ='';
-          element.groupName ='';
-
-          element.divisionOrgID = 0;
-          element.divisionNumber ='';
-          element.divisionName ='';
-
-          element.ouOrgID = 0;
-          element.ouNumber ='';
-          element.ouName ='';
-
-          // prevent users erroniously assigning primary contact to an external contributor
-          element.primary_contact = 'No'; 
-
-          // make sure that role is from accepted values          
-          let editedRole = [];                    
-          editedRole = _.filter(this.contributorRoles,{value:String(element.role)}); //search roles on value 
-          if (editedRole.length === 0){
-            //if search yielded no results set role to an empty string
-            element.role = '';
-          }
-            
-          
-
-        }
-        // re populate contributors array
-        this.personelForm.value['contributors'].push({
-          
-          firstName:element.firstName, 
-          lastName:element.lastName,
-          orcid: element.orcid,
-          emailAddress: element.emailAddress,
-
-          groupOrgID:element.groupOrgID,
-          groupNumber:element.groupNumber,
-          groupName:element.groupName,
-
-          divisionOrgID:element.divisionOrgID,
-          divisionNumber:element.divisionNumber,
-          divisionName:element.divisionName,
-
-          ouOrgID:element.ouOrgID,
-          ouNumber:element.ouNumber,
-          ouName:element.ouName,
-          
-          primary_contact: element.primary_contact,
-          institution: element.institution,
-          role: element.role
-        });
+    // this.contribOrcidWarn = "";
+    this.dmpContributors.forEach((contributor)=>{
+      if(contributor.id === e.id){
+        contributor.isEdit = false;
       }
-    )
+      
+      // if contributor that we're adding/edditing is external by default the divisionOrgID will be 0 and other institutional values need to be empty too
+      // so we can use that to make sure that certin fields if manually edited remain empty or within default values
+      // for example assigning primary contact as yes to an external contributor should not be allowed
+
+      if(contributor.divisionOrgID === 0){
+
+        contributor.groupOrgID = 0;
+        contributor.groupNumber ='';
+        contributor.groupName ='';
+
+        contributor.divisionOrgID = 0;
+        contributor.divisionNumber ='';
+        contributor.divisionName ='';
+
+        contributor.ouOrgID = 0;
+        contributor.ouNumber ='';
+        contributor.ouName ='';
+
+        // prevent users erroniously assigning primary contact to an external contributor
+        contributor.primary_contact = 'No'; 
+
+        // make sure that role is from accepted values          
+        let editedRole = [];                    
+        editedRole = _.filter(this.contributorRoles,{value:String(contributor.role)}); //search roles on value 
+        if (editedRole.length === 0){
+          //if search yielded no results set role to an empty string
+          contributor.role = '';
+        }
+      }
+      // re populate contributors array
+      this.personelForm.value['contributors'].push({
+        
+        firstName:contributor.firstName, 
+        lastName:contributor.lastName,
+        orcid: contributor.orcid,
+        emailAddress: contributor.emailAddress,
+
+        groupOrgID:contributor.groupOrgID,
+        groupNumber:contributor.groupNumber,
+        groupName:contributor.groupName,
+
+        divisionOrgID:contributor.divisionOrgID,
+        divisionNumber:contributor.divisionNumber,
+        divisionName:contributor.divisionName,
+
+        ouOrgID:contributor.ouOrgID,
+        ouNumber:contributor.ouNumber,
+        ouName:contributor.ouName,
+        
+        primary_contact: contributor.primary_contact,
+        institution: contributor.institution,
+        role: contributor.role
+      });
+    })
 
     this.disableClear=false;
     this.disableRemove=false;
@@ -788,84 +759,42 @@ export class PersonelComponent implements OnInit {
   }
 
   addRow(){
-
-    const regex = /\b([A-ZÀ-ÿ][-,. ']*)+/i;
-    // email regex taken from https://emailregex.com/index.html
-    const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    /*
-    * TODO:
-    Rethink when to check input. Currently this function and onDoneClick both perform
-    input validation. This one does immedeate input validation before adding row to the 
-    GUI table while onDoneClick performs validation of data that is sent to the MongoDB
-    */
-
     if (this.contributorRadioSel === "contributorExternal"){
-      // TODO: regex checks only that the first value is a letter.
-      // More comprehensive input validation is necessary
+      let externalContrib:externalContributor = {
+        firstName:this.externalContributor.firstName,
+        lastName:this.externalContributor.lastName,
+        orcid:this.externalContributor.orcid,
+        institution:this.externalContributor.institution,
+        emailAddress:this.externalContributor.emailAddress,
+        role:this.crntContribRole
+      }
 
-      /**
-       * Check first name
-       */
-      if (this.externalContributor.firstName.match(regex)){        
-        this.crntContribName = this.externalContributor.firstName;
+      let isValidExtcontrib = this.validateExternalContributorInput(externalContrib);
+      if (isValidExtcontrib){
+        // add ORCID field
+        this.crntContribOrcid = this.externalContributor.orcid;
       }
       else{
-        this.errorMessage = "Missing or invalid contributor First Name";
-        // this.extContribRole =  "";
         return;
       }
-
-      /**
-       * Check last name
-       */
-      if (this.externalContributor.lastName.match(regex)){
-        this.crntContribSurname = this.externalContributor.lastName;
-      }
-      else{
-        this.errorMessage = "Missing or invalid contributor Last Name";
-        // this.extContribRole =  "";
-        return;
-      }
-
-      /**
-       * Check institution
-       */
-      if (!(this.externalContributor.institution.match(regex))){
-        this.errorMessage = "Missing or invalid contributor Institution / Affiliation";
-        // this.extContribRole =  "";
-        return;
-      }
-
-      /**
-       * Check e-mail
-       */
-      if (this.externalContributor.emailAddress.match(email_regex)){
-        this.crntContribEmail = this.externalContributor.emailAddress;
-      }
-      else{
-        this.errorMessage = "Missing or invalid contributor e-mail";
-        // this.extContribRole =  "";
-        return;
-      }
-
-      // add ORCID field
-      this.crntContribOrcid = this.externalContributor.orcid;      
+      
     }
     else{
       //we're adding a nist contributor so assign orcid text field
       this.crntContribOrcid = this.nistContribOrcid;
+      // check ORCID
+      const isORCID = this.isORCID(this.crntContribOrcid);
+        
+      if (!isORCID && this.crntContribOrcid.length>0){
+        this.errorMessage = PersonelComponent.ORCID_ERROR;
+        return;
+      }
+      else if(this.crntContribOrcid.length == 0){
+        this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+      }
     }
 
-    // check ORCID
-    const isORCID = this.isORCID(this.crntContribOrcid);
-      
-    if (!isORCID && this.crntContribOrcid.length>0){
-      this.errorMessage = PersonelComponent.ORCID_ERROR;
-      return;
-    }
-    else if(this.crntContribOrcid.length == 0){
-      this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-    }
+    
 
     // We're using email as an id for a person assuming that each contributor will have unique email address
     var filterOnEmail = this.dmpContributors.filter(      
@@ -944,6 +873,68 @@ export class PersonelComponent implements OnInit {
 
     this.resetContributorFields();
 
+  }
+
+  private validateExternalContributorInput(extContrib:externalContributor):boolean{
+    /**
+     * Check first name
+     */
+    if (extContrib.firstName.match(name_regex)){        
+      this.crntContribName = extContrib.firstName;
+    }
+    else{
+      this.errorMessage = "Missing or invalid contributor First Name";
+      return false;
+    }
+
+    /**
+     * Check last name
+     */
+    if (extContrib.lastName.match(name_regex)){
+      this.crntContribSurname = extContrib.lastName;
+    }
+    else{
+      this.errorMessage = "Missing or invalid contributor Last Name";
+      return false;
+    }
+
+    /**
+     * Check institution
+     */
+    if (!(extContrib.institution.match(name_regex))){
+      this.errorMessage = "Missing or invalid contributor Institution / Affiliation";
+      return false;
+    }
+
+    /**
+     * Check e-mail
+     */
+    if (extContrib.emailAddress.match(email_regex)){
+      this.crntContribEmail = extContrib.emailAddress;
+    }
+    else{
+      this.errorMessage = "Missing or invalid contributor e-mail";
+      return false;
+    }
+
+    // check ORCID
+    const isORCID = this.isORCID(extContrib.orcid);
+      
+    if (!isORCID && extContrib.orcid.length>0){
+      this.errorMessage = PersonelComponent.ORCID_ERROR;
+      return false;
+    }
+    else if(extContrib.orcid.length == 0){
+      this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+    }
+
+    return true;
+
+  }
+
+  private resetWarningAndErrorMessages(){
+    this.contribOrcidWarn = "";
+    this.errorMessage = "";
   }
 
   private setResponsibleOrgs(orgs:any){
@@ -1027,16 +1018,6 @@ export class PersonelComponent implements OnInit {
     }
   }
 
-  isValidPrimaryContactOrcid(){    
-    let orcid = this.personelForm.value['pcOrcid'];
-    if (orcid.length > 0){
-      return this.isORCID(orcid);
-    }
-    else{
-      return true;
-    }
-  }
-
   removeRow(id:any) {
     // select word from the specific id
     var selWord = this.dmpContributors.filter((u) => u.id === id);    
@@ -1058,11 +1039,7 @@ export class PersonelComponent implements OnInit {
 
     // remove from the display table
     this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
-  }
-
-  private selExtContributorRole(){
-    // select role for the contributors from a drop down list
-    this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
+    this.resetWarningAndErrorMessages();
   }
 
   resetPersonnelForm(){
@@ -1073,14 +1050,8 @@ export class PersonelComponent implements OnInit {
     this.externalContributor.lastName = "";
     this.externalContributor.orcid = "";
     this.externalContributor.institution = "";
-    this.extContribRole = "";
     this.externalContributor.emailAddress = "";
     this.contributorRadioSel = "";
-    this.personelForm.patchValue({
-      pcFirstName:       "",
-      pcLastName:        "",
-      pcOrcid:       ""
-    });
     this.clearTable();
     this.org_clearTable();
   }
