@@ -291,10 +291,7 @@ export class DmpFormComponent implements OnInit {
     //   alert("Cannot save DMP. Primary contact last name is empty.")
     //   throw new Error("DMP primary contact last name description is empty");
     // }
-    if (!this.personnelForm.isValidPrimaryContactOrcid()){
-      alert("Cannot save DMP. Invalid ORCID format for the prmary NIST contact. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end")
-      throw new Error("Invalid ORCID for prmary NIST contact.");
-    }
+    
     if (this.id !==null){
       // If id is not null then update dmp with the current id
       this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
@@ -488,12 +485,18 @@ export class DmpFormComponent implements OnInit {
         this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
     }
 
+    
+
+    // ========================== Researchers ============================
+
+    this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
+
     //Organization(s) Associated With This DMP
     if(this.dmp?.organizations !== undefined){
-      let tblHeaders = ["Org ID", "Organization(s)"];
+      let tblHeaders = ["Group Name", "Division Name", "OU Name"];
       let tblData:Array<Array<string>>=[];
       for ( let i=0; i < this.dmp.organizations.length; i++){
-        tblData.push([this.dmp.organizations[i].ORG_ID.toString(), this.dmp.organizations[i].name])
+        tblData.push([this.dmp.organizations[i].groupName, this.dmp.organizations[i].divisionName, this.dmp.organizations[i].ouName])
       }
 
       if (dmpFormat === "PDF")
@@ -502,34 +505,20 @@ export class DmpFormComponent implements OnInit {
         this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
     }
 
-    // ========================== Researchers ============================
-
-    this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-    // Primary NIST Contact
-    if (this.dmp?.primary_NIST_contact !== undefined){
-      let tblHeaders = ["Name", "Surname", "ORCID"];
-      let tblData = [[this.dmp.primary_NIST_contact.firstName, this.dmp.primary_NIST_contact.lastName, this.dmp.primary_NIST_contact.orcid]];
-    
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("Primary NIST Contact", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("Primary NIST Contact", tblHeaders, tblData);
-    }
-
     // Contributors
     if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID"];
+      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID", "ORG ID"];
       let tblData:Array<Array<string>>=[];
 
       for ( let i=0; i < this.dmp.contributors.length; i++){
         let currRow: Array<string> = [];
-        currRow.push(this.dmp.contributors[i].contributor.firstName);
-        currRow.push(this.dmp.contributors[i].contributor.lastName);
+        currRow.push(this.dmp.contributors[i].firstName);
+        currRow.push(this.dmp.contributors[i].lastName);
         currRow.push(this.dmp.contributors[i].institution);
         currRow.push(this.dmp.contributors[i].role);
-        currRow.push(this.dmp.contributors[i].e_mail);
-        currRow.push(this.dmp.contributors[i].contributor.orcid);
+        currRow.push(this.dmp.contributors[i].emailAddress);
+        currRow.push(this.dmp.contributors[i].orcid);
+        currRow.push(this.dmp.contributors[i].groupNumber);
         tblData.push(currRow);
       }
       
@@ -545,11 +534,11 @@ export class DmpFormComponent implements OnInit {
     this.PrintSectionHeading("Keywords / Phrases", "#1A52BC", dmpFormat, this.DMP_PDF);
 
     //Keywords / Phrases
-    if(this.dmp?.keyWords !== undefined){
+    if(this.dmp?.keywords !== undefined){
       let tblHeaders = ["Keywords / Phrases"];
       let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.keyWords.length; i++){
-        tblData.push([this.dmp.keyWords[i]])
+      for ( let i=0; i < this.dmp.keywords.length; i++){
+        tblData.push([this.dmp.keywords[i]])
       }
       
       if (dmpFormat === "PDF")
@@ -736,21 +725,6 @@ export class DmpFormComponent implements OnInit {
 
     this.PrintSectionHeading("Data Preservation and Accessibility", "#1A52BC", dmpFormat, this.DMP_PDF);
 
-    // file path(s) / URL(s) for where data will be saved
-
-    if(this.dmp?.pathsURLs !== undefined){
-      let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
-      let tblData:Array<Array<string>>=[];
-      for ( let i=0; i < this.dmp.pathsURLs.length; i++){
-        tblData.push([this.dmp.pathsURLs[i]])
-      }
-      
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("", tblHeaders, tblData);
-    }
-
     // Preservation Description
     if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
       if (dmpFormat === "PDF")
@@ -766,6 +740,21 @@ export class DmpFormComponent implements OnInit {
       if (dmpFormat === "Markdown")
         this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.dmp?.dataAccess + "  \n");
     }    
+
+    // file path(s) / URL(s) for where data will be saved
+
+    if(this.dmp?.pathsURLs !== undefined){
+      let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
+      let tblData:Array<Array<string>>=[];
+      for ( let i=0; i < this.dmp.pathsURLs.length; i++){
+        tblData.push([this.dmp.pathsURLs[i]])
+      }
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("", tblHeaders, tblData);
+      if (dmpFormat === "Markdown")
+        this.markdownTable("", tblHeaders, tblData);
+    }
 
     // ================================ Export DMP ================================
     

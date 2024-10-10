@@ -11,30 +11,32 @@
   
 <!-- </div> -->
 
+<div class="span_box">
+  <div class="grid-item grid_buttons">
+    <!-- <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
+      Reset
+    </button> -->
+    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+      Save Draft
+    </button>
+    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+      Export As:
+    </button>
+    
+    <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
+      <option [value]="item.id" *ngFor="let item of exportFormats">
+          {{item.format}}
+      </option>
+    </select>
+  </div>
+</div>
+
 <div id="resources-grid-container" >
   <!-- <pre>{{ availableResources['storage'] | json }}</pre>
   <pre>{{ availableResources| json }}</pre> -->
   
     <!-- <p>{{category | json}}</p> -->
-    <div class="span_box">
-      <div class="grid-item">
-        <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
-          Reset
-        </button>
-        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-          Save Draft
-        </button>
-        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-          Export As:
-        </button>
-        
-        <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
-          <option [value]="item.id" *ngFor="let item of exportFormats">
-              {{item.format}}
-          </option>
-        </select>
-      </div>
-    </div>
+    
     
     <div class="grid-item" *ngFor="let category of availableResources">
       <div class="cell">        

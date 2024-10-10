@@ -1,3 +1,3 @@
 export interface Keywords {
-  keyWords: Array<string>;
+  keywords: Array<string>;
 }

@@ -37,7 +37,7 @@ describe('DmpService', () => {
     contributors:             [],
 
     //Keywords
-    keyWords:                 [],
+    keywords:                 [],
 
     //Technical Resources
     dataSize:                 null,

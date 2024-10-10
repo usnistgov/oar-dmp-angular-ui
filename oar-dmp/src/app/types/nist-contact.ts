@@ -1,7 +1,20 @@
 export interface NistContact {
-  id: number;
-  firstName: string;
+  displayName:string;
+  firstName:string;
   lastName:string;
-  group:string;
-  e_mail:string;
+  orcid:string;
+  emailAddress:string;
+
+  groupOrgID:number;
+  groupNumber:string;
+  groupName:string;
+
+  divisionOrgID:number;
+  divisionNumber:string;
+  divisionName:string;
+
+  ouOrgID:number;
+  ouNumber:string;
+  ouName:string;
+
 }
