@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { DropDownSelectService } from './drop-down-select.service';
-import { ROLES } from '../types/mock-roles'
+import { ROLES } from '../types/contributor-roles'
 
 describe('DropDownSelectService', () => {
   let service: DropDownSelectService;

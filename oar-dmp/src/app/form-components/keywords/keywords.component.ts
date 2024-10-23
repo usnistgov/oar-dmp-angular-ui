@@ -14,7 +14,7 @@ export class KeywordsComponent {
 
   keyWordsForm = this.fb.group(
     {
-      keyWords:[[]]
+      keywords:[[]]
     }
   );
 
@@ -29,7 +29,7 @@ export class KeywordsComponent {
   set initialDMP_Meta(key_words: DMP_Meta){
     // set initial value of keywords form to what has been sent from the server
     this.keyWordsForm.patchValue({
-      keyWords: key_words.keyWords
+      keywords: key_words.keywords
 
     })
 
@@ -55,7 +55,7 @@ export class KeywordsComponent {
         (formValue): Partial<DMP_Meta> => ({           
           // The observable emits a partial DMP_Meta object that only contains the properties related 
           // to our part of the form 
-          keyWords: formValue.keyWords
+          keywords: formValue.keywords
         })
       )
 
@@ -72,7 +72,7 @@ export class KeywordsComponent {
     // reset the keywords array
     this.keyWordsForm.setValue(
       {
-        keyWords:[]
+        keywords:[]
       }
     )
 

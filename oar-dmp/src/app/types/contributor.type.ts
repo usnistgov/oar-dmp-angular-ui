@@ -1,8 +1,7 @@
 import { Person } from "./person.type";
 
-export interface Contributor {
-  contributor: Person;
+export interface Contributor extends Person{
+  primary_contact:string;
   institution:string;
-  e_mail:string;
   role: string;
 }

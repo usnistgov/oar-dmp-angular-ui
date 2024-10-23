@@ -50,7 +50,17 @@ export class DmpPdf{
   }
 
   printTextField(fieldName:string, fieldValue:string, fontSize:number=12, fontType:string="Helvetica"){
-    let lineStartY = this.yOffset+(fontSize/this.ppi);
+    let lineStartY = this.yOffset+(fontSize/this.ppi);     
+    
+    /**
+    To display text properly in a PDF format we need to remove Non-ASCII characters from the string
+    Using Unicode in JavaScript regEx
+
+    This approach uses a Regular Expression to remove the Non-ASCII characters from the string.
+    It specifies the Unicode for the characters to remove. The range of characters between (0080 – FFFF) is removed.
+    Use .replace() method to replace the Non-ASCII characters with the empty string.
+    */
+    fieldValue = fieldValue.replace(/[\u{0080}-\u{FFFF}]/gu, "");
 
     this.newPageCheck(lineStartY);
 
@@ -69,6 +79,16 @@ export class DmpPdf{
   }
 
   printTextLine(fieldValue:string, fontSize:number=12, fontType:string="Helvetica"){
+    /**
+    To display text properly in a PDF format we need to remove Non-ASCII characters from the string
+    Using Unicode in JavaScript regEx
+
+    This approach uses a Regular Expression to remove the Non-ASCII characters from the string.
+    It specifies the Unicode for the characters to remove. The range of characters between (0080 – FFFF) is removed.
+    Use .replace() method to replace the Non-ASCII characters with the empty string.
+    */
+    fieldValue = fieldValue.replace(/[\u{0080}-\u{FFFF}]/gu, "");
+    
     let lineStartY = this.yOffset+(fontSize/this.ppi);
 
     this.newPageCheck(lineStartY);

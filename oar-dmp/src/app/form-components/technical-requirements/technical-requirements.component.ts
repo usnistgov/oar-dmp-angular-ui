@@ -11,7 +11,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
-export interface InstrTblRow {  
+interface InstrTblRow {  
   name: string;
   description_url: string;
   id: number;

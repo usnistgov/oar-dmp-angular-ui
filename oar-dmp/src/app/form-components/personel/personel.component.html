@@ -3,53 +3,14 @@
   <div class="header">Researchers</div>
   
   <div class="dmp-frm-container">
-    <div class="dmp-frm-row">
-      <div class="col-25" style="padding-top: 12px;">
-        <label for="primary_nist_contact">Primary NIST Contact <!--<span class="required_DMP_Field" >*</span>--></label>
-      </div>
-      <div class="col-75">
-        <mat-form-field class="example-full-width" appearance="fill" >
-          <!-- <mat-label>NIST Contact</mat-label> -->
-          <input type="text"
-                 placeholder="Type to search ..."
-                 aria-label="Nist Contact"
-                 style="background-color: rgb(252, 252, 252);"
-                 matInput
-                 [formControl]="personelForm.controls['primary_NIST_contact']"
-                 [matAutocomplete]="primary_NIST_contact">
-          <mat-autocomplete 
-            #primary_NIST_contact="matAutocomplete"
-            [displayWith]="displaySelectedContact"
-          >
-            <mat-option *ngFor="let option of fltr_Prim_NIST_Contact | async" [value]="option">
-              {{option.lastName + ", " + option.firstName}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-  
-      </div>
-    </div>
-
-    <div class="dmp-frm-row">
-      <div class="col-25">
-        <label for="nist_contact_orcid">NIST Contact ORCID</label>
-      </div>
-      <div class="col-75">
-        <input type="text" id="nist_contact_orcid" [formControl]="personelForm.controls['primNistContactOrcid']" (change)="pncOrcidChange()" style="max-width: 200px;">
-      </div>
-    </div>
-
-    <p *ngIf="pncErrorMessage" class="error-msg">{{ pncErrorMessage }}</p>
-    <p *ngIf="pncOrcidWarn" class="warning-msg">{{ pncOrcidWarn }}</p>
-
-    <div class="sub-category">Contributors</div>
+   
     <p><span class="requiredField" >*</span> Required fields to add a contributor</p>
 
     <div class="dmp-frm-row">
-      <div class="col-25">
+      <div class="col-20">
         Add a Contributor
       </div>
-      <div class="col-75">
+      <div class="col-80">
         <!-- $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ -->
         
         <!-- ======================================================= -->
@@ -58,62 +19,89 @@
             type="radio" 
             id="contributorNIST" 
             name="contributor" 
-            value="NIST" 
+            value="NIST"
             (click)="setContributor('NIST')"
             (change)="onContributorChange($event.target)"
           >
           <label for="contributorNIST">NIST Employee / Associate</label>
+          <!-- ======================================================= -->        
+          <div *ngIf="selectedContributor('NIST')" class="contributor-box">
+            <table>
+              <!-- <tr>
+                <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
+                <td class="cell-top">
+                  <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personelForm.controls['primaryNistContact']">
+                  <label for="primCntcY">Yes</label>
+
+                  <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
+                  <label for="primCntcN">No</label>
+                </td>
+              </tr> -->
+              <tr>
+                <td>Primary Contact</td>
+                <td>
+                  <select
+                    name="primaryContact"
+                    [(ngModel)]="primaryContact"
+                    (change)="selPrimaryContact()"
+                    
+                  >
+                    <option *ngFor="let option of primaryContactOptions" [value]="option.id" >
+                        {{option.value}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
+                <td>
+                  <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">
+                    <!-- <mat-label>NIST Contributor</mat-label> -->
+                    <input type="text"
+                          placeholder="Type to search ..."
+                          aria-label="Nist Contributor"
+                          style="background-color: rgb(252, 252, 252);"
+                          matInput
+                          [formControl]="personelForm.controls['dmp_contributor']"
+                          [matAutocomplete]="dmp_contributor">
+                    <mat-autocomplete 
+                      #dmp_contributor="matAutocomplete"
+                      [displayWith]="displaySelectedSDSuggestion"
+                    >
+                      <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
+                        {{contrib.display}}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+
+                </td>
+              </tr>
+              <tr>
+                <td class="cell-top">ORCID</td>
+                <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
+              </tr>
+              <tr>
+                <td>Role</td>
+                <td>
+                  <select
+                    name="nistContribRole"
+                    [(ngModel)]="nistContribRole"
+                    (change)="selContributorRole()"
+                  >
+                    <option [value]="role.id" *ngFor="let role of contributorRoles">
+                        {{role.value}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+
+            </table>
+          </div>
         </div>
         
-        <!-- ======================================================= -->        
-        <div *ngIf="selectedContributor('NIST')" class="contributor-box">
-          <table>
-            <tr>
-              <td class="cell-top">Select NIST Contributor<span class="requiredField" >*</span></td>
-              <td>
-                <mat-form-field class="example-full-width" appearance="fill">
-                  <!-- <mat-label>NIST Contributor</mat-label> -->
-                  <input type="text"
-                         placeholder="Type to search ..."
-                         aria-label="Nist Contributor"
-                         style="background-color: rgb(252, 252, 252);"
-                         matInput
-                         [formControl]="personelForm.controls['dmp_contributor']"
-                         [matAutocomplete]="dmp_contributor">
-                  <mat-autocomplete 
-                    #dmp_contributor="matAutocomplete"
-                    [displayWith]="displaySelectedContact"
-                  >
-                    <mat-option *ngFor="let contrib of fltr_NIST_Contributor | async" [value]="contrib">
-                      {{contrib.lastName + ", " + contrib.firstName}}
-                    </mat-option>
-                  </mat-autocomplete>
-                </mat-form-field>
-
-              </td>
-            </tr>
-            <tr>
-              <td class="cell-top">NIST Contributor ORCID</td>
-              <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
-            </tr>
-            <tr>
-              <td>Contributor Role <span class="requiredField" >*</span></td>
-              <td>
-                <select
-                  name="nistContribRole"
-                  [(ngModel)]="nistContribRole"
-                  (change)="selContributorRole()"
-                >
-                  <option [value]="role.id" *ngFor="let role of contributorRoles">
-                      {{role.value}}
-                  </option>
-
-                </select>
-              </td>
-            </tr>
-
-          </table>
-        </div>
+        
         <!-- ======================================================= -->   
         <div>
           <input 
@@ -129,15 +117,15 @@
             <table>
               <tr>
                 <td>First Name<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.contributor.firstName"></td>
+                <td><input type="text" [(ngModel)]="externalContributor.firstName"></td>
               </tr>
               <tr>
                 <td>Last Name<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.contributor.lastName"></td>
+                <td><input type="text" [(ngModel)]="externalContributor.lastName"></td>
               </tr>
               <tr>
                 <td>Contributor ORCID</td>
-                <td><input type="text" [(ngModel)]="externalContributor.contributor.orcid"></td>
+                <td><input type="text" [(ngModel)]="externalContributor.orcid"></td>
               </tr>
               <tr>
                 <td class="description">Institution / Affiliation<span class="requiredField" >*</span></td>
@@ -145,10 +133,10 @@
               </tr>
               <tr>
                 <td>e-mail<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.e_mail"></td>
+                <td><input type="text" [(ngModel)]="externalContributor.emailAddress"></td>
               </tr>
               <tr>
-                <td>Role <span class="requiredField" >*</span></td>
+                <td>Role</td>
                 <td>
                   <select
                     name="extContribRole"
@@ -192,7 +180,7 @@
           <!-- 
             iterate over columns 
           -->
-          <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
+          <ng-container [matColumnDef]="col.key" *ngFor="let col of contrib_colSchema">
             <!-- 
               table headers 
             -->
@@ -204,14 +192,14 @@
               <!-- table cell display default cell display -->
               <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
                 <!-- Switch if the column isSelected to display the checkbox in the table cell -->
-                <ng-container *ngSwitchCase="'isSelected'">
+                <ng-container *ngSwitchCase="'isSelected'" >
                   <mat-checkbox class="dmp_chk_bx"
                     (change)="element.isSelected = $event.checked"
                   ></mat-checkbox>
                 </ng-container>
       
                 <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-                <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                <div class="btn-edit" *ngSwitchCase="'isEdit'" style="width: 65px;">
                   <span *ngIf="element.institution !== 'NIST'">
                     <!--
                       Display edit button only for non NIST contacts
@@ -257,23 +245,23 @@
             </td>
           </ng-container>
         
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-header-row *matHeaderRowDef="contrib_dispCols"></tr>
+          <tr mat-row *matRowDef="let row; columns: contrib_dispCols;"></tr>
         </table>    
       </div>
     </div>
-    <br/>
+
+    <div class="sub-category">Organizations responsible for this DMP</div>
+    <!-- <br/> -->
     <div >
-      <div class="sub-category">Organization(s) Associated With This DMP</div>  
-      <p class="instruction"> Add / Remove Organization(s) associated with this DMP</p> 
 
       <div class="dmp-container">
         <div class="dmp-frm-row">
-          <div class="col-30" style="padding-top: 20px;">
-            Select an organization 
-            associated with this DMP
+          <div class="col-25" style="padding-top: 20px;">
+            Select an organization <br>
+            responsible for this DMP
           </div>
-          <div class="col-70">
+          <div class="col-75">
             <mat-form-field class="example-full-width" appearance="fill" style="width:400px;">
               <!-- <mat-label>NIST Organization</mat-label> -->
               <input type="text"
@@ -286,10 +274,10 @@
                     >
               <mat-autocomplete 
                 #nistOrganization="matAutocomplete"
-                [displayWith]="displaySelectedOrganization"
+                [displayWith]="displaySelectedSDSuggestion"
               >
                 <mat-option *ngFor="let option of fltr_NIST_Org | async" [value]="option">
-                  {{option.name}}
+                  {{option.display}}
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>

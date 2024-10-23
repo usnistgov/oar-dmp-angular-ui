@@ -50,14 +50,20 @@ export class DmpService {
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
-    organizations:            [],
+    
 
     //Personel
-    primary_NIST_contact:     {firstName:"", lastName:"", orcid:""},
+    // primary_NIST_contact:     {
+    //   firstName:"", lastName:"", orcid:"", emailAddress:"",
+    //   groupOrgID:0, groupNumber:"", groupName:"",
+    //   divisionOrgID:0, divisionNumber:"", divisionName:"",
+    //   ouOrgID:0, ouNumber:"", ouName:"",
+    // },
+    organizations:            [],
     contributors:             [],
 
     //Keywords
-    keyWords:                 [],
+    keywords:                 [],
 
     //Technical Resources
     dataSize:                 null,

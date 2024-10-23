@@ -2,5 +2,9 @@
   "PDRDMP":"http://localhost:9091/midas/dmp/mdm1",
   "auth": {
     "serviceEndpoint": "https://localhost/sso/"
+  },
+  "staffdir": {
+    "serviceEndpoint":  "http://localhost:9091/midas/nsd/oar1",
+    "requireAuthToken": true
   }
 }
