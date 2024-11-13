@@ -63,7 +63,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    // AuthModule,
+    AuthModule,
     ConfigModule,
     StaffDirModule,
     FrameModule,
