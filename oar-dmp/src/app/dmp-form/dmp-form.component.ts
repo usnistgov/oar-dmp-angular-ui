@@ -491,6 +491,34 @@ export class DmpFormComponent implements OnInit {
 
     this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
 
+    // Contributors
+    if (this.dmp?.contributors !== undefined){
+      let tblHeaders = ["Name", "Surname", "Institution", "Primary\nContact", "e-mail", "ORCID", "ORG ID"];
+      let tblData:Array<Array<string>>=[];
+
+      for ( let i=0; i < this.dmp.contributors.length; i++){
+        let currRow: Array<string> = [];
+        currRow.push(this.dmp.contributors[i].firstName);
+        currRow.push(this.dmp.contributors[i].lastName);
+        currRow.push(this.dmp.contributors[i].institution);
+        currRow.push(this.dmp.contributors[i].primary_contact);
+        currRow.push(this.dmp.contributors[i].emailAddress);
+        currRow.push(this.dmp.contributors[i].orcid);
+        currRow.push(this.dmp.contributors[i].groupNumber);
+        tblData.push(currRow);
+      }
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
+      if (dmpFormat === "Markdown"){
+        // change primary contact to be one line because Markdown does not allow new lines in a table cell
+        tblHeaders[3] = "Primary Contact"; 
+        this.markdownTable("Contributors", tblHeaders, tblData);
+      }
+        
+
+    } 
+
     //Organization(s) Associated With This DMP
     if(this.dmp?.organizations !== undefined){
       let tblHeaders = ["Group Name", "Division Name", "OU Name"];
@@ -503,31 +531,7 @@ export class DmpFormComponent implements OnInit {
         this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
       if (dmpFormat === "Markdown")
         this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-    }
-
-    // Contributors
-    if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID", "ORG ID"];
-      let tblData:Array<Array<string>>=[];
-
-      for ( let i=0; i < this.dmp.contributors.length; i++){
-        let currRow: Array<string> = [];
-        currRow.push(this.dmp.contributors[i].firstName);
-        currRow.push(this.dmp.contributors[i].lastName);
-        currRow.push(this.dmp.contributors[i].institution);
-        currRow.push(this.dmp.contributors[i].role);
-        currRow.push(this.dmp.contributors[i].emailAddress);
-        currRow.push(this.dmp.contributors[i].orcid);
-        currRow.push(this.dmp.contributors[i].groupNumber);
-        tblData.push(currRow);
-      }
-      
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("Contributors", tblHeaders, tblData);
-
-    }    
+    }   
 
     // ========================== Keywords / Phrases ============================
 
