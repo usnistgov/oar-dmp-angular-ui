@@ -126,6 +126,21 @@ export class DmpFormComponent implements OnInit {
   id:string | null = null;
 
   ngOnInit(): void {
+
+    const elementToObserve = document.getElementById("footer");
+    
+        const resizeObserver = new ResizeObserver(entries => {
+          for (let entry of entries) {
+            const element = entry.target;
+            const newWidth = entry.contentRect.width;
+            const newHeight = entry.contentRect.height;
+        
+            // Do something with the new dimensions
+            console.log('Element resized:', element, newWidth, newHeight);
+          }
+        });
+    
+        resizeObserver.observe(<Element>elementToObserve);
     
     this.formButtonSubscribe();
     this.formExportFormatSubscribe();
