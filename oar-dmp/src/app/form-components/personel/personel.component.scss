@@ -20,3 +20,10 @@ td.cell-top{
   max-width: 430px;
 }
 
+.mdc-data-table__cell, .mdc-data-table__header-cell{
+  padding: 0 0 0 5px;
+}
+
+.mdc-button {
+  padding: 0 3px 0 3px;
+}

@@ -165,7 +165,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 [class*="dmp-col-"] {
   float: left;
-  padding: 15px;
+  padding-left: 10px;
 }
 
 /* For mobile phones: */
@@ -173,7 +173,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 100%;
 }
 
-@media only screen and (min-width: 1490px) {
+@media only screen and (min-width: 1280px) {
   /* For desktop: */
   .dmp-col-1 {width: 8.33%;}
   .dmp-col-2 {width: 16.66%;}
@@ -189,7 +189,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .dmp-col-12 {width: 100%;}
   div.sticky{
     position: fixed;
-    min-width: 600px;//required for FIrefox
+    min-width: 500px;//required for FIrefox
+    z-index: 10;
     // top: 95px;
     // left: 623px;
   }
@@ -215,6 +216,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: rgb(221, 246, 253);
 }
 
-@media only screen and (min-width: 1490px) {
+@media only screen and (min-width: 1280) {
   #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
+}
+
+
+// Override for material buttons and data tables
+.mdc-data-table__cell, .mdc-data-table__header-cell{
+  padding: 0 0 0 5px;
+}
+
+.mdc-button {
+  padding: 0 3px 0 3px;
 }
