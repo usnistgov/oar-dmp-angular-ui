@@ -25,8 +25,6 @@ export class AppComponent {
               private sdsvc: StaffDirectoryService)
   { }
 
-  width: number = 0;
-  height: number = 0;
 
   ngOnInit(): void {
     this.authService.getCredentials().subscribe({
@@ -58,22 +56,6 @@ export class AppComponent {
             }
         }
     })
-  }
-
-  onResized(event: ResizedEvent) {
-    this.width = event.newRect.width;
-    this.height = event.newRect.height;
-    this.dom.setDomElementTop("resources-grid-container", "dmp_hdr");
-    this.dom.horizontalDomAdjust("resource_options", "dmp_hdr");
-    this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
-    this.dom.panelHeightAdjustment("PageNotFound", "resource_options");
-    this.dom.panelHeightAdjustment("DmpPublished", "resource_options");
-    this.dom.panelHeightAdjustment("PageError", "resource_options");
-    // this.dom.panelHeightAdjustment("", "");
-    // this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
-    // this.dom.elementWidthAdjustment("dmp_panel", "resource_options");
-  }
-
-  
+  } 
   
 }
