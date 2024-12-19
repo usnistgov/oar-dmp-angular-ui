@@ -219,13 +219,3 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @media only screen and (min-width: 1280) {
   #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
 }
-
-
-// Override for material buttons and data tables
-.mdc-data-table__cell, .mdc-data-table__header-cell{
-  padding: 0 0 0 5px;
-}
-
-.mdc-button {
-  padding: 0 3px 0 3px;
-}

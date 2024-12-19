@@ -136,7 +136,7 @@ export class DmpFormComponent implements OnInit {
             const newHeight = entry.contentRect.height;
         
             // Do something with the new dimensions
-            console.log('Element resized:', element, newWidth, newHeight);
+            // console.log('Element resized:', element, newWidth, newHeight);
           }
         });
     
@@ -508,18 +508,19 @@ export class DmpFormComponent implements OnInit {
 
     // Contributors
     if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Primary\nContact", "e-mail", "ORCID", "ORG ID"];
+      let tblHeaders = ["Name", "Surname", "Primary\nContact", "Institution", "ORG ID", /*"Role",*/ "e-mail", "ORCID" ];
       let tblData:Array<Array<string>>=[];
 
       for ( let i=0; i < this.dmp.contributors.length; i++){
         let currRow: Array<string> = [];
         currRow.push(this.dmp.contributors[i].firstName);
         currRow.push(this.dmp.contributors[i].lastName);
-        currRow.push(this.dmp.contributors[i].institution);
         currRow.push(this.dmp.contributors[i].primary_contact);
-        currRow.push(this.dmp.contributors[i].emailAddress);
-        currRow.push(this.dmp.contributors[i].orcid);
+        currRow.push(this.dmp.contributors[i].institution);
         currRow.push(this.dmp.contributors[i].groupNumber);
+        // currRow.push(this.dmp.contributors[i].role);
+        currRow.push(this.dmp.contributors[i].emailAddress);
+        currRow.push(this.dmp.contributors[i].orcid);        
         tblData.push(currRow);
       }
       
