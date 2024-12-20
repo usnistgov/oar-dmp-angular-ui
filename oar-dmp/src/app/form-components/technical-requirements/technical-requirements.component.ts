@@ -446,6 +446,17 @@ export class StorageNeedsComponent {
     const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
     
     if (result) {
+      var selRow = this.dmpInstrumentsTbl.filter((u) => u.id === id);
+      this.technicalRequirementsForm.value['instruments'].forEach( (value:Instrument, index:number) => {
+        selRow.forEach((instrument)=>{
+          if (value.description_url === instrument.description_url)
+          console.log(instrument);
+          //remove from DmpRecord
+          this.technicalRequirementsForm.value['instruments'].splice(index,1);
+        });
+      });
+      // remove from the display table
+      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u) => u.id !== id);
     }
   }  
 
