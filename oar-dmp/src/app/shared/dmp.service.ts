@@ -94,7 +94,7 @@ export class DmpService {
     dataAccess:               '',
     pathsURLs:                []
 
-  };
+  };  
 
   fetchPDR(): Observable<any>{
     // console.log("fetchPDR")
@@ -166,4 +166,8 @@ export class DmpService {
 
   }
 
+}
+
+export function confirmDialog(message: string): boolean {
+  return confirm(message);
 }
