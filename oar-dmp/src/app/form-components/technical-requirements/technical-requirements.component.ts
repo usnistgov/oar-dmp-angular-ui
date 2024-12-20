@@ -1,4 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
+import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
@@ -420,22 +421,33 @@ export class StorageNeedsComponent {
   }
 
   removeSelectedRows() {
-    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
-    this.resetTable();
+    const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
+    
+    if (result) {
+      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
+      this.resetTable();
 
-    this.dmpInstrumentsTbl.forEach((element)=>{        
-      // re populate instruments array
-      this.technicalRequirementsForm.value['instruments'].push({
-        name:element.name,
-        description_url: element.description_url
+      this.dmpInstrumentsTbl.forEach((element)=>{        
+        // re populate instruments array
+        this.technicalRequirementsForm.value['instruments'].push({
+          name:element.name,
+          description_url: element.description_url
+        });
       });
-    });
-    if (this.dmpInstrumentsTbl.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
+      if (this.dmpInstrumentsTbl.length === 0){
+        // If the table is empty disable clear and remove buttons
+        this.disableClear=true;
+        this.disableRemove=true;
+      }
     }
   }
+
+  removeRow(id:any) {
+    const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
+    
+    if (result) {
+    }
+  }  
 
   addRow(){
     // Disable buttons while the user is inputing new row
@@ -510,10 +522,14 @@ export class StorageNeedsComponent {
   
 
   clearTable(){
-    this.dmpInstrumentsTbl = []
-    this.resetTable();
-    this.disableClear=true;
-    this.disableRemove=true;
+    const result = confirmDialog("Are you sure you want to delete all instrument(s) for this DMP?");
+    
+    if (result) {
+      this.dmpInstrumentsTbl = []
+      this.resetTable();
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
   }
   
   resetTable(){
