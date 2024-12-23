@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 
 // In the child, we need to import the service "ResourcesService" file to be able to use it. 
 import { ResourcesService } from '../shared/resources.service';
-import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
 import { FilterPipe } from './filter.pipe';
@@ -37,7 +36,6 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   // we inject shared service ResourcesService in the constructor.
   constructor(
     private sharedService:ResourcesService, 
-    private dom:DomPositioningModule,
     private nistResources: LoadResourcesService,
     private form_buttons: SubmitDmpService,
     private dropDownService: DropDownSelectService,

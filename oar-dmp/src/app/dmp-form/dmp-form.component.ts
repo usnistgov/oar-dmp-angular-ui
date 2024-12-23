@@ -28,7 +28,6 @@ import { Injectable } from '@angular/core';
 // import { catchError, retry } from 'rxjs/operators';
 
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { DmpPdf } from './dmp-pdf';
 
 
@@ -117,7 +116,6 @@ export class DmpFormComponent implements OnInit {
     private dmp_Service: DmpService, 
     private route: ActivatedRoute,
     private router: Router,
-    private dom:DomPositioningModule,
     private form_buttons:SubmitDmpService
     // private http: HttpClient
     ) {  }

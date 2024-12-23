@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ResizedEvent } from 'angular-resize-event';
-import { DomPositioningModule } from './shared/dom-positioning.module';
 import { Credentials, AuthenticationService, StaffDirectoryService } from 'oarng';
 
 @Component({
@@ -20,8 +19,7 @@ export class AppComponent {
   alttext: string="Icon of a user drawing with a check mark to indicated loggedin status"
   
   
-  constructor(private dom:DomPositioningModule,
-              public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               private sdsvc: StaffDirectoryService)
   { }
 
