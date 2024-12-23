@@ -2,8 +2,6 @@ import { Component, OnInit, Input, Output  } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
-// TODO: delete dmp-api.service as we don't need it anymore
-// import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 
 import { Validators, UntypedFormBuilder } from '@angular/forms';
@@ -258,7 +256,6 @@ export class PersonelComponent implements OnInit {
   
   constructor(
     private dropDownService: DropDownSelectService,
-    // private apiService: DmpAPIService,
     private fb: UntypedFormBuilder,
     private sdsvc: StaffDirectoryService
   ) {
