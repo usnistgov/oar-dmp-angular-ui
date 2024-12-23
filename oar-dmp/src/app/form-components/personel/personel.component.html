@@ -209,6 +209,7 @@
                     </button>
                   </span>
                   <button
+                    type="button"
                     mat-button
                     class="button-remove"
                     (click)="removeRow(element.id)"
@@ -327,6 +328,7 @@
                 <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
                 <div class="btn-edit" *ngSwitchCase="'isEdit'">
                   <button
+                    type="button"
                     mat-button
                     class="button-remove"
                     (click)="org_removeRow(element.id)"
