@@ -96,12 +96,6 @@ export class DmpService {
 
   };  
 
-  fetchPDR(): Observable<any>{
-    // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.configService.getConfig<DMPConfiguration>().PDRDMP);
-    return getInfo
-  }
-
   fetchDMP(action:string, recordID:string|null) {   
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
     // or if we are editing an existing one and which needs to be pulled from API
