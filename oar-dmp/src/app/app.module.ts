@@ -32,7 +32,6 @@ import { AngularResizeEventModule } from 'angular-resize-event';
 // import { ConfigModule } from './config/config.module';
 import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
-import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
@@ -85,7 +84,6 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   ],
 
   providers: [
-    // fakeBackendProvider,
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
     { provide: AuthenticationService, useClass:MockAuthenticationService }
