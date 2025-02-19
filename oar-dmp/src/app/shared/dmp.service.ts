@@ -30,7 +30,9 @@ export class DmpService {
 
   constructor(private http: HttpClient, private configService: ConfigurationService,
               private authService: AuthenticationService)
-  { }
+  { 
+    // console.log("DmpService Constructor");
+  }
 
   // Http Options
   getHttpOptions(creds?: Credentials): {headers: HttpHeaders} {
@@ -117,7 +119,7 @@ export class DmpService {
       return this.authService.getCredentials().pipe(
         switchMap(creds => {
           if (! creds)
-            throwError(new Error("Authentication Failed"));
+            return throwError(() => new Error('Authentication Failed'));
           return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
         })
       );
