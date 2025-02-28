@@ -1,3 +1,5 @@
+$header_height: 56px;
+
 .header_span{
   display: block;
   font-size: 20px;
@@ -43,9 +45,6 @@
   } 
 
 }
-.grid_buttons{
-  background-color: #ececec;
-}
 .span_box{
   grid-column-start: 1;
   grid-column-end: 3;
@@ -74,4 +73,21 @@ div {
 .btn_reset {
   background: rgb(224, 224, 224);
   border: 1px solid #00000053;
+}
+
+.sticky{
+  top: $header_height;
+}
+
+.dmp_control_bar{
+  position: fixed;
+  top: $header_height;
+  left: 5px;
+  // padding: 4px;
+  padding-bottom: 5px;
+  background-color: #ffffff;
+  width:100%;
+  z-index:2;
+  border-bottom: groove #000000;
+  
 }

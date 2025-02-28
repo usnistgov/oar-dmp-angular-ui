@@ -1,5 +1,5 @@
 <div *ngIf="readyDisplay">
-    <app-header appVersion="1.0"></app-header>
+    <app-header appVersion="1.0" id="myHeader"></app-header>
 </div>
 
 <div *ngIf="creds && readyDisplay">
@@ -12,9 +12,9 @@
             </div>
         </div>
         <div class="dmp-col-5">
-            <div class="sticky" id="resource_options">
-                <app-resource-options></app-resource-options>
-            </div>
+            
+            <app-resource-options></app-resource-options>
+            
         </div>
     </div>
 </div>

@@ -15,6 +15,20 @@
   
 }
 
+#myHeader{
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+}
+#dmp_panel{
+  position: relative;
+  top: 100px;
+  left: 0px;
+  padding-bottom: 120px;
+  z-index:2;
+
+}
+
 
 
 

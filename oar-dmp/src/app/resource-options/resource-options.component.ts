@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 import { ResourcesService } from '../shared/resources.service';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
-import { FilterPipe } from './filter.pipe';
+// import { FilterPipe } from './filter.pipe';
 import { DropDownSelectService } from '../shared/drop-down-select.service';
 
 interface Messages {
