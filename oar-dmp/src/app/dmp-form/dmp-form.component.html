@@ -1,5 +1,5 @@
 
-<form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
+<form *ngIf="initialDMP" [formGroup]="dmpFormGrp" (ngSubmit)="onSubmit()"  method="post">
   
 
   <div class="dmpSection" style="padding-left: 12px;">

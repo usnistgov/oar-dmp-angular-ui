@@ -19,7 +19,7 @@ export class KeywordsComponent {
   );
 
   constructor(private fb: UntypedFormBuilder) { 
-    
+    // console.log("Keywords Component");
   }
 
   // We want to receive the initial data from the parent component and initialize 
@@ -31,6 +31,9 @@ export class KeywordsComponent {
     this.keyWordsForm.patchValue({
       keywords: key_words.keywords
 
+    },
+    {
+      emitEvent:false
     })
 
   }

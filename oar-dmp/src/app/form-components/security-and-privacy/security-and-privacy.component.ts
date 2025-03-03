@@ -11,7 +11,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 export class SecurityAndPrivacyComponent {
 
   constructor(private fb: UntypedFormBuilder) {
-    
+    // console.log("Security and Privacy Component");
   }
 
   dataSensitivityMap = new Map([
@@ -74,6 +74,9 @@ export class SecurityAndPrivacyComponent {
     this.securityAndPrivacyForm.patchValue({
       dataSensitivity:          securityAndPrivacy.security_and_privacy.data_sensitivity,
       dataCUI:                  securityAndPrivacy.security_and_privacy.cui
+    },
+    {
+      emitEvent:false
     });
   }
 

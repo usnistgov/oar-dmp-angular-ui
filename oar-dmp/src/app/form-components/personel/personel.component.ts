@@ -259,7 +259,7 @@ export class PersonelComponent implements OnInit {
     private fb: UntypedFormBuilder,
     private sdsvc: StaffDirectoryService
   ) {
-    // console.log("PersonelComponent constructor");
+    // console.log("Personel Component");
     this.getNistContactsFromAPI();    
     this.getNistOrganizations();
   }
@@ -330,6 +330,9 @@ export class PersonelComponent implements OnInit {
     this.personelForm.patchValue({
       contributors:               personel.contributors,
       organizations:              personel.organizations
+    },
+    {
+      emitEvent:false
     });
   }
 

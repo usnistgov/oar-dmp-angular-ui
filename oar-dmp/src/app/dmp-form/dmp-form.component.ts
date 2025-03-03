@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, afterRender, afterNextRender, AfterContentInit, AfterContentChecked  } from '@angular/core';
 import { ObservedValueOf, Subscription } from "rxjs";
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
@@ -13,8 +13,6 @@ import { DMP_Meta } from '../types/DMP.types';
 import { DmpService } from '../shared/dmp.service'
 import { SubmitDmpService } from '../shared/submit-dmp.service';//for acknowledging when form button has been 'pressed'
 import { UntypedFormControl } from '@angular/forms';
-
-
 
 
 // for Communicating with backend services using HTTP
@@ -62,7 +60,7 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./dmp-form.component.scss']
 })
 @Injectable()
-export class DmpFormComponent implements OnInit {
+export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit{
   formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
 
@@ -97,8 +95,19 @@ export class DmpFormComponent implements OnInit {
    */
   dmp?: DMP_Meta;
 
+  emptyDmpRecord = {
+    "basicInfo":{"title":"","startDate":"","endDate":"","dmpSearchable":"","grant_source":"","grant_id":"","projectDescription":""},
+    "personel":{"dmp_contributor":"","contributors":[],"nistOrganization":null,"organizations":[]},
+    "keyWordsAndPhrases":{"keywords":[]},
+    "technicalRequirements":{"dataSize":"","sizeUnit":"","development":"","softwareUse":"","softwareDatabase":"","softwareWebsite":"","technicalResources":[],"instruments":[]},
+    "ethicalIssues":{"IRBNumber":"","ethicalIssue":"","ethicalIssueDescription":"","ethicalReport":""},
+    "securityAndPrivacy":{"dataSensitivity":[],"dataCUI":[]},
+    "dataDescription":{"dataDescription":"","dataCategories":[]},
+    "dataPreservation":{"preservationDescription":"","dataAccess":"","pathsURLs":[]}
+  };
+
    // We create our form group using the DMPForm interface that's been defined above
-  form = this.fb.group({
+  dmpFormGrp = this.fb.group({
     // Form is empty for now -> child form groups will be added dynamically
 
   });
@@ -117,13 +126,40 @@ export class DmpFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private form_buttons:SubmitDmpService
-    // private http: HttpClient
-    ) {  }
+    
+    ) {  
+      console.log("constructor");
+      afterNextRender(() => {
+        // used for one-time initialisation:
+        console.log('Form Component initialized');
+        var saveButton = document.getElementById("btnSave");
+        this.dmpFormGrp.valueChanges.subscribe(value => {
+          if (JSON.stringify(this.emptyDmpRecord) === JSON.stringify(value)){
+            console.log("Form initiated");
+            saveButton?.classList.remove("btn_draft");
+            saveButton?.classList.remove("btn_update");
+
+            saveButton?.classList.add("btn_draft");
+
+          }
+          else {
+
+            saveButton?.classList.remove("btn_draft");
+            saveButton?.classList.remove("btn_update");
+            
+            saveButton?.classList.add("btn_update");
+            
+          }
+        });
+      });
+    }
 
   action:string = "";
   id:string | null = null;
+  firstLoad:boolean = false;
 
   ngOnInit(): void {
+    console.log("ngOnInit")
 
     const elementToObserve = document.getElementById("footer");
     
@@ -176,12 +212,21 @@ export class DmpFormComponent implements OnInit {
             
         }
       }
-    );    
+    );
+
+    
 
   }
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
+    console.log("ngAfterContentInit")
   
+  }
+
+  ngAfterViewInit():void{
+    console.log("ngAfterViewInit");
+    this.firstLoad = true;
+
   }
 
   //subscribe to button subjects
@@ -197,6 +242,11 @@ export class DmpFormComponent implements OnInit {
           }
           else if (this.formButtonMessage === "Save Draft"){
             this.saveDraft();
+            var saveButton = document.getElementById("btnSave");
+            saveButton?.classList.remove("btn_draft");
+            saveButton?.classList.remove("btn_update");
+
+            saveButton?.classList.add("btn_draft");
           }
           else if (this.formButtonMessage === "Export As:"){
             if (this.dmpExportFormatType === ""){
@@ -234,7 +284,7 @@ export class DmpFormComponent implements OnInit {
     group: Exclude<DMPForm[K], undefined>
   ) {
     // And in our template we can render all child components and register the formReady event.
-    this.form.setControl(name, group);
+    this.dmpFormGrp.setControl(name, group);
   }
 
   // Our parent component should listen to any value changes in the child components. 
@@ -340,12 +390,12 @@ export class DmpFormComponent implements OnInit {
   }
 
   resetDmp(){
-    this.form.controls['basicInfo'].reset();
-    this.form.controls['basicInfo'].patchValue({
+    this.dmpFormGrp.controls['basicInfo'].reset();
+    this.dmpFormGrp.controls['basicInfo'].patchValue({
       organizations:[]
   })
-    this.form.controls['ethicalIssues'].reset();
-    this.form.controls['ethicalIssues'].patchValue({
+    this.dmpFormGrp.controls['ethicalIssues'].reset();
+    this.dmpFormGrp.controls['ethicalIssues'].patchValue({
         ethicalIssue:"no",
         ethicalPII:"no"
     })
@@ -353,22 +403,22 @@ export class DmpFormComponent implements OnInit {
     this.personnelForm.resetPersonnelForm();
     this.keyWordsTable.clearKeywordsTable();
 
-    // this.form.controls['technicalRequirements'].reset();
+    // this.dmpFormGrp.controls['technicalRequirements'].reset();
     this.technicalRequirementsTable.resetTechnicalRequirements();
     
     this.ethicalIssuesRadioBtns.resetRadioButtons();
-    this.form.controls['dataDescription'].reset();
+    this.dmpFormGrp.controls['dataDescription'].reset();
     // We have to set this one separately because it is an array
     // so once form reset is done to it, new data can't be appended
     // so we have to set it back to an empty array.
-    this.form.controls['dataDescription'].patchValue({
+    this.dmpFormGrp.controls['dataDescription'].patchValue({
       dataCategories: []
     })
     // This sends signal to DataDescriptionComponent to reset checkboxes
     this.dataCategoriesCheckBoxes.resetCheckboxes();
 
     // Reset Data Preservation component of the form
-    this.form.controls['dataPreservation'].patchValue({
+    this.dmpFormGrp.controls['dataPreservation'].patchValue({
       preservationDescription:"",
       dataAccess:"",
       pathsURLs: []

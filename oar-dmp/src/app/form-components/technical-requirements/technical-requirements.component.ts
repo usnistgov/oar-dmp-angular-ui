@@ -98,7 +98,9 @@ export class StorageNeedsComponent {
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
     private fb: UntypedFormBuilder,
-  ) { }
+  ) { 
+    // console.log("Technical Requirements Component");
+  }
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 
@@ -136,6 +138,9 @@ export class StorageNeedsComponent {
         softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
         technicalResources:             technical_requirements.technicalResources,
         instruments:                    technical_requirements.instruments
+      },
+      {
+        emitEvent:false
       });
     }
     else{
@@ -151,6 +156,9 @@ export class StorageNeedsComponent {
         softwareWebsite:                "",
         technicalResources:             technical_requirements.technicalResources,
         instruments:                    technical_requirements.instruments
+      },
+      {
+        emitEvent:false
       });
     }
     
