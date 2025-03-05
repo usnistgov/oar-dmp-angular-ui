@@ -12,22 +12,30 @@
 <!-- </div> -->
 
 <div class="dmp_control_bar">
-  <div class="grid_buttons" style="background-color: #ffffff">
+  <div class="grid_buttons" style="background-color: #613030">
     <!-- <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
       Reset
     </button> -->
-    <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)">
-      Save Draft
-    </button>
-    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-      Export As:
-    </button>
+    <div>
+      <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" >
+        Save Draft
+      </button>
+    </div>
+
+    <div>
+      <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+        Export As:
+      </button>
+    </div>
     
-    <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
-      <option [value]="item.id" *ngFor="let item of exportFormats">
-          {{item.format}}
-      </option>
-    </select>
+    <div class="dmpExportSelect" >
+      <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
+        <option value="" disabled selected>Select Format</option>
+        <option [value]="item.id" *ngFor="let item of exportFormats">
+            {{item.format}}
+        </option>
+      </select>
+    </div>
   </div>
 </div>
 
