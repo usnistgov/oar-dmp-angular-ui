@@ -31,9 +31,6 @@ export class KeywordsComponent {
     this.keyWordsForm.patchValue({
       keywords: key_words.keywords
 
-    },
-    {
-      emitEvent:false
     })
 
   }

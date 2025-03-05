@@ -46,9 +46,6 @@ export class BasicInfoComponent{
         grant_source: basic_info.funding.grant_source,
         grant_id: basic_info.funding.grant_id,
         projectDescription: basic_info.projectDescription
-      },
-      {
-        emitEvent:false
       }
     );
   }

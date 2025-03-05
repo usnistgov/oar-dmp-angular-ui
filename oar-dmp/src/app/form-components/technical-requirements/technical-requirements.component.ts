@@ -138,9 +138,6 @@ export class StorageNeedsComponent {
         softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
         technicalResources:             technical_requirements.technicalResources,
         instruments:                    technical_requirements.instruments
-      },
-      {
-        emitEvent:false
       });
     }
     else{
@@ -156,9 +153,6 @@ export class StorageNeedsComponent {
         softwareWebsite:                "",
         technicalResources:             technical_requirements.technicalResources,
         instruments:                    technical_requirements.instruments
-      },
-      {
-        emitEvent:false
       });
     }
     

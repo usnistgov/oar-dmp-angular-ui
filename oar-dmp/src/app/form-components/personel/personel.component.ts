@@ -330,9 +330,6 @@ export class PersonelComponent implements OnInit {
     this.personelForm.patchValue({
       contributors:               personel.contributors,
       organizations:              personel.organizations
-    },
-    {
-      emitEvent:false
     });
   }
 

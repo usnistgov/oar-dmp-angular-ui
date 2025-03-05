@@ -54,9 +54,6 @@ export class DataDescriptionComponent implements OnInit {
       {
         dataDescription:                data_description.dataDescription,
         dataCategories:                 data_description.dataCategories
-      },
-      {
-        emitEvent:false
       }
     );
   }

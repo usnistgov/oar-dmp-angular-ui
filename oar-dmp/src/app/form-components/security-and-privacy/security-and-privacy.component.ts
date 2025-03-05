@@ -74,9 +74,6 @@ export class SecurityAndPrivacyComponent {
     this.securityAndPrivacyForm.patchValue({
       dataSensitivity:          securityAndPrivacy.security_and_privacy.data_sensitivity,
       dataCUI:                  securityAndPrivacy.security_and_privacy.cui
-    },
-    {
-      emitEvent:false
     });
   }
 

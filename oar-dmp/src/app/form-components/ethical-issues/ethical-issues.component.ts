@@ -31,9 +31,6 @@ export class EthicalIssuesComponent {
       ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
       ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
       ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
-    },
-    {
-      emitEvent:false
     });
   }
 
@@ -90,9 +87,6 @@ export class EthicalIssuesComponent {
       this.ethicalIsuesForm.patchValue({        
         ethicalReport:            "",
         ethicalIssueDescription:  "",
-      },
-      {
-        emitEvent:false
       });
     }
     // console.log(this.selectedEthicalIssue);

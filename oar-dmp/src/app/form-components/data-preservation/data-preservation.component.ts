@@ -37,9 +37,6 @@ export class DataPreservationComponent {
         dataAccess:               data_preservation.dataAccess,
         pathsURLs:                data_preservation.pathsURLs
 
-      },
-      {
-        emitEvent:false
       }
     );
   }

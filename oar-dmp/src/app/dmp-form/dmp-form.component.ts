@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, afterRender, afterNextRender, AfterContentInit, AfterContentChecked  } from '@angular/core';
+import { Component, OnInit, ViewChild, afterNextRender  } from '@angular/core';
 import { ObservedValueOf, Subscription } from "rxjs";
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
@@ -60,7 +60,7 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./dmp-form.component.scss']
 })
 @Injectable()
-export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit{
+export class DmpFormComponent implements OnInit{
   formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
 
@@ -95,18 +95,7 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
    */
   dmp?: DMP_Meta;
 
-  emptyDmpRecord = {
-    "basicInfo":{"title":"","startDate":"","endDate":"","dmpSearchable":"","grant_source":"","grant_id":"","projectDescription":""},
-    "personel":{"dmp_contributor":"","contributors":[],"nistOrganization":null,"organizations":[]},
-    "keyWordsAndPhrases":{"keywords":[]},
-    "technicalRequirements":{"dataSize":"","sizeUnit":"","development":"","softwareUse":"","softwareDatabase":"","softwareWebsite":"","technicalResources":[],"instruments":[]},
-    "ethicalIssues":{"IRBNumber":"","ethicalIssue":"","ethicalIssueDescription":"","ethicalReport":""},
-    "securityAndPrivacy":{"dataSensitivity":[],"dataCUI":[]},
-    "dataDescription":{"dataDescription":"","dataCategories":[]},
-    "dataPreservation":{"preservationDescription":"","dataAccess":"","pathsURLs":[]}
-  };
-
-   // We create our form group using the DMPForm interface that's been defined above
+  // We create our form group using the DMPForm interface that's been defined above
   dmpFormGrp = this.fb.group({
     // Form is empty for now -> child form groups will be added dynamically
 
@@ -128,53 +117,49 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
     private form_buttons:SubmitDmpService
     
     ) {  
-      console.log("constructor");
+      // console.log("constructor");
       afterNextRender(() => {
-        // used for one-time initialisation:
-        console.log('Form Component initialized');
-        var saveButton = document.getElementById("btnSave");
-        this.dmpFormGrp.valueChanges.subscribe(value => {
-          if (JSON.stringify(this.emptyDmpRecord) === JSON.stringify(value)){
-            console.log("Form initiated");
-            saveButton?.classList.remove("btn_draft");
-            saveButton?.classList.remove("btn_update");
-
-            saveButton?.classList.add("btn_draft");
+        // used for one-time initialisation:        
+        this.dmpFormGrp.valueChanges.subscribe(value => {          
+          if (this.getFromDB && this.initialFormState){
+            // console.log("Form initiated");
+            this.changeElementClass("btnSave", "btn_update", "btn_draft");
+            this.initialFormState = false;
+            this.getFromDB = false;
 
           }
           else {
-
-            saveButton?.classList.remove("btn_draft");
-            saveButton?.classList.remove("btn_update");
-            
-            saveButton?.classList.add("btn_update");
+            this.changeElementClass("btnSave", "btn_draft", "btn_update");
             
           }
         });
+        
       });
     }
 
   action:string = "";
   id:string | null = null;
-  firstLoad:boolean = false;
+  initialFormState:boolean = false;
+  firstLoadCount:number = 0;
+  getFromDB:boolean = false;
 
   ngOnInit(): void {
     console.log("ngOnInit")
 
-    const elementToObserve = document.getElementById("footer");
+    // const elementToObserve = document.getElementById("footer");
     
-        const resizeObserver = new ResizeObserver(entries => {
-          for (let entry of entries) {
-            const element = entry.target;
-            const newWidth = entry.contentRect.width;
-            const newHeight = entry.contentRect.height;
+    //     const resizeObserver = new ResizeObserver(entries => {
+    //       for (let entry of entries) {
+    //         const element = entry.target;
+    //         const newWidth = entry.contentRect.width;
+    //         const newHeight = entry.contentRect.height;
         
-            // Do something with the new dimensions
-            // console.log('Element resized:', element, newWidth, newHeight);
-          }
-        });
+    //         // Do something with the new dimensions
+    //         // console.log('Element resized:', element, newWidth, newHeight);
+    //       }
+    //     });
     
-        resizeObserver.observe(<Element>elementToObserve);
+    //     resizeObserver.observe(<Element>elementToObserve);
     
     this.formButtonSubscribe();
     this.formExportFormatSubscribe();
@@ -190,6 +175,7 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
         this.nameDisabled = false;
       }
     });
+
     // Fetch initial data from the backend
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
       {
@@ -199,6 +185,7 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
             this.dmp = data.data;
             this.name.setValue(data.name);
             // this.name.value = data.name
+            this.getFromDB = true;
           }
           else{
             this.initialDMP = data;
@@ -213,21 +200,9 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
         }
       }
     );
-
     
-
   }
 
-  ngAfterContentInit(): void {
-    console.log("ngAfterContentInit")
-  
-  }
-
-  ngAfterViewInit():void{
-    console.log("ngAfterViewInit");
-    this.firstLoad = true;
-
-  }
 
   //subscribe to button subjects
   formButtonSubscribe(){
@@ -242,11 +217,6 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
           }
           else if (this.formButtonMessage === "Save Draft"){
             this.saveDraft();
-            var saveButton = document.getElementById("btnSave");
-            saveButton?.classList.remove("btn_draft");
-            saveButton?.classList.remove("btn_update");
-
-            saveButton?.classList.add("btn_draft");
           }
           else if (this.formButtonMessage === "Export As:"){
             if (this.dmpExportFormatType === ""){
@@ -259,6 +229,15 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
         }
       });
     }
+
+  }
+
+  private changeElementClass (elID:string, add:string, remove:string){
+    var saveButton = document.getElementById(elID);
+    saveButton?.classList.remove(add);
+    saveButton?.classList.remove(remove);
+
+    saveButton?.classList.add(add);
 
   }
 
@@ -297,7 +276,21 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
     // let arr1 = [0, 1, 2];
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
-    // arr1 is now [0, 1, 2, 3, 4, 5]    
+    // arr1 is now [0, 1, 2, 3, 4, 5]        
+    if(this.getFromDB && this.firstLoadCount >7 ){
+      console.log ("+++++++++++++++++++++++");
+      console.log (this.dmp);
+      console.log ("+++++++++++++++++++++++");
+      console.log ("=======================");
+      console.log (patch);
+      console.log ("=======================");
+      if (patch.preservationDescription){
+        this.initialFormState = true;
+        console.log("last one");
+      }
+
+    }
+    this.firstLoadCount +=1;
     this.dmp = { ...this.dmp, ...patch };
   }
 
@@ -362,6 +355,7 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
           next: data => {
             //try to reload the page to read the saved dmp from mongodb
             this.router.navigate(['edit', this.id]);
+            this.changeElementClass("btnSave", "btn_draft", "btn_update");
             alert("Successfuly saved draft of the data");
           },
           error: error => {
@@ -378,6 +372,7 @@ export class DmpFormComponent implements OnInit, AfterContentInit, AfterViewInit
         {
           next: data => {
             this.router.navigate(['edit', data.id]);
+            this.changeElementClass("btnSave", "btn_draft", "btn_update");
           },
           error: error => {
             console.log(error.message);
