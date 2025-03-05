@@ -17,7 +17,7 @@
       Reset
     </button> -->
     <div>
-      <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" >
+      <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableSaveBtn">
         Save Draft
       </button>
     </div>

@@ -10,6 +10,7 @@ import { ResourcesService } from '../shared/resources.service';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
 import { DropDownSelectService } from '../shared/drop-down-select.service';
+import { FormChangedService } from '../shared/form-changed.service';
 
 interface Messages {
   [key: string]: any;
@@ -38,7 +39,8 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     private sharedService:ResourcesService, 
     private nistResources: LoadResourcesService,
     private form_buttons: SubmitDmpService,
-    private dropDownService: DropDownSelectService
+    private dropDownService: DropDownSelectService,
+    private formChangedService: FormChangedService
     ) { 
 
   }
@@ -70,13 +72,17 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     }
   ];
 
+  disableSaveBtn:boolean = false;
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
-    this.storageSubscribe()
-    this.softwareSubscribe()
-    this.databaseSubscribe()
-    this.websiteSubscribe()
+    this.storageSubscribe();
+    this.softwareSubscribe();
+    this.databaseSubscribe();
+    this.websiteSubscribe();
+    this.storageSubscribe();
     this.availableResources = this.nistResources.getAllResources();
+    this.saveButtonSubscribe();
     // console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
@@ -98,6 +104,18 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     this.form_buttons.setButtonMessage(e.currentTarget.innerText);
     this.form_buttons.buttonSubject$.next(e.currentTarget.innerText);
     
+  }
+
+  //subscribe to a particular subject
+  saveButtonSubscribe() {
+    if (!this.formChangedSubscription) {
+      //subscribe if not already subscribed
+      this.formChangedSubscription = this.formChangedService.disableSaveBtn$.subscribe({
+        next: (message) => {
+          this.disableSaveBtn = message;          
+        }
+      });
+    }
   }
 
   //subscribe to a particular subject
