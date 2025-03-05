@@ -119,17 +119,33 @@ export class DmpFormComponent implements OnInit{
     ) {  
       // console.log("constructor");
       afterNextRender(() => {
-        // used for one-time initialisation:        
-        this.dmpFormGrp.valueChanges.subscribe(value => {          
+        // used for one-time initialisation: 
+        // subscribe to track if the form has been changed by performing
+        // changes to any inputs on the form
+        this.dmpFormGrp.valueChanges.subscribe(value => {   
+          // check if we're loading data from the backend database
+          // and if the form is in the initial state - meaning just
+          // freshly pulled out of the database and un-edited
           if (this.getFromDB && this.initialFormState){
-            // console.log("Form initiated");
-            this.changeElementClass("btnSave", "btn_update", "btn_draft");
+            
+            // here we set save button to initial state, thus ignoring
+            // changes made to the form when initializing the form
+            // and when updating the form with the data that initially 
+            // comes from the back end
+            this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
+            
+            // set initial form to false to indicate that any edits to the form
+            // need to be tracked
             this.initialFormState = false;
+
+            // set to false because we're done getting data from the backednd database.
             this.getFromDB = false;
 
           }
           else {
-            this.changeElementClass("btnSave", "btn_draft", "btn_update");
+            // make changes to the background color because the form has been changed
+            
+            this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
             
           }
         });
@@ -272,25 +288,45 @@ export class DmpFormComponent implements OnInit{
   patchDMP(patch: Partial<DMP_Meta>) {
     // patch contains value changes in the child components
     if (!this.dmp) throw new Error("Missing DMP in patch");
+
+    // ========================================
+    // NOTE:
+    // ========================================
+    // Currently we have 8 components within the form and they appear in this order on the GUI
+    //      1) Basic Information
+    //      2) Researchers
+    //      3) Keywords
+    //      4) Technical Requirements
+    //      5) Ethical Concerns
+    //      6) Security and Privacy
+    //      7) Data Description
+    //      8) Data Preservation and Accessibility
+    // On form init, those components send initialization patch to the main form component
+    // consequently the last component that sends init patch is Data Preservation and Accessibility.    
+    // This component has property 'preservationDescription' so checking for that property as
+    // Initially the forms patch empty values of the form to the parent so we need to ignore these
+    // first 8 inital patch events.
+    const frmComponentNum: number = 8 // change this number if more form components are added in the future
+    this.firstLoadCount +=1;
+
+    if(this.getFromDB && this.firstLoadCount > frmComponentNum ){
+      // Once the initial empty patch values have been ignored,
+      // check for the last form patch that currently comes from 
+      // Data Preservation and Accessibility component
+      if (patch.preservationDescription){
+        // set the flag that indicates that we have loaded the 
+        // initial form state that came from back end database
+        this.initialFormState = true;
+        // console.log("last one");
+      }
+
+    }
+    
     // Example of spread operatior (...)
     // let arr1 = [0, 1, 2];
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
     // arr1 is now [0, 1, 2, 3, 4, 5]        
-    if(this.getFromDB && this.firstLoadCount >7 ){
-      console.log ("+++++++++++++++++++++++");
-      console.log (this.dmp);
-      console.log ("+++++++++++++++++++++++");
-      console.log ("=======================");
-      console.log (patch);
-      console.log ("=======================");
-      if (patch.preservationDescription){
-        this.initialFormState = true;
-        console.log("last one");
-      }
-
-    }
-    this.firstLoadCount +=1;
     this.dmp = { ...this.dmp, ...patch };
   }
 
