@@ -9,7 +9,6 @@ import { Subscription } from 'rxjs';
 import { ResourcesService } from '../shared/resources.service';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
-// import { FilterPipe } from './filter.pipe';
 import { DropDownSelectService } from '../shared/drop-down-select.service';
 
 interface Messages {
@@ -28,6 +27,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   softwareSubscription!: Subscription | null;
   databaseSubscription!: Subscription | null;
   websiteSubscription!: Subscription | null;
+  formChangedSubscription!: Subscription | null;
 
   // to pass data from parent to this component we declare an input decorator along
   // with a property named data wich is of type string
@@ -38,7 +38,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     private sharedService:ResourcesService, 
     private nistResources: LoadResourcesService,
     private form_buttons: SubmitDmpService,
-    private dropDownService: DropDownSelectService,
+    private dropDownService: DropDownSelectService
     ) { 
 
   }

@@ -133,6 +133,7 @@ export class DmpFormComponent implements OnInit{
             // and when updating the form with the data that initially 
             // comes from the back end
             this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
+            this.formSaved = true;
             
             // set initial form to false to indicate that any edits to the form
             // need to be tracked
@@ -140,12 +141,12 @@ export class DmpFormComponent implements OnInit{
 
             // set to false because we're done getting data from the backednd database.
             this.getFromDB = false;
-
           }
           else {
             // make changes to the background color because the form has been changed
             
             this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
+            this.formSaved = false;
             
           }
         });
@@ -155,6 +156,7 @@ export class DmpFormComponent implements OnInit{
 
   action:string = "";
   id:string | null = null;
+  formSaved:boolean = true;
   initialFormState:boolean = false;
   firstLoadCount:number = 0;
   getFromDB:boolean = false;
@@ -239,7 +241,13 @@ export class DmpFormComponent implements OnInit{
               alert("Please select DMP export type from the drop down menu.");
             }
             else {
-              this.exportDMP(this.dmpExportFormatType);
+              if (this.formSaved){
+                this.exportDMP(this.dmpExportFormatType);
+              }
+              else{
+                alert("Please save changes to your DMP form before exporting.");
+              }
+              
             }
           }
         }
@@ -392,6 +400,7 @@ export class DmpFormComponent implements OnInit{
             //try to reload the page to read the saved dmp from mongodb
             this.router.navigate(['edit', this.id]);
             this.changeElementClass("btnSave", "btn_draft", "btn_update");
+            this.formSaved = true;
             alert("Successfuly saved draft of the data");
           },
           error: error => {
@@ -409,6 +418,7 @@ export class DmpFormComponent implements OnInit{
           next: data => {
             this.router.navigate(['edit', data.id]);
             this.changeElementClass("btnSave", "btn_draft", "btn_update");
+            this.formSaved = true;
           },
           error: error => {
             console.log(error.message);
