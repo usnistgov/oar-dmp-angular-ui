@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PageResizeService } from '../shared/page-resize.service';
 
 @Component({
   selector: 'app-page-not-found',
@@ -7,12 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PageNotFoundComponent implements OnInit {
 
-  constructor() { 
-    console.log("page-notfound component - constructor");
-      
-      
+
+  constructor(
+    private elementResize:PageResizeService
+  ) { 
+    // console.log("page-notfound component - constructor");
   }
 
-  ngOnInit(): void {  }
+  ngOnInit(): void {
+    this.elementResize.elementResize("PageNotFound");
+  }
 
 }
