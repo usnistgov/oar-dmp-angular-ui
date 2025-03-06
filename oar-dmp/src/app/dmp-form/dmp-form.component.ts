@@ -240,7 +240,7 @@ export class DmpFormComponent implements OnInit{
           if (this.formButtonMessage === "Reset"){
             this.resetDmp();
           }
-          else if (this.formButtonMessage === "Save Draft"){
+          else if (this.formButtonMessage === "Save"){
             this.saveDraft();
           }
           else if (this.formButtonMessage === "Export As:"){
