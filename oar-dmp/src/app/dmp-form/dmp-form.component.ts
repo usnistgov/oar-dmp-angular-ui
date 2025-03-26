@@ -130,12 +130,11 @@ export class DmpFormComponent implements OnInit{
           // freshly pulled out of the database and un-edited
           if (this.getFromDB && this.initialFormState){
             
-            this.formChanged.disableSaveBtn$.next(true);
             // here we set save button to initial state, thus ignoring
             // changes made to the form when initializing the form
             // and when updating the form with the data that initially 
             // comes from the back end
-            this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
+            this.disableSaveButton();
             this.formSaved = true;
             
             // set initial form to false to indicate that any edits to the form
@@ -149,9 +148,7 @@ export class DmpFormComponent implements OnInit{
           }
           else {
             // make changes to the background color because the form has been changed
-            
-            this.formChanged.disableSaveBtn$.next(false);
-            this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
+            this.enableSaveButton();
             this.formSaved = false;
             
             
@@ -206,16 +203,18 @@ export class DmpFormComponent implements OnInit{
       {
         next: data => {
           if (this.id !==null){
+            // fetch DMP data from the backend
             this.initialDMP = data.data;
             this.dmp = data.data;
             this.name.setValue(data.name);
-            // this.name.value = data.name
             this.getFromDB = true;
           }
           else{
+            // empty new form for creating new DMP
             this.initialDMP = data;
             this.dmp = data;
-            // this.name.value = '';
+            // disable save button by default until user has made a change on the form
+            this.disableSaveButton();
           }
         },
         error: error => {
@@ -345,6 +344,16 @@ export class DmpFormComponent implements OnInit{
     this.dmp = { ...this.dmp, ...patch };
   }
 
+  enableSaveButton(){
+    this.formChanged.disableSaveBtn$.next(false);
+    this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
+  }
+
+  disableSaveButton(){
+    this.formChanged.disableSaveBtn$.next(true);
+    this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
+  }
+
   onSubmit() {
     // For demo purposes make onSumit identical to saving a draft
     // later new logic will have to be implemented for proper proceduere
@@ -406,8 +415,7 @@ export class DmpFormComponent implements OnInit{
           next: data => {
             //try to reload the page to read the saved dmp from mongodb
             this.router.navigate(['edit', this.id]);
-            this.formChanged.disableSaveBtn$.next(true);
-            this.changeElementClass("btnSave", "btn_draft", "btn_update");
+            this.disableSaveButton();
             this.formSaved = true;
             alert("Successfuly saved draft of the data");
           },
@@ -425,8 +433,7 @@ export class DmpFormComponent implements OnInit{
         {
           next: data => {
             this.router.navigate(['edit', data.id]);
-            this.formChanged.disableSaveBtn$.next(true);
-            this.changeElementClass("btnSave", "btn_draft", "btn_update");
+            this.disableSaveButton();
             this.formSaved = true;
           },
           error: error => {
