@@ -234,6 +234,7 @@ export class DmpFormComponent implements OnInit{
       //subscribe if not already subscribed
       this.formButtonSubscription = this.form_buttons.buttonSubject$.subscribe({
         next: (message) => {
+          console.log(message);
           // the message is not relevant here. it is just a trigger to reset the form
           this.formButtonMessage = message;
           if (this.formButtonMessage === "Reset"){
@@ -317,7 +318,7 @@ export class DmpFormComponent implements OnInit{
     //      8) Data Preservation and Accessibility
     // On form init, those components send initialization patch to the main form component
     // consequently the last component that sends init patch is Data Preservation and Accessibility.    
-    // This component has property 'preservationDescription' so checking for that property as
+    // This component has property 'preservationDescription' so check for that property as
     // Initially the forms patch empty values of the form to the parent so we need to ignore these
     // first 8 inital patch events.
     const frmComponentNum: number = 8 // change this number if more form components are added in the future
@@ -326,8 +327,11 @@ export class DmpFormComponent implements OnInit{
     if(this.getFromDB && this.firstLoadCount > frmComponentNum ){
       // Once the initial empty patch values have been ignored,
       // check for the last form patch that currently comes from 
-      // Data Preservation and Accessibility component
-      if (patch.preservationDescription){
+      // Data Preservation and Accessibility component. 
+      // One of the properites in this component is 'preservationDescription'
+      // so check for its presence to deterimine that it is indeed
+      // last component being patched
+      if (patch.hasOwnProperty('preservationDescription')){
         // set the flag that indicates that we have loaded the 
         // initial form state that came from back end database
         this.initialFormState = true;
