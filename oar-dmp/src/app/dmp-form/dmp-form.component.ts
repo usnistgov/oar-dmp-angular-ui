@@ -414,22 +414,26 @@ export class DmpFormComponent implements OnInit{
     
     if (this.id !==null){
       // If id is not null then update dmp with the current id
-      this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
-        {
-          next: data => {
-            //try to reload the page to read the saved dmp from mongodb
-            this.router.navigate(['edit', this.id]);
-            this.disableSaveButton();
-            this.formSaved = true;
-            alert("Successfuly saved draft of the data");
-          },
-          error: error => {
-            console.log(error.message);
-            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+      if (this.action !=="new"){
+
+        this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
+          {
+            next: data => {
+              //try to reload the page to read the saved dmp from mongodb
+              this.router.navigate(['edit', this.id]);
+              this.disableSaveButton();
+              this.formSaved = true;
+              alert("Successfuly saved draft of the data");
+            },
+            error: error => {
+              console.log(error.message);
+              this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+            }
+            
           }
-          
-        }
-      );
+        );
+      }
+      
     }
     else {
       //create a new DMP
