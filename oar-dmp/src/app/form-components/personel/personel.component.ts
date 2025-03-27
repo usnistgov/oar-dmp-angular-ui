@@ -764,6 +764,11 @@ export class PersonelComponent implements OnInit {
     this.disableClear=false;
     this.disableRemove=false;
 
+    // patch value to also indicate that the form has changed and Save button can change color
+    this.personelForm.patchValue({
+      contributors:this.personelForm.value['contributors']
+    })
+
   }
 
   addRow(){
@@ -1051,6 +1056,12 @@ export class PersonelComponent implements OnInit {
       // remove from the display table
       this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
       this.resetWarningAndErrorMessages();
+
+      // patch value to also indicate that the form has changed and Save button can change color
+      this.personelForm.patchValue({
+        contributors:this.personelForm.value['contributors']
+      })
+      
     }
   }
 
@@ -1273,6 +1284,9 @@ export class PersonelComponent implements OnInit {
 
       // remove from the display table
       this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
+      this.personelForm.patchValue({
+        organizations:              this.personelForm.value['organizations']
+      });
     }
     else{
       const temp = 0;

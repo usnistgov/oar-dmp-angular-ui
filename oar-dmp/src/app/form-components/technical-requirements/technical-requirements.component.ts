@@ -459,6 +459,10 @@ export class StorageNeedsComponent {
       });
       // remove from the display table
       this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u) => u.id !== id);
+
+      this.technicalRequirementsForm.patchValue({
+        instruments: this.technicalRequirementsForm.value['instruments']
+      })
     }
   }  
 
@@ -480,8 +484,7 @@ export class StorageNeedsComponent {
 
     // add new row to the dmpInstrumentsTbl array 
     // using the spread operator '...'
-    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
-    
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];    
 
     //update changes made to the table in the form
     this.onDoneClick(newRow);
@@ -518,6 +521,9 @@ export class StorageNeedsComponent {
 
   this.disableClear=false;
   this.disableRemove=false;
+  this.technicalRequirementsForm.patchValue({
+    instruments: this.technicalRequirementsForm.value['instruments']
+  })
 
   }
 
