@@ -135,7 +135,7 @@ export class DmpService {
     return this.authService.getCredentials().pipe(
       switchMap(creds => {
         if (! creds)
-          throwError(new Error("Authentication Failed"));
+          return throwError(() => new Error('Authentication Failed'));          
         return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.getHttpOptions(creds))
       })
     );
@@ -149,7 +149,7 @@ export class DmpService {
     return this.authService.getCredentials().pipe(
       switchMap(creds => {
         if (! creds)
-          throwError(new Error("Authentication Failed"));
+          return throwError(() => new Error('Authentication Failed'));
         return this.http.post<any>(apiAddress,
                                    JSON.stringify(midasDMP),
                                    this.getHttpOptions(creds));

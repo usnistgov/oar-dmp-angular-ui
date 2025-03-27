@@ -432,6 +432,7 @@ export class DmpFormComponent implements OnInit{
       this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
         {
           next: data => {
+            this.id = data.id;
             this.router.navigate(['edit', data.id]);
             this.disableSaveButton();
             this.formSaved = true;
