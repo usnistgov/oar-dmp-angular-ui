@@ -642,7 +642,7 @@ export class DmpFormComponent implements OnInit{
         this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
       if (dmpFormat === "Markdown"){
         // change primary contact to be one line because Markdown does not allow new lines in a table cell
-        tblHeaders[3] = "Primary Contact"; 
+        tblHeaders[2] = "Primary Contact"; 
         this.markdownTable("Contributors", tblHeaders, tblData);
       }
         
@@ -688,9 +688,9 @@ export class DmpFormComponent implements OnInit{
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
       if (dmpFormat === "PDF")
-        this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
+        this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription);
       if (dmpFormat === "Markdown")
-        this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + "  \n");
+        this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription + "  \n");
     }
 
     //Software Development
