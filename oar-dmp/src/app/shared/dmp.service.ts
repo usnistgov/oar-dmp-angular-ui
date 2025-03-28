@@ -70,6 +70,7 @@ export class DmpService {
     //Technical Resources
     dataSize:                 null,
     sizeUnit:                 "GB",
+    dataSizeDescription:      '',
     softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
     technicalResources:       [],
     instruments:              [],

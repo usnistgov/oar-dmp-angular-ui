@@ -166,7 +166,7 @@ export class DmpFormComponent implements OnInit{
   getFromDB:boolean = false;
 
   ngOnInit(): void {
-    console.log("ngOnInit")
+    // console.log("ngOnInit")
 
     // const elementToObserve = document.getElementById("footer");
     
@@ -234,7 +234,7 @@ export class DmpFormComponent implements OnInit{
       //subscribe if not already subscribed
       this.formButtonSubscription = this.form_buttons.buttonSubject$.subscribe({
         next: (message) => {
-          console.log(message);
+          // console.log(message);
           // the message is not relevant here. it is just a trigger to reset the form
           this.formButtonMessage = message;
           if (this.formButtonMessage === "Reset"){

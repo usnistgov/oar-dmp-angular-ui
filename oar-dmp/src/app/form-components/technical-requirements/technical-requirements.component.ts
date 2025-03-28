@@ -82,8 +82,9 @@ export class StorageNeedsComponent {
   // types/technical-requirements.type.ts
   technicalRequirementsForm = this.fb.group(
     {
-      dataSize: ['', [Validators.required, Validators.pattern("^[0-9]*$")]], // only numbers
+      dataSize: ['', [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$")]], // only numbers
       sizeUnit: ['', Validators.required],
+      dataSizeDescription: [''],
       development: ['', Validators.required],
       softwareUse: [''],
       softwareDatabase: [''],
@@ -132,6 +133,7 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.patchValue({
         dataSize:                       technical_requirements.dataSize,
         sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
         development:                    technical_requirements.softwareDevelopment.development,
         softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
         softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
@@ -147,6 +149,7 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.patchValue({
         dataSize:                       technical_requirements.dataSize,
         sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
         development:                    technical_requirements.softwareDevelopment.development,
         softwareUse:                    "",
         softwareDatabase:               "",
@@ -180,6 +183,7 @@ export class StorageNeedsComponent {
           // to our part of the form 
           dataSize:                       formValue.dataSize,
           sizeUnit:                       formValue.sizeUnit,
+          dataSizeDescription:            formValue.dataSizeDescription,
           softwareDevelopment:            {
                                             "development":formValue.development,
                                             "softwareUse":formValue.softwareUse,
@@ -210,7 +214,7 @@ export class StorageNeedsComponent {
     if (typeof dataSizeInput === 'string' && !this.dataCategoryIsSet){
       // dataSizeInput can be none or undefined if no data has be inserted in the text box
       // so check first if the value of the textbox is a string
-      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
         this.sharedService.setStorageMessage(this.dataSetSize); 
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
@@ -251,7 +255,7 @@ export class StorageNeedsComponent {
     }
   }
 
-  dataSizeRegEx : RegExp = new RegExp("^[1-9][0-9]*$");
+  dataSizeRegEx : RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
   // used for estimated data size drop down of data units options
   dataUnits =[    
@@ -266,7 +270,7 @@ export class StorageNeedsComponent {
     {
       id: "3",
       size: 'TB'
-    }
+    },
   ];
 
   selDataSize(){
@@ -276,11 +280,11 @@ export class StorageNeedsComponent {
     // of myDiv1
   
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;    
     // dataSizeInput can be none or undefined if no data has be inserted in the text box
     // so check first if the value of the textbox is a string
     if (typeof dataSizeInput === 'string'){
-      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){    
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){    
         if (!this.dataCategoryIsSet){ // send message to resource options component only if data category check boxes have not been set
           this.sharedService.setStorageMessage(this.dataSetSize);
           //send message to subscribed components
@@ -293,7 +297,7 @@ export class StorageNeedsComponent {
         }
       }
       else{
-        alert ("Estimated data size must be an integer value greater than zero");
+        alert ("Estimated data size must be a numerical value greater than zero");
         if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
           this.sharedService.setStorageMessage("");
           this.sharedService.storageSubject$.next("");
@@ -303,17 +307,16 @@ export class StorageNeedsComponent {
   }
 
   setDataSize(e:any){
-    //send message to subscribed components
-    
+    //send message to subscribed components    
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
-    if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+    if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
         this.sharedService.setStorageMessage(this.dataSetSize);    
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
     else{
-      alert ("Estimated data size must be an integer value greater than zero");
+      alert ("Estimated data size must be a numerical value greater than zero");
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
         this.sharedService.setStorageMessage("");
         this.sharedService.storageSubject$.next("");
@@ -345,6 +348,15 @@ export class StorageNeedsComponent {
   techRsrcOnClickClear(){
     this.techRsrc = [];
     this.techRsrcErr = '';
+  }
+
+  setDataSizeDescription(e: string): void {
+    console.log("setDataSizeDescription");
+    this.technicalRequirementsForm.patchValue(
+      {
+        setDataSizeDescription: e
+      }
+    )
   }
 
   // determines whether there is any software development planned for this DMP
@@ -452,7 +464,7 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.value['instruments'].forEach( (value:Instrument, index:number) => {
         selRow.forEach((instrument)=>{
           if (value.description_url === instrument.description_url)
-          console.log(instrument);
+          // console.log(instrument);
           //remove from DmpRecord
           this.technicalRequirementsForm.value['instruments'].splice(index,1);
         });
@@ -568,7 +580,7 @@ export class StorageNeedsComponent {
   }
 
   resetTechnicalRequirements(){
-    this.dataSize = "3";
+    this.dataSize = "";
     this.dataSetSize = "TB";
     this.setSoftwareDev('no');
     this.setSoftwareUse('no');
@@ -579,6 +591,7 @@ export class StorageNeedsComponent {
       // changes up to the parent form
       dataSize:             null,
       sizeUnit:             "TB",
+      dataSizeDescription:  "",
       development:          "no",
       softwareUse:          null,
       softwareDatabase:     null,
