@@ -249,7 +249,10 @@ export class DmpFormComponent implements OnInit{
             }
             else {
               if (this.formSaved){
-                this.exportDMP(this.dmpExportFormatType);
+                if (this.action !=="new"){
+                  // prevent browser from exporting DMP twice when creating a fresh DMP record
+                  this.exportDMP(this.dmpExportFormatType);
+                }
               }
               else{
                 alert("Please save changes to your DMP form before exporting.");
