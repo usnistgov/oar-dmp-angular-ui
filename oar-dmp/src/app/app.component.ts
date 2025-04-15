@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
-import { ResizedEvent } from 'angular-resize-event';
+import { Subscription } from 'rxjs';
 import { Credentials, AuthenticationService, StaffDirectoryService } from 'oarng';
+import { SubmitDmpService } from './shared/submit-dmp.service';
+import { DropDownSelectService } from './shared/drop-down-select.service';
+import { FormChangedService } from './shared/form-changed.service';
+
+interface Messages {
+    [key: string]: any;
+}
 
 @Component({
   selector: 'app-root',
@@ -17,10 +24,27 @@ export class AppComponent {
   loginPNG: string = 'assets/images/checked-user.png'
 
   alttext: string="Icon of a user drawing with a check mark to indicated loggedin status"
-  
+
+  exportType: string = "";
+  exportFormats = [
+    {
+      id: "1",
+      format: 'PDF'
+    },
+    {
+      id: "2",
+      format: 'Markdown'
+    }
+  ];
+  disableSaveBtn:boolean = false;
+
+  formChangedSubscription!: Subscription | null;  
   
   constructor(public authService: AuthenticationService,
-              private sdsvc: StaffDirectoryService)
+            private sdsvc: StaffDirectoryService,            
+            private form_buttons: SubmitDmpService,
+            private dropDownService: DropDownSelectService,
+            private formChangedService: FormChangedService)
   { }
 
 
@@ -53,7 +77,39 @@ export class AppComponent {
                 this.authMessage = "Unable to log in; authentication server communtication error";
             }
         }
-    })
-  } 
+    });
+
+    this.saveButtonSubscribe();
+  }
+
+  setExportFormat(){
+    let dataFormat = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0].format;
+    this.form_buttons.setexportFormat(dataFormat);
+    this.form_buttons.exportFormatSubject$.next(dataFormat);
+    this.form_buttons.setButtonMessage('Export As:');
+    this.form_buttons.buttonSubject$.next('Export As:');
+    
+  }
+
+  dmpButtonClick(e:any){
+    //send message to dmp form component indicating which button has been pressed
+    //the e event captures the text of the button so we pass tat to the form to
+    //indicate the course of action. The options should be 'Reset', 'Save' and 'Publish'
+    this.form_buttons.setButtonMessage(e.currentTarget.innerText);
+    this.form_buttons.buttonSubject$.next(e.currentTarget.innerText);
+    
+  }
+
+  //subscribe to a particular subject
+  saveButtonSubscribe() {
+    if (!this.formChangedSubscription) {
+      //subscribe if not already subscribed
+      this.formChangedSubscription = this.formChangedService.disableSaveBtn$.subscribe({
+        next: (message) => {
+          this.disableSaveBtn = message;          
+        }
+      });
+    }
+  }
   
 }
