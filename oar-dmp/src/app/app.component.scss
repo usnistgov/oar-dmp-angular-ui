@@ -51,17 +51,16 @@ $header_height: 56px;
   // padding: 4px;
   // padding-bottom: 5px;
   background-color: #ffffff;
-  width:100%;
+  // width:100%;
   z-index:2;
-  
+  border-bottom: groove #000000;
   
 }
 
 .grid_buttons {
   div {float:left;}
-  position: relative;
-  // border-bottom: groove #000000;
-  width: 58.33%;
+  position: relative;  
+  padding-right: 10px;
   height: 45px;
   background-color: #ffffff;
   float: right;

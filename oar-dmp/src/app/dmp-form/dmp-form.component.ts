@@ -243,9 +243,9 @@ export class DmpFormComponent implements OnInit{
           else if (this.formButtonMessage === "Save"){
             this.saveDraft();
           }
-          else if (this.formButtonMessage === "Export As:"){
+          else if (this.formButtonMessage === "Download"){
             if (this.dmpExportFormatType === ""){
-              alert("Please select DMP export type from the drop down menu.");
+              alert("Please select DMP export format from the drop down menu.");
             }
             else {
               if (this.formSaved){

@@ -86,8 +86,8 @@ export class AppComponent {
     let dataFormat = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0].format;
     this.form_buttons.setexportFormat(dataFormat);
     this.form_buttons.exportFormatSubject$.next(dataFormat);
-    this.form_buttons.setButtonMessage('Export As:');
-    this.form_buttons.buttonSubject$.next('Export As:');
+    this.form_buttons.setButtonMessage('Download');
+    this.form_buttons.buttonSubject$.next('Download');
     
   }
 
