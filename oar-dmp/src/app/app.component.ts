@@ -37,6 +37,7 @@ export class AppComponent {
     }
   ];
   disableSaveBtn:boolean = false;
+  disableDownloadBtn:boolean = true;
 
   formChangedSubscription!: Subscription | null;  
   
@@ -88,6 +89,7 @@ export class AppComponent {
     this.form_buttons.exportFormatSubject$.next(dataFormat);
     this.form_buttons.setButtonMessage('Download');
     this.form_buttons.buttonSubject$.next('Download');
+    this.disableDownloadBtn = false;
     
   }
 
