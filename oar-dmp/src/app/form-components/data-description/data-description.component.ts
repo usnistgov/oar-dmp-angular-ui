@@ -50,10 +50,12 @@ export class DataDescriptionComponent implements OnInit {
     
     this.initialCategories = data_description.dataCategories;
 
-    this.dataDescriptionForm.patchValue({
-      dataDescription:                data_description.dataDescription,
-      dataCategories:                 data_description.dataCategories
-    });
+    this.dataDescriptionForm.patchValue(
+      {
+        dataDescription:                data_description.dataDescription,
+        dataCategories:                 data_description.dataCategories
+      }
+    );
   }
 
   @Output()
@@ -77,7 +79,9 @@ export class DataDescriptionComponent implements OnInit {
     // (DataDescriptionComponent and ResourceOptionsComponent)
     private sharedService: ResourcesService,
     private fb: UntypedFormBuilder
-  ) { }
+  ) { 
+    // console.log("Data Description Component");
+  }
 
   resetCheckboxes(){
     

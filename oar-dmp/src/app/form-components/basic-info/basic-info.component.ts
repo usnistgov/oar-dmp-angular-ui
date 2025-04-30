@@ -1,5 +1,6 @@
 import { Component, Input, Output } from '@angular/core';
 import { UntypedFormBuilder, Validators} from '@angular/forms';
+
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 
@@ -36,15 +37,17 @@ export class BasicInfoComponent{
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(basic_info: DMP_Meta) {
-    this.basicInfoForm.patchValue({
-      title: basic_info.title,
-      startDate: basic_info.startDate,
-      // endDate: basic_info.endDate,
-      dmpSearchable: basic_info.dmpSearchable,
-      grant_source: basic_info.funding.grant_source,
-      grant_id: basic_info.funding.grant_id,
-      projectDescription: basic_info.projectDescription
-    });
+    this.basicInfoForm.patchValue(
+      {
+        title: basic_info.title,
+        startDate: basic_info.startDate,
+        // endDate: basic_info.endDate,
+        dmpSearchable: basic_info.dmpSearchable,
+        grant_source: basic_info.funding.grant_source,
+        grant_id: basic_info.funding.grant_id,
+        projectDescription: basic_info.projectDescription
+      }
+    );
   }
 
   // We need to extract the form values and provide them to the parent component whenever 
@@ -57,18 +60,22 @@ export class BasicInfoComponent{
     // initial value. And we use defer() to use the latest form value for startWith() 
     // whenever someone subscribes.
     this.basicInfoForm.valueChanges.pipe(
-      startWith(this.basicInfoForm.value),
+      startWith(
+        this.basicInfoForm.value
+      ),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
-          title: formValue.title,
-          startDate: formValue.startDate,
-          // endDate: formValue.endDate,
-          dmpSearchable: formValue.dmpSearchable,
-          funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
-          projectDescription:formValue.projectDescription
-        })
+        (formValue): Partial<DMP_Meta> => (
+          {           
+            // The observable emits a partial DMP_Meta object that only contains the properties related 
+            // to our part of the form 
+            title: formValue.title,
+            startDate: formValue.startDate,
+            // endDate: formValue.endDate,
+            dmpSearchable: formValue.dmpSearchable,
+            funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
+            projectDescription:formValue.projectDescription
+          }
+        )
       )
     )
   );
@@ -79,7 +86,7 @@ export class BasicInfoComponent{
   formReady = of(this.basicInfoForm);
 
   constructor(private fb: UntypedFormBuilder) {
-    
+    // console.log("Basic Info Component");   
   }
 
   ngOnInit(): void {

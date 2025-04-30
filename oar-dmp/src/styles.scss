@@ -2,6 +2,7 @@
 $font-stack: Helvetica, sans-serif;
 $primary-color: #333;
 $dmp_margin_left: 12px;
+$min-browser-width: 1280px;
 
 * {
   box-sizing: border-box;
@@ -165,7 +166,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 [class*="dmp-col-"] {
   float: left;
-  padding: 15px;
+  padding-left: 10px;
 }
 
 /* For mobile phones: */
@@ -173,7 +174,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 100%;
 }
 
-@media only screen and (min-width: 1490px) {
+@media only screen and (min-width: $min-browser-width) {
   /* For desktop: */
   .dmp-col-1 {width: 8.33%;}
   .dmp-col-2 {width: 16.66%;}
@@ -187,9 +188,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .dmp-col-10 {width: 83.33%;}
   .dmp-col-11 {width: 91.66%;}
   .dmp-col-12 {width: 100%;}
+  
   div.sticky{
     position: fixed;
-    min-width: 600px;//required for FIrefox
+    min-width: 500px;//required for FIrefox
+    z-index: 10;
     // top: 95px;
     // left: 623px;
   }
@@ -215,6 +218,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: rgb(221, 246, 253);
 }
 
-@media only screen and (min-width: 1490px) {
+@media only screen and (min-width: 1280) {
   #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
 }

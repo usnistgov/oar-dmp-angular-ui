@@ -1,10 +1,8 @@
 import { Component, OnInit, Input, Output  } from '@angular/core';
+import { confirmDialog } from 'src/app/shared/dmp.service';
 import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
-// TODO: delete dmp-api.service as we don't need it anymore
-// import { DmpAPIService } from '../../shared/dmp-api.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
-import { NistContact } from '../../types/nist-contact'
 
 import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith, lastValueFrom, catchError } from 'rxjs';
@@ -18,6 +16,7 @@ import {Observable, switchMap, tap} from 'rxjs';
 import { SDSuggestion, SDSIndex, StaffDirectoryService } from 'oarng';
 
 import * as _ from 'lodash';
+
 // import { error } from 'console';
 
 // used for dropdown menu containing values "Yes" and "No" to indicate
@@ -257,11 +256,10 @@ export class PersonelComponent implements OnInit {
   
   constructor(
     private dropDownService: DropDownSelectService,
-    // private apiService: DmpAPIService,
     private fb: UntypedFormBuilder,
     private sdsvc: StaffDirectoryService
   ) {
-    // console.log("PersonelComponent constructor");
+    // console.log("Personel Component");
     this.getNistContactsFromAPI();    
     this.getNistOrganizations();
   }
@@ -285,8 +283,8 @@ export class PersonelComponent implements OnInit {
     personel.organizations.forEach( 
       (org, index) => {        
         this.dmpOrganizations.push({id:index, groupName:org.groupName, divisionName:org.divisionName, ouName:org.ouName, isEdit:false});
-        this.disableClear=false;
-        this.disableRemove=false;
+        this.org_disableClear=false;
+        this.org_disableRemove=false;
       }
       
     );
@@ -609,42 +607,47 @@ export class PersonelComponent implements OnInit {
   }
   
   removeSelectedRows() {
-    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
-    this.resetTable();
-    this.contribOrcidWarn = "";
-    this.dmpContributors.forEach((element)=>{        
-        if (element.orcid.length == 0){
-          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-        }
-        // re populate contributors array
-        this.personelForm.value['contributors'].push({
-          
-          firstName:element.firstName, 
-          lastName:element.lastName,
-          orcid: element.orcid,
-          emailAddress: element.emailAddress,
 
-          groupOrgID:element.groupOrgID,
-          groupNumber:element.groupNumber,
-          groupName:element.groupName,
+    const result = confirmDialog("Are you sure you want to delete selected contributor(s) for this DMP?");
 
-          divisionOrgID:element.divisionOrgID,
-          divisionNumber:element.divisionNumber,
-          divisionName:element.divisionName,
+    if (result) {
+      this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
+      this.resetTable();
+      this.contribOrcidWarn = "";
+      this.dmpContributors.forEach((element)=>{        
+          if (element.orcid.length == 0){
+            this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+          }
+          // re populate contributors array
+          this.personelForm.value['contributors'].push({
+            
+            firstName:element.firstName, 
+            lastName:element.lastName,
+            orcid: element.orcid,
+            emailAddress: element.emailAddress,
 
-          ouOrgID:element.ouOrgID,
-          ouNumber:element.ouNumber,
-          ouName:element.ouName,
-          
-          primary_contact: element.primary_contact,
-          institution: element.institution,
-          role: element.role
-        });
-    });
-    if (this.dmpContributors.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
+            groupOrgID:element.groupOrgID,
+            groupNumber:element.groupNumber,
+            groupName:element.groupName,
+
+            divisionOrgID:element.divisionOrgID,
+            divisionNumber:element.divisionNumber,
+            divisionName:element.divisionName,
+
+            ouOrgID:element.ouOrgID,
+            ouNumber:element.ouNumber,
+            ouName:element.ouName,
+            
+            primary_contact: element.primary_contact,
+            institution: element.institution,
+            role: element.role
+          });
+      });
+      if (this.dmpContributors.length === 0){
+        // If the table is empty disable clear and remove buttons
+        this.disableClear=true;
+        this.disableRemove=true;
+      }
     }
   }
 
@@ -655,12 +658,17 @@ export class PersonelComponent implements OnInit {
   }
 
   clearTable(){
-    this.dmpContributors = [];
-    this.resetWarningAndErrorMessages();
-    this.resetTable();
-     // If the table is empty disable clear and remove buttons
-    this.disableClear=true;
-    this.disableRemove=true;
+    const result = confirmDialog("Are you sure you want to delete all contributors for this DMP?");
+
+    if (result) {
+      this.dmpContributors = [];
+      this.resetWarningAndErrorMessages();
+      this.resetTable();
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+    
   }
 
   private isORCID(val:string):boolean{
@@ -755,6 +763,11 @@ export class PersonelComponent implements OnInit {
 
     this.disableClear=false;
     this.disableRemove=false;
+
+    // patch value to also indicate that the form has changed and Save button can change color
+    this.personelForm.patchValue({
+      contributors:this.personelForm.value['contributors']
+    })
 
   }
 
@@ -1019,27 +1032,37 @@ export class PersonelComponent implements OnInit {
   }
 
   removeRow(id:any) {
-    // select word from the specific id
-    var selWord = this.dmpContributors.filter((u) => u.id === id);    
-    this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
-      selWord.forEach((word)=>{
-        /**
-         * NOTE: 
-         * assuming here that e-mail is always unique
-         * i.e. that there are no two contributors with the same e-mail
-         * Some check could be performed as a future feature to ensure that
-         * when adding a new contributor the e-mail is unique and always present field
-         */
-        if(value.emailAddress === word.emailAddress){
-          //remove from DmpRecord
-          this.personelForm.value['contributors'].splice(index,1);
-        }
-      });
-    });
+    const result = confirmDialog("Are you sure you want to delete selected contributor(s) for this DMP?");
 
-    // remove from the display table
-    this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
-    this.resetWarningAndErrorMessages();
+    if (result) {
+      // select word from the specific id
+      var selWord = this.dmpContributors.filter((u) => u.id === id);    
+      this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
+        selWord.forEach((word)=>{
+          /**
+           * NOTE: 
+           * assuming here that e-mail is always unique
+           * i.e. that there are no two contributors with the same e-mail
+           * Some check could be performed as a future feature to ensure that
+           * when adding a new contributor the e-mail is unique and always present field
+           */
+          if(value.emailAddress === word.emailAddress){
+            //remove from DmpRecord
+            this.personelForm.value['contributors'].splice(index,1);
+          }
+        });
+      });
+
+      // remove from the display table
+      this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
+      this.resetWarningAndErrorMessages();
+
+      // patch value to also indicate that the form has changed and Save button can change color
+      this.personelForm.patchValue({
+        contributors:this.personelForm.value['contributors']
+      })
+      
+    }
   }
 
   resetPersonnelForm(){
@@ -1150,17 +1173,21 @@ export class PersonelComponent implements OnInit {
   }
 
   org_removeSelectedRows() {
-    //assign unselected rows to dmpOrganizations
-    this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
-    //reset the table 
-    this.org_resetTable();
-    //repopulate the table with what's left in the array
-    this.rePopulateOrgs();
+    const result = confirmDialog("Are you sure you want to delete selected organization(s) for this DMP?");
 
-    if (this.dmpOrganizations.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.org_disableClear=true;
-      this.org_disableRemove=true;
+    if (result) {
+      //assign unselected rows to dmpOrganizations
+      this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
+      //reset the table 
+      this.org_resetTable();
+      //repopulate the table with what's left in the array
+      this.rePopulateOrgs();
+
+      if (this.dmpOrganizations.length === 0){
+        // If the table is empty disable clear and remove buttons
+        this.org_disableClear=true;
+        this.org_disableRemove=true;
+      }
     }
   }
 
@@ -1171,11 +1198,15 @@ export class PersonelComponent implements OnInit {
   }
 
   org_clearTable(){
-    this.dmpOrganizations = []
-    this.org_resetTable();
-    this.org_disableAdd=true;
-    this.org_disableClear=true;
-    this.org_disableRemove=true;
+    const result = confirmDialog("Are you sure you want to delete all organizations for this DMP?");
+
+    if (result) {
+      this.dmpOrganizations = []
+      this.org_resetTable();
+      this.org_disableAdd=true;
+      this.org_disableClear=true;
+      this.org_disableRemove=true;
+    }
   }
 
   org_addRow(){
@@ -1228,28 +1259,38 @@ export class PersonelComponent implements OnInit {
   }
 
   org_removeRow(id:any) {
-    var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+    const result = confirmDialog("Are you sure you want to delete selected organization(s) for this DMP?");
 
-    // update the form metadata
-    this.personelForm.value['organizations'].forEach(
-      (value:ResponsibleOrganizations, index:number)=>{
-        selRow.forEach(
-          (org)=>{
-            if (
-              value.divisionName === org.divisionName &&
-              value.groupName === org.groupName &&
-              value.ouName === org.ouName
-            ){
-              //remove selected organization
-              this.personelForm.value['organizations'].splice(index,1);
+    if (result) {
+      var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+
+      // update the form metadata
+      this.personelForm.value['organizations'].forEach(
+        (value:ResponsibleOrganizations, index:number)=>{
+          selRow.forEach(
+            (org)=>{
+              if (
+                value.divisionName === org.divisionName &&
+                value.groupName === org.groupName &&
+                value.ouName === org.ouName
+              ){
+                //remove selected organization
+                this.personelForm.value['organizations'].splice(index,1);
+              }
             }
-          }
-        )
-      }
-    )
+          )
+        }
+      )
 
-    // remove from the display table
-    this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
+      // remove from the display table
+      this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
+      this.personelForm.patchValue({
+        organizations:              this.personelForm.value['organizations']
+      });
+    }
+    else{
+      const temp = 0;
+    }
   }
 
   

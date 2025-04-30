@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, afterNextRender  } from '@angular/core';
 import { ObservedValueOf, Subscription } from "rxjs";
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
@@ -12,9 +12,8 @@ import { DataPreservationComponent } from '../form-components/data-preservation/
 import { DMP_Meta } from '../types/DMP.types';
 import { DmpService } from '../shared/dmp.service'
 import { SubmitDmpService } from '../shared/submit-dmp.service';//for acknowledging when form button has been 'pressed'
+import { FormChangedService } from '../shared/form-changed.service';
 import { UntypedFormControl } from '@angular/forms';
-
-
 
 
 // for Communicating with backend services using HTTP
@@ -28,7 +27,6 @@ import { Injectable } from '@angular/core';
 // import { catchError, retry } from 'rxjs/operators';
 
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { DmpPdf } from './dmp-pdf';
 
 
@@ -63,7 +61,7 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./dmp-form.component.scss']
 })
 @Injectable()
-export class DmpFormComponent implements OnInit {
+export class DmpFormComponent implements OnInit{
   formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
 
@@ -98,8 +96,8 @@ export class DmpFormComponent implements OnInit {
    */
   dmp?: DMP_Meta;
 
-   // We create our form group using the DMPForm interface that's been defined above
-  form = this.fb.group({
+  // We create our form group using the DMPForm interface that's been defined above
+  dmpFormGrp = this.fb.group({
     // Form is empty for now -> child form groups will be added dynamically
 
   });
@@ -117,15 +115,73 @@ export class DmpFormComponent implements OnInit {
     private dmp_Service: DmpService, 
     private route: ActivatedRoute,
     private router: Router,
-    private dom:DomPositioningModule,
-    private form_buttons:SubmitDmpService
-    // private http: HttpClient
-    ) {  }
+    private form_buttons:SubmitDmpService,
+    private formChanged: FormChangedService
+    
+    ) {  
+      // console.log("constructor");
+      afterNextRender(() => {
+        // used for one-time initialisation: 
+        // subscribe to track if the form has been changed by performing
+        // changes to any inputs on the form
+        this.dmpFormGrp.valueChanges.subscribe(value => {   
+          // check if we're loading data from the backend database
+          // and if the form is in the initial state - meaning just
+          // freshly pulled out of the database and un-edited
+          if (this.getFromDB && this.initialFormState){
+            
+            // here we set save button to initial state, thus ignoring
+            // changes made to the form when initializing the form
+            // and when updating the form with the data that initially 
+            // comes from the back end
+            this.disableSaveButton();
+            this.formSaved = true;
+            
+            // set initial form to false to indicate that any edits to the form
+            // need to be tracked
+            this.initialFormState = false;
+
+            // set to false because we're done getting data from the backednd database.
+            this.getFromDB = false;
+
+            
+          }
+          else {
+            // make changes to the background color because the form has been changed
+            this.enableSaveButton();
+            this.formSaved = false;
+            
+            
+          }
+        });
+        
+      });
+    }
 
   action:string = "";
   id:string | null = null;
+  formSaved:boolean = true;
+  initialFormState:boolean = false;
+  firstLoadCount:number = 0;
+  getFromDB:boolean = false;
 
   ngOnInit(): void {
+    // console.log("ngOnInit")
+
+    // const elementToObserve = document.getElementById("footer");
+    
+    //     const resizeObserver = new ResizeObserver(entries => {
+    //       for (let entry of entries) {
+    //         const element = entry.target;
+    //         const newWidth = entry.contentRect.width;
+    //         const newHeight = entry.contentRect.height;
+        
+    //         // Do something with the new dimensions
+    //         // console.log('Element resized:', element, newWidth, newHeight);
+    //       }
+    //     });
+    
+    //     resizeObserver.observe(<Element>elementToObserve);
     
     this.formButtonSubscribe();
     this.formExportFormatSubscribe();
@@ -141,20 +197,24 @@ export class DmpFormComponent implements OnInit {
         this.nameDisabled = false;
       }
     });
+
     // Fetch initial data from the backend
     this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
       {
         next: data => {
           if (this.id !==null){
+            // fetch DMP data from the backend
             this.initialDMP = data.data;
             this.dmp = data.data;
             this.name.setValue(data.name);
-            // this.name.value = data.name
+            this.getFromDB = true;
           }
           else{
+            // empty new form for creating new DMP
             this.initialDMP = data;
             this.dmp = data;
-            // this.name.value = '';
+            // disable save button by default until user has made a change on the form
+            this.disableSaveButton();
           }
         },
         error: error => {
@@ -163,13 +223,10 @@ export class DmpFormComponent implements OnInit {
             
         }
       }
-    );    
-
+    );
+    
   }
 
-  ngAfterViewInit(): void {
-  
-  }
 
   //subscribe to button subjects
   formButtonSubscribe(){
@@ -177,12 +234,13 @@ export class DmpFormComponent implements OnInit {
       //subscribe if not already subscribed
       this.formButtonSubscription = this.form_buttons.buttonSubject$.subscribe({
         next: (message) => {
+          // console.log(message);
           // the message is not relevant here. it is just a trigger to reset the form
           this.formButtonMessage = message;
           if (this.formButtonMessage === "Reset"){
             this.resetDmp();
           }
-          else if (this.formButtonMessage === "Save Draft"){
+          else if (this.formButtonMessage === "Save"){
             this.saveDraft();
           }
           else if (this.formButtonMessage === "Export As:"){
@@ -190,12 +248,30 @@ export class DmpFormComponent implements OnInit {
               alert("Please select DMP export type from the drop down menu.");
             }
             else {
-              this.exportDMP(this.dmpExportFormatType);
+              if (this.formSaved){
+                if (this.action !=="new"){
+                  // prevent browser from exporting DMP twice when creating a fresh DMP record
+                  this.exportDMP(this.dmpExportFormatType);
+                }
+              }
+              else{
+                alert("Please save changes to your DMP form before exporting.");
+              }
+              
             }
           }
         }
       });
     }
+
+  }
+
+  private changeElementClass (elID:string, add:string, remove:string){
+    var saveButton = document.getElementById(elID);
+    saveButton?.classList.remove(add);
+    saveButton?.classList.remove(remove);
+
+    saveButton?.classList.add(add);
 
   }
 
@@ -221,7 +297,7 @@ export class DmpFormComponent implements OnInit {
     group: Exclude<DMPForm[K], undefined>
   ) {
     // And in our template we can render all child components and register the formReady event.
-    this.form.setControl(name, group);
+    this.dmpFormGrp.setControl(name, group);
   }
 
   // Our parent component should listen to any value changes in the child components. 
@@ -230,12 +306,59 @@ export class DmpFormComponent implements OnInit {
   patchDMP(patch: Partial<DMP_Meta>) {
     // patch contains value changes in the child components
     if (!this.dmp) throw new Error("Missing DMP in patch");
+
+    // ========================================
+    // NOTE:
+    // ========================================
+    // Currently we have 8 components within the form and they appear in this order on the GUI
+    //      1) Basic Information
+    //      2) Researchers
+    //      3) Keywords
+    //      4) Technical Requirements
+    //      5) Ethical Concerns
+    //      6) Security and Privacy
+    //      7) Data Description
+    //      8) Data Preservation and Accessibility
+    // On form init, those components send initialization patch to the main form component
+    // consequently the last component that sends init patch is Data Preservation and Accessibility.    
+    // This component has property 'preservationDescription' so check for that property as
+    // Initially the forms patch empty values of the form to the parent so we need to ignore these
+    // first 8 inital patch events.
+    const frmComponentNum: number = 8 // change this number if more form components are added in the future
+    this.firstLoadCount +=1;
+
+    if(this.getFromDB && this.firstLoadCount > frmComponentNum ){
+      // Once the initial empty patch values have been ignored,
+      // check for the last form patch that currently comes from 
+      // Data Preservation and Accessibility component. 
+      // One of the properites in this component is 'preservationDescription'
+      // so check for its presence to deterimine that it is indeed
+      // last component being patched
+      if (patch.hasOwnProperty('preservationDescription')){
+        // set the flag that indicates that we have loaded the 
+        // initial form state that came from back end database
+        this.initialFormState = true;
+        // console.log("last one");
+      }
+
+    }
+    
     // Example of spread operatior (...)
     // let arr1 = [0, 1, 2];
     // const arr2 = [3, 4, 5];
     // arr1 = [...arr1, ...arr2];
-    // arr1 is now [0, 1, 2, 3, 4, 5]    
+    // arr1 is now [0, 1, 2, 3, 4, 5]        
     this.dmp = { ...this.dmp, ...patch };
+  }
+
+  enableSaveButton(){
+    this.formChanged.disableSaveBtn$.next(false);
+    this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
+  }
+
+  disableSaveButton(){
+    this.formChanged.disableSaveBtn$.next(true);
+    this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
   }
 
   onSubmit() {
@@ -294,27 +417,36 @@ export class DmpFormComponent implements OnInit {
     
     if (this.id !==null){
       // If id is not null then update dmp with the current id
-      this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
-        {
-          next: data => {
-            //try to reload the page to read the saved dmp from mongodb
-            this.router.navigate(['edit', this.id]);
-            alert("Successfuly saved draft of the data");
-          },
-          error: error => {
-            console.log(error.message);
-            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+      if (this.action !=="new"){
+
+        this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
+          {
+            next: data => {
+              //try to reload the page to read the saved dmp from mongodb
+              this.router.navigate(['edit', this.id]);
+              this.disableSaveButton();
+              this.formSaved = true;
+              alert("Successfuly saved draft of the data");
+            },
+            error: error => {
+              console.log(error.message);
+              this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+            }
+            
           }
-          
-        }
-      );
+        );
+      }
+      
     }
     else {
       //create a new DMP
       this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
         {
           next: data => {
+            this.id = data.id;
             this.router.navigate(['edit', data.id]);
+            this.disableSaveButton();
+            this.formSaved = true;
           },
           error: error => {
             console.log(error.message);
@@ -327,12 +459,12 @@ export class DmpFormComponent implements OnInit {
   }
 
   resetDmp(){
-    this.form.controls['basicInfo'].reset();
-    this.form.controls['basicInfo'].patchValue({
+    this.dmpFormGrp.controls['basicInfo'].reset();
+    this.dmpFormGrp.controls['basicInfo'].patchValue({
       organizations:[]
   })
-    this.form.controls['ethicalIssues'].reset();
-    this.form.controls['ethicalIssues'].patchValue({
+    this.dmpFormGrp.controls['ethicalIssues'].reset();
+    this.dmpFormGrp.controls['ethicalIssues'].patchValue({
         ethicalIssue:"no",
         ethicalPII:"no"
     })
@@ -340,22 +472,22 @@ export class DmpFormComponent implements OnInit {
     this.personnelForm.resetPersonnelForm();
     this.keyWordsTable.clearKeywordsTable();
 
-    // this.form.controls['technicalRequirements'].reset();
+    // this.dmpFormGrp.controls['technicalRequirements'].reset();
     this.technicalRequirementsTable.resetTechnicalRequirements();
     
     this.ethicalIssuesRadioBtns.resetRadioButtons();
-    this.form.controls['dataDescription'].reset();
+    this.dmpFormGrp.controls['dataDescription'].reset();
     // We have to set this one separately because it is an array
     // so once form reset is done to it, new data can't be appended
     // so we have to set it back to an empty array.
-    this.form.controls['dataDescription'].patchValue({
+    this.dmpFormGrp.controls['dataDescription'].patchValue({
       dataCategories: []
     })
     // This sends signal to DataDescriptionComponent to reset checkboxes
     this.dataCategoriesCheckBoxes.resetCheckboxes();
 
     // Reset Data Preservation component of the form
-    this.form.controls['dataPreservation'].patchValue({
+    this.dmpFormGrp.controls['dataPreservation'].patchValue({
       preservationDescription:"",
       dataAccess:"",
       pathsURLs: []
@@ -491,6 +623,35 @@ export class DmpFormComponent implements OnInit {
 
     this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
 
+    // Contributors
+    if (this.dmp?.contributors !== undefined){
+      let tblHeaders = ["Name", "Surname", "Primary\nContact", "Institution", "ORG ID", /*"Role",*/ "e-mail", "ORCID" ];
+      let tblData:Array<Array<string>>=[];
+
+      for ( let i=0; i < this.dmp.contributors.length; i++){
+        let currRow: Array<string> = [];
+        currRow.push(this.dmp.contributors[i].firstName);
+        currRow.push(this.dmp.contributors[i].lastName);
+        currRow.push(this.dmp.contributors[i].primary_contact);
+        currRow.push(this.dmp.contributors[i].institution);
+        currRow.push(this.dmp.contributors[i].groupNumber);
+        // currRow.push(this.dmp.contributors[i].role);
+        currRow.push(this.dmp.contributors[i].emailAddress);
+        currRow.push(this.dmp.contributors[i].orcid);        
+        tblData.push(currRow);
+      }
+      
+      if (dmpFormat === "PDF")
+        this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
+      if (dmpFormat === "Markdown"){
+        // change primary contact to be one line because Markdown does not allow new lines in a table cell
+        tblHeaders[2] = "Primary Contact"; 
+        this.markdownTable("Contributors", tblHeaders, tblData);
+      }
+        
+
+    } 
+
     //Organization(s) Associated With This DMP
     if(this.dmp?.organizations !== undefined){
       let tblHeaders = ["Group Name", "Division Name", "OU Name"];
@@ -503,31 +664,7 @@ export class DmpFormComponent implements OnInit {
         this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
       if (dmpFormat === "Markdown")
         this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-    }
-
-    // Contributors
-    if (this.dmp?.contributors !== undefined){
-      let tblHeaders = ["Name", "Surname", "Institution", "Role", "e-mail", "ORCID", "ORG ID"];
-      let tblData:Array<Array<string>>=[];
-
-      for ( let i=0; i < this.dmp.contributors.length; i++){
-        let currRow: Array<string> = [];
-        currRow.push(this.dmp.contributors[i].firstName);
-        currRow.push(this.dmp.contributors[i].lastName);
-        currRow.push(this.dmp.contributors[i].institution);
-        currRow.push(this.dmp.contributors[i].role);
-        currRow.push(this.dmp.contributors[i].emailAddress);
-        currRow.push(this.dmp.contributors[i].orcid);
-        currRow.push(this.dmp.contributors[i].groupNumber);
-        tblData.push(currRow);
-      }
-      
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
-      if (dmpFormat === "Markdown")
-        this.markdownTable("Contributors", tblHeaders, tblData);
-
-    }    
+    }   
 
     // ========================== Keywords / Phrases ============================
 
@@ -554,9 +691,9 @@ export class DmpFormComponent implements OnInit {
     //Estimated Data Size
     if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
       if (dmpFormat === "PDF")
-        this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit);
+        this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription);
       if (dmpFormat === "Markdown")
-        this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + "  \n");
+        this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription + "  \n");
     }
 
     //Software Development

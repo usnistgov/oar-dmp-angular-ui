@@ -15,6 +15,16 @@
               {{item.size}}
           </option>
         </select>
+        &nbsp;
+        <input type="radio" id="dataA" name="dsDescription" value="Annual" (click)="setDataSizeDescription('Annual')"
+        [formControl]="technicalRequirementsForm.controls['dataSizeDescription']"
+        >
+        <label for="dataA">Annual</label>
+
+        <input type="radio" id="dataT" name="dsDescription" value="Total" (click)="setDataSizeDescription('Total')" 
+        [formControl]="technicalRequirementsForm.controls['dataSizeDescription']" >
+        <label for="dataT">Total</label>
+        
       </div>
     </div>
 
@@ -159,6 +169,7 @@
                   </button>
                 </span>
                 <button
+                  type="button"
                   mat-button
                   class="button-remove"
                   (click)="removeRow(element.id)"

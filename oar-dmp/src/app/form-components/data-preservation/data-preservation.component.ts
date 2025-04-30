@@ -20,7 +20,7 @@ export class DataPreservationComponent {
   );
 
   constructor(private fb: UntypedFormBuilder) { 
-
+    // console.log("Data Preservation Component");
   }
 
   // We want to receive the initial data from the parent component and initialize 
@@ -31,12 +31,14 @@ export class DataPreservationComponent {
     
     // set initial values for data preservation part of the form
     // to what has been sent from the server
-    this.preservationForm.patchValue({
-      preservationDescription:  data_preservation.preservationDescription,
-      dataAccess:               data_preservation.dataAccess,
-      pathsURLs:                data_preservation.pathsURLs
+    this.preservationForm.patchValue(
+      {
+        preservationDescription:  data_preservation.preservationDescription,
+        dataAccess:               data_preservation.dataAccess,
+        pathsURLs:                data_preservation.pathsURLs
 
-    });
+      }
+    );
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 

@@ -28,12 +28,10 @@ import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
-import { DomPositioningModule } from './shared/dom-positioning.module';
 import { AngularResizeEventModule } from 'angular-resize-event';
 // import { ConfigModule } from './config/config.module';
 import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
-import { fakeBackendProvider } from './_helpers/fakeBackendInterceptor';
 
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
@@ -80,14 +78,12 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
 
     MatAutocompleteModule,
     DmpRoutingModule,
-    DomPositioningModule,
     AngularResizeEventModule,
     NistResourcesModule,
     ChipsModule
   ],
 
   providers: [
-    // fakeBackendProvider,
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
     // { provide: AuthenticationService, useClass:MockAuthenticationService }

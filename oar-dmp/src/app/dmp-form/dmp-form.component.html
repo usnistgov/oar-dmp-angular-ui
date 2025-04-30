@@ -1,5 +1,5 @@
 
-<form *ngIf="initialDMP" (ngSubmit)="onSubmit()"  method="post">
+<form *ngIf="initialDMP" [formGroup]="dmpFormGrp" (ngSubmit)="onSubmit()"  method="post">
   
 
   <div class="dmpSection" style="padding-left: 12px;">
@@ -7,7 +7,7 @@
     <table>
       <tr>
         <td><label for="name">DMP Short Name:</label><span class="req_DMP_Field" >*</span></td>
-        <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled"></div></td>
+        <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled" (change)="enableSaveButton()"></div></td>
       </tr>
     </table>
     
@@ -94,7 +94,7 @@
       Reset
     </button>
     <button mat-button type="button" class="btn_draft" (click)="saveDraft()">
-      Save Draft
+      Save
     </button>
     <button
       mat-flat-button

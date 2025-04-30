@@ -67,7 +67,7 @@ export class EthicalIssuesComponent {
   
 
   constructor(private fb: UntypedFormBuilder) {
-    
+    // console.log("Ethical Issues Component");
    }
 
   private selectedEthicalIssue: string="no"; 

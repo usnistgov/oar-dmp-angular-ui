@@ -1,4 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
+import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
@@ -81,8 +82,9 @@ export class StorageNeedsComponent {
   // types/technical-requirements.type.ts
   technicalRequirementsForm = this.fb.group(
     {
-      dataSize: ['', [Validators.required, Validators.pattern("^[0-9]*$")]], // only numbers
+      dataSize: ['', [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$")]], // only numbers
       sizeUnit: ['', Validators.required],
+      dataSizeDescription: [''],
       development: ['', Validators.required],
       softwareUse: [''],
       softwareDatabase: [''],
@@ -97,7 +99,9 @@ export class StorageNeedsComponent {
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
     private fb: UntypedFormBuilder,
-  ) { }
+  ) { 
+    // console.log("Technical Requirements Component");
+  }
 
   // We want to receive the initial data from the parent component and initialize 
   // the form values. For that we create an input property with a setter that updates 
@@ -129,6 +133,7 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.patchValue({
         dataSize:                       technical_requirements.dataSize,
         sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
         development:                    technical_requirements.softwareDevelopment.development,
         softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
         softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
@@ -144,6 +149,7 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.patchValue({
         dataSize:                       technical_requirements.dataSize,
         sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
         development:                    technical_requirements.softwareDevelopment.development,
         softwareUse:                    "",
         softwareDatabase:               "",
@@ -177,6 +183,7 @@ export class StorageNeedsComponent {
           // to our part of the form 
           dataSize:                       formValue.dataSize,
           sizeUnit:                       formValue.sizeUnit,
+          dataSizeDescription:            formValue.dataSizeDescription,
           softwareDevelopment:            {
                                             "development":formValue.development,
                                             "softwareUse":formValue.softwareUse,
@@ -207,7 +214,7 @@ export class StorageNeedsComponent {
     if (typeof dataSizeInput === 'string' && !this.dataCategoryIsSet){
       // dataSizeInput can be none or undefined if no data has be inserted in the text box
       // so check first if the value of the textbox is a string
-      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
         this.sharedService.setStorageMessage(this.dataSetSize); 
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
@@ -248,7 +255,7 @@ export class StorageNeedsComponent {
     }
   }
 
-  dataSizeRegEx : RegExp = new RegExp("^[1-9][0-9]*$");
+  dataSizeRegEx : RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
   // used for estimated data size drop down of data units options
   dataUnits =[    
@@ -263,7 +270,7 @@ export class StorageNeedsComponent {
     {
       id: "3",
       size: 'TB'
-    }
+    },
   ];
 
   selDataSize(){
@@ -273,11 +280,11 @@ export class StorageNeedsComponent {
     // of myDiv1
   
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;    
     // dataSizeInput can be none or undefined if no data has be inserted in the text box
     // so check first if the value of the textbox is a string
     if (typeof dataSizeInput === 'string'){
-      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){    
+      if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){    
         if (!this.dataCategoryIsSet){ // send message to resource options component only if data category check boxes have not been set
           this.sharedService.setStorageMessage(this.dataSetSize);
           //send message to subscribed components
@@ -290,7 +297,7 @@ export class StorageNeedsComponent {
         }
       }
       else{
-        alert ("Estimated data size must be an integer value greater than zero");
+        alert ("Estimated data size must be a numerical value greater than zero");
         if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
           this.sharedService.setStorageMessage("");
           this.sharedService.storageSubject$.next("");
@@ -300,17 +307,16 @@ export class StorageNeedsComponent {
   }
 
   setDataSize(e:any){
-    //send message to subscribed components
-    
+    //send message to subscribed components    
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
-    if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseInt(dataSizeInput.trim()) > 0){
+    if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
         this.sharedService.setStorageMessage(this.dataSetSize);    
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
     else{
-      alert ("Estimated data size must be an integer value greater than zero");
+      alert ("Estimated data size must be a numerical value greater than zero");
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
         this.sharedService.setStorageMessage("");
         this.sharedService.storageSubject$.next("");
@@ -342,6 +348,15 @@ export class StorageNeedsComponent {
   techRsrcOnClickClear(){
     this.techRsrc = [];
     this.techRsrcErr = '';
+  }
+
+  setDataSizeDescription(e: string): void {
+    console.log("setDataSizeDescription");
+    this.technicalRequirementsForm.patchValue(
+      {
+        setDataSizeDescription: e
+      }
+    )
   }
 
   // determines whether there is any software development planned for this DMP
@@ -420,22 +435,48 @@ export class StorageNeedsComponent {
   }
 
   removeSelectedRows() {
-    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
-    this.resetTable();
+    const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
+    
+    if (result) {
+      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
+      this.resetTable();
 
-    this.dmpInstrumentsTbl.forEach((element)=>{        
-      // re populate instruments array
-      this.technicalRequirementsForm.value['instruments'].push({
-        name:element.name,
-        description_url: element.description_url
+      this.dmpInstrumentsTbl.forEach((element)=>{        
+        // re populate instruments array
+        this.technicalRequirementsForm.value['instruments'].push({
+          name:element.name,
+          description_url: element.description_url
+        });
       });
-    });
-    if (this.dmpInstrumentsTbl.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
+      if (this.dmpInstrumentsTbl.length === 0){
+        // If the table is empty disable clear and remove buttons
+        this.disableClear=true;
+        this.disableRemove=true;
+      }
     }
   }
+
+  removeRow(id:any) {
+    const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
+    
+    if (result) {
+      var selRow = this.dmpInstrumentsTbl.filter((u) => u.id === id);
+      this.technicalRequirementsForm.value['instruments'].forEach( (value:Instrument, index:number) => {
+        selRow.forEach((instrument)=>{
+          if (value.description_url === instrument.description_url)
+          // console.log(instrument);
+          //remove from DmpRecord
+          this.technicalRequirementsForm.value['instruments'].splice(index,1);
+        });
+      });
+      // remove from the display table
+      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u) => u.id !== id);
+
+      this.technicalRequirementsForm.patchValue({
+        instruments: this.technicalRequirementsForm.value['instruments']
+      })
+    }
+  }  
 
   addRow(){
     // Disable buttons while the user is inputing new row
@@ -455,8 +496,7 @@ export class StorageNeedsComponent {
 
     // add new row to the dmpInstrumentsTbl array 
     // using the spread operator '...'
-    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
-    
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];    
 
     //update changes made to the table in the form
     this.onDoneClick(newRow);
@@ -493,6 +533,9 @@ export class StorageNeedsComponent {
 
   this.disableClear=false;
   this.disableRemove=false;
+  this.technicalRequirementsForm.patchValue({
+    instruments: this.technicalRequirementsForm.value['instruments']
+  })
 
   }
 
@@ -510,10 +553,14 @@ export class StorageNeedsComponent {
   
 
   clearTable(){
-    this.dmpInstrumentsTbl = []
-    this.resetTable();
-    this.disableClear=true;
-    this.disableRemove=true;
+    const result = confirmDialog("Are you sure you want to delete all instrument(s) for this DMP?");
+    
+    if (result) {
+      this.dmpInstrumentsTbl = []
+      this.resetTable();
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
   }
   
   resetTable(){
@@ -533,7 +580,7 @@ export class StorageNeedsComponent {
   }
 
   resetTechnicalRequirements(){
-    this.dataSize = "3";
+    this.dataSize = "";
     this.dataSetSize = "TB";
     this.setSoftwareDev('no');
     this.setSoftwareUse('no');
@@ -544,6 +591,7 @@ export class StorageNeedsComponent {
       // changes up to the parent form
       dataSize:             null,
       sizeUnit:             "TB",
+      dataSizeDescription:  "",
       development:          "no",
       softwareUse:          null,
       softwareDatabase:     null,

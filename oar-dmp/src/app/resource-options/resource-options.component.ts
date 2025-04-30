@@ -7,11 +7,10 @@ import { Subscription } from 'rxjs';
 
 // In the child, we need to import the service "ResourcesService" file to be able to use it. 
 import { ResourcesService } from '../shared/resources.service';
-import { DomPositioningModule } from '../shared/dom-positioning.module';
 import { LoadResourcesService } from '../shared/load-resources.service';
 import { SubmitDmpService } from '../shared/submit-dmp.service';
-import { FilterPipe } from './filter.pipe';
 import { DropDownSelectService } from '../shared/drop-down-select.service';
+import { FormChangedService } from '../shared/form-changed.service';
 
 interface Messages {
   [key: string]: any;
@@ -29,6 +28,7 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   softwareSubscription!: Subscription | null;
   databaseSubscription!: Subscription | null;
   websiteSubscription!: Subscription | null;
+  formChangedSubscription!: Subscription | null;
 
   // to pass data from parent to this component we declare an input decorator along
   // with a property named data wich is of type string
@@ -37,10 +37,10 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   // we inject shared service ResourcesService in the constructor.
   constructor(
     private sharedService:ResourcesService, 
-    private dom:DomPositioningModule,
     private nistResources: LoadResourcesService,
     private form_buttons: SubmitDmpService,
     private dropDownService: DropDownSelectService,
+    private formChangedService: FormChangedService
     ) { 
 
   }
@@ -72,13 +72,17 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     }
   ];
 
+  disableSaveBtn:boolean = false;
+
   ngOnInit(): void {
     // this.message = this.sharedService.getMessage()
-    this.storageSubscribe()
-    this.softwareSubscribe()
-    this.databaseSubscribe()
-    this.websiteSubscribe()
+    this.storageSubscribe();
+    this.softwareSubscribe();
+    this.databaseSubscribe();
+    this.websiteSubscribe();
+    this.storageSubscribe();
     this.availableResources = this.nistResources.getAllResources();
+    this.saveButtonSubscribe();
     // console.log(this.availableResources);
   }
   ngAfterViewInit(): void {
@@ -96,10 +100,22 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
   dmpButtonClick(e:any){
     //send message to dmp form component indicating which button has been pressed
     //the e event captures the text of the button so we pass tat to the form to
-    //indicate the course of action. The options should be 'Reset', 'Save Draft' and 'Publish'
+    //indicate the course of action. The options should be 'Reset', 'Save' and 'Publish'
     this.form_buttons.setButtonMessage(e.currentTarget.innerText);
     this.form_buttons.buttonSubject$.next(e.currentTarget.innerText);
     
+  }
+
+  //subscribe to a particular subject
+  saveButtonSubscribe() {
+    if (!this.formChangedSubscription) {
+      //subscribe if not already subscribed
+      this.formChangedSubscription = this.formChangedService.disableSaveBtn$.subscribe({
+        next: (message) => {
+          this.disableSaveBtn = message;          
+        }
+      });
+    }
   }
 
   //subscribe to a particular subject

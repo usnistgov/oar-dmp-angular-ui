@@ -11,7 +11,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 export class SecurityAndPrivacyComponent {
 
   constructor(private fb: UntypedFormBuilder) {
-    
+    // console.log("Security and Privacy Component");
   }
 
   dataSensitivityMap = new Map([

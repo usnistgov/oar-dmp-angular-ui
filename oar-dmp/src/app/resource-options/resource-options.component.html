@@ -11,75 +11,85 @@
   
 <!-- </div> -->
 
-<div class="span_box">
-  <div class="grid-item grid_buttons">
+<div class="dmp_control_bar">
+  <div class="grid_buttons" style="padding-top: 3px;">
     <!-- <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
       Reset
     </button> -->
-    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-      Save Draft
-    </button>
-    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-      Export As:
-    </button>
+    <div>
+      <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableSaveBtn">
+        Save
+      </button>
+    </div>
+
+    <div>
+      <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
+        Export As:
+      </button>
+    </div>
     
-    <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
-      <option [value]="item.id" *ngFor="let item of exportFormats">
-          {{item.format}}
-      </option>
-    </select>
+    <div class="dmpExportSelect" >
+      <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
+        <option value="" disabled selected>Select Format</option>
+        <option [value]="item.id" *ngFor="let item of exportFormats">
+            {{item.format}}
+        </option>
+      </select>
+    </div>
   </div>
 </div>
 
-<div id="resources-grid-container" >
-  <!-- <pre>{{ availableResources['storage'] | json }}</pre>
-  <pre>{{ availableResources| json }}</pre> -->
-  
-    <!-- <p>{{category | json}}</p> -->
+<div class="sticky" id="resource_options">
+  <div id="resources-grid-container" >
+    <!-- <pre>{{ availableResources['storage'] | json }}</pre>
+    <pre>{{ availableResources| json }}</pre> -->
     
-    
-    <div class="grid-item" *ngFor="let category of availableResources">
-      <div class="cell">        
-        <div>
-          <table class="grid-table">
-            <tr><th><span class="header_span">{{category["resource"]}}</span></th></tr>
-            <tr *ngFor="let row of category.options">
-              <!-- <td  *ngFor="let c of row.highlight | filter: storageSelection"> -->
-              <td  [ngClass]="{'selected':row.highlight | filter: 
-                {
-                  'storageSelection':storageSelection,
-                  'computingSelection':computingSelection,
-                  'dataSelection':dataSelection,
-                  'websiteSelection':websiteSelection,
-                  'databaseSelection':databaseSelection,
-                  'awsSelection':awsSelection,
-                  'colaborationSelection':colaborationSelection,
-                  'softwareSelection':softwareSelection,
-                  'networkSelection':networkSelection
-                }
-              }">
-                <a href='{{row.link}}'>{{row.text}}</a>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="span_box">
-      <div class="grid-item">
+      <!-- <p>{{category | json}}</p> -->
+      
+      
+      <div class="grid-item" *ngFor="let category of availableResources">
         <div class="cell">        
           <div>
             <table class="grid-table">
-              <tr><th><span class="header_span">DMP Help Links</span></th></tr>
-              <tr><td><a href="https://inet.nist.gov//library/publishing-support-nist-publications/quick-facts-about-orcid">Quick Facts About ORCID</a></td></tr>
+              <tr><th><span class="header_span">{{category["resource"]}}</span></th></tr>
+              <tr *ngFor="let row of category.options">
+                <!-- <td  *ngFor="let c of row.highlight | filter: storageSelection"> -->
+                <td  [ngClass]="{'selected':row.highlight | filter: 
+                  {
+                    'storageSelection':storageSelection,
+                    'computingSelection':computingSelection,
+                    'dataSelection':dataSelection,
+                    'websiteSelection':websiteSelection,
+                    'databaseSelection':databaseSelection,
+                    'awsSelection':awsSelection,
+                    'colaborationSelection':colaborationSelection,
+                    'softwareSelection':softwareSelection,
+                    'networkSelection':networkSelection
+                  }
+                }">
+                  <a href='{{row.link}}'>{{row.text}}</a>
+                </td>
+              </tr>
             </table>
           </div>
         </div>
-      </div>      
-    </div>
+      </div>
 
+      <div class="span_box">
+        <div class="grid-item">
+          <div class="cell">        
+            <div>
+              <table class="grid-table">
+                <tr><th><span class="header_span">DMP Help Links</span></th></tr>
+                <tr><td><a href="https://inet.nist.gov//library/publishing-support-nist-publications/quick-facts-about-orcid">Quick Facts About ORCID</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>      
+      </div>
+
+    
+    
   
-  
- 
+  </div>
 </div>

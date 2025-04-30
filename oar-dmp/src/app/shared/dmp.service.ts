@@ -30,7 +30,9 @@ export class DmpService {
 
   constructor(private http: HttpClient, private configService: ConfigurationService,
               private authService: AuthenticationService)
-  { }
+  { 
+    // console.log("DmpService Constructor");
+  }
 
   // Http Options
   getHttpOptions(creds?: Credentials): {headers: HttpHeaders} {
@@ -68,6 +70,7 @@ export class DmpService {
     //Technical Resources
     dataSize:                 null,
     sizeUnit:                 "GB",
+    dataSizeDescription:      '',
     softwareDevelopment:      {development:"no", softwareUse:"both", softwareDatabase: "no", softwareWebsite: "no"},
     technicalResources:       [],
     instruments:              [],
@@ -94,13 +97,7 @@ export class DmpService {
     dataAccess:               '',
     pathsURLs:                []
 
-  };
-
-  fetchPDR(): Observable<any>{
-    // console.log("fetchPDR")
-    let getInfo = this.http.get<any>(this.configService.getConfig<DMPConfiguration>().PDRDMP);
-    return getInfo
-  }
+  };  
 
   fetchDMP(action:string, recordID:string|null) {   
     //Action can be new or edit and it indicates if we need to create a new DMP - i.e. a blank DMP
@@ -123,7 +120,7 @@ export class DmpService {
       return this.authService.getCredentials().pipe(
         switchMap(creds => {
           if (! creds)
-            throwError(new Error("Authentication Failed"));
+            return throwError(() => new Error('Authentication Failed'));
           return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
         })
       );
@@ -139,7 +136,7 @@ export class DmpService {
     return this.authService.getCredentials().pipe(
       switchMap(creds => {
         if (! creds)
-          throwError(new Error("Authentication Failed"));
+          return throwError(() => new Error('Authentication Failed'));          
         return this.http.put<any>(apiAddress, JSON.stringify(dmpMeta), this.getHttpOptions(creds))
       })
     );
@@ -153,7 +150,7 @@ export class DmpService {
     return this.authService.getCredentials().pipe(
       switchMap(creds => {
         if (! creds)
-          throwError(new Error("Authentication Failed"));
+          return throwError(() => new Error('Authentication Failed'));
         return this.http.post<any>(apiAddress,
                                    JSON.stringify(midasDMP),
                                    this.getHttpOptions(creds));
@@ -166,4 +163,8 @@ export class DmpService {
 
   }
 
+}
+
+export function confirmDialog(message: string): boolean {
+  return confirm(message);
 }
