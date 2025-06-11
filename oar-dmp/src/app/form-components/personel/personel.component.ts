@@ -101,7 +101,6 @@ interface dmpOgranizations {
   groupName: string,
   groupNumber: string,
   groupOrgID: number,
-  groupAcronym: string,
   
   divisionName: string,
   divisionNumber: string,
@@ -185,7 +184,6 @@ export class PersonelComponent implements OnInit {
   orgGroupOrgID!:number;
   orgGroupNumber!:string;
   orgGroupName!:string;
-  orgGroupAcronym!:string;
 
   orgDivisionOrgID!:number;
   orgDivisionNumber!:string;
@@ -303,7 +301,6 @@ export class PersonelComponent implements OnInit {
             groupName:org.groupName,
             groupNumber: org.groupNumber,
             groupOrgID: org.groupOrgID,
-            groupAcronym: org.groupAcronym,
             
             divisionName:org.divisionName,
             divisionNumber: org.divisionNumber,
@@ -1000,7 +997,6 @@ export class PersonelComponent implements OnInit {
         this.orgGroupNumber = anOrganization.orG_CD;
         this.orgGroupOrgID = anOrganization.orG_ID;
         this.orgGroupName = anOrganization.orG_Name;
-        this.orgGroupAcronym = anOrganization.orG_ACRNM;
 
         index++;
         let divisionData = orgs[index];
@@ -1033,7 +1029,6 @@ export class PersonelComponent implements OnInit {
         this.orgGroupNumber = "";
         this.orgGroupOrgID = 0;
         this.orgGroupName = "";
-        this.orgGroupAcronym = "";
 
         this.orgDivisionNumber = anOrganization.orG_CD;
         this.orgDivisionOrgID = anOrganization.orG_ID;
@@ -1046,7 +1041,7 @@ export class PersonelComponent implements OnInit {
         this.orgOuNumber = OUData.orG_CD;
         this.orgOuOrgID = OUData.orG_ID;
         this.orgOuName = OUData.orG_Name;
-        this.orgDivisionAcronym = OUData.orG_ACRNM;
+        this.orgOuAcronym = OUData.orG_ACRNM;
         break;
       }
       else{
@@ -1062,10 +1057,12 @@ export class PersonelComponent implements OnInit {
         this.orgDivisionNumber = "";
         this.orgDivisionOrgID = 0;
         this.orgDivisionName = "";
+        this.orgDivisionAcronym = "";
 
         this.orgOuNumber = anOrganization.orG_CD;
         this.orgOuOrgID = anOrganization.orG_ID;  
         this.orgOuName = anOrganization.orG_Name;
+        this.orgOuAcronym = anOrganization.orG_ACRNM;
         break;
 
       }
@@ -1257,7 +1254,6 @@ export class PersonelComponent implements OnInit {
       groupName:this.orgGroupName,
       groupNumber: this.orgGroupNumber,
       groupOrgID: this.orgGroupOrgID,
-      groupAcronym: this.orgGroupAcronym,
       
       divisionName:this.orgDivisionName,
       divisionNumber: this.orgDivisionNumber,
@@ -1304,7 +1300,6 @@ export class PersonelComponent implements OnInit {
             groupName:org.groupName,
             groupNumber: org.groupNumber,
             groupOrgID: org.groupOrgID,
-            groupAcronym: org.groupAcronym,
             
             divisionName:org.divisionName,
             divisionNumber: org.divisionNumber,
