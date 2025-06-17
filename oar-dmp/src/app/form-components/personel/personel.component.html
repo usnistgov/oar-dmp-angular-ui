@@ -200,14 +200,14 @@
       
                 <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
                 <div class="btn-edit" *ngSwitchCase="'isEdit'" style="width: 65px;">
-                  <!-- <span *ngIf="element.institution !== 'NIST'"> -->
+                  <span *ngIf="element.institution !== 'NIST'">
                     <!--
                       Display edit button only for non NIST contacts
                     -->
                     <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
                       Edit
                     </button>
-                  <!-- </span> -->
+                  </span>
                   <button
                     type="button"
                     mat-button

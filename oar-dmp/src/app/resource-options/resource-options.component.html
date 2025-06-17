@@ -11,33 +11,7 @@
   
 <!-- </div> -->
 
-<div class="dmp_control_bar">
-  <div class="grid_buttons" style="padding-top: 3px;">
-    <!-- <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
-      Reset
-    </button> -->
-    <div>
-      <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableSaveBtn">
-        Save
-      </button>
-    </div>
 
-    <div>
-      <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)">
-        Export As:
-      </button>
-    </div>
-    
-    <div class="dmpExportSelect" >
-      <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
-        <option value="" disabled selected>Select Format</option>
-        <option [value]="item.id" *ngFor="let item of exportFormats">
-            {{item.format}}
-        </option>
-      </select>
-    </div>
-  </div>
-</div>
 
 <div class="sticky" id="resource_options">
   <div id="resources-grid-container" >

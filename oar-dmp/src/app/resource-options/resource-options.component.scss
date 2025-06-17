@@ -66,81 +66,8 @@ div {
   }  
 }
 
-.btn_draft {
-  background: rgb(242, 243, 255);
-  border: 1px solid #00000053;
-}
-.btn_update {
-  background: #008817;
-  border: 1px solid #00000053;
-  color: #ffffff !important;
-}
-.btn_reset {
-  background: rgb(224, 224, 224);
-  border: 1px solid #00000053;
-}
-
 .sticky{
   top: $header_height;
-}
-
-.dmp_control_bar{
-  position: fixed;
-  top: $header_height;
-  left: 5px;
-  // padding: 4px;
-  padding-bottom: 5px;
-  background-color: #ffffff;
-  width:100%;
-  z-index:2;
-  border-bottom: groove #000000;
   
 }
 
-.grid_buttons div{
-  float:left;
-}
-
-.dmpExportSelect {
-  padding-left: 5px;
-  // padding-top: 3px;
-
-  position: relative;
-  
-}
-
-.dmpExportSelect select{
-  appearance: none;
-  min-width: 124px;
-  max-width: 134px;
-  // width: 100%;
-  font-size: 15px;
-  padding: 7px 5px;
-  background-color: #fff;
-  border: 1px solid #000000;
-  border-radius: 0.25rem;
-  color: #000;
-  cursor: pointer;
-}
-.dmpExportSelect::before,
-.dmpExportSelect::after {
-  --size: 0.3rem;
-  position: absolute;
-  content: "";
-  right: 10px;
-  pointer-events: none;
-}
-
-// .dmpExportSelect::before {
-//   border-left: var(--size) solid transparent;
-//   border-right: var(--size) solid transparent;
-//   border-bottom: var(--size) solid black;
-//   top: 30%;
-// }
-
-.dmpExportSelect::after {
-  border-left: var(--size) solid transparent;
-  border-right: var(--size) solid transparent;
-  border-top: var(--size) solid black;
-  top: 45%;
-}

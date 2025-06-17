@@ -98,9 +98,20 @@ const CONTRIB_COL_SCHEMA = [
 ]
 
 interface dmpOgranizations {
-  groupName:string;
-  divisionName: string;
-  ouName: string;
+  groupName: string,
+  groupNumber: string,
+  groupOrgID: number,
+  
+  divisionName: string,
+  divisionNumber: string,
+  divisionOrgID: number,
+  divisionAcronym: string,
+
+  ouName: string,
+  ouNumber: string,
+  ouOrgID: number,
+  ouAcronym: string,
+
   id: number;
   isEdit: boolean;
 }
@@ -177,10 +188,12 @@ export class PersonelComponent implements OnInit {
   orgDivisionOrgID!:number;
   orgDivisionNumber!:string;
   orgDivisionName!:string;
+  orgDivisionAcronym!:string;
 
   orgOuOrgID!:number;
   orgOuNumber!:string;
   orgOuName!:string;
+  orgOuAcronym!:string;
 
   disableAdd:boolean = true;
   disableClear:boolean = true;
@@ -282,7 +295,26 @@ export class PersonelComponent implements OnInit {
     // organizations aray in order to populate the table of organizations in the GUI interface
     personel.organizations.forEach( 
       (org, index) => {        
-        this.dmpOrganizations.push({id:index, groupName:org.groupName, divisionName:org.divisionName, ouName:org.ouName, isEdit:false});
+        this.dmpOrganizations.push(
+          {
+            id:index,
+            groupName:org.groupName,
+            groupNumber: org.groupNumber,
+            groupOrgID: org.groupOrgID,
+            
+            divisionName:org.divisionName,
+            divisionNumber: org.divisionNumber,
+            divisionOrgID: org.divisionOrgID,
+            divisionAcronym: org.divisionAcronym,
+
+            ouName: org.ouName,
+            ouNumber: org.ouNumber,
+            ouOrgID: org.ouOrgID,
+            ouAcronym: org.ouAcronym,            
+            
+            isEdit:false
+          }
+        );
         this.org_disableClear=false;
         this.org_disableRemove=false;
       }
@@ -972,6 +1004,7 @@ export class PersonelComponent implements OnInit {
         this.orgDivisionNumber = divisionData.orG_CD;
         this.orgDivisionOrgID = divisionData.orG_ID;      
         this.orgDivisionName = divisionData.orG_Name;
+        this.orgDivisionAcronym = divisionData.orG_ACRNM;
 
         // find parent of the parent info
         index++;
@@ -980,6 +1013,7 @@ export class PersonelComponent implements OnInit {
         this.orgOuNumber = OUData.orG_CD;
         this.orgOuOrgID = OUData.orG_ID;
         this.orgOuName = OUData.orG_Name;
+        this.orgOuAcronym = OUData.orG_ACRNM;
         break;
       } 
       /**
@@ -998,7 +1032,8 @@ export class PersonelComponent implements OnInit {
 
         this.orgDivisionNumber = anOrganization.orG_CD;
         this.orgDivisionOrgID = anOrganization.orG_ID;
-        this.orgDivisionName = anOrganization.orG_Name
+        this.orgDivisionName = anOrganization.orG_Name;
+        this.orgDivisionAcronym = anOrganization.orG_ACRNM;
 
         index++;
         let OUData = orgs[index];
@@ -1006,6 +1041,7 @@ export class PersonelComponent implements OnInit {
         this.orgOuNumber = OUData.orG_CD;
         this.orgOuOrgID = OUData.orG_ID;
         this.orgOuName = OUData.orG_Name;
+        this.orgOuAcronym = OUData.orG_ACRNM;
         break;
       }
       else{
@@ -1021,10 +1057,12 @@ export class PersonelComponent implements OnInit {
         this.orgDivisionNumber = "";
         this.orgDivisionOrgID = 0;
         this.orgDivisionName = "";
+        this.orgDivisionAcronym = "";
 
         this.orgOuNumber = anOrganization.orG_CD;
         this.orgOuOrgID = anOrganization.orG_ID;  
         this.orgOuName = anOrganization.orG_Name;
+        this.orgOuAcronym = anOrganization.orG_ACRNM;
         break;
 
       }
@@ -1214,8 +1252,18 @@ export class PersonelComponent implements OnInit {
       id: Date.now(),
       isEdit: false,
       groupName:this.orgGroupName,
+      groupNumber: this.orgGroupNumber,
+      groupOrgID: this.orgGroupOrgID,
+      
       divisionName:this.orgDivisionName,
-      ouName:this.orgOuName
+      divisionNumber: this.orgDivisionNumber,
+      divisionOrgID: this.orgDivisionOrgID,
+      divisionAcronym: this.orgDivisionAcronym,
+
+      ouName: this.orgOuName,
+      ouNumber: this.orgOuNumber,
+      ouOrgID: this.orgOuOrgID,
+      ouAcronym: this.orgOuAcronym
     };
 
     // Check if selected organization is already in the table
@@ -1250,8 +1298,18 @@ export class PersonelComponent implements OnInit {
         this.personelForm.value['organizations'].push(
           {
             groupName:org.groupName,
+            groupNumber: org.groupNumber,
+            groupOrgID: org.groupOrgID,
+            
             divisionName:org.divisionName,
-            ouName:org.ouName
+            divisionNumber: org.divisionNumber,
+            divisionOrgID: org.divisionOrgID,
+            divisionAcronym: org.divisionAcronym,
+
+            ouName: org.ouName,
+            ouNumber: org.ouNumber,
+            ouOrgID: org.ouOrgID,
+            ouAcronym: org.ouAcronym
           }
         )
       }
