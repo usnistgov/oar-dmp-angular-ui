@@ -34,6 +34,10 @@ export class AppComponent {
     {
       id: "2",
       format: 'Markdown'
+    },
+    {
+      id: "3",
+      format: 'JSON'
     }
   ];
   disableSaveBtn:boolean = false;
