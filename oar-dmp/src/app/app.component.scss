@@ -25,7 +25,7 @@ $header_height: 56px;
 #dmp_panel{
   position: relative;
   top: 100px;
-  left: 0px;
+  left: 1em;
   padding-bottom: 120px;
 
 }
@@ -60,7 +60,7 @@ $header_height: 56px;
 .grid_buttons {
   div {float:left;}
   position: relative;  
-  padding-right: 10px;
+  // padding-right: 10px;
   height: 45px;
   background-color: #ffffff;
   float: right;

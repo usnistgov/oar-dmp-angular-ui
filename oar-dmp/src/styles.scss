@@ -166,8 +166,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 [class*="dmp-col-"] {
   float: left;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 3px;
+  padding-right: 1em;
 }
 
 /* For mobile phones: */
@@ -194,7 +194,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     position: fixed;
     min-width: 500px;//required for FIrefox
     z-index: 10;
-    padding-right: 10px;
+    padding-right: 1em;
     // top: 95px;
     // left: 623px;
   }
