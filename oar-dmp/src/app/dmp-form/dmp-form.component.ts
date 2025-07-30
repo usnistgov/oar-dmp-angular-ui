@@ -547,7 +547,7 @@ export class DmpFormComponent implements OnInit{
   exportDMP(dmpFormat:string) {
     if (dmpFormat === "JSON"){
       let dmp_record : DMP_Meta | undefined = this.dmp;
-      const blob = new Blob([JSON.stringify(dmp_record)], {type: "text/json"});
+      const blob = new Blob([JSON.stringify(dmp_record, null, 2)], {type: "text/json"});
       saveAs(blob, "DMP.json");
     }
     else{
