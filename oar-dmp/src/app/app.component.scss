@@ -110,5 +110,29 @@ $header_height: 56px;
   top: 45%;
 }
 
+.dmpHelp{
+  padding-left: 15px; 
+  padding-top: 3px; 
+  float: left;
+
+  .dmpHelpButton{
+    padding: 7px 5px; 
+    border: 1px solid; 
+    border-color: black; 
+    border-radius: 3px;
+    background-color: rgb(236, 234, 231);
+
+    span{
+      font-size: larger; 
+      font-weight: 500;
+
+      a {
+        text-decoration: none; 
+        color: black;
+      }
+    }
+  }
+}
+
 
 
