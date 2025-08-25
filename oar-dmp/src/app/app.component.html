@@ -3,7 +3,15 @@
 </div>
 
 <div *ngIf="creds && readyDisplay">
-    <div class="dmp-col-7 dmp_control_bar">
+    <div class="dmp-col-7 dmp_control_bar"> 
+                <div class="dmpHelp">
+                    <div class="dmpHelpButton">
+                        <span >
+                            <a href="https://inet.nist.gov/mr/library/midas-user-guides/midas-tools/creating-data-management-plans-dmptool" >DMP User Guide</a>
+                        </span>
+                    </div>
+                </div>
+                
                 <div class="grid_buttons" style="padding-top: 3px;">
                     <!-- <button mat-button type="button" class="btn_reset" (click)="dmpButtonClick($event)">
                     Reset

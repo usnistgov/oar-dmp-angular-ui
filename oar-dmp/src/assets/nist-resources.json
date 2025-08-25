@@ -2,28 +2,21 @@
   "RESOURCES":[
     
     {
-      "resource":"CHIPS Resources",
+      "resource":"AI Resources",
       "options":[
         {
-          "text":"Data Support",
-          "link":"https://nist.gov"
+          "text":"Community of Interest",
+          "link":"https://inet.nist.gov/itl/aicoi"
         },
         {
-          "text":"METIS",
-          "link":"https://nist.gov"
+          "text":"AI Operations",
+          "link":"https://inet.nist.gov/oism/artificial-intelligence-ai-nist"
         },
         {
-          "text":"Compute Resources",
-          "link":"https://nist.gov"
-        },
-        {
-          "text":"Data Storage",
-          "link":"https://nist.gov"
-        },
-        {
-          "text":"Research Software Licenses",
-          "link":"https://nist.gov"
+          "text":"AI Guidance for Research",
+          "link":"https://inet.nist.gov/oism/artificial-intelligence-ai-nist"
         }
+        
 
       ]
     },
@@ -67,6 +60,10 @@
       "resource":"Data Science",
       "options":[
         {
+          "text":"Data and Software Publication",
+          "link":"https://inet.nist.gov/lp/adlp/open-access-research-oar"
+        },
+        {
           "text":"Data Informatics Resources",
           "link":"https://inet.nist.gov/odi/data-informatics-resources"
         },
@@ -77,11 +74,8 @@
         {
           "text":"Data Science Learning",
           "link":"https://inet.nist.gov/adlp/open-access-research-oar/training-outreach/data-science-learning-coordination"
-        },
-        {
-          "text":"Open Access to Research (OAR)",
-          "link":"https://inet.nist.gov/lp/adlp/open-access-research-oar"
         }
+        
       ]
     },    
     {
