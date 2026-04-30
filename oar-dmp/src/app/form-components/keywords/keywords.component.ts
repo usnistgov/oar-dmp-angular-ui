@@ -1,6 +1,6 @@
-import { Component, Input, Output } from '@angular/core';
+import { Component, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipInput} from '@angular/material/chips';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
@@ -21,7 +21,13 @@ export class KeywordsComponent {
     }
   );
 
-  reactiveKeywords = signal(['']);  
+  reactiveKeywords = signal(['']);
+  keywordsInputVal = '';
+  // Reference the HTML input element that uses chips matching the #chipInput in the HTML
+  @ViewChild('chipInput') chipInputEl!: ElementRef<HTMLInputElement>;
+
+  // This finds the MatChipInput directive inside that same element
+  @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
 
   constructor(private fb: UntypedFormBuilder, private spChips: ChipsSplitterService) { 
     // console.log("Keywords Component");
@@ -114,11 +120,18 @@ export class KeywordsComponent {
   }
 
   addReactiveKeyword(event: MatChipInputEvent): void {
-    const chips = (this.spChips.splitChips(event.value.trim()) || '')
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
+    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    const chips = (this.spChips.splitChips(event.value.trim()) || [])
+                  .filter(chip => chip.trim().length > 0);
 
     // Add our keyword
     if (chips) {
-      this.reactiveKeywords.update(keywords => [...keywords, ...chips]);
+      this.reactiveKeywords.update(keywords => {
+        // Combine both arrays into a Set to force uniqueness, 
+        // then spread it back into a standard array.
+        return [...new Set([...keywords, ...chips])];
+      });      
       chips.forEach((chip)=>{
         this.keyWordsForm.patchValue({
           keywords: chip
@@ -128,6 +141,36 @@ export class KeywordsComponent {
 
     // Clear the input value
     event.chipInput!.clear();
+  }
+
+  onBlur(event: FocusEvent) {
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // elsewhere with a mouse
+    
+    // Trigger event if input is not empty
+    if (this.keywordsInputVal !== ''){
+      this.triggerAddChip();
+    }
+  }
+
+  onInputChange(value: string){
+    // console.log('onInputChange', value);
+    this.keywordsInputVal = value;
+
+  }
+
+  triggerAddChip() {
+    //Construct the mock event
+    const mockEvent: MatChipInputEvent = {
+      input: this.chipInputEl.nativeElement,
+      value: this.keywordsInputVal.trim(),
+      chipInput: this.chipInputDirective
+    };
+
+    // Manually call your existing add function
+    this.addReactiveKeyword(mockEvent);
+    // Clear input value
+    this.keywordsInputVal = '';
   }
 
   

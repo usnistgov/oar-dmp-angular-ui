@@ -37,9 +37,12 @@
           }
           </mat-chip-grid>
           <input
-            placeholder="Copy/Paste or manually type in Keywords/Phrases as comma or semicolon separated values e.g. a, b; c"
+            #pathInput
+            placeholder="Copy/Paste or manually type in path(s) / URL(s) as comma or semicolon separated values e.g. a, b; c"
             [matChipInputFor]="reactiveChipGrid"
             (matChipInputTokenEnd)="addReactivePathsURLs($event)"
+            (blur)="onBlur($event)"
+            (input)="onInputChange(pathInput.value)"
           />
         </mat-form-field>
     </div>

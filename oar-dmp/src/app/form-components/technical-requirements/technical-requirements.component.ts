@@ -1,4 +1,4 @@
-import { Component, Input, Output, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
@@ -12,7 +12,7 @@ import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
 import { Subscription } from 'rxjs';
 
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
 
 interface InstrTblRow {  
@@ -81,6 +81,12 @@ export class StorageNeedsComponent {
   separatorExp: RegExp = /,|;/;
 
   reactiveInstruments = signal(['']);
+  instrumentsInputVal = '';
+  // Reference the HTML input element that uses chips matching the #equipmentChips in the HTML
+  @ViewChild('equipmentChips') chipInputEl!: ElementRef<HTMLInputElement>;
+
+  // This finds the MatChipInput directive inside that same element
+  @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
 
   // This mimics the technical-requirements type interface from 
   // types/technical-requirements.type.ts
@@ -654,11 +660,18 @@ export class StorageNeedsComponent {
   }
 
   addReactiveInstruments(event: MatChipInputEvent): void {
-    const chips = (this.spChips.splitChips(event.value.trim()) || '')
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
+    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    const chips = (this.spChips.splitChips(event.value.trim()) || [])
+                  .filter(chip => chip.trim().length > 0);
 
-    // Add our keyword
+    // Add our instrument
     if (chips) {
-      this.reactiveInstruments.update(technicalResources => [...technicalResources, ...chips]);
+      this.reactiveInstruments.update(technicalResources => {
+        // Combine both arrays into a Set to force uniqueness, 
+        // then spread it back into a standard array.
+        return [...new Set([...technicalResources, ...chips])];
+      });  
       chips.forEach((chip)=>{
         this.technicalRequirementsForm.patchValue({
           technicalResources: chip
@@ -669,6 +682,36 @@ export class StorageNeedsComponent {
 
     // Clear the input value
     event.chipInput!.clear();
+  }
+
+  onBlur(event: FocusEvent) {
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // elsewhere with a mouse
+    
+    // Trigger event if input is not empty
+    if (this.instrumentsInputVal !== ''){
+      this.triggerAddChip();
+    }
+  }
+
+  onInputChange(value: string){
+    // console.log('onInputChange', value);
+    this.instrumentsInputVal = value;
+
+  }
+
+  triggerAddChip() {
+    //Construct the mock event
+    const mockEvent: MatChipInputEvent = {
+      input: this.chipInputEl.nativeElement,
+      value: this.instrumentsInputVal.trim(),
+      chipInput: this.chipInputDirective
+    };
+
+    // Manually call your existing add function
+    this.addReactiveInstruments(mockEvent);
+    // Clear input value
+    this.instrumentsInputVal = '';
   }
 
 

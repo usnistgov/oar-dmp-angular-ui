@@ -18,9 +18,13 @@
           }
           </mat-chip-grid>
           <input
+            #chipInput
             placeholder="Copy/Paste or manually type in Keywords/Phrases as comma or semicolon separated values e.g. a, b; c"
+            
             [matChipInputFor]="reactiveChipGrid"
             (matChipInputTokenEnd)="addReactiveKeyword($event)"
+            (blur)="onBlur($event)"
+            (input)="onInputChange(chipInput.value)"
           />
         </mat-form-field>
     </div>

@@ -1,8 +1,8 @@
-import { Component, Input, Output, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
 
 
@@ -18,6 +18,12 @@ export class DataPreservationComponent {
   separatorExp: RegExp = /,|;/;
 
   reactivePathsURLs = signal(['']);
+  pathsInputVal = '';
+  // Reference the HTML input element that uses chips matching the #pathInput in the HTML
+  @ViewChild('pathInput') chipInputEl!: ElementRef<HTMLInputElement>;
+
+  // This finds the MatChipInput directive inside that same element
+  @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
   
   preservationForm = this.fb.group(
     {
@@ -145,11 +151,18 @@ export class DataPreservationComponent {
   }
 
   addReactivePathsURLs(event: MatChipInputEvent): void {
-    const chips = (this.spChips.splitChips(event.value.trim()) || '')
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
+    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    const chips = (this.spChips.splitChips(event.value.trim()) || [])
+                  .filter(chip => chip.trim().length > 0);
 
-    // Add our keyword
+    // Add our path
     if (chips) {
-      this.reactivePathsURLs.update(pathsURLs => [...pathsURLs, ...chips]);
+      this.reactivePathsURLs.update(pathsURLs => {
+        // Combine both arrays into a Set to force uniqueness, 
+        // then spread it back into a standard array.
+        return [...new Set([...pathsURLs, ...chips])];
+      }); 
       chips.forEach((chip)=>{
         this.preservationForm.patchValue({
           pathsURLs: chip
@@ -160,6 +173,36 @@ export class DataPreservationComponent {
 
     // Clear the input value
     event.chipInput!.clear();
+  }
+
+  onBlur(event: FocusEvent) {
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // elsewhere with a mouse
+    
+    // Trigger event if input is not empty
+    if (this.pathsInputVal !== ''){
+      this.triggerAddChip();
+    }
+  }
+
+  onInputChange(value: string){
+    // console.log('onInputChange', value);
+    this.pathsInputVal = value;
+
+  }
+
+  triggerAddChip() {
+    //Construct the mock event
+    const mockEvent: MatChipInputEvent = {
+      input: this.chipInputEl.nativeElement,
+      value: this.pathsInputVal.trim(),
+      chipInput: this.chipInputDirective
+    };
+
+    // Manually call your existing add function
+    this.addReactivePathsURLs(mockEvent);
+    // Clear input value
+    this.pathsInputVal = '';
   }
 
 }

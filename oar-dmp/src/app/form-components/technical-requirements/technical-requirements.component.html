@@ -118,9 +118,12 @@
           }
           </mat-chip-grid>
           <input
-            placeholder="Copy/Paste or manually type in Keywords/Phrases as comma or semicolon separated values e.g. a, b; c"
+            #equipmentChips
+            placeholder="Copy/Paste or manually type in equipment Needed/Used as comma or semicolon separated values e.g. a, b; c"
             [matChipInputFor]="reactiveChipGrid"
             (matChipInputTokenEnd)="addReactiveInstruments($event)"
+            (blur)="onBlur($event)"
+            (input)="onInputChange(equipmentChips.value)"
           />
         </mat-form-field>
     </div>

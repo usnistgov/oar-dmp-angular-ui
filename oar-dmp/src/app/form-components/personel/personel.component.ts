@@ -346,7 +346,7 @@ export class PersonelComponent implements OnInit {
       this.contribOrcidWarn = '';
       personel.contributors.forEach(
         (dmpContributor, index) => {
-          if (dmpContributor.orcid.length === 0){
+          if (!dmpContributor.orcid){
             this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
           }
           this.dmpContributors.push({
@@ -494,7 +494,8 @@ export class PersonelComponent implements OnInit {
                           if (this.NISTPersonMetaChanged){
                             console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} has been been updated to reflect most recent info found in the NIST people service database.`)
                             //  add changes to the form values if any changes were made to NIST contributors metadata
-                            this.personelForm.value['contributors'] = this.dmpContributors;
+                            this.RePopulateTable();
+                            // this.personelForm.value['contributors'] = this.dmpContributors;
 
                             // patch value to indicate that the form has changed
                             this.personelForm.patchValue({
@@ -834,49 +835,55 @@ export class PersonelComponent implements OnInit {
     this.resetContributorFields();
     this.resetWarningAndErrorMessages();
   }
+
+  RePopulateTable(){
+    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
+    this.resetTable();
+    this.contribOrcidWarn = "";
+    this.dmpContributors.forEach((element)=>{        
+      if (element.orcid.length == 0){
+        this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+      }
+      // re populate contributors array
+      this.personelForm.value['contributors'].push({
+        
+        firstName:element.firstName, 
+        lastName:element.lastName,
+        orcid: element.orcid,
+        emailAddress: element.emailAddress,
+
+        groupOrgID:element.groupOrgID,
+        groupNumber:element.groupNumber,
+        groupName:element.groupName,
+
+        divisionOrgID:element.divisionOrgID,
+        divisionNumber:element.divisionNumber,
+        divisionName:element.divisionName,
+
+        ouOrgID:element.ouOrgID,
+        ouNumber:element.ouNumber,
+        ouName:element.ouName,
+        
+        primary_contact: element.primary_contact,
+        institution: element.institution,
+        role: element.role
+      });
+    });
+    if (this.dmpContributors.length === 0){
+      // If the table is empty disable clear and remove buttons
+      this.disableClear=true;
+      this.disableRemove=true;
+    }
+
+  }
   
   removeSelectedRows() {
 
     const result = confirmDialog("Are you sure you want to delete selected contributor(s) for this DMP?");
 
     if (result) {
-      this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
-      this.resetTable();
-      this.contribOrcidWarn = "";
-      this.dmpContributors.forEach((element)=>{        
-          if (element.orcid.length == 0){
-            this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-          }
-          // re populate contributors array
-          this.personelForm.value['contributors'].push({
-            
-            firstName:element.firstName, 
-            lastName:element.lastName,
-            orcid: element.orcid,
-            emailAddress: element.emailAddress,
-
-            groupOrgID:element.groupOrgID,
-            groupNumber:element.groupNumber,
-            groupName:element.groupName,
-
-            divisionOrgID:element.divisionOrgID,
-            divisionNumber:element.divisionNumber,
-            divisionName:element.divisionName,
-
-            ouOrgID:element.ouOrgID,
-            ouNumber:element.ouNumber,
-            ouName:element.ouName,
-            
-            primary_contact: element.primary_contact,
-            institution: element.institution,
-            role: element.role
-          });
-      });
-      if (this.dmpContributors.length === 0){
-        // If the table is empty disable clear and remove buttons
-        this.disableClear=true;
-        this.disableRemove=true;
-      }
+      this.RePopulateTable();
+      
     }
   }
 
