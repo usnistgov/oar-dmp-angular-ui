@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, afterNextRender  } from '@angular/core';
-import { ObservedValueOf, Subscription } from "rxjs";
+import { ObservedValueOf, Subscription, forkJoin, switchMap, of, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
@@ -127,6 +127,10 @@ export class DmpFormComponent implements OnInit{
   OUsUpdate: UpdateIndicator = {numUpdates:0, isUpdated:false};
   OUsTotalUpdates:number = 0;
 
+  canWrite:boolean  = false;
+  isAdmin:boolean   = false;
+  canDelete:boolean = false;
+
   constructor(
     private fb: UntypedFormBuilder, 
     private dmp_Service: DmpService, 
@@ -138,7 +142,7 @@ export class DmpFormComponent implements OnInit{
     private updateOUs: UpdateNistContributorService
     
     ) {  
-      // console.log("constructor");
+      console.log("constructor");
       afterNextRender(() => {
         // used for one-time initialisation: 
         // subscribe to track if the form has been changed by performing
@@ -185,7 +189,7 @@ export class DmpFormComponent implements OnInit{
   getFromDB:boolean = false;
 
   ngOnInit(): void {
-    // console.log("dmp-form.component ngOnInit")
+    console.log("dmp-form.component ngOnInit")
 
     // const elementToObserve = document.getElementById("footer");
     
@@ -204,7 +208,8 @@ export class DmpFormComponent implements OnInit{
     
     this.formButtonSubscribe();
     this.formExportFormatSubscribe();    
-    this.id = this.route.snapshot.paramMap.get('id')
+    this.id = this.route.snapshot.paramMap.get('id');
+
     this.route.data.subscribe(data  => {
       this.action = data["action"] ;
       if (this.action === "edit"){
@@ -217,24 +222,47 @@ export class DmpFormComponent implements OnInit{
       }
     });
 
-    // Fetch initial data from the backend
-    this.dmp_Service.fetchDMP(this.action, this.id).subscribe(
+    // 1. Start with the permission check
+    this.dmp_Service.aclsPermission(this.id, 'read').pipe(
+      switchMap(hasReadAccess => {
+        if (hasReadAccess) {
+          // 2. If true, move to the next "link" in the chain: fetch everything else
+          return forkJoin({
+            dmpData: this.dmp_Service.fetchDMP(this.action, this.id), // Fetch initial data from the backend
+            writePerm: this.dmp_Service.aclsPermission(this.id, 'write'),
+            adminPerm: this.dmp_Service.aclsPermission(this.id, 'admin'),
+            deletePerm: this.dmp_Service.aclsPermission(this.id, 'delete'),
+          });
+        }
+        else {
+          // 3. If false, stop the chain and handle the lack of access
+          this.router.navigate(['error', { dmpError: "You do not have read privileges for this record." }]);
+          return EMPTY; // Effectively kills the stream so 'next' isn't called
+        }
+      })
+    ).subscribe(
       {
-        next: data => {
+        next: (result) => {
+          const { dmpData, writePerm, adminPerm, deletePerm } = result;
           if (this.id !==null){
             // fetch DMP data from the backend
-            this.initialDMP = data.data;
-            this.dmp = data.data;
-            this.name.setValue(data.name);
+            this.initialDMP = dmpData.data;
+            this.dmp = dmpData.data;
+            this.name.setValue(dmpData.name);
             this.getFromDB = true;
           }
           else{
             // empty new form for creating new DMP
-            this.initialDMP = data;
-            this.dmp = data;
+            this.initialDMP = dmpData;
+            this.dmp = dmpData;
             // disable save button by default until user has made a change on the form
             this.disableSaveButton();
           }
+
+          // Set permission flags
+          this.canWrite = writePerm;
+          this.isAdmin = adminPerm;
+          this.canDelete = deletePerm
         },
         error: error => {
           console.log(error.message);
@@ -260,7 +288,13 @@ export class DmpFormComponent implements OnInit{
             this.resetDmp();
           }
           else if (this.formButtonMessage === "Save"){
-            this.saveDraft();
+            if (this.canWrite){
+              this.saveDraft();
+            }
+            else{
+              alert("Can not save changes to  DMP because you don't have write privileges on this record.");
+            }
+            
           }
           else if (this.formButtonMessage === "Download"){
             if (this.dmpExportFormatType === ""){
@@ -290,14 +324,14 @@ export class DmpFormComponent implements OnInit{
     if (!this.formContributorsSubscription) {
       //subscribe if not already subscribed
       this.formContributorsSubscription = this.updateContributor.updateNISTContrib$.subscribe({
-        next: (hasChanged:UpdateIndicator) => {
+        next: (hasChanged:UpdateIndicator) => {          
           if (hasChanged.isUpdated){
             // change this flag to indicate that we need to display alert about auto update of NIST contributors metadata from people service
             this.contributorsUpdate.isUpdated = hasChanged.isUpdated;
             // update this counter to indicate how many contributors have been updated
             this.contribTotalUpdates = hasChanged.numUpdates;
             this.saveDraft();            
-          }
+          }          
         }
       });
     }
@@ -309,7 +343,7 @@ export class DmpFormComponent implements OnInit{
     if (!this.formOUsSubscription) {
       //subscribe if not already subscribed
       this.formOUsSubscription = this.updateOUs.updateOUs$.subscribe({
-        next: (hasChanged:UpdateIndicator) => {
+        next: (hasChanged:UpdateIndicator) => {          
           if (hasChanged.isUpdated){
             // change this flag to indicate that we need to display alert about auto update of NIST contributors metadata from people service
             this.OUsUpdate.isUpdated = hasChanged.isUpdated;
@@ -406,8 +440,10 @@ export class DmpFormComponent implements OnInit{
     // arr1 = [...arr1, ...arr2];
     // arr1 is now [0, 1, 2, 3, 4, 5]        
     this.dmp = { ...this.dmp, ...patch };
-    this.contributorsSubscribe();
-    this.OUsSubscribe();
+    if (this.canWrite){
+      this.contributorsSubscribe();
+      this.OUsSubscribe();
+    }
   }
 
   enableSaveButton(){

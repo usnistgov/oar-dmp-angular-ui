@@ -162,6 +162,23 @@ export class DmpService {
 
   }
 
+  aclsPermission(recordID:string|null, permissionType:string) {   
+    /**
+     * get DMP write permissions from API
+     */
+    let apiAddress:string = this.configService.getConfig<DMPConfiguration>().PDRDMP; //this.PDR_API;
+    if (recordID !==null){
+      apiAddress += "/" + recordID +"/acls/" + permissionType + "/:user";
+    }
+    return this.authService.getCredentials().pipe(
+      switchMap(creds => {
+        if (! creds)
+          return throwError(() => new Error('Authentication Failed'));
+        return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
+      })
+    );
+  }
+
 }
 
 export function confirmDialog(message: string): boolean {

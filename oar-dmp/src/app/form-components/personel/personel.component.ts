@@ -492,7 +492,7 @@ export class PersonelComponent implements OnInit {
                         },
                         complete: () => {
                           if (this.NISTPersonMetaChanged){
-                            console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} has been been updated to reflect most recent info found in the NIST people service database.`)
+                            console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} does not match most recent info found in the NIST people service database.`)
                             //  add changes to the form values if any changes were made to NIST contributors metadata
                             this.RePopulateTable();
                             // this.personelForm.value['contributors'] = this.dmpContributors;
