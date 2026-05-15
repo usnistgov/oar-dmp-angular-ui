@@ -73,7 +73,7 @@ export class AppComponent {
                 console.error("Auth server failure: "+err.message);
                 this.authMessage = "Unable to log in; authentication server error";
             }
-            else if (err.status && err.status == 401) {
+            else if (err.status && err.status === 401) {
                 console.error("Auth server reports: user is unauthorized: "+err.message);
                 this.authMessage = "User Log-in failure";
             }

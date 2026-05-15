@@ -142,7 +142,7 @@ export class DmpFormComponent implements OnInit{
     private updateOUs: UpdateNistContributorService
     
     ) {  
-      console.log("constructor");
+      // console.log("constructor");
       afterNextRender(() => {
         // used for one-time initialisation: 
         // subscribe to track if the form has been changed by performing
@@ -189,7 +189,7 @@ export class DmpFormComponent implements OnInit{
   getFromDB:boolean = false;
 
   ngOnInit(): void {
-    console.log("dmp-form.component ngOnInit")
+    // console.log("dmp-form.component ngOnInit")
 
     // const elementToObserve = document.getElementById("footer");
     
@@ -530,7 +530,7 @@ export class DmpFormComponent implements OnInit{
                 
             },
             error: error => {
-              console.log(error.message);
+              console.error(error.message);
               this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
             }
             
@@ -550,7 +550,7 @@ export class DmpFormComponent implements OnInit{
             this.formSaved = true;
           },
           error: error => {
-            console.log(error.message);
+            console.error(error.message);
             this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
           }
         }

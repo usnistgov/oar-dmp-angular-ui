@@ -254,7 +254,7 @@ export class StorageNeedsComponent {
 
     // if software development is set to yes then set the rest of the radio buttons
     // according to passed metadata
-    if (this.technicalRequirementsForm.controls['development'].value == "yes"){
+    if (this.technicalRequirementsForm.controls['development'].value === "yes"){
       this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
       this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
       this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);

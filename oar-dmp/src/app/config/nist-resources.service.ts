@@ -18,7 +18,7 @@ export class NistResourcesService {
 
   loadResources(data: any): void {
     this.resources = data as NIST_Resources;
-    if (environment.debug) console.log("NIST resources loaded");
+    if (environment.debug) console.info("\u2713 NIST resources loaded");
   }
 
   public fetchNistResources(nistResources: string | null = null): Observable<NIST_Resources>{
