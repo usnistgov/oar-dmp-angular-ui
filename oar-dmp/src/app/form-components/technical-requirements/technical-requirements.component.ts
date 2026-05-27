@@ -643,15 +643,11 @@ export class StorageNeedsComponent {
       technicalResources.splice(index, 1);
 
       // reset the technicalResources array
-      this.technicalRequirementsForm.setValue(
-        {
-          technicalResources:[]
-        }
-      )
+      this.technicalRequirementsForm.value['technicalResources'] = [];
 
       // repopulate the array
       technicalResources.forEach((element)=>{
-        this.technicalRequirementsForm.value['technicalResources'].push({technicalResources:element});
+        this.technicalRequirementsForm.value['technicalResources'].push({technicalResources:element.trim()});
       });
       return [...technicalResources];
     });

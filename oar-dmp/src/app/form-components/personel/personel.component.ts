@@ -437,6 +437,11 @@ export class PersonelComponent implements OnInit {
       // If there is a change update metadata and set NISTPersonMetaChanged to true to 
       // indicate that this data needs to be automatically saved without any user intraction
       concatMap((dmpContributor: any) => {
+
+        if (!dmpContributor.institution || dmpContributor.institution.toUpperCase() !== 'NIST'){
+          // don't perform autoupdate for external contributors
+         return of({ dmpContributor, changed: false });
+        }
         const usrLastName = dmpContributor.lastName;
 
         // Call people service for the index
@@ -477,6 +482,10 @@ export class PersonelComponent implements OnInit {
                   this.updateContributorData(dmpContributor, psRec);
                   // console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} does not match most recent info found in the NIST people service database.`)
                   return { dmpContributor, psRec, changed: true };
+                }
+                else if (!psRec){
+                  console.warn(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} did not match list of suggested matches on e-mail ${dmpContributor.emailAddress}.`);
+                  console.warn(records);
                 }
                 return { dmpContributor, changed: false };
               })
@@ -547,7 +556,13 @@ export class PersonelComponent implements OnInit {
       const oldValue = dmpContributor[field];
       const newValue = psRec[field];
 
-      if (oldValue !== newValue) {
+      // 1. Check if the value is actually different
+      // 2. AND Ensure we aren't trying to overwrite a valid orcid with null
+      if (
+          oldValue !== newValue && 
+          !(field === 'orcid' && newValue === null)
+      )
+      {
 
         // Handle specific logic for Primary Contact OU changes while we still have the 'oldValue'
         if (field === 'groupOrgID' && dmpContributor.primary_contact === "Yes") {
@@ -618,6 +633,18 @@ export class PersonelComponent implements OnInit {
    * return true if the two are identical 
    */
   private NISTContributorHasChanged (dmpContrib:any, current:any):boolean{
+    if (current.orcid === null && dmpContrib.orcid !== current.orcid){
+      // print a warning about people service "loosing" ORCID number log_normal_bold_style
+      console.warn(`People service is indicating a new %cORCID  %cvalue of 'null' for %c${dmpContrib.firstName} ${dmpContrib.lastName} %cwith previously entered %cORCID %cvalue of: ${dmpContrib.orcid}. %cThis change will be ignored.`,
+        log_normal_bold_style,
+        log_normal_style,
+        log_normal_bold_style,
+        log_normal_style,
+        log_normal_bold_style,
+        log_normal_style,
+        log_normal_bold_style
+      );
+    }
     if (
       (dmpContrib.divisionName !== current.divisionName) ||
       (dmpContrib.divisionNumber !== current.divisionNumber) ||
@@ -626,11 +653,12 @@ export class PersonelComponent implements OnInit {
       (dmpContrib.groupName !== current.groupName) ||
       (dmpContrib.groupNumber !== current.groupNumber) ||
       (dmpContrib.groupOrgID !== current.groupOrgID) ||
-      (dmpContrib.lastName !== current.lastName) ||
-      (dmpContrib.orcid !== current.orcid) ||
+      (dmpContrib.lastName !== current.lastName) ||      
       (dmpContrib.ouName !== current.ouName) ||
       (dmpContrib.ouNumber !== current.ouNumber) ||
-      (dmpContrib.ouOrgID !== current.ouOrgID)
+      (dmpContrib.ouOrgID !== current.ouOrgID) ||
+      // Updated Logic: Only trigger "true" if current.orcid is provided AND different
+      (current.orcid !== null && dmpContrib.orcid !== current.orcid)
 
     ){
       return true;

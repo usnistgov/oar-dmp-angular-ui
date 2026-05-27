@@ -134,15 +134,11 @@ export class DataPreservationComponent {
       pathsURLs.splice(index, 1);
 
       // reset the pathsURLs array
-      this.preservationForm.setValue(
-        {
-          pathsURLs:[]
-        }
-      )
+      this.preservationForm.value['pathsURLs'] = [];     
 
       // repopulate the array
       pathsURLs.forEach((element)=>{
-        this.preservationForm.value['pathsURLs'].push({pathsURLs:element});
+        this.preservationForm.value['pathsURLs'].push({pathsURLs:element.trim()});
       });
       return [...pathsURLs];
     });

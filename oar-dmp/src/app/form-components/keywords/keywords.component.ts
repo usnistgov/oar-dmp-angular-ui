@@ -111,7 +111,7 @@ export class KeywordsComponent {
       keywords.splice(index, 1);
       this.resetKeyWordsForm();
       keywords.forEach((element)=>{
-        this.keyWordsForm.value['keywords'].push({keywords:element});
+        this.keyWordsForm.value['keywords'].push({keywords:element.trim()});
       });
       return [...keywords];
     });
