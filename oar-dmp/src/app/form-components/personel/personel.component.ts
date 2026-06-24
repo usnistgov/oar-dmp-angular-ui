@@ -535,6 +535,47 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Rebuilds the form's contributors array from the dmpContributors table.
+   * The table is the single source of truth; the form mirrors it.
+   */
+  private syncContributorsToForm(): void {
+    const contributors: Contributor[] = this.dmpContributors.map((el) => ({
+      firstName:      el.firstName,
+      lastName:       el.lastName,
+      orcid:          el.orcid,
+      emailAddress:   el.emailAddress,
+
+      groupOrgID:     el.groupOrgID,
+      groupNumber:    el.groupNumber,
+      groupName:      el.groupName,
+
+      divisionOrgID:  el.divisionOrgID,
+      divisionNumber: el.divisionNumber,
+      divisionName:   el.divisionName,
+
+      ouOrgID:        el.ouOrgID,
+      ouNumber:       el.ouNumber,
+      ouName:         el.ouName,
+
+      primary_contact: el.primary_contact,
+      institution:     el.institution,
+      role:            el.role,
+    }));
+
+    this.personelForm.patchValue({ contributors });
+  }
+
+  /**
+   * Recomputes the sticky ORCID warning from the full table in one place.
+   */
+  private refreshOrcidWarning(): void {
+    const anyMissing = this.dmpContributors.some(
+      (c) => !c.orcid || c.orcid.length === 0
+    );
+    this.contribOrcidWarn = anyMissing ? PersonelComponent.ORCID_WARNING : "";
+  }
+
   /** 
    * Helper to update the object properties
    */
