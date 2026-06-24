@@ -663,11 +663,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.syncContributorsToForm();
     this.refreshOrcidWarning();
 
-    // patch value to indicate that the form has changed
-    this.personelForm.patchValue({
-      contributors: this.personelForm.value['contributors']
-    });
-
     // set updateNISTContrib to true to "send message" to dmp-form.component to execute autosave 
     this.updateContributor.updateNISTContrib$.next({ 
       numUpdates: this.contribsUpdated, 
