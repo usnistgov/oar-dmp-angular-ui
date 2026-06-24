@@ -66,7 +66,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    AuthModule,
+    // AuthModule,
     ConfigModule,
     StaffDirModule,
     FrameModule,
@@ -94,7 +94,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   providers: [
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
-    // { provide: AuthenticationService, useClass:MockAuthenticationService }
+    { provide: AuthenticationService, useClass:MockAuthenticationService }
   ],
 
   bootstrap: [AppComponent]
