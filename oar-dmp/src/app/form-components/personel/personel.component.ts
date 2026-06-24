@@ -1036,98 +1036,61 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
   }
 
-  onDoneClick(e:any){
-    // Perform input validation here when user is editing an exising external contributor data
+  onDoneClick(e: any) {
+    // Validate when finishing an inline edit of an external contributor
     this.contribOrcidWarn = "";
-    let externalContrib:externalContributor = {
-      firstName:e.firstName,
-      lastName:e.lastName,
-      orcid:e.orcid,
-      institution:e.institution,
-      emailAddress:e.emailAddress,
-      role:this.crntContribRole
-    }
+    const externalContrib: externalContributor = {
+      firstName:    e.firstName,
+      lastName:     e.lastName,
+      orcid:        e.orcid,
+      institution:  e.institution,
+      emailAddress: e.emailAddress,
+      role:         this.crntContribRole,
+    };
 
-    let isValidExtcontrib = this.validateExternalContributorInput(externalContrib);
-    if (isValidExtcontrib){
-      // add ORCID field
-      this.crntContribOrcid = e.orcid;
-    }
-    else{
+    if (!this.validateExternalContributorInput(externalContrib)) {
       return;
     }
+    this.crntContribOrcid = e.orcid;
+    this.errorMessage = "";
 
-    this.errorMessage = '';
-    this.resetTable();
-    // this.contribOrcidWarn = "";
-    this.dmpContributors.forEach((contributor)=>{
-      if(contributor.id === e.id){
-        contributor.isEdit = false;
-      }
-      
-      // if contributor that we're adding/edditing is external by default the divisionOrgID will be 0 and other institutional values need to be empty too
-      // so we can use that to make sure that certin fields if manually edited remain empty or within default values
-      // for example assigning primary contact as yes to an external contributor should not be allowed
+    // Find the row being edited and apply changes to it directly
+    const row = this.dmpContributors.find((c) => c.id === e.id);
+    if (row) {
+      row.isEdit = false;
 
-      if(contributor.divisionOrgID === 0){
+      // A divisionOrgID of 0 indicates an external contributor: enforce the
+      // institutional defaults so manual edits can't promote them to NIST or
+      // assign them as a primary contact.
+      if (row.divisionOrgID === 0) {
+        row.groupOrgID = 0;
+        row.groupNumber = "";
+        row.groupName = "";
 
-        contributor.groupOrgID = 0;
-        contributor.groupNumber ='';
-        contributor.groupName ='';
+        row.divisionOrgID = 0;
+        row.divisionNumber = "";
+        row.divisionName = "";
 
-        contributor.divisionOrgID = 0;
-        contributor.divisionNumber ='';
-        contributor.divisionName ='';
+        row.ouOrgID = 0;
+        row.ouNumber = "";
+        row.ouName = "";
 
-        contributor.ouOrgID = 0;
-        contributor.ouNumber ='';
-        contributor.ouName ='';
+        row.primary_contact = "No";
 
-        // prevent users erroniously assigning primary contact to an external contributor
-        contributor.primary_contact = 'No'; 
-
-        // make sure that role is from accepted values          
-        let editedRole = [];                    
-        editedRole = _.filter(this.contributorRoles,{value:String(contributor.role)}); //search roles on value 
-        if (editedRole.length === 0){
-          //if search yielded no results set role to an empty string
-          contributor.role = '';
+        // Ensure role is one of the accepted values
+        const validRole = _.filter(this.contributorRoles, { value: String(row.role) });
+        if (validRole.length === 0) {
+          row.role = "";
         }
       }
-      // re populate contributors array
-      this.personelForm.value['contributors'].push({
-        
-        firstName:contributor.firstName, 
-        lastName:contributor.lastName,
-        orcid: contributor.orcid,
-        emailAddress: contributor.emailAddress,
+    }
 
-        groupOrgID:contributor.groupOrgID,
-        groupNumber:contributor.groupNumber,
-        groupName:contributor.groupName,
+    // Rebuild the form from the table, recompute warning, refresh button state
+    this.syncContributorsToForm();
+    this.refreshOrcidWarning();
 
-        divisionOrgID:contributor.divisionOrgID,
-        divisionNumber:contributor.divisionNumber,
-        divisionName:contributor.divisionName,
-
-        ouOrgID:contributor.ouOrgID,
-        ouNumber:contributor.ouNumber,
-        ouName:contributor.ouName,
-        
-        primary_contact: contributor.primary_contact,
-        institution: contributor.institution,
-        role: contributor.role
-      });
-    })
-
-    this.disableClear=false;
-    this.disableRemove=false;
-
-    // patch value to also indicate that the form has changed and Save button can change color
-    this.personelForm.patchValue({
-      contributors:this.personelForm.value['contributors']
-    })
-
+    this.disableClear = false;
+    this.disableRemove = false;
   }
 
   /**
@@ -1153,110 +1116,110 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
 
   addRow() {
-  // ---- Validate the staged contributor ----
-  if (this.contributorRadioSel === "contributorExternal") {
-    const externalContrib: externalContributor = {
-      firstName:    this.externalContributor.firstName,
-      lastName:     this.externalContributor.lastName,
-      orcid:        this.externalContributor.orcid,
-      institution:  this.externalContributor.institution,
-      emailAddress: this.externalContributor.emailAddress,
-      role:         this.crntContribRole,
+    // ---- Validate the staged contributor ----
+    if (this.contributorRadioSel === "contributorExternal") {
+      const externalContrib: externalContributor = {
+        firstName:    this.externalContributor.firstName,
+        lastName:     this.externalContributor.lastName,
+        orcid:        this.externalContributor.orcid,
+        institution:  this.externalContributor.institution,
+        emailAddress: this.externalContributor.emailAddress,
+        role:         this.crntContribRole,
+      };
+
+      if (!this.validateExternalContributorInput(externalContrib)) {
+        return;
+      }
+      this.crntContribOrcid = this.externalContributor.orcid;
+    } else {
+      // NIST contributor
+      this.crntContribOrcid = this.nistContribOrcid;
+      const isORCID = this.isORCID(this.crntContribOrcid);
+
+      if (!isORCID && this.crntContribOrcid.length > 0) {
+        this.errorMessage = PersonelComponent.ORCID_ERROR;
+        return;
+      }
+    }
+
+    // ---- Duplicate detection ----
+    // Email is the preferred key, but it can be empty/null for NIST records,
+    // so fall back to a composite identity when email is absent.
+    const isDuplicate = this.dmpContributors.some((member: any) =>
+      this.sameContributor(member)
+    );
+
+    if (isDuplicate) {
+      this.errorMessage =
+        "Contributor " + this.crntContribName + " " + this.crntContribSurname +
+        " is already in the list of contributors";
+      this.disableAdd = false;
+      this.disableClear = false;
+      this.disableRemove = false;
+      return;
+    }
+
+    // ---- Build the new row ----
+    const newRow: DataContributor = {
+      firstName:      this.crntContribName,
+      lastName:       this.crntContribSurname,
+      orcid:          this.crntContribOrcid,
+      emailAddress:   this.crntContribEmail,
+
+      groupOrgID:     this.crntContribGroupOrgID,
+      groupNumber:    this.crntContribGroupNumber,
+      groupName:      this.crntContribGroupName,
+
+      divisionOrgID:  this.crntContribDivisionOrgID,
+      divisionNumber: this.crntContribDivisionNumber,
+      divisionName:   this.crntContribDivisionName,
+
+      ouOrgID:        this.crntContribOuOrgID,
+      ouNumber:       this.crntContribOuNumber,
+      ouName:         this.crntContribOuName,
+
+      primary_contact: this.primaryContactSelection,
+      institution:     "",
+      role:            this.crntContribRole,
+
+      id: Date.now(),
+      isEdit: false,
     };
 
-    if (!this.validateExternalContributorInput(externalContrib)) {
-      return;
+    if (this.contributorOption === "NIST") {
+      newRow.institution = this.contributorOption;
+
+      // If this NIST contributor is a primary contact, resolve their OU
+      if (this.primaryContactSelection === "Yes") {
+        this.sdsvc.getOrgsFor(this.presonID)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (recs: any) => {
+              this.setResponsibleOrgs(recs);
+              this.org_index = null;
+              this.orgSuggestions = [];
+              this.org_addRow();
+            },
+            error: (err: any) => {
+              console.error('Failed to pull orgs for index "' + this.presonID + '"' + err);
+            },
+          });
+      }
+    } else {
+      newRow.institution = this.externalContributor.institution;
     }
-    this.crntContribOrcid = this.externalContributor.orcid;
-  } else {
-    // NIST contributor
-    this.crntContribOrcid = this.nistContribOrcid;
-    const isORCID = this.isORCID(this.crntContribOrcid);
 
-    if (!isORCID && this.crntContribOrcid.length > 0) {
-      this.errorMessage = PersonelComponent.ORCID_ERROR;
-      return;
-    }
-  }
+    // ---- Commit: prepend to table, sync once ----
+    this.dmpContributors = [newRow, ...this.dmpContributors];
+    this.syncContributorsToForm();
+    this.refreshOrcidWarning();
 
-  // ---- Duplicate detection ----
-  // Email is the preferred key, but it can be empty/null for NIST records,
-  // so fall back to a composite identity when email is absent.
-  const isDuplicate = this.dmpContributors.some((member: any) =>
-    this.sameContributor(member)
-  );
-
-  if (isDuplicate) {
-    this.errorMessage =
-      "Contributor " + this.crntContribName + " " + this.crntContribSurname +
-      " is already in the list of contributors";
-    this.disableAdd = false;
+    this.errorMessage = "";
     this.disableClear = false;
     this.disableRemove = false;
-    return;
+
+    this.resetContributorFields();
   }
-
-  // ---- Build the new row ----
-  const newRow: DataContributor = {
-    firstName:      this.crntContribName,
-    lastName:       this.crntContribSurname,
-    orcid:          this.crntContribOrcid,
-    emailAddress:   this.crntContribEmail,
-
-    groupOrgID:     this.crntContribGroupOrgID,
-    groupNumber:    this.crntContribGroupNumber,
-    groupName:      this.crntContribGroupName,
-
-    divisionOrgID:  this.crntContribDivisionOrgID,
-    divisionNumber: this.crntContribDivisionNumber,
-    divisionName:   this.crntContribDivisionName,
-
-    ouOrgID:        this.crntContribOuOrgID,
-    ouNumber:       this.crntContribOuNumber,
-    ouName:         this.crntContribOuName,
-
-    primary_contact: this.primaryContactSelection,
-    institution:     "",
-    role:            this.crntContribRole,
-
-    id: Date.now(),
-    isEdit: false,
-  };
-
-  if (this.contributorOption === "NIST") {
-    newRow.institution = this.contributorOption;
-
-    // If this NIST contributor is a primary contact, resolve their OU
-    if (this.primaryContactSelection === "Yes") {
-      this.sdsvc.getOrgsFor(this.presonID)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (recs: any) => {
-            this.setResponsibleOrgs(recs);
-            this.org_index = null;
-            this.orgSuggestions = [];
-            this.org_addRow();
-          },
-          error: (err: any) => {
-            console.error('Failed to pull orgs for index "' + this.presonID + '"' + err);
-          },
-        });
-    }
-  } else {
-    newRow.institution = this.externalContributor.institution;
-  }
-
-  // ---- Commit: prepend to table, sync once ----
-  this.dmpContributors = [newRow, ...this.dmpContributors];
-  this.syncContributorsToForm();
-  this.refreshOrcidWarning();
-
-  this.errorMessage = "";
-  this.disableClear = false;
-  this.disableRemove = false;
-
-  this.resetContributorFields();
-}
 
   private validateExternalContributorInput(extContrib:externalContributor):boolean{
     /**
