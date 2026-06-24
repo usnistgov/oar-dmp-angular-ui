@@ -1,12 +1,12 @@
-import { Component, OnInit, Input, Output  } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 
 import { UntypedFormBuilder } from '@angular/forms';
-import { Observable, defer, of, startWith, from, forkJoin} from 'rxjs';
-import { concatMap, map, switchMap, catchError, tap } from 'rxjs/operators';
+import { Observable, defer, of, startWith, from, forkJoin, Subject } from 'rxjs';
+import { concatMap, map, switchMap, catchError, tap, takeUntil } from 'rxjs/operators';
 import { DMP_Meta } from '../../types/DMP.types';
 // import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
@@ -164,7 +164,8 @@ const log_new_val_style = 'color: #005eda; font-weight: bold;';
   templateUrl: './personel.component.html',
   styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
-export class PersonelComponent implements OnInit {
+export class PersonelComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   // ================================
   // used for organizations table
   // ================================
@@ -514,7 +515,7 @@ export class PersonelComponent implements OnInit {
     );
 
     // 6. Final Subscription 
-    processedObservable.subscribe({
+    processedObservable.pipe(takeUntil(this.destroy$)).subscribe({
       next: (result: any) => {
         if (result?.changed) {
           this.applyFinalUpdates(result.dmpContributor); 
@@ -527,6 +528,11 @@ export class PersonelComponent implements OnInit {
       }
     });
       
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /** 
@@ -1162,7 +1168,9 @@ export class PersonelComponent implements OnInit {
       // check if the new contributor is a primary contact and if so find their OU
       if (this.primaryContactSelection === 'Yes'){
         
-        this.sdsvc.getOrgsFor(this.presonID).subscribe({
+        this.sdsvc.getOrgsFor(this.presonID)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (recs:any) =>{
             this.setResponsibleOrgs(recs);            
             // clear sarch suggestions since the user has selected an option from drop down menu
