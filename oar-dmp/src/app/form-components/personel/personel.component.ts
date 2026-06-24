@@ -1394,34 +1394,20 @@ export class PersonelComponent implements OnInit, OnDestroy {
   removeRow(id:any) {
     const result = confirmDialog("Are you sure you want to delete selected contributor(s) for this DMP?");
 
-    if (result) {
-      // select word from the specific id
-      var selWord = this.dmpContributors.filter((u) => u.id === id);    
-      this.personelForm.value['contributors'].forEach((value:Contributor,index:number) =>{
-        selWord.forEach((word)=>{
-          /**
-           * NOTE: 
-           * assuming here that e-mail is always unique
-           * i.e. that there are no two contributors with the same e-mail
-           * Some check could be performed as a future feature to ensure that
-           * when adding a new contributor the e-mail is unique and always present field
-           */
-          if(value.emailAddress === word.emailAddress){
-            //remove from DmpRecord
-            this.personelForm.value['contributors'].splice(index,1);
-          }
-        });
-      });
+    if (!result) return;
 
-      // remove from the display table
-      this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
-      this.resetWarningAndErrorMessages();
+    // Remove from the display table
+    this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
 
-      // patch value to also indicate that the form has changed and Save button can change color
-      this.personelForm.patchValue({
-        contributors:this.personelForm.value['contributors']
-      })
-      
+    // Rebuild the form from the table (single source of truth)
+    this.syncContributorsToForm();
+
+    this.refreshOrcidWarning();
+    this.errorMessage = "";
+
+    if (this.dmpContributors.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
   }
 
