@@ -1603,38 +1603,21 @@ export class PersonelComponent implements OnInit, OnDestroy {
     )
   }
 
-  org_removeRow(id:any) {
-    const result = confirmDialog("Are you sure you want to delete selected organization(s) for this DMP?");
+  org_removeRow(id: any) {
+    const result = confirmDialog(
+      "Are you sure you want to delete the selected organization for this DMP?"
+    );
+    if (!result) return;
 
-    if (result) {
-      var selRow = this.dmpOrganizations.filter((u) => u.id === id); 
+    // Remove from the display table
+    this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
 
-      // update the form metadata
-      this.personelForm.value['organizations'].forEach(
-        (value:ResponsibleOrganizations, index:number)=>{
-          selRow.forEach(
-            (org)=>{
-              if (
-                value.divisionName === org.divisionName &&
-                value.groupName === org.groupName &&
-                value.ouName === org.ouName
-              ){
-                //remove selected organization
-                this.personelForm.value['organizations'].splice(index,1);
-              }
-            }
-          )
-        }
-      )
+    // Rebuild the form from the table
+    this.syncOrganizationsToForm();
 
-      // remove from the display table
-      this.dmpOrganizations = this.dmpOrganizations.filter((u) => u.id !== id);
-      this.personelForm.patchValue({
-        organizations:              this.personelForm.value['organizations']
-      });
-    }
-    else{
-      const temp = 0;
+    if (this.dmpOrganizations.length === 0) {
+      this.org_disableClear = true;
+      this.org_disableRemove = true;
     }
   }
 
