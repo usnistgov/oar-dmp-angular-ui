@@ -994,12 +994,18 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
   
   removeSelectedRows() {
+    const result = confirmDialog(
+      "Are you sure you want to delete the selected contributor(s) for this DMP?"
+    );
+    if (!result) return;
 
-    const result = confirmDialog("Are you sure you want to delete selected contributor(s) for this DMP?");
+    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
+    this.syncContributorsToForm();
+    this.refreshOrcidWarning();
 
-    if (result) {
-      this.RePopulateTable();
-      
+    if (this.dmpContributors.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
   }
 
