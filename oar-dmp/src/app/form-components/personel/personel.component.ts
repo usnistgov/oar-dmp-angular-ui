@@ -1516,30 +1516,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.personelForm.controls['nistOrganization'].setValue("");
   }
 
-  private rePopulateOrgs(){
-    this.dmpOrganizations.forEach(
-      (org)=>{
-        this.personelForm.value['organizations'].push(
-          {
-            groupName:org.groupName,
-            groupNumber: org.groupNumber,
-            groupOrgID: org.groupOrgID,
-            
-            divisionName:org.divisionName,
-            divisionNumber: org.divisionNumber,
-            divisionOrgID: org.divisionOrgID,
-            divisionAcronym: org.divisionAcronym,
-
-            ouName: org.ouName,
-            ouNumber: org.ouNumber,
-            ouOrgID: org.ouOrgID,
-            ouAcronym: org.ouAcronym
-          }
-        )
-      }
-    )
-  }
-
   org_removeRow(id: any) {
     const result = confirmDialog(
       "Are you sure you want to delete the selected organization for this DMP?"
