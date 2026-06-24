@@ -952,47 +952,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.resetContributorFields();
     this.resetWarningAndErrorMessages();
   }
-
-  RePopulateTable(){
-    this.dmpContributors = this.dmpContributors.filter((u: any) => !u.isSelected);
-    this.resetTable();
-    this.contribOrcidWarn = "";
-    this.dmpContributors.forEach((element)=>{        
-      if (element.orcid === null || element.orcid.length === 0){
-        this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-      }
-      // re populate contributors array
-      this.personelForm.value['contributors'].push({
-        
-        firstName:element.firstName, 
-        lastName:element.lastName,
-        orcid: element.orcid,
-        emailAddress: element.emailAddress,
-
-        groupOrgID:element.groupOrgID,
-        groupNumber:element.groupNumber,
-        groupName:element.groupName,
-
-        divisionOrgID:element.divisionOrgID,
-        divisionNumber:element.divisionNumber,
-        divisionName:element.divisionName,
-
-        ouOrgID:element.ouOrgID,
-        ouNumber:element.ouNumber,
-        ouName:element.ouName,
-        
-        primary_contact: element.primary_contact,
-        institution: element.institution,
-        role: element.role
-      });
-    });
-    if (this.dmpContributors.length === 0){
-      // If the table is empty disable clear and remove buttons
-      this.disableClear=true;
-      this.disableRemove=true;
-    }
-
-  }
   
   removeSelectedRows() {
     const result = confirmDialog(
@@ -1010,19 +969,13 @@ export class PersonelComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetTable(){
-    this.personelForm.patchValue({
-      contributors:[]
-    })
-  }
-
   clearTable(){
     const result = confirmDialog("Are you sure you want to delete all contributors for this DMP?");
 
     if (result) {
       this.dmpContributors = [];
       this.resetWarningAndErrorMessages();
-      this.resetTable();
+      this.personelForm.patchValue({ contributors: [] })
       // If the table is empty disable clear and remove buttons
       this.disableClear=true;
       this.disableRemove=true;
@@ -1498,36 +1451,26 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
 
   org_removeSelectedRows() {
-    const result = confirmDialog("Are you sure you want to delete selected organization(s) for this DMP?");
+    const result = confirmDialog(
+      "Are you sure you want to delete the selected organization(s) for this DMP?"
+    );
+    if (!result) return;
 
-    if (result) {
-      //assign unselected rows to dmpOrganizations
-      this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
-      //reset the table 
-      this.org_resetTable();
-      //repopulate the table with what's left in the array
-      this.rePopulateOrgs();
+    this.dmpOrganizations = this.dmpOrganizations.filter((u: any) => !u.isSelected);
+    this.syncOrganizationsToForm();
 
-      if (this.dmpOrganizations.length === 0){
-        // If the table is empty disable clear and remove buttons
-        this.org_disableClear=true;
-        this.org_disableRemove=true;
-      }
+    if (this.dmpOrganizations.length === 0) {
+      this.org_disableClear = true;
+      this.org_disableRemove = true;
     }
-  }
-
-  org_resetTable(){
-    this.personelForm.patchValue({
-      organizations:[]
-    })
   }
 
   org_clearTable(){
     const result = confirmDialog("Are you sure you want to delete all organizations for this DMP?");
 
     if (result) {
-      this.dmpOrganizations = []
-      this.org_resetTable();
+      this.dmpOrganizations = [];
+      this.personelForm.patchValue({organizations:[]});      
       this.org_disableAdd=true;
       this.org_disableClear=true;
       this.org_disableRemove=true;
