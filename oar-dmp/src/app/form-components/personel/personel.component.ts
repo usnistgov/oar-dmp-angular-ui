@@ -1638,6 +1638,30 @@ export class PersonelComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Rebuilds the form's organizations array from the dmpOrganizations table.
+   * The table is the single source of truth; the form mirrors it.
+   */
+  private syncOrganizationsToForm(): void {
+    const organizations: ResponsibleOrganizations[] = this.dmpOrganizations.map((org) => ({
+      groupName:       org.groupName,
+      groupNumber:     org.groupNumber,
+      groupOrgID:      org.groupOrgID,
+
+      divisionName:    org.divisionName,
+      divisionNumber:  org.divisionNumber,
+      divisionOrgID:   org.divisionOrgID,
+      divisionAcronym: org.divisionAcronym,
+
+      ouName:          org.ouName,
+      ouNumber:        org.ouNumber,
+      ouOrgID:         org.ouOrgID,
+      ouAcronym:       org.ouAcronym,
+    }));
+
+    this.personelForm.patchValue({ organizations });
+  }
+
   
 
 }
