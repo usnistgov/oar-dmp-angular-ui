@@ -1534,48 +1534,47 @@ export class PersonelComponent implements OnInit, OnDestroy {
     }
   }
 
-  org_addRow(){
+  org_addRow() {
     const newRow = {
       id: Date.now(),
       isEdit: false,
-      groupName:this.orgGroupName,
-      groupNumber: this.orgGroupNumber,
-      groupOrgID: this.orgGroupOrgID,
-      
-      divisionName:this.orgDivisionName,
-      divisionNumber: this.orgDivisionNumber,
-      divisionOrgID: this.orgDivisionOrgID,
+      groupName:    this.orgGroupName,
+      groupNumber:  this.orgGroupNumber,
+      groupOrgID:   this.orgGroupOrgID,
+
+      divisionName:    this.orgDivisionName,
+      divisionNumber:  this.orgDivisionNumber,
+      divisionOrgID:   this.orgDivisionOrgID,
       divisionAcronym: this.orgDivisionAcronym,
 
-      ouName: this.orgOuName,
-      ouNumber: this.orgOuNumber,
-      ouOrgID: this.orgOuOrgID,
-      ouAcronym: this.orgOuAcronym
+      ouName:    this.orgOuName,
+      ouNumber:  this.orgOuNumber,
+      ouOrgID:   this.orgOuOrgID,
+      ouAcronym: this.orgOuAcronym,
     };
 
-    // Check if selected organization is already in the table
-    // all three values combined are a unique value in a row
-    
-    const selRow = this.dmpOrganizations.filter(
-      (u) => u.groupName === newRow.groupName && u.divisionName === newRow.divisionName && u.ouName === newRow.ouName);
-    if (selRow.length > 0){
+    // Composite identity: group + division + OU together are unique per row
+    const duplicate = this.dmpOrganizations.some(
+      (u) =>
+        u.groupName === newRow.groupName &&
+        u.divisionName === newRow.divisionName &&
+        u.ouName === newRow.ouName
+    );
+    if (duplicate) {
       this.org_errorMessage = "The selected Organization is already associated with this DMP.";
       return;
     }
-    //add new row to the dmpOrganizations array
-    this.dmpOrganizations = [newRow, ...this.dmpOrganizations]
 
-    //reset the table
-    this.org_resetTable();
+    // Prepend to table, sync once
+    this.dmpOrganizations = [newRow, ...this.dmpOrganizations];
+    this.syncOrganizationsToForm();
 
-    // re-populate the table with entries from dmpOrganizations array 
-    // and update the form metadata
-    this.rePopulateOrgs();
+    this.org_errorMessage = "";
+    this.org_disableAdd = true;
+    this.org_disableClear = false;
+    this.org_disableRemove = false;
 
-    this.org_disableAdd=true;
-    this.org_disableClear=false;
-    this.org_disableRemove=false;
-    // reset the form field to make it clear that one can add multiple orgs
+    // Reset the field so it's clear multiple orgs can be added
     this.personelForm.controls['nistOrganization'].setValue("");
   }
 
