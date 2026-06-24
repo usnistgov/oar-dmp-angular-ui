@@ -312,6 +312,9 @@ export class PersonelComponent implements OnInit, OnDestroy {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(personel: DMP_Meta) {
+    // Reset the arrays at the top of the setter to prevent duplicated rows if the setter ever fires twice
+    this.dmpContributors = [];
+    this.dmpOrganizations = [];
     // loop over organizations array sent from the server and populate local copy of 
     // organizations aray in order to populate the table of organizations in the GUI interface
     if (Object.keys(personel).length < 1){
@@ -388,10 +391,12 @@ export class PersonelComponent implements OnInit, OnDestroy {
         }
       )
 
-      this.personelForm.patchValue({
-        contributors:               personel.contributors,
-        organizations:              personel.organizations
-      });
+      // this.personelForm.patchValue({
+      //   contributors:               personel.contributors,
+      //   organizations:              personel.organizations
+      // });
+      this.syncContributorsToForm();
+      this.syncOrganizationsToForm();
     }
   }
 
