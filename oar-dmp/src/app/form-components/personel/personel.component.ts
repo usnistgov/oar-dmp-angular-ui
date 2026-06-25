@@ -894,18 +894,20 @@ export class PersonelComponent implements OnInit, OnDestroy {
   
   selContributorRole(){
     // select role for the contributors from a drop down list
-    this.crntContribRole = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles)[0].value;
-
+    const sel = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles);
+    this.crntContribRole = sel.length ? sel[0].value : "";
   }
 
   selExtContributorRole(){
     // select role for the contributors from a drop down list
-    this.crntContribRole = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles)[0].value;
+    const sel = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles);
+    this.crntContribRole = sel.length ? sel[0].value : "";
   }
 
   selPrimaryContact(){
     // select role for the contributors from a drop down list
-    this.primaryContactSelection = this.dropDownService.getDropDownSelection(this.primaryContact, this.primaryContactOptions)[0].value;
+    const sel = this.dropDownService.getDropDownSelection(this.primaryContact, this.primaryContactOptions);
+    this.primaryContactSelection = sel.length ? sel[0].value : "";
   } 
   
   private contributorRadioSel: string="";
