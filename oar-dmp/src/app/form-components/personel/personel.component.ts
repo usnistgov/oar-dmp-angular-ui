@@ -418,22 +418,22 @@ export class PersonelComponent implements OnDestroy {
     this.NISTPersonMetaChanged = false;
     this.PrimContribOUChanged = false;
 
-    // Build from the CURRENT array contents (populated by the setter just above).
-    // 'from' emits each array element one by one.
+    // 1. Use dmpContributors as your source array and create the observable
+    // 'from' emits each array element one by one
     const dmpContribObs = from(this.dmpContributors);
 
-    // Process contributors one by one to prevent race conditions.
+    // 2. Process contributors one by one to prevent race conditions
     const processedObservable = dmpContribObs.pipe(
-      // Iterate through contributors, check if a contributor is from NIST.
+      // Iterate through contributors, check if a contributor is from NIST
       // If it is a NIST contributor call people service to check if any
       // information about the person has been changed (change of OU, ORCID etc.)
-      // If there is a change update metadata and set NISTPersonMetaChanged to true to 
-      // indicate that this data needs to be automatically saved without any user interaction.
+      // If there is a change update metadata and set NISTPersonMetaChanged to true to
+      // indicate that this data needs to be automatically saved without any user interaction
       concatMap((dmpContributor: any) => {
 
         if (!dmpContributor.institution || dmpContributor.institution.toUpperCase() !== 'NIST'){
           // don't perform autoupdate for external contributors
-          return of({ dmpContributor, changed: false });
+         return of({ dmpContributor, changed: false });
         }
         const usrLastName = dmpContributor.lastName;
 
@@ -449,23 +449,31 @@ export class PersonelComponent implements OnDestroy {
             const suggestions = (idx as SDSIndex).getSuggestions(usrLastName);
             if (suggestions.length === 0) return of(null);
 
-            // Convert the array of Promises into an array of Observables
+            //Convert the array of Promises into an array of Observables
             const suggestionObservables = suggestions.map((aPerson: any) => 
               from(aPerson.getRecord()) // Wraps the async getRecord() Promise into an Observable
             );
 
-            // Process suggestions in parallel, wait for all to finish 
+            // 3. Process suggestions in parallel, wait for all to finish 
+            // Use the "Object" syntax for forkJoin to keep it clean and modern
             return forkJoin({
-              records: forkJoin(suggestionObservables)
+              records: forkJoin(suggestionObservables) // Wait for all records to resolve
             }).pipe(
+              // Explicitly tell TypeScript that 'records' is an array of any (or your specific Interface)
               map(({ records }: { records: any[] }) => {
-                // NOTE: currently we don't have a better way to directly get correct 
+                // NOTE: currently we don't have a better way to directly get the correct 
                 // record from people service, so we need to iterate over suggestions
                 // and do a match on email address.
+                // It would be good for the future to add NIST ID to dmp contacts metadata
+                // and use that to directly search people service.
+
+                // 4. Find the matching record by email
+                // Now TypeScript knows 'rec' is an element of that array
                 const psRec = records.find((rec: any) => rec.emailAddress === dmpContributor.emailAddress);
                 
                 if (psRec && this.NISTContributorHasChanged(dmpContributor, psRec)) {
                   this.updateContributorData(dmpContributor, psRec);
+                  // console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} does not match most recent info found in the NIST people service database.`)
                   return { dmpContributor, psRec, changed: true };
                 }
                 else if (!psRec){
@@ -476,7 +484,7 @@ export class PersonelComponent implements OnDestroy {
               })
             );
           }),
-          // Handle OU changes if necessary 
+          // 5. Handle OU changes if necessary 
           switchMap((result: any) => {
             if (result?.changed && this.PrimContribOUChanged) {
               return this.sdsvc.getParentOrgs(this.PrimContribNewOU, true).pipe(
@@ -485,7 +493,7 @@ export class PersonelComponent implements OnDestroy {
                   this.org_addRow();
                   this.updateOU.updateOUs$.next({ numUpdates: ++this.OUsUpdated, isUpdated: true });
                 }),
-                map(() => result)
+                map(() => result) // Continue passing the result
               );
             }
             return of(result);
@@ -498,6 +506,7 @@ export class PersonelComponent implements OnDestroy {
       })
     );
 
+    // 6. Final Subscription 
     processedObservable
       .pipe(
         takeUntil(this.autoUpdateCancel$),  // cancel on rebind
@@ -510,6 +519,7 @@ export class PersonelComponent implements OnDestroy {
           }
         },
         complete: () => {
+          // Reset top-level flags 
           this.NISTPersonMetaChanged = false;
           this.PrimContribOUChanged = false;
         }
@@ -708,15 +718,19 @@ export class PersonelComponent implements OnDestroy {
       switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
+        // Reset NIST employee / associate fields
         this.crntContrib = this.emptyContributor();
         this.nistContribOrcid = '';
 
         const val = typeof usrInput === 'string'; //checks the type of input value
         if (!val){ 
           // if value is not string that means the user has picked a selection from dropdown suggestion box
+          // so return an empty array to clear the dropdown suggestion box and set form values accordingly
+
+          // returning result made to an async call
           this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
-            map((rec:any) =>{
+            map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
               this.crntContrib.firstName = rec.firstName;
               this.crntContrib.lastName = rec.lastName;
               
@@ -727,7 +741,7 @@ export class PersonelComponent implements OnDestroy {
               }
 
               if(rec.emailAddress){
-                // email can apparently be null
+                // email can apparently be null - Planchard Joshua is/was an example
                 this.crntContrib.emailAddress = rec.emailAddress;
               }
 
@@ -748,6 +762,7 @@ export class PersonelComponent implements OnDestroy {
               this.suggestions = [];
               // enable adding of contact to contributors list
               this.disableAdd=false;
+              // returns an empty array to the next function in the pipe -> in this case a map function
               return this.suggestions;
             }),
             catchError( err => {
@@ -758,11 +773,18 @@ export class PersonelComponent implements OnDestroy {
         }
 
         if (usrInput.trim().length >= this.minPromptLength){
+          // this is where initial querying of people service occurs if user has typed more than two characters
+
           if (! this.sd_index) {
+              // if initial query was not performed yet, query people service based on first two letters
+              // and return array of suggestions that will be passed to the next function in the pipe
+
+              // returning result from an async call
               return this.sdsvc.getPeopleIndexFor(usrInput).pipe(
                 map( idx => {
                   this.sd_index = idx;
                   if (this.sd_index != null) {
+                      // pull out the matching suggestions
                       this.suggestions = (this.sd_index as SDSIndex).getSuggestions(usrInput);
                   }
                   return this.suggestions;
@@ -771,31 +793,44 @@ export class PersonelComponent implements OnDestroy {
                   console.error('Failed to pull people index for "'+usrInput+'"'+err)
                   return [];
                 })
+                
               )
           }
+          
         }
+        // pass user input as a string array to the next function in the pipe -> in this case the map function
         return [usrInput];
       }),     
       map (pipedValue => {
-          const val = typeof pipedValue === 'string';
+          // Data that comes here is piped in from the previous function in the pipeline in this case switchMap function
+
+          const val = typeof pipedValue === 'string'; //checks the type of value passed down by the switchMap function
 
           if (!val){ 
+            // if value is not string that means that one of two things have happened:
+            // 1) we need to display initial drop down suggestions based on initial people query results
+            // 2) the user has selected an option from the drop down menu in which case the suggestions array is empty so we return it
             return this.suggestions;
           }
           else if (typeof pipedValue === 'string' && pipedValue.trim().length >= 2 && this.sd_index){
+            // we already have a downloaded index; just pull out the matching suggestions
+            // and return the array of suggestions for the dropdown menu 
             this.suggestions = (this.sd_index as SDSIndex).getSuggestions(pipedValue);
             return this.suggestions;
           }
           else if (typeof pipedValue === 'string' && pipedValue.trim().length < 2 && this.sd_index){
+            // if the input was cleared, clear out our index and suggestions
             this.sd_index = null;
             this.suggestions = [];
             return this.suggestions;
           }
 
+          // if number of characters entered are less than two return an empty array
           return [];
         }
       )
     );
+
   }
 
 
