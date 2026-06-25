@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Output } from '@angular/core';
+import { Component, OnDestroy, Input, Output } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
@@ -147,13 +147,6 @@ const ORG_COL_SCHEMA = [
 ]
 
 const NOT_PRIMARY_CONTACT: string = '1';
-/**
- * Key changes: ^...$ anchors so the entire string is validated, not a substring; the character class explicitly 
- * excludes <, >, /, digits, etc.; it requires a letter as the first character. 
- * Now the calls. .match() returns a truthy array on partial match — switch to .test(), which with the anchored 
- * regex means "the whole string is valid." Also trim and guard against null/empty before testing, since .match/.test 
- * on an untrimmed or empty string was a soft spot
- */
 // Anchored: the WHOLE value must be a plausible name.
 // Letters (incl. accented), spaces, hyphen, apostrophe, period, comma.
 // Rejects <, >, /, digits, and other control/markup characters.
@@ -174,8 +167,11 @@ const log_new_val_style = 'color: #005eda; font-weight: bold;';
   templateUrl: './personel.component.html',
   styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
-export class PersonelComponent implements OnInit, OnDestroy {
+export class PersonelComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
+  /** Cancels any in-flight NIST autoupdate run when the input rebinds. */
+  private autoUpdateCancel$ = new Subject<void>();
+
   // ================================
   // used for organizations table
   // ================================
@@ -187,8 +183,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
   org_displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
   org_columnsSchema: any = ORG_COL_SCHEMA;
   fltr_NIST_Org!: Observable<SDSuggestion[]>;
-  // contribModified$: Observable<boolean>;
-
 
   // ================================  
   /** 
@@ -237,7 +231,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
   
   contributorRoles = ROLES; // sets hardcoded roles values
   
-  // fltr_NIST_Contributor!: Observable<NistContact[]>;
   fltr_NIST_Contributor!: Observable<SDSuggestion[]>;
 
   // Default values of external contributor
@@ -275,7 +268,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
     private updateContributor: UpdateNistContributorService,
     private updateOU: UpdateNistContributorService
   ) {
-    // console.log("Personel Component");
     this.getNistContactsFromAPI();    
     this.getNistOrganizations();
     this.updateContributor.updateNISTContrib$.next({numUpdates:this.contribsUpdated, isUpdated:false});
@@ -296,92 +288,92 @@ export class PersonelComponent implements OnInit, OnDestroy {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(personel: DMP_Meta) {
+    // Cancel any autoupdate from a previous bind before we replace the data.
+    this.autoUpdateCancel$.next();
+
     // Reset the arrays at the top of the setter to prevent duplicated rows if the setter ever fires twice
     this.dmpContributors = [];
     this.dmpOrganizations = [];
-    // loop over organizations array sent from the server and populate local copy of 
-    // organizations aray in order to populate the table of organizations in the GUI interface
+
     if (Object.keys(personel).length < 1){
       this.personelForm.patchValue({
         contributors:               [],
         organizations:              []
       });
-      
+      return;
     }
-    else{
-      personel.organizations.forEach( 
-        (org, index) => {        
-          this.dmpOrganizations.push(
-            {
-              id:index,
-              groupName:org.groupName,
-              groupNumber: org.groupNumber,
-              groupOrgID: org.groupOrgID,
-              
-              divisionName:org.divisionName,
-              divisionNumber: org.divisionNumber,
-              divisionOrgID: org.divisionOrgID,
-              divisionAcronym: org.divisionAcronym,
 
-              ouName: org.ouName,
-              ouNumber: org.ouNumber,
-              ouOrgID: org.ouOrgID,
-              ouAcronym: org.ouAcronym,            
-              
-              isEdit:false
-            }
-          );
-          this.org_disableClear=false;
-          this.org_disableRemove=false;
-        }
-        
-      );
-      // loop over resources array sent from the server and populate local copy of 
-      // resources array to populate the table of resources in the user interface
-      this.contribOrcidWarn = '';
-      personel.contributors.forEach(
-        (dmpContributor, index) => {
-          if (!dmpContributor.orcid){
-            this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
-          }
-          this.dmpContributors.push({
-            id:           index, 
-            isEdit:       false, 
-        
-            firstName:        dmpContributor.firstName,
-            lastName:         dmpContributor.lastName,
-            orcid:            dmpContributor.orcid,
-            emailAddress:     dmpContributor.emailAddress,
-
-            groupOrgID:       dmpContributor.groupOrgID,
-            groupNumber:      dmpContributor.groupNumber,
-            groupName:        dmpContributor.groupName,
-
-            divisionOrgID:    dmpContributor.divisionOrgID,
-            divisionNumber:   dmpContributor.divisionNumber,
-            divisionName:     dmpContributor.divisionName,
-
-            ouOrgID:          dmpContributor.ouOrgID,
-            ouNumber:         dmpContributor.ouNumber,
-            ouName:           dmpContributor.ouName,
-        
-            primary_contact:  dmpContributor.primary_contact,
-            role:             dmpContributor.role,
-            institution:      dmpContributor.institution
+    // loop over organizations array sent from the server and populate local copy of 
+    // organizations aray in order to populate the table of organizations in the GUI interface
+    personel.organizations.forEach( 
+      (org, index) => {        
+        this.dmpOrganizations.push(
+          {
+            id:index,
+            groupName:org.groupName,
+            groupNumber: org.groupNumber,
+            groupOrgID: org.groupOrgID,
             
-          });
-          this.disableClear=false;
-          this.disableRemove=false;
-        }
-      )
+            divisionName:org.divisionName,
+            divisionNumber: org.divisionNumber,
+            divisionOrgID: org.divisionOrgID,
+            divisionAcronym: org.divisionAcronym,
 
-      // this.personelForm.patchValue({
-      //   contributors:               personel.contributors,
-      //   organizations:              personel.organizations
-      // });
-      this.syncContributorsToForm();
-      this.syncOrganizationsToForm();
-    }
+            ouName: org.ouName,
+            ouNumber: org.ouNumber,
+            ouOrgID: org.ouOrgID,
+            ouAcronym: org.ouAcronym,            
+            
+            isEdit:false
+          }
+        );
+        this.org_disableClear=false;
+        this.org_disableRemove=false;
+      }
+    );
+
+    // loop over contributors array sent from the server and populate local copy
+    this.contribOrcidWarn = '';
+    personel.contributors.forEach(
+      (dmpContributor, index) => {
+        if (!dmpContributor.orcid){
+          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+        }
+        this.dmpContributors.push({
+          id:           index, 
+          isEdit:       false, 
+      
+          firstName:        dmpContributor.firstName,
+          lastName:         dmpContributor.lastName,
+          orcid:            dmpContributor.orcid,
+          emailAddress:     dmpContributor.emailAddress,
+
+          groupOrgID:       dmpContributor.groupOrgID,
+          groupNumber:      dmpContributor.groupNumber,
+          groupName:        dmpContributor.groupName,
+
+          divisionOrgID:    dmpContributor.divisionOrgID,
+          divisionNumber:   dmpContributor.divisionNumber,
+          divisionName:     dmpContributor.divisionName,
+
+          ouOrgID:          dmpContributor.ouOrgID,
+          ouNumber:         dmpContributor.ouNumber,
+          ouName:           dmpContributor.ouName,
+      
+          primary_contact:  dmpContributor.primary_contact,
+          role:             dmpContributor.role,
+          institution:      dmpContributor.institution
+        });
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+
+    this.syncContributorsToForm();
+    this.syncOrganizationsToForm();
+
+    // Now that contributors are actually loaded, run the People Service autoupdate.
+    this.runNistAutoUpdate();
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
@@ -394,43 +386,54 @@ export class PersonelComponent implements OnInit, OnDestroy {
   // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.personelForm.valueChanges.pipe(
       startWith(this.personelForm.value),
       map(
         (formValue): Partial<DMP_Meta> =>(
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
           {
             contributors:           formValue.contributors,
             organizations:          formValue.organizations
-
           }
         )
       )
     )
   );
 
-  ngOnInit(): void {
-    // 1. Use dmpContributors as source your source array and create the observable
-    // 'from' emits each array element one by one
+  /**
+   * Reconciles loaded NIST contributors against the People Service and
+   * auto-applies any metadata changes. Triggered from the input setter once
+   * contributor data has actually been populated (NOT from ngOnInit, which
+   * would snapshot an empty array before the async data arrives).
+   */
+  private runNistAutoUpdate(): void {
+    // Nothing to reconcile for an empty list; avoids an empty subscribe whose
+    // complete() would reset the flags prematurely.
+    if (this.dmpContributors.length === 0) {
+      return;
+    }
+
+    // Reset counters/flags so a rebind doesn't carry stale state into this run.
+    this.contribsUpdated = 0;
+    this.OUsUpdated = 0;
+    this.NISTPersonMetaChanged = false;
+    this.PrimContribOUChanged = false;
+
+    // Build from the CURRENT array contents (populated by the setter just above).
+    // 'from' emits each array element one by one.
     const dmpContribObs = from(this.dmpContributors);
 
-    // 2. Process contributors one by one to prevent race conditions
+    // Process contributors one by one to prevent race conditions.
     const processedObservable = dmpContribObs.pipe(
-      // Iterate through cntributors, check if a contributor is from NIST
+      // Iterate through contributors, check if a contributor is from NIST.
       // If it is a NIST contributor call people service to check if any
-      // information about th person has been changed (change of OU, ORCID etc.)
+      // information about the person has been changed (change of OU, ORCID etc.)
       // If there is a change update metadata and set NISTPersonMetaChanged to true to 
-      // indicate that this data needs to be automatically saved without any user intraction
+      // indicate that this data needs to be automatically saved without any user interaction.
       concatMap((dmpContributor: any) => {
 
         if (!dmpContributor.institution || dmpContributor.institution.toUpperCase() !== 'NIST'){
           // don't perform autoupdate for external contributors
-         return of({ dmpContributor, changed: false });
+          return of({ dmpContributor, changed: false });
         }
         const usrLastName = dmpContributor.lastName;
 
@@ -442,35 +445,27 @@ export class PersonelComponent implements OnInit, OnDestroy {
               return of(null); 
             }
 
-            // qury people service on last name
+            // query people service on last name
             const suggestions = (idx as SDSIndex).getSuggestions(usrLastName);
             if (suggestions.length === 0) return of(null);
 
-            //Convert the array of Promises into an array of Observables
+            // Convert the array of Promises into an array of Observables
             const suggestionObservables = suggestions.map((aPerson: any) => 
               from(aPerson.getRecord()) // Wraps the async getRecord() Promise into an Observable
             );
 
-            // 3. Process suggestions in parallel, wait for all to finish 
-            // Use the "Object" syntax for forkJoin to keep it clean and modern
+            // Process suggestions in parallel, wait for all to finish 
             return forkJoin({
-              records: forkJoin(suggestionObservables) // Wait for all records to resolve
+              records: forkJoin(suggestionObservables)
             }).pipe(
-              // Explicitly tell TypeScript that 'records' is an array of any (or your specific Interface)
               map(({ records }: { records: any[] }) => {
                 // NOTE: currently we don't have a better way to directly get correct 
-                // record from people service, so we need to iterrate over suggestions
+                // record from people service, so we need to iterate over suggestions
                 // and do a match on email address.
-                // It would be good for the future to add NIST ID to dmp contacts metadata
-                // and use that to directly search people service.
-
-                // 4. Find the matching record by email
-                // Now TypeScript knows 'rec' is an element of that array
                 const psRec = records.find((rec: any) => rec.emailAddress === dmpContributor.emailAddress);
                 
                 if (psRec && this.NISTContributorHasChanged(dmpContributor, psRec)) {
                   this.updateContributorData(dmpContributor, psRec);
-                  // console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} does not match most recent info found in the NIST people service database.`)
                   return { dmpContributor, psRec, changed: true };
                 }
                 else if (!psRec){
@@ -481,7 +476,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
               })
             );
           }),
-          // 5. Handle OU changes if necessary 
+          // Handle OU changes if necessary 
           switchMap((result: any) => {
             if (result?.changed && this.PrimContribOUChanged) {
               return this.sdsvc.getParentOrgs(this.PrimContribNewOU, true).pipe(
@@ -490,7 +485,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
                   this.org_addRow();
                   this.updateOU.updateOUs$.next({ numUpdates: ++this.OUsUpdated, isUpdated: true });
                 }),
-                map(() => result) // Continue passing the result
+                map(() => result)
               );
             }
             return of(result);
@@ -503,23 +498,27 @@ export class PersonelComponent implements OnInit, OnDestroy {
       })
     );
 
-    // 6. Final Subscription 
-    processedObservable.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (result: any) => {
-        if (result?.changed) {
-          this.applyFinalUpdates(result.dmpContributor); 
+    processedObservable
+      .pipe(
+        takeUntil(this.autoUpdateCancel$),  // cancel on rebind
+        takeUntil(this.destroy$)            // cancel on destroy
+      )
+      .subscribe({
+        next: (result: any) => {
+          if (result?.changed) {
+            this.applyFinalUpdates(result.dmpContributor); 
+          }
+        },
+        complete: () => {
+          this.NISTPersonMetaChanged = false;
+          this.PrimContribOUChanged = false;
         }
-      },
-      complete: () => {
-        // Reset top-level flags 
-        this.NISTPersonMetaChanged = false;
-        this.PrimContribOUChanged = false;
-      }
-    });
-      
+      });
   }
 
   ngOnDestroy(): void {
+    this.autoUpdateCancel$.next();
+    this.autoUpdateCancel$.complete();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -632,17 +631,13 @@ export class PersonelComponent implements OnInit, OnDestroy {
               log_new_val_style,
               log_normal_style,
               log_new_val_style
-
             );
           }          
         }
-        
       }
     });
 
-
     console.groupEnd();
-
   }
 
   /**
@@ -666,7 +661,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
    */
   private NISTContributorHasChanged (dmpContrib:any, current:any):boolean{
     if (current.orcid === null && dmpContrib.orcid !== current.orcid){
-      // print a warning about people service "loosing" ORCID number log_normal_bold_style
+      // print a warning about people service "loosing" ORCID number
       console.warn(`People service is indicating a new %cORCID  %cvalue of 'null' for %c${dmpContrib.firstName} ${dmpContrib.lastName} %cwith previously entered %cORCID %cvalue of: ${dmpContrib.orcid}. %cThis change will be ignored.`,
         log_normal_bold_style,
         log_normal_style,
@@ -689,16 +684,15 @@ export class PersonelComponent implements OnInit, OnDestroy {
       (dmpContrib.ouName !== current.ouName) ||
       (dmpContrib.ouNumber !== current.ouNumber) ||
       (dmpContrib.ouOrgID !== current.ouOrgID) ||
-      // Updated Logic: Only trigger "true" if current.orcid is provided AND different
+      // Only trigger "true" if current.orcid is provided AND different
       (current.orcid !== null && dmpContrib.orcid !== current.orcid)
-
     ){
       return true;
     }
     return false;
   }
 
-  //List of contributors that will be aded to the DMP
+  //List of contributors that will be added to the DMP
   contributors: Contributor[]=[];
 
   //List of all nist contacts from NIST directory
@@ -714,22 +708,15 @@ export class PersonelComponent implements OnInit, OnDestroy {
       switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
-        // this.crntContrib.firstName = '';
-        // this.crntContrib.lastName = '';
-        // this.crntContrib.emailAddress = '';
-        // Reset NIST employe / associate fields
         this.crntContrib = this.emptyContributor();
         this.nistContribOrcid = '';
 
         const val = typeof usrInput === 'string'; //checks the type of input value
         if (!val){ 
           // if value is not string that means the user has picked a selection from dropdown suggestion box
-          // so return an empty array to clear the dropdown suggestion box and set form values accordingly
-
-          // returning result made to an async call
           this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
-            map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
+            map((rec:any) =>{
               this.crntContrib.firstName = rec.firstName;
               this.crntContrib.lastName = rec.lastName;
               
@@ -740,7 +727,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
               }
 
               if(rec.emailAddress){
-                // email can apparently be null - Planchard Joshua is/was an example
+                // email can apparently be null
                 this.crntContrib.emailAddress = rec.emailAddress;
               }
 
@@ -756,12 +743,11 @@ export class PersonelComponent implements OnInit, OnDestroy {
               this.crntContrib.ouNumber = rec.ouNumber;
               this.crntContrib.ouName = rec.ouName;
 
-              // clear sarch suggestions since the user has selected an option from drop down menu
+              // clear search suggestions since the user has selected an option from drop down menu
               this.sd_index = null;
               this.suggestions = [];
               // enable adding of contact to contributors list
               this.disableAdd=false;
-              // retuns an empty array to the next function in the pipe -> in this case a map function
               return this.suggestions;
             }),
             catchError( err => {
@@ -772,18 +758,11 @@ export class PersonelComponent implements OnInit, OnDestroy {
         }
 
         if (usrInput.trim().length >= this.minPromptLength){
-          // this is where initial querying of people service occurs if user has typed more than two characters
-
           if (! this.sd_index) {
-              // if initial query was not performed yet, query people service based on first two letters
-              // and return array of suggestions that will be passed to the next function in the pipe
-
-              // returning result from an async call
               return this.sdsvc.getPeopleIndexFor(usrInput).pipe(
                 map( idx => {
                   this.sd_index = idx;
                   if (this.sd_index != null) {
-                      // pull out the matching suggestions
                       this.suggestions = (this.sd_index as SDSIndex).getSuggestions(usrInput);
                   }
                   return this.suggestions;
@@ -792,59 +771,44 @@ export class PersonelComponent implements OnInit, OnDestroy {
                   console.error('Failed to pull people index for "'+usrInput+'"'+err)
                   return [];
                 })
-                
               )
           }
-          
         }
-        // pass user input as a string array to the next function in the pipe -> in this case the map function
         return [usrInput];
       }),     
       map (pipedValue => {
-          // Data that comes here is piped in from the previous function in the pipeline in this case switchMap function
-
-          const val = typeof pipedValue === 'string'; //checks the type of value passed down by the switchMap function
+          const val = typeof pipedValue === 'string';
 
           if (!val){ 
-            // if value is not string that means that one of two thing have happened:
-            // 1) we need to display initial drop down suggestions based on initial people query results
-            // 2) the user has selected an option from the drop down menu in which case the suggestions array is empty so we return it
             return this.suggestions;
           }
           else if (typeof pipedValue === 'string' && pipedValue.trim().length >= 2 && this.sd_index){
-            // we already have a downloaded index; just pull out the matching suggestions
-            // and return the array of suggestions for the dropdown menu 
             this.suggestions = (this.sd_index as SDSIndex).getSuggestions(pipedValue);
             return this.suggestions;
           }
           else if (typeof pipedValue === 'string' && pipedValue.trim().length < 2 && this.sd_index){
-            // if the input was cleared, clear out our index and suggestions
             this.sd_index = null;
             this.suggestions = [];
             return this.suggestions;
           }
 
-          // if number of characters entered are less than two return an empty array
           return [];
         }
       )
     );
-
   }
 
 
   displaySelectedSDSuggestion(name:SDSuggestion):string{
     var res = name && name.display ? name.display : '';
     return res;
-
   }
 
   selectedContributor(name: string): boolean{
-    if (!this.contributorOption) { // if no radio button is selected, always return false so nothing is shown  
+    if (!this.contributorOption) {
       return false;  
     }  
-    return (this.contributorOption === name); // if current radio button is selected, return true, else return false  
-
+    return (this.contributorOption === name);
   }  
 
   private contributorOption: string="false";
@@ -853,36 +817,29 @@ export class PersonelComponent implements OnInit, OnDestroy {
     
     if (e === 'NIST'){
       this.setPrimContact(NOT_PRIMARY_CONTACT);
-      // disable add button to make sure that the user has selected a contributor from the drop-down menu
       this.disableAdd=true;
     }
     else{
-      // enable add button and perform user input check manually to make sure that all required metadata has been entered
       this.disableAdd=false;
     }
-
   }  
 
   private setPrimContact(val:string){
-    // If we're selecting a nist contact, set by default that NIST conatct will not be a primary contact
-    this.primaryContact = val; // 1 indicates 'No' in the drop down key-value pair for primaryContactOptions
-    this.selPrimaryContact(); // trigger dropdown selection so by default dropdown will be set to No value
+    this.primaryContact = val;
+    this.selPrimaryContact();
   }
   
   selContributorRole(){
-    // select role for the contributors from a drop down list
     const sel = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles);
     this.crntContrib.role = sel.length ? sel[0].value : "";
   }
 
   selExtContributorRole(){
-    // select role for the contributors from a drop down list
     const sel = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles);
     this.crntContrib.role = sel.length ? sel[0].value : "";
   }
 
   selPrimaryContact(){
-    // select role for the contributors from a drop down list
     const sel = this.dropDownService.getDropDownSelection(this.primaryContact, this.primaryContactOptions);
     this.primaryContactSelection = sel.length ? sel[0].value : "";
   } 
@@ -896,7 +853,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.setPrimContact(NOT_PRIMARY_CONTACT);
     this.errorMessage = "";
 
-    // Reset NIST employe / associate fields
+    // Reset NIST employee / associate fields
     this.crntContrib = this.emptyContributor();
 
     this.nistContribOrcid = "";
@@ -937,17 +894,14 @@ export class PersonelComponent implements OnInit, OnDestroy {
       this.dmpContributors = [];
       this.resetWarningAndErrorMessages();
       this.personelForm.patchValue({ contributors: [] })
-      // If the table is empty disable clear and remove buttons
       this.disableClear=true;
       this.disableRemove=true;
     }
-    
   }
 
   private isORCID(val:string):boolean{
     const reORCID = /^(\d{4}-){3}\d{3}(\d|X)$/;
     return reORCID.test(val);
-
   }
 
   onDoneClick(e: any) {
@@ -1076,7 +1030,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // ---- Build the new row ----
     const newRow: DataContributor = {
-      ...this.crntContrib, //7-line literal collapses to a spread plus the four fields that differ
+      ...this.crntContrib,
 
       primary_contact: this.primaryContactSelection,
       institution:     "",
@@ -1185,14 +1139,10 @@ export class PersonelComponent implements OnInit, OnDestroy {
     // Safely read the org at the current index; returns null if out of range.
     const orgAt = (i: number) => (i >= 0 && i < orgs.length ? orgs[i] : null);
 
-    // loop through the list of parent organizations with first
-    // element in the array being the organization that was selected by the user
     while (index < orgs.length) {
       const anOrganization = orgs[index];
       /**
-       * Case 1:
-       * User selected a group from dropdown menu
-       * In this case orG_LVL_ID = 3
+       * Case 1: User selected a group (orG_LVL_ID = 3)
        */
       if (anOrganization.orG_LVL_ID === 3) {
         this.orgGroupNumber = anOrganization.orG_CD;
@@ -1217,9 +1167,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
         break;
       }
       /**
-       * Case 2:
-       * User selected a division from dropdown menu
-       * In this case orG_LVL_ID = 2 or 4
+       * Case 2: User selected a division (orG_LVL_ID = 2 or 4)
        */               
       else if (anOrganization.orG_LVL_ID === 2 || anOrganization.orG_LVL_ID === 4) {
         this.orgGroupNumber = "";
@@ -1242,9 +1190,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
       }
       else{
         /**
-         * Case 3:
-         * User selected a top level organization from dropdown menu
-         * In this case parenT_ORG_CD is null
+         * Case 3: User selected a top level organization (parenT_ORG_CD is null)
          */
         this.orgGroupNumber = "";
         this.orgGroupOrgID = 0;
@@ -1260,7 +1206,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
         this.orgOuName = anOrganization.orG_Name;
         this.orgOuAcronym = anOrganization.orG_ACRNM;
         break;
-
       }
     }
   }
@@ -1286,7 +1231,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
 
   resetPersonnelForm(){
-    
     this.nistContribRole = "";
     this.nistContribOrcid = "";
     this.externalContributor.firstName = "";
@@ -1300,28 +1244,19 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
 
 
-   /**
+  /**
    * This function gets all NIST organizations by querying people service
-   * 
    */
-   getNistOrganizations(){ 
-
+  getNistOrganizations(){ 
     this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
       switchMap(usrInput => {
-        const val = typeof usrInput === 'string'; //checks the type of input value
+        const val = typeof usrInput === 'string';
         if (!val){
-          // if value is not string that means the user has picked a selection from dropdown suggestion box
-          /**
-           * If it's a group we need to find the lab that groups division belongs to
-           * If it's a division then we set group to null
-           * If it's a lab then division and group are null
-           */
           // Make async call to get parent organizations of the organization selected by the user
           return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(                
             map((recs:any) =>{              
               this.setResponsibleOrgs(recs);
               this.org_disableAdd = false;
-              // clear sarch suggestions since the user has selected an option from drop down menu
               this.org_index = null;
               this.orgSuggestions = []
               return []
@@ -1334,13 +1269,10 @@ export class PersonelComponent implements OnInit, OnDestroy {
         }
         if (usrInput.trim().length >= 2){
           if (! this.org_index) {
-            
             return this.sdsvc.getOrgsIndexFor(usrInput).pipe(
               map(pi => {
-                // save it to use with subsequent typing
                 this.org_index = pi;
                 if (this.org_index != null) {
-                  // pull out the matching suggestions
                   this.orgSuggestions = (this.org_index as SDSIndex).getSuggestions(usrInput);
                 }
                 return this.orgSuggestions;
@@ -1352,43 +1284,31 @@ export class PersonelComponent implements OnInit, OnDestroy {
             );
           }
         }
-        // pass user input as a string array to the next function in the pipe -> in this case the map function
         return [usrInput];
       }),
       map(pipedValue => {
         const val = typeof pipedValue ==='string';
 
         if (!val){ 
-          // if value is not string that means that one of two thing have happened:
-          // 1) we need to display initial drop down suggestions based on initial people query results
-          // 2) the user has selected an option from the drop down menu in which case the suggestions array is empty so we return it
           return this.orgSuggestions;
         }
         else if (typeof pipedValue === 'string' && pipedValue.trim().length >= 2 && this.org_index){
-          // we already have a downloaded index; just pull out the matching suggestions
-          // and return the array of suggestions for the dropdown menu 
           this.orgSuggestions = (this.org_index as SDSIndex).getSuggestions(pipedValue);
           return this.orgSuggestions;
         }
         else if (typeof pipedValue === 'string' && pipedValue.trim().length < 2 && this.org_index){
-          // if the input was cleared, clear out our index and suggestions
           this.org_index = null;
           this.orgSuggestions = [];
           return this.orgSuggestions;
         }
 
-        // if number of characters entered are less than two return an empty array
         return [];
-
-        
       }),
       catchError( err => {
         console.error('Failed to pull orgs index'+err)
         return [];
       })
-
     );
-
   }
 
   org_removeSelectedRows() {
@@ -1514,7 +1434,4 @@ export class PersonelComponent implements OnInit, OnDestroy {
       primary_contact: "", role: "", institution: "",
     };
   }
-
-  
-
 }
