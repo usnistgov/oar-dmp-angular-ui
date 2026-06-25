@@ -222,26 +222,10 @@ export class PersonelComponent implements OnInit, OnDestroy {
   contrib_dispCols: string[] = CONTRIB_COL_SCHEMA.map((col) => col.key);
   contrib_colSchema: any = CONTRIB_COL_SCHEMA;
   dmpContributors: DataContributor[] = []
-  
-  crntContribName: string = "";
-  crntContribSurname: string = "";  
-  crntContribOrcid: string = "";
-  crntContribEmail: string = "";
 
-  crntContribGroupOrgID: number = 0;  
-  crntContribGroupNumber: string = "";
-  crntContribGroupName: string = "";
-
-  crntContribDivisionOrgID: number = 0;  
-  crntContribDivisionNumber: string = "";
-  crntContribDivisionName: string = "";
-
-  crntContribOuOrgID: number = 0;  
-  crntContribOuNumber: string = "";
-  crntContribOuName: string = "";
-
-  crntContribRole: string = "";  
-  
+  /** Staging buffer for the contributor currently being assembled before "Add". */
+  crntContrib: Contributor = this.emptyContributor();
+   
   nistContribOrcid: string = "";
   nistContribRole: string = "";
 
@@ -257,17 +241,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
   fltr_NIST_Contributor!: Observable<SDSuggestion[]>;
 
   // Default values of external contributor
-  externalContributor: Contributor={
-    
-    firstName:"", lastName:"", orcid:"", emailAddress:"", 
-    groupOrgID:0, groupNumber:"", groupName:"",
-    divisionOrgID:0, divisionNumber:"", divisionName:"",
-    ouOrgID:0, ouNumber:"", ouName:"",
-    
-    primary_contact:"",
-    role:"",
-    institution:""
-  };
+  externalContributor: Contributor = this.emptyContributor();
 
   contribOrcidWarn: string = ""; //contributor orcid warning message
   errorMessage: string = ""; // contributor error message
@@ -740,10 +714,10 @@ export class PersonelComponent implements OnInit, OnDestroy {
       switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
-        this.crntContribName = '';
-        this.crntContribSurname = '';
-        this.crntContribEmail = '';
-        this.nistContribOrcid = '';
+        this.crntContrib.firstName = '';
+        this.crntContrib.lastName = '';
+        this.crntContrib.emailAddress = '';
+        this.crntContrib.orcid = '';
 
         const val = typeof usrInput === 'string'; //checks the type of input value
         if (!val){ 
@@ -754,30 +728,30 @@ export class PersonelComponent implements OnInit, OnDestroy {
           this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
             map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
-              this.crntContribName = rec.firstName;
-              this.crntContribSurname = rec.lastName;
+              this.crntContrib.firstName = rec.firstName;
+              this.crntContrib.lastName = rec.lastName;
               
               if(rec.orcid){
                 //orcid can be null so assign it only if it is not null
-                this.nistContribOrcid = rec.orcid; // automatically populate orcid field if it is not null
+                this.crntContrib.orcid = rec.orcid; // automatically populate orcid field if it is not null
               }
 
               if(rec.emailAddress){
                 // email can apparently be null - Planchard Joshua is/was an example
-                this.crntContribEmail = rec.emailAddress;
+                this.crntContrib.emailAddress = rec.emailAddress;
               }
 
-              this.crntContribGroupOrgID = rec.groupOrgID;
-              this.crntContribGroupNumber = rec.groupNumber;
-              this.crntContribGroupName = rec.groupName;
+              this.crntContrib.groupOrgID = rec.groupOrgID;
+              this.crntContrib.groupNumber = rec.groupNumber;
+              this.crntContrib.groupName = rec.groupName;
 
-              this.crntContribDivisionOrgID = rec.divisionOrgID;
-              this.crntContribDivisionNumber = rec.divisionNumber;
-              this.crntContribDivisionName = rec.divisionName;
+              this.crntContrib.divisionOrgID = rec.divisionOrgID;
+              this.crntContrib.divisionNumber = rec.divisionNumber;
+              this.crntContrib.divisionName = rec.divisionName;
 
-              this.crntContribOuOrgID = rec.ouOrgID;
-              this.crntContribOuNumber = rec.ouNumber;
-              this.crntContribOuName = rec.ouName;
+              this.crntContrib.ouOrgID = rec.ouOrgID;
+              this.crntContrib.ouNumber = rec.ouNumber;
+              this.crntContrib.ouName = rec.ouName;
 
               // clear sarch suggestions since the user has selected an option from drop down menu
               this.sd_index = null;
@@ -895,13 +869,13 @@ export class PersonelComponent implements OnInit, OnDestroy {
   selContributorRole(){
     // select role for the contributors from a drop down list
     const sel = this.dropDownService.getDropDownSelection(this.nistContribRole, this.contributorRoles);
-    this.crntContribRole = sel.length ? sel[0].value : "";
+    this.crntContrib.role = sel.length ? sel[0].value : "";
   }
 
   selExtContributorRole(){
     // select role for the contributors from a drop down list
     const sel = this.dropDownService.getDropDownSelection(this.extContribRole, this.contributorRoles);
-    this.crntContribRole = sel.length ? sel[0].value : "";
+    this.crntContrib.role = sel.length ? sel[0].value : "";
   }
 
   selPrimaryContact(){
@@ -920,43 +894,15 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.errorMessage = "";
 
     // Reset NIST employe / associate fields
-    this.crntContribName = "";
-    this.crntContribSurname = "";  
-    this.crntContribOrcid = "";
-    this.crntContribEmail = "";
+    this.crntContrib = this.emptyContributor();
 
-    this.crntContribGroupOrgID = 0;  
-    this.crntContribGroupNumber = "";
-    this.crntContribGroupName = "";
-
-    this.crntContribDivisionOrgID = 0;  
-    this.crntContribDivisionNumber = "";
-    this.crntContribDivisionName = "";
-
-    this.crntContribOuOrgID = 0;  
-    this.crntContribOuNumber = "";
-    this.crntContribOuName = "";
-
-    this.crntContribRole = "";    
-    
     this.nistContribOrcid = "";
     this.nistContribRole = "";
-
     this.extContribRole = "";
-    
+
     this.personelForm.controls['dmp_contributor'].setValue("");
 
-    this.externalContributor = {
-      
-      firstName:"", lastName:"", orcid:"", emailAddress:"", 
-      groupOrgID:0, groupNumber:"", groupName:"",
-      divisionOrgID:0, divisionNumber:"", divisionName:"",
-      ouOrgID:0, ouNumber:"", ouName:"",
-  
-      primary_contact:"",
-      role:"",
-      institution:""
-    };
+    this.externalContributor = this.emptyContributor();
   }
 
   onContributorChange(value:any){    
@@ -1010,13 +956,13 @@ export class PersonelComponent implements OnInit, OnDestroy {
       orcid:        e.orcid,
       institution:  e.institution,
       emailAddress: e.emailAddress,
-      role:         this.crntContribRole,
+      role:         this.crntContrib.role,
     };
 
     if (!this.validateExternalContributorInput(externalContrib)) {
       return;
     }
-    this.crntContribOrcid = e.orcid;
+    this.crntContrib.orcid = e.orcid;
     this.errorMessage = "";
 
     // Find the row being edited and apply changes to it directly
@@ -1065,7 +1011,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
    * since NIST records can legitimately have a null/empty email.
    */
   private sameContributor(member: any): boolean {
-    const stagedEmail = (this.crntContribEmail || "").trim().toLowerCase();
+    const stagedEmail = (this.crntContrib.emailAddress || "").trim().toLowerCase();
     const memberEmail = (member.emailAddress || "").trim().toLowerCase();
 
     if (stagedEmail && memberEmail) {
@@ -1074,9 +1020,9 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // No reliable email on one or both — fall back to composite identity
     return (
-      member.firstName === this.crntContribName &&
-      member.lastName === this.crntContribSurname &&
-      member.groupNumber === this.crntContribGroupNumber
+      member.firstName === this.crntContrib.firstName &&
+      member.lastName === this.crntContrib.lastName &&
+      member.groupNumber === this.crntContrib.groupNumber
     );
   }
 
@@ -1089,19 +1035,19 @@ export class PersonelComponent implements OnInit, OnDestroy {
         orcid:        this.externalContributor.orcid,
         institution:  this.externalContributor.institution,
         emailAddress: this.externalContributor.emailAddress,
-        role:         this.crntContribRole,
+        role:         this.crntContrib.role,
       };
 
       if (!this.validateExternalContributorInput(externalContrib)) {
         return;
       }
-      this.crntContribOrcid = this.externalContributor.orcid;
+      this.crntContrib.orcid = this.externalContributor.orcid;
     } else {
       // NIST contributor
-      this.crntContribOrcid = this.nistContribOrcid;
-      const isORCID = this.isORCID(this.crntContribOrcid);
+      this.crntContrib.orcid = this.crntContrib.orcid;
+      const isORCID = this.isORCID(this.crntContrib.orcid);
 
-      if (!isORCID && this.crntContribOrcid.length > 0) {
+      if (!isORCID && this.crntContrib.orcid.length > 0) {
         this.errorMessage = PersonelComponent.ORCID_ERROR;
         return;
       }
@@ -1116,7 +1062,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     if (isDuplicate) {
       this.errorMessage =
-        "Contributor " + this.crntContribName + " " + this.crntContribSurname +
+        "Contributor " + this.crntContrib.firstName + " " + this.crntContrib.lastName +
         " is already in the list of contributors";
       this.disableAdd = false;
       this.disableClear = false;
@@ -1126,26 +1072,11 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // ---- Build the new row ----
     const newRow: DataContributor = {
-      firstName:      this.crntContribName,
-      lastName:       this.crntContribSurname,
-      orcid:          this.crntContribOrcid,
-      emailAddress:   this.crntContribEmail,
-
-      groupOrgID:     this.crntContribGroupOrgID,
-      groupNumber:    this.crntContribGroupNumber,
-      groupName:      this.crntContribGroupName,
-
-      divisionOrgID:  this.crntContribDivisionOrgID,
-      divisionNumber: this.crntContribDivisionNumber,
-      divisionName:   this.crntContribDivisionName,
-
-      ouOrgID:        this.crntContribOuOrgID,
-      ouNumber:       this.crntContribOuNumber,
-      ouName:         this.crntContribOuName,
+      ...this.crntContrib, //7-line literal collapses to a spread plus the four fields that differ
 
       primary_contact: this.primaryContactSelection,
       institution:     "",
-      role:            this.crntContribRole,
+      role:            this.crntContrib.role,
 
       id: Date.now(),
       isEdit: false,
@@ -1195,7 +1126,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // First name
     if (name_regex.test(firstName)) {
-      this.crntContribName = firstName;
+      this.crntContrib.firstName = firstName;
     } else {
       this.errorMessage = "Missing or invalid contributor First Name";
       return false;
@@ -1203,7 +1134,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // Last name
     if (name_regex.test(lastName)) {
-      this.crntContribSurname = lastName;
+      this.crntContrib.lastName = lastName;
     } else {
       this.errorMessage = "Missing or invalid contributor Last Name";
       return false;
@@ -1217,7 +1148,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
     // Email
     if (email_regex.test(email)) {
-      this.crntContribEmail = email;
+      this.crntContrib.emailAddress = email;
     } else {
       this.errorMessage = "Missing or invalid contributor e-mail";
       return false;
@@ -1353,7 +1284,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
   resetPersonnelForm(){
     
     this.nistContribRole = "";
-    this.nistContribOrcid = "";
+    this.crntContrib.orcid = "";
     this.externalContributor.firstName = "";
     this.externalContributor.lastName = "";
     this.externalContributor.orcid = "";
@@ -1568,6 +1499,17 @@ export class PersonelComponent implements OnInit, OnDestroy {
     }));
 
     this.personelForm.patchValue({ organizations });
+  }
+
+  /** Returns a blank contributor used as the "currently being added" staging buffer. */
+  private emptyContributor(): Contributor {
+    return {
+      firstName: "", lastName: "", orcid: "", emailAddress: "",
+      groupOrgID: 0, groupNumber: "", groupName: "",
+      divisionOrgID: 0, divisionNumber: "", divisionName: "",
+      ouOrgID: 0, ouNumber: "", ouName: "",
+      primary_contact: "", role: "", institution: "",
+    };
   }
 
   
