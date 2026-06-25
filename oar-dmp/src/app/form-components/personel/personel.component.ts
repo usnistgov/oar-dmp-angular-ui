@@ -147,7 +147,17 @@ const ORG_COL_SCHEMA = [
 ]
 
 const NOT_PRIMARY_CONTACT: string = '1';
-const name_regex = /\b([A-ZÀ-ÿ][-,. ']*)+/i;
+/**
+ * Key changes: ^...$ anchors so the entire string is validated, not a substring; the character class explicitly 
+ * excludes <, >, /, digits, etc.; it requires a letter as the first character. 
+ * Now the calls. .match() returns a truthy array on partial match — switch to .test(), which with the anchored 
+ * regex means "the whole string is valid." Also trim and guard against null/empty before testing, since .match/.test 
+ * on an untrimmed or empty string was a soft spot
+ */
+// Anchored: the WHOLE value must be a plausible name.
+// Letters (incl. accented), spaces, hyphen, apostrophe, period, comma.
+// Rejects <, >, /, digits, and other control/markup characters.
+const name_regex = /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-.,' ]*$/;
 // email regex taken from https://emailregex.com/index.html
 const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -1174,61 +1184,53 @@ export class PersonelComponent implements OnInit, OnDestroy {
     this.resetContributorFields();
   }
 
-  private validateExternalContributorInput(extContrib:externalContributor):boolean{
-    /**
-     * Check first name
-     */
-    if (extContrib.firstName.match(name_regex)){        
-      this.crntContribName = extContrib.firstName;
-    }
-    else{
+  private validateExternalContributorInput(extContrib: externalContributor): boolean {
+    const firstName = (extContrib.firstName || "").trim();
+    const lastName = (extContrib.lastName || "").trim();
+    const institution = (extContrib.institution || "").trim();
+    const email = (extContrib.emailAddress || "").trim();
+    const orcid = (extContrib.orcid || "").trim();
+
+    // First name
+    if (name_regex.test(firstName)) {
+      this.crntContribName = firstName;
+    } else {
       this.errorMessage = "Missing or invalid contributor First Name";
       return false;
     }
 
-    /**
-     * Check last name
-     */
-    if (extContrib.lastName.match(name_regex)){
-      this.crntContribSurname = extContrib.lastName;
-    }
-    else{
+    // Last name
+    if (name_regex.test(lastName)) {
+      this.crntContribSurname = lastName;
+    } else {
       this.errorMessage = "Missing or invalid contributor Last Name";
       return false;
     }
 
-    /**
-     * Check institution
-     */
-    if (!(extContrib.institution.match(name_regex))){
+    // Institution
+    if (!name_regex.test(institution)) {
       this.errorMessage = "Missing or invalid contributor Institution / Affiliation";
       return false;
     }
 
-    /**
-     * Check e-mail
-     */
-    if (extContrib.emailAddress.match(email_regex)){
-      this.crntContribEmail = extContrib.emailAddress;
-    }
-    else{
+    // Email
+    if (email_regex.test(email)) {
+      this.crntContribEmail = email;
+    } else {
       this.errorMessage = "Missing or invalid contributor e-mail";
       return false;
     }
 
-    // check ORCID
-    const isORCID = this.isORCID(extContrib.orcid);
-      
-    if (!isORCID && extContrib.orcid.length>0){
+    // ORCID (optional, but must be valid if present)
+    if (orcid.length > 0 && !this.isORCID(orcid)) {
       this.errorMessage = PersonelComponent.ORCID_ERROR;
       return false;
     }
-    else if(extContrib.orcid === null || extContrib.orcid.length === 0){
+    if (orcid.length === 0) {
       this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
     }
 
     return true;
-
   }
 
   private resetWarningAndErrorMessages(){
