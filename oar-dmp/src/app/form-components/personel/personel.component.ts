@@ -1241,49 +1241,52 @@ export class PersonelComponent implements OnInit, OnDestroy {
   }
 
   private setResponsibleOrgs(orgs:any){
-    let index:number =0;
+    if (!orgs || orgs.length === 0) {
+      return;
+    }
+    
+    let index = 0;
+
+    // Safely read the org at the current index; returns null if out of range.
+    const orgAt = (i: number) => (i >= 0 && i < orgs.length ? orgs[i] : null);
+
     // loop through the list of parent organizations with first
     // element in the array being the organization that was selected by the user
-    while(index < orgs?.length ){
-      let anOrganization = orgs[index];
+    while (index < orgs.length) {
+      const anOrganization = orgs[index];
       /**
        * Case 1:
        * User selected a group from dropdown menu
        * In this case orG_LVL_ID = 3
        */
-      if (anOrganization.orG_LVL_ID === 3){
+      if (anOrganization.orG_LVL_ID === 3) {
         this.orgGroupNumber = anOrganization.orG_CD;
         this.orgGroupOrgID = anOrganization.orG_ID;
         this.orgGroupName = anOrganization.orG_Name;
 
-        index++;
-        let divisionData = orgs[index];
+        const divisionData = orgAt(++index);
+        if (divisionData) {
+          this.orgDivisionNumber = divisionData.orG_CD;
+          this.orgDivisionOrgID = divisionData.orG_ID;
+          this.orgDivisionName = divisionData.orG_Name;
+          this.orgDivisionAcronym = divisionData.orG_ACRNM;
+        }
 
-        this.orgDivisionNumber = divisionData.orG_CD;
-        this.orgDivisionOrgID = divisionData.orG_ID;      
-        this.orgDivisionName = divisionData.orG_Name;
-        this.orgDivisionAcronym = divisionData.orG_ACRNM;
-
-        // find parent of the parent info
-        index++;
-        let OUData = orgs[index];
-
-        this.orgOuNumber = OUData.orG_CD;
-        this.orgOuOrgID = OUData.orG_ID;
-        this.orgOuName = OUData.orG_Name;
-        this.orgOuAcronym = OUData.orG_ACRNM;
+        const OUData = orgAt(++index);
+        if (OUData) {
+          this.orgOuNumber = OUData.orG_CD;
+          this.orgOuOrgID = OUData.orG_ID;
+          this.orgOuName = OUData.orG_Name;
+          this.orgOuAcronym = OUData.orG_ACRNM;
+        }
         break;
-      } 
+      }
       /**
        * Case 2:
        * User selected a division from dropdown menu
        * In this case orG_LVL_ID = 2 or 4
        */               
-      else if(
-        anOrganization.orG_LVL_ID === 2 ||
-        anOrganization.orG_LVL_ID === 4
-      ){
-
+      else if (anOrganization.orG_LVL_ID === 2 || anOrganization.orG_LVL_ID === 4) {
         this.orgGroupNumber = "";
         this.orgGroupOrgID = 0;
         this.orgGroupName = "";
@@ -1293,13 +1296,13 @@ export class PersonelComponent implements OnInit, OnDestroy {
         this.orgDivisionName = anOrganization.orG_Name;
         this.orgDivisionAcronym = anOrganization.orG_ACRNM;
 
-        index++;
-        let OUData = orgs[index];
-
-        this.orgOuNumber = OUData.orG_CD;
-        this.orgOuOrgID = OUData.orG_ID;
-        this.orgOuName = OUData.orG_Name;
-        this.orgOuAcronym = OUData.orG_ACRNM;
+        const OUData = orgAt(++index);
+        if (OUData) {
+          this.orgOuNumber = OUData.orG_CD;
+          this.orgOuOrgID = OUData.orG_ID;
+          this.orgOuName = OUData.orG_Name;
+          this.orgOuAcronym = OUData.orG_ACRNM;
+        }
         break;
       }
       else{
@@ -1318,7 +1321,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
         this.orgDivisionAcronym = "";
 
         this.orgOuNumber = anOrganization.orG_CD;
-        this.orgOuOrgID = anOrganization.orG_ID;  
+        this.orgOuOrgID = anOrganization.orG_ID;
         this.orgOuName = anOrganization.orG_Name;
         this.orgOuAcronym = anOrganization.orG_ACRNM;
         break;
