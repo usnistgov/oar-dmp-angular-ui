@@ -730,7 +730,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
   //List of all nist contacts from NIST directory
   nistContacts: any = null;
 
-  presonID: number = 0;
+  personID: number = 0;
 
   getNistContactsFromAPI(){
     // ---------------------------------------------------------------------------------------------
@@ -751,7 +751,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
 
           // returning result made to an async call
-          this.presonID = usrInput.id;
+          this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
             map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
               this.crntContribName = rec.firstName;
@@ -1156,7 +1156,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
 
       // If this NIST contributor is a primary contact, resolve their OU
       if (this.primaryContactSelection === "Yes") {
-        this.sdsvc.getOrgsFor(this.presonID)
+        this.sdsvc.getOrgsFor(this.personID)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (recs: any) => {
@@ -1166,7 +1166,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
               this.org_addRow();
             },
             error: (err: any) => {
-              console.error('Failed to pull orgs for index "' + this.presonID + '"' + err);
+              console.error('Failed to pull orgs for index "' + this.personID + '"' + err);
             },
           });
       }
