@@ -644,7 +644,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF") 
           this.DMP_PDF.printTextField("Title", this.dmp?.title);
         if (dmpFormat === "Markdown") 
-          this.markdown.push("**Title:** " + this.dmp?.title + "  \n");
+          this.markdown.push("**Title:** " + this.escapeMarkdownText(this.dmp?.title) + "  \n");
       }
 
       // Start Date
@@ -652,7 +652,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Start Date", this.dmp?.startDate);
         if (dmpFormat === "Markdown") 
-          this.markdown.push("**Start Date:** " + this.dmp?.startDate + "  \n");
+          this.markdown.push("**Start Date:** " + this.escapeMarkdownText(this.dmp?.startDate) + "  \n");
       }
 
       // End Date
@@ -661,7 +661,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("End Date", this.dmp?.endDate);
         if (dmpFormat === "Markdown") 
-          this.markdown.push("**End Date:** " + this.dmp?.endDate + "  \n");
+          this.markdown.push("**End Date:** " + this.escapeMarkdownText(this.dmp?.endDate) + "  \n");
       }
       */
 
@@ -670,7 +670,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Make DMP Searchable", this.dmp?.dmpSearchable);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Make DMP Searchable:** " + this.dmp?.dmpSearchable + "  \n");
+          this.markdown.push("**Make DMP Searchable:** " + this.escapeMarkdownText(this.dmp?.dmpSearchable) + "  \n");
       }
 
       //Funding
@@ -686,7 +686,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Project Description:** " + this.dmp?.projectDescription + "  \n");
+          this.markdown.push("**Project Description:** " + this.escapeMarkdownText(this.dmp?.projectDescription) + "  \n");
       }
 
       
@@ -765,7 +765,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Estimated Data Size:** " + this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription + "  \n");
+          this.markdown.push("**Estimated Data Size:** " + this.escapeMarkdownText(this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription) + "  \n");
       }
 
       //Software Development
@@ -773,14 +773,14 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Software Development:** " + this.dmp?.softwareDevelopment.development + "  \n");
+          this.markdown.push("**Software Development:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.development) + "  \n");
 
         //Software developed for this project will be for
         if(this.dmp?.softwareDevelopment.softwareUse !== ""){
           if (dmpFormat === "PDF")
             this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Software developed for this project will be for:** " + this.dmp?.softwareDevelopment.softwareUse + "  \n");
+            this.markdown.push("**Software developed for this project will be for:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareUse) + "  \n");
         }
 
         //Does the software development require a database?
@@ -788,7 +788,7 @@ export class DmpFormComponent implements OnInit{
           if (dmpFormat === "PDF")
             this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Does the software development require a database?:** " + this.dmp?.softwareDevelopment.softwareDatabase + "  \n");
+            this.markdown.push("**Does the software development require a database?:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareDatabase) + "  \n");
         }
 
         //Will the software development produce a website interface?
@@ -796,7 +796,7 @@ export class DmpFormComponent implements OnInit{
           if (dmpFormat === "PDF")
             this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Will the software development produce a website interface?:** " + this.dmp?.softwareDevelopment.softwareWebsite + "  \n");
+            this.markdown.push("**Will the software development produce a website interface?:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareWebsite) + "  \n");
         }
       }
 
@@ -839,7 +839,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF") 
           this.DMP_PDF.printTextField("IRB number", this.dmp?.ethical_issues.irb_number);
         if (dmpFormat === "Markdown") 
-          this.markdown.push("**IRB number:** " + this.dmp?.ethical_issues.irb_number + "  \n");
+          this.markdown.push("**IRB number:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.irb_number) + "  \n");
       }
 
       if(this.dmp?.ethical_issues !== undefined){
@@ -849,7 +849,7 @@ export class DmpFormComponent implements OnInit{
             this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
                                       this.dmp?.ethical_issues.ethical_issues_exist);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Are there any ethical issues related to the data that this DMP describes?:** " + this.dmp?.ethical_issues.ethical_issues_exist + "  \n");
+            this.markdown.push("**Are there any ethical issues related to the data that this DMP describes?:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_exist) + "  \n");
         }
 
         //Describe any ethical issues raised in this project (human subjects etc)
@@ -858,7 +858,7 @@ export class DmpFormComponent implements OnInit{
             this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
                                       this.dmp?.ethical_issues.ethical_issues_description);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Describe any ethical issues raised in this project (human subjects etc):** " + this.dmp?.ethical_issues.ethical_issues_description + "  \n");
+            this.markdown.push("**Describe any ethical issues raised in this project (human subjects etc):** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_description) + "  \n");
                             
         }
 
@@ -868,7 +868,7 @@ export class DmpFormComponent implements OnInit{
             this.DMP_PDF.printTextField("Ethical issues report", 
                                       this.dmp?.ethical_issues.ethical_issues_report);
           if (dmpFormat === "Markdown")
-            this.markdown.push("**Ethical issues report:** " + this.dmp?.ethical_issues.ethical_issues_report + "  \n");
+            this.markdown.push("**Ethical issues report:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_report) + "  \n");
             
         }
 
@@ -939,7 +939,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Preservation Description**:" + this.dmp?.preservationDescription + "  \n");
+          this.markdown.push("**Preservation Description**:" + this.escapeMarkdownText(this.dmp?.preservationDescription) + "  \n");
       }
 
       // Describe your plans for making the data discoverable (findable) and accessible
@@ -947,7 +947,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
         if (dmpFormat === "Markdown")
-          this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.dmp?.dataAccess + "  \n");
+          this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.escapeMarkdownText(this.dmp?.dataAccess) + "  \n");
       }    
 
       // file path(s) / URL(s) for where data will be saved
@@ -976,27 +976,25 @@ export class DmpFormComponent implements OnInit{
     }
   }  
 
-  private markdownTable(fieldName:string, tblHead:Array<string>, tblBody:Array<Array<string>>,){
-    if (fieldName !== ""){
+  private markdownTable(fieldName: string, tblHead: Array<string>, tblBody: Array<Array<string>>) {
+    if (fieldName !== "") {
       this.markdown.push("  \n");
-      this.markdown.push("**" + fieldName +":**  \n");
-      
+      this.markdown.push("**" + this.escapeMarkdownText(fieldName) + ":**  \n");
     }
     this.markdown.push("  \n");
 
-    let headerText = "|" + tblHead.join("|") + "|  \n";
+    const headerText = "|" + tblHead.map(h => this.escapeMarkdownCell(h)).join("|") + "|  \n";
     this.markdown.push(headerText);
-    
-    let headerSeparator = "|"
-    for (let i = 0; i < tblHead.length; i ++){
-      headerSeparator += " --- |"
+
+    let headerSeparator = "|";
+    for (let i = 0; i < tblHead.length; i++) {
+      headerSeparator += " --- |";
     }
-    headerSeparator += "  \n"
+    headerSeparator += "  \n";
     this.markdown.push(headerSeparator);
 
-    
-    for (let i = 0; i < tblBody.length; i ++){
-      let tblRowContent = "|" + tblBody[i].join("|") + "|  \n";
+    for (let i = 0; i < tblBody.length; i++) {
+      const tblRowContent = "|" + tblBody[i].map(c => this.escapeMarkdownCell(c)).join("|") + "|  \n";
       this.markdown.push(tblRowContent);
     }
     this.markdown.push("  \n");
@@ -1011,5 +1009,52 @@ export class DmpFormComponent implements OnInit{
       this.markdown.push("---  \n");
     }
 
+  }
+
+  /**
+   * Escapes a value for safe inclusion in a Markdown TABLE CELL.
+   * Neutralizes pipes (which break table structure), newlines, and the
+   * leading block-level markers that could inject headings/quotes/lists.
+   * Also defuses inline HTML and link syntax.
+   */
+  private escapeMarkdownCell(value: any): string {
+    if (value === null || value === undefined) return "";
+    let s = String(value);
+
+    // Collapse newlines — they break table rows entirely.
+    s = s.replace(/\r\n|\r|\n/g, " ");
+
+    // Escape backslash first so our other escapes aren't double-eaten.
+    s = s.replace(/\\/g, "\\\\");
+
+    // Pipe is the table delimiter.
+    s = s.replace(/\|/g, "\\|");
+
+    // Neutralize inline HTML by escaping angle brackets.
+    s = s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // Defuse link / image syntax and inline code.
+    s = s.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+    s = s.replace(/`/g, "\\`");
+
+    return s;
+  }
+
+  /**
+   * Escapes a value for safe inclusion in Markdown PROSE (the **field:** lines),
+   * where pipes are harmless but block-level markers and HTML still matter.
+   */
+  private escapeMarkdownText(value: any): string {
+    if (value === null || value === undefined) return "";
+    let s = String(value);
+
+    s = s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    s = s.replace(/`/g, "\\`");
+
+    // Escape leading block markers on each line so a value can't start a
+    // heading, blockquote, or list item.
+    s = s.replace(/^(\s*)([#>\-*+])/gm, "$1\\$2");
+
+    return s;
   }
 }
