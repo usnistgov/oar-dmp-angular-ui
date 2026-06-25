@@ -913,7 +913,7 @@ export class DmpFormComponent implements OnInit{
         if (dmpFormat === "PDF")
           this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
         if (dmpFormat === "Markdown")
-          this.markdown.push(this.dmp?.dataDescription + "  \n");
+          this.markdown.push(this.escapeMarkdownText(this.dmp?.dataDescription) + "  \n");
     
       }
 

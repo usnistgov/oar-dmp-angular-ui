@@ -714,10 +714,12 @@ export class PersonelComponent implements OnInit, OnDestroy {
       switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
-        this.crntContrib.firstName = '';
-        this.crntContrib.lastName = '';
-        this.crntContrib.emailAddress = '';
-        this.crntContrib.orcid = '';
+        // this.crntContrib.firstName = '';
+        // this.crntContrib.lastName = '';
+        // this.crntContrib.emailAddress = '';
+        // Reset NIST employe / associate fields
+        this.crntContrib = this.emptyContributor();
+        this.nistContribOrcid = '';
 
         const val = typeof usrInput === 'string'; //checks the type of input value
         if (!val){ 
@@ -733,7 +735,8 @@ export class PersonelComponent implements OnInit, OnDestroy {
               
               if(rec.orcid){
                 //orcid can be null so assign it only if it is not null
-                this.crntContrib.orcid = rec.orcid; // automatically populate orcid field if it is not null
+                this.nistContribOrcid = rec.orcid; // automatically populate orcid field in the form if it is not null
+                this.crntContrib.orcid = rec.orcid;
               }
 
               if(rec.emailAddress){
@@ -1043,8 +1046,9 @@ export class PersonelComponent implements OnInit, OnDestroy {
       }
       this.crntContrib.orcid = this.externalContributor.orcid;
     } else {
-      // NIST contributor
-      this.crntContrib.orcid = this.crntContrib.orcid;
+      //we're adding a nist contributor so assign orcid text field
+      this.crntContrib.orcid = this.nistContribOrcid;
+      // check ORCID
       const isORCID = this.isORCID(this.crntContrib.orcid);
 
       if (!isORCID && this.crntContrib.orcid.length > 0) {
@@ -1284,7 +1288,7 @@ export class PersonelComponent implements OnInit, OnDestroy {
   resetPersonnelForm(){
     
     this.nistContribRole = "";
-    this.crntContrib.orcid = "";
+    this.nistContribOrcid = "";
     this.externalContributor.firstName = "";
     this.externalContributor.lastName = "";
     this.externalContributor.orcid = "";
@@ -1352,7 +1356,6 @@ export class PersonelComponent implements OnInit, OnDestroy {
         return [usrInput];
       }),
       map(pipedValue => {
-        let res:Array<any> = [];
         const val = typeof pipedValue ==='string';
 
         if (!val){ 
