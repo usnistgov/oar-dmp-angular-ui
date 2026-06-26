@@ -10,6 +10,7 @@ import { concatMap, map, switchMap, catchError, tap, takeUntil } from 'rxjs/oper
 import { DMP_Meta } from '../../types/DMP.types';
 // import { ORGANIZATIONS } from '../../types/mock-organizations';
 import { NistOrganization } from 'src/app/types/nist-organization';
+import { Person } from 'src/app/types/person.type';
 import { ResponsibleOrganizations } from 'src/app/types/responsible-organizations.type';
 
 
@@ -18,7 +19,12 @@ import { UpdateNistContributorService } from 'src/app/shared/update-nist-contrib
 
 import * as _ from 'lodash';
 
-// import { error } from 'console';
+// The RAW shape coming back from StaffDirectoryService.getRecord().
+// It's a Person, except the service can return null for orcid/email.
+type PeopleServiceRecord = Omit<Person, 'orcid' | 'emailAddress'> & {
+  orcid: string | null;
+  emailAddress: string | null;
+};
 
 // used for dropdown menu containing values "Yes" and "No" to indicate
 // wheter a NIST DMP contributor is a primary contact
@@ -730,32 +736,28 @@ export class PersonelComponent implements OnDestroy {
           // returning result made to an async call
           this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
-            map((rec:any) =>{ // typecast return of getRecord as 'any' since we're expecting an object type there
-              this.crntContrib.firstName = rec.firstName;
-              this.crntContrib.lastName = rec.lastName;
-              
-              if(rec.orcid){
-                //orcid can be null so assign it only if it is not null
-                this.nistContribOrcid = rec.orcid; // automatically populate orcid field in the form if it is not null
-                this.crntContrib.orcid = rec.orcid;
-              }
+            map((rec: PeopleServiceRecord) => {
+              const person = this.normalizePeopleRecord(rec);   // null -> ""
 
-              if(rec.emailAddress){
-                // email can apparently be null - Planchard Joshua is/was an example
-                this.crntContrib.emailAddress = rec.emailAddress;
-              }
+              this.crntContrib.firstName = person.firstName;
+              this.crntContrib.lastName = person.lastName;
+              this.crntContrib.orcid = person.orcid;            // always a string now
+              this.crntContrib.emailAddress = person.emailAddress;
 
-              this.crntContrib.groupOrgID = rec.groupOrgID;
-              this.crntContrib.groupNumber = rec.groupNumber;
-              this.crntContrib.groupName = rec.groupName;
+              // nistContribOrcid mirrors the staged ORCID for the template input
+              this.nistContribOrcid = person.orcid;
 
-              this.crntContrib.divisionOrgID = rec.divisionOrgID;
-              this.crntContrib.divisionNumber = rec.divisionNumber;
-              this.crntContrib.divisionName = rec.divisionName;
+              this.crntContrib.groupOrgID = person.groupOrgID;
+              this.crntContrib.groupNumber = person.groupNumber;
+              this.crntContrib.groupName = person.groupName;
 
-              this.crntContrib.ouOrgID = rec.ouOrgID;
-              this.crntContrib.ouNumber = rec.ouNumber;
-              this.crntContrib.ouName = rec.ouName;
+              this.crntContrib.divisionOrgID = person.divisionOrgID;
+              this.crntContrib.divisionNumber = person.divisionNumber;
+              this.crntContrib.divisionName = person.divisionName;
+
+              this.crntContrib.ouOrgID = person.ouOrgID;
+              this.crntContrib.ouNumber = person.ouNumber;
+              this.crntContrib.ouName = person.ouName;
 
               // clear search suggestions since the user has selected an option from drop down menu
               this.sd_index = null;
@@ -1467,6 +1469,19 @@ export class PersonelComponent implements OnDestroy {
       divisionOrgID: 0, divisionNumber: "", divisionName: "",
       ouOrgID: 0, ouNumber: "", ouName: "",
       primary_contact: "", role: "", institution: "",
+    };
+  }
+
+  /**
+   * Normalizes a raw People Service record into a Person, coalescing the
+   * nullable orcid/emailAddress fields to empty strings so downstream code
+   * never has to null-check them.
+   */
+  private normalizePeopleRecord(rec: PeopleServiceRecord): Person {
+    return {
+      ...rec,
+      orcid: rec.orcid ?? "",
+      emailAddress: rec.emailAddress ?? "",
     };
   }
 }
