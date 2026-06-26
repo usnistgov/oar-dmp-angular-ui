@@ -38,6 +38,13 @@ interface DataContributor extends Contributor{
   isEdit: boolean;
 }
 
+/** The object threaded through the autoupdate pipeline for each contributor. */
+interface ContribReconcileResult {
+  dmpContributor: DataContributor;
+  psRec?: PeopleServiceRecord;
+  changed: boolean;
+}
+
 interface externalContributor{
   firstName: string;
   lastName:string;
@@ -457,7 +464,7 @@ export class PersonelComponent implements OnDestroy {
 
             //Convert the array of Promises into an array of Observables
             const suggestionObservables = suggestions.map((aPerson: any) => 
-              from(aPerson.getRecord()) // Wraps the async getRecord() Promise into an Observable
+              from(aPerson.getRecord() as Promise<PeopleServiceRecord>) // Wraps the async getRecord() Promise into an Observable
             );
 
             // 3. Process suggestions in parallel, wait for all to finish 
@@ -466,7 +473,8 @@ export class PersonelComponent implements OnDestroy {
               records: forkJoin(suggestionObservables) // Wait for all records to resolve
             }).pipe(
               map((result) => {
-                const records = result.records as PeopleServiceRecord[];
+                // 'result.records' is now PeopleServiceRecord[] thanks to the cast above
+                const records = result.records;
                 // NOTE: currently we don't have a better way to directly get the correct 
                 // record from people service, so we need to iterate over suggestions
                 // and do a match on email address.
@@ -491,15 +499,15 @@ export class PersonelComponent implements OnDestroy {
             );
           }),
           // 5. Handle OU changes if necessary 
-          switchMap((result: any) => {
+          switchMap((result: ContribReconcileResult | null) => {
             if (result?.changed && this.PrimContribOUChanged) {
               return this.sdsvc.getParentOrgs(this.PrimContribNewOU, true).pipe(
-                tap((recs: any) => {
-                  this.setResponsibleOrgs(recs); 
+                tap((recs) => {
+                  this.setResponsibleOrgs(recs as NistOrganization[]);
                   this.org_addRow();
                   this.updateOU.updateOUs$.next({ numUpdates: ++this.OUsUpdated, isUpdated: true });
                 }),
-                map(() => result) // Continue passing the result
+                map(() => result)
               );
             }
             return of(result);
@@ -1085,8 +1093,8 @@ export class PersonelComponent implements OnDestroy {
         this.sdsvc.getOrgsFor(this.personID)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
-            next: (recs: any) => {
-              this.setResponsibleOrgs(recs);
+            next: (recs) => {
+              this.setResponsibleOrgs(recs as NistOrganization[]);
               this.org_index = null;
               this.orgSuggestions = [];
               this.org_addRow();
@@ -1094,7 +1102,7 @@ export class PersonelComponent implements OnDestroy {
             error: (err: any) => {
               console.error('Failed to pull orgs for index "' + this.personID + '"' + err);
             },
-          });
+        });
       }
     } else {
       newRow.institution = this.externalContributor.institution;
@@ -1166,7 +1174,7 @@ export class PersonelComponent implements OnDestroy {
     this.errorMessage = "";
   }
 
-  private setResponsibleOrgs(orgs:any){
+  private setResponsibleOrgs(orgs:NistOrganization[]){
     if (!orgs || orgs.length === 0) {
       return;
     }
@@ -1174,7 +1182,7 @@ export class PersonelComponent implements OnDestroy {
     let index = 0;
 
     // Safely read the org at the current index; returns null if out of range.
-    const orgAt = (i: number) => (i >= 0 && i < orgs.length ? orgs[i] : null);
+    const orgAt = (i: number): NistOrganization | null => (i >= 0 && i < orgs.length ? orgs[i] : null);
 
     while (index < orgs.length) {
       const anOrganization = orgs[index];
@@ -1290,16 +1298,16 @@ export class PersonelComponent implements OnDestroy {
         const val = typeof usrInput === 'string';
         if (!val){
           // Make async call to get parent organizations of the organization selected by the user
-          return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(                
-            map((recs:any) =>{              
-              this.setResponsibleOrgs(recs);
+          return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(
+            map((recs) => {
+              this.setResponsibleOrgs(recs as NistOrganization[]);
               this.org_disableAdd = false;
               this.org_index = null;
-              this.orgSuggestions = []
-              return []
+              this.orgSuggestions = [];
+              return [];
             }),
-            catchError( err => {
-              console.error('Failed to pull orgs for index "'+usrInput.id+'"'+err)
+            catchError(err => {
+              console.error('Failed to pull orgs for index "' + usrInput.id + '"' + err);
               return [];
             })
           )
