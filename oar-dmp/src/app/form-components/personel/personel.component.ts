@@ -465,8 +465,8 @@ export class PersonelComponent implements OnDestroy {
             return forkJoin({
               records: forkJoin(suggestionObservables) // Wait for all records to resolve
             }).pipe(
-              // Explicitly tell TypeScript that 'records' is an array of any (or your specific Interface)
-              map(({ records }: { records: any[] }) => {
+              map((result) => {
+                const records = result.records as PeopleServiceRecord[];
                 // NOTE: currently we don't have a better way to directly get the correct 
                 // record from people service, so we need to iterate over suggestions
                 // and do a match on email address.
@@ -475,7 +475,7 @@ export class PersonelComponent implements OnDestroy {
 
                 // 4. Find the matching record by email
                 // Now TypeScript knows 'rec' is an element of that array
-                const psRec = records.find((rec: any) => rec.emailAddress === dmpContributor.emailAddress);
+                const psRec = records.find((rec) => rec.emailAddress === dmpContributor.emailAddress);
                 
                 if (psRec && this.NISTContributorHasChanged(dmpContributor, psRec)) {
                   this.updateContributorData(dmpContributor, psRec);
@@ -580,51 +580,50 @@ export class PersonelComponent implements OnDestroy {
     this.contribOrcidWarn = anyMissing ? PersonelComponent.ORCID_WARNING : "";
   }
 
-  /** 
-   * Helper to update the object properties
+  /**
+   * Applies changed fields from the People Service record onto the local
+   * contributor in place. Operates on the RAW record (PeopleServiceRecord)
+   * because the null-vs-value distinction on orcid is significant here.
    */
-  private updateContributorData(dmpContributor: any, psRec: any) {
+  private updateContributorData(dmpContributor: DataContributor, psRec: PeopleServiceRecord) {
     this.NISTPersonMetaChanged = true;
     this.contribsUpdated += 1;
-    
-    // Define the fields to check for changes 
-    const fieldsToUpdate = [
-      'divisionName', 'divisionNumber', 'divisionOrgID', 
-      'firstName', 'lastName', 'groupName', 'groupNumber', 
+
+    // Fields to check for changes. Typed as keys shared by both DataContributor
+    // and PeopleServiceRecord so the indexing below is checked, not `any`.
+    const fieldsToUpdate: (keyof Person)[] = [
+      'divisionName', 'divisionNumber', 'divisionOrgID',
+      'firstName', 'lastName', 'groupName', 'groupNumber',
       'groupOrgID', 'orcid', 'ouName', 'ouNumber', 'ouOrgID'
     ];
 
-    // Define the fields to print out if changed
-    const fieldsToPrint = [
-      'divisionName',  
+    // Subset of the above that we log when changed
+    const fieldsToPrint: (keyof Person)[] = [
+      'divisionName',
       'firstName', 'lastName', 'groupName',
       'orcid', 'ouName'
     ];
 
     console.group(`Changes for ${dmpContributor.firstName} ${dmpContributor.lastName}`);
-  
-    fieldsToUpdate.forEach(field => {
+
+    fieldsToUpdate.forEach((field) => {
       const oldValue = dmpContributor[field];
       const newValue = psRec[field];
 
-      // 1. Check if the value is actually different
-      // 2. AND Ensure we aren't trying to overwrite a valid orcid with null
-      if (
-          oldValue !== newValue && 
-          !(field === 'orcid' && newValue === null)
-      )
-      {
+      // 1. Only act if the value actually changed
+      // 2. Never overwrite a valid orcid with null
+      if (oldValue !== newValue && !(field === 'orcid' && newValue === null)) {
 
-        // Handle specific logic for Primary Contact OU changes while we still have the 'oldValue'
+        // Capture Primary Contact OU changes while we still have the old value
         if (field === 'groupOrgID' && dmpContributor.primary_contact === "Yes") {
-          this.PrimContribOUChanged = true; 
-          this.PrimContribNewOU = newValue;
+          this.PrimContribOUChanged = true;
+          this.PrimContribNewOU = newValue as number;
         }
 
-        // Apply the change - update the fields
-        dmpContributor[field] = newValue;
+        // Apply the change
+        (dmpContributor as any)[field] = newValue;
 
-        if (fieldsToPrint.includes(field)){
+        if (fieldsToPrint.includes(field)) {
           if (field === 'groupName' && dmpContributor.primary_contact === "Yes") {
             console.log(
               `%c\u2139 %c[OU CHANGE DETECTED] Primary contact moved to new OU Group: %cOld Value: %c${oldValue} %c--> %cNew Value: %c${newValue}`,
@@ -636,8 +635,7 @@ export class PersonelComponent implements OnDestroy {
               log_normal_style,
               log_ou_style
             );
-          }
-          else{
+          } else {
             console.info(
               `%c\u2139 %c[UPDATE] ${field}: %cOld Value: %c${oldValue} %c--> %cNew Value: %c${newValue}`,
               log_icon_style,
@@ -648,7 +646,7 @@ export class PersonelComponent implements OnDestroy {
               log_normal_style,
               log_new_val_style
             );
-          }          
+          }
         }
       }
     });
@@ -671,13 +669,15 @@ export class PersonelComponent implements OnDestroy {
   }
 
   /**
-   * check if DMP record metadata for a given NIST contributor is the same as
-   * the current metadata returned from the people service.
-   * return true if the two are identical 
+   * Returns true if the People Service record differs from the local
+   * contributor in any tracked field. Operates on the RAW record because
+   * the orcid === null case is handled specially (the service "losing" an
+   * ORCID must not count as a change).
    */
-  private NISTContributorHasChanged (dmpContrib:any, current:any):boolean{
-    if (current.orcid === null && dmpContrib.orcid !== current.orcid){
-      // print a warning about people service "loosing" ORCID number
+  private NISTContributorHasChanged(dmpContrib: DataContributor, current: PeopleServiceRecord): boolean {
+    if (current.orcid === null && dmpContrib.orcid !== current.orcid) {
+      // Warn about the People Service reporting a null ORCID for someone who
+      // previously had one — this change is intentionally ignored.
       console.warn(`People service is indicating a new %cORCID  %cvalue of 'null' for %c${dmpContrib.firstName} ${dmpContrib.lastName} %cwith previously entered %cORCID %cvalue of: ${dmpContrib.orcid}. %cThis change will be ignored.`,
         log_normal_bold_style,
         log_normal_style,
@@ -691,18 +691,18 @@ export class PersonelComponent implements OnDestroy {
     if (
       (dmpContrib.divisionName !== current.divisionName) ||
       (dmpContrib.divisionNumber !== current.divisionNumber) ||
-      (dmpContrib.divisionOrgID !== current.divisionOrgID) ||      
+      (dmpContrib.divisionOrgID !== current.divisionOrgID) ||
       (dmpContrib.firstName !== current.firstName) ||
       (dmpContrib.groupName !== current.groupName) ||
       (dmpContrib.groupNumber !== current.groupNumber) ||
       (dmpContrib.groupOrgID !== current.groupOrgID) ||
-      (dmpContrib.lastName !== current.lastName) ||      
+      (dmpContrib.lastName !== current.lastName) ||
       (dmpContrib.ouName !== current.ouName) ||
       (dmpContrib.ouNumber !== current.ouNumber) ||
       (dmpContrib.ouOrgID !== current.ouOrgID) ||
-      // Only trigger "true" if current.orcid is provided AND different
+      // Only count orcid as changed if the service provided a value AND it differs
       (current.orcid !== null && dmpContrib.orcid !== current.orcid)
-    ){
+    ) {
       return true;
     }
     return false;
