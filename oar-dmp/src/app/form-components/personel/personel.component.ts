@@ -159,7 +159,16 @@ const ORG_COL_SCHEMA = [
   },
 ]
 
-const NOT_PRIMARY_CONTACT: string = '1';
+/** The persisted/compared primary-contact values. These strings are stored
+ *  on the DMP record and exported, so changing them is a data-format change. 
+ *  The enum values must stay exactly 'Yes' / 'No' (not be "cleaned up" to lowercase or booleans), 
+ *  or you'll break comparisons against records already saved in the database. 
+ * */
+const enum PrimaryContact {
+  Yes = 'Yes',
+  No = 'No',
+}
+
 // Anchored: the WHOLE value must be a plausible name.
 // Letters (incl. accented), spaces, hyphen, apostrophe, period, comma.
 // Rejects <, >, /, digits, and other control/markup characters.
@@ -239,7 +248,11 @@ export class PersonelComponent implements OnDestroy {
 
   primaryContact: string = "";
   primaryContactSelection: string = "";
-  primaryContactOptions: Array<primaryContactValues> = [{id:0, value:'Yes'}, {id:1, value:'No'}]
+  
+  primaryContactOptions: Array<primaryContactValues> = [
+    { id: 0, value: PrimaryContact.Yes },
+    { id: 1, value: PrimaryContact.No },
+  ];
   
   contributorRoles = ROLES; // sets hardcoded roles values
   
@@ -624,7 +637,7 @@ export class PersonelComponent implements OnDestroy {
       if (oldValue !== newValue && !(field === 'orcid' && newValue === null)) {
 
         // Capture Primary Contact OU changes while we still have the old value
-        if (field === 'groupOrgID' && dmpContributor.primary_contact === "Yes") {
+        if (field === 'groupOrgID' && dmpContributor.primary_contact === PrimaryContact.Yes) {
           this.PrimContribOUChanged = true;
           this.PrimContribNewOU = newValue as number;
         }
@@ -633,7 +646,7 @@ export class PersonelComponent implements OnDestroy {
         (dmpContributor as any)[field] = newValue;
 
         if (fieldsToPrint.includes(field)) {
-          if (field === 'groupName' && dmpContributor.primary_contact === "Yes") {
+          if (field === 'groupName' && dmpContributor.primary_contact === PrimaryContact.Yes) {
             console.log(
               `%c\u2139 %c[OU CHANGE DETECTED] Primary contact moved to new OU Group: %cOld Value: %c${oldValue} %c--> %cNew Value: %c${newValue}`,
               log_icon_style,
@@ -858,7 +871,7 @@ export class PersonelComponent implements OnDestroy {
     this.contributorOption = e;
     
     if (e === 'NIST'){
-      this.setPrimContact(NOT_PRIMARY_CONTACT);
+      this.setPrimContact(this.defaultPrimaryContactId());
       this.disableAdd=true;
     }
     else{
@@ -866,7 +879,7 @@ export class PersonelComponent implements OnDestroy {
     }
   }  
 
-  private setPrimContact(val:string){
+  private setPrimContact(val: string){
     this.primaryContact = val;
     this.selPrimaryContact();
   }
@@ -892,7 +905,7 @@ export class PersonelComponent implements OnDestroy {
    * Resets form fields for Contributor personnel
    */
   private resetContributorFields(){
-    this.setPrimContact(NOT_PRIMARY_CONTACT);
+    this.setPrimContact(this.defaultPrimaryContactId());
     this.errorMessage = "";
 
     // Reset NIST employee / associate fields
@@ -984,7 +997,7 @@ export class PersonelComponent implements OnDestroy {
         row.ouNumber = "";
         row.ouName = "";
 
-        row.primary_contact = "No";
+        row.primary_contact = PrimaryContact.No;
 
         // Ensure role is one of the accepted values
         const validRole = _.filter(this.contributorRoles, { value: String(row.role) });
@@ -1082,7 +1095,7 @@ export class PersonelComponent implements OnDestroy {
       newRow.institution = this.contributorOption;
 
       // If this NIST contributor is a primary contact, resolve their OU
-      if (this.primaryContactSelection === "Yes") {
+      if (this.primaryContactSelection === PrimaryContact.Yes) {
         this.sdsvc.getOrgsFor(this.personID)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
@@ -1496,5 +1509,10 @@ export class PersonelComponent implements OnDestroy {
       ouNumber:       rec.ouNumber,
       ouName:         rec.ouName,
     };
+  }  
+
+  private defaultPrimaryContactId(): string {
+    const noOption = this.primaryContactOptions.find(o => o.value === PrimaryContact.No);
+    return noOption ? String(noOption.id) : "";
   }
 }
