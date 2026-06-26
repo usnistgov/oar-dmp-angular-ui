@@ -442,25 +442,26 @@ export class PersonelComponent implements OnDestroy {
       // information about the person has been changed (change of OU, ORCID etc.)
       // If there is a change update metadata and set NISTPersonMetaChanged to true to
       // indicate that this data needs to be automatically saved without any user interaction
-      concatMap((dmpContributor: any) => {
+      concatMap((dmpContributor: DataContributor) => {
 
-        if (!dmpContributor.institution || dmpContributor.institution.toUpperCase() !== 'NIST'){
+        if (!dmpContributor.institution || dmpContributor.institution.toUpperCase() !== 'NIST') {
           // don't perform autoupdate for external contributors
-         return of({ dmpContributor, changed: false });
+          // Note the of<ContribReconcileResult>(...) — annotating the of here helps TypeScript infer the branch type consistently with the other branches, which matters for the union the concatMap produces.
+         return of<ContribReconcileResult>({ dmpContributor, changed: false });
         }
         const usrLastName = dmpContributor.lastName;
 
         // Call people service for the index
         return this.sdsvc.getPeopleIndexFor(usrLastName).pipe(
-          switchMap((idx: any) => {
+          switchMap((idx: SDSIndex | null) => {
             if (!idx) {
               console.warn(`${dmpContributor.firstName} ${dmpContributor.lastName} not found.`);
               return of(null); 
             }
 
             // query people service on last name
-            const suggestions = (idx as SDSIndex).getSuggestions(usrLastName);
-            if (suggestions.length === 0) return of(null);
+            const suggestions = idx.getSuggestions(usrLastName);
+            if (suggestions.length === 0) return of<ContribReconcileResult | null>(null);
 
             //Convert the array of Promises into an array of Observables
             const suggestionObservables = suggestions.map((aPerson: any) => 
@@ -472,7 +473,8 @@ export class PersonelComponent implements OnDestroy {
             return forkJoin({
               records: forkJoin(suggestionObservables) // Wait for all records to resolve
             }).pipe(
-              map((result) => {
+              // The : ContribReconcileResult return annotation forces both returns to that shape — the changed:true branch supplies psRec, the changed:false branch omits it (legal because psRec? is optional).
+              map((result): ContribReconcileResult => {
                 // 'result.records' is now PeopleServiceRecord[] thanks to the cast above
                 const records = result.records;
                 // NOTE: currently we don't have a better way to directly get the correct 
@@ -527,9 +529,9 @@ export class PersonelComponent implements OnDestroy {
         takeUntil(this.destroy$)            // cancel on destroy
       )
       .subscribe({
-        next: (result: any) => {
+        next: (result: ContribReconcileResult | null) => {
           if (result?.changed) {
-            this.applyFinalUpdates(result.dmpContributor); 
+            this.applyFinalUpdates(/*result.dmpContributor*/);
           }
         },
         complete: () => {
@@ -665,7 +667,7 @@ export class PersonelComponent implements OnDestroy {
   /**
    * Helper for UI and Form updates 
    */
-  private applyFinalUpdates(contributor: any) {
+  private applyFinalUpdates(/*contributor: DataContributor*/) {
     this.syncContributorsToForm();
     this.refreshOrcidWarning();
 
