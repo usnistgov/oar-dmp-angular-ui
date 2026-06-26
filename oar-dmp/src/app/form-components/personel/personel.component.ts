@@ -232,8 +232,7 @@ export class PersonelComponent implements OnDestroy {
 
   /** Staging buffer for the contributor currently being assembled before "Add". */
   crntContrib: Contributor = this.emptyContributor();
-   
-  nistContribOrcid: string = "";
+
   nistContribRole: string = "";
 
   extContribRole: string = "";
@@ -456,7 +455,7 @@ export class PersonelComponent implements OnDestroy {
           switchMap((idx: SDSIndex | null) => {
             if (!idx) {
               console.warn(`${dmpContributor.firstName} ${dmpContributor.lastName} not found.`);
-              return of(null); 
+              return of<ContribReconcileResult | null>(null);
             }
 
             // query people service on last name
@@ -531,7 +530,7 @@ export class PersonelComponent implements OnDestroy {
       .subscribe({
         next: (result: ContribReconcileResult | null) => {
           if (result?.changed) {
-            this.applyFinalUpdates(/*result.dmpContributor*/);
+            this.applyFinalUpdates();
           }
         },
         complete: () => {
@@ -667,7 +666,7 @@ export class PersonelComponent implements OnDestroy {
   /**
    * Helper for UI and Form updates 
    */
-  private applyFinalUpdates(/*contributor: DataContributor*/) {
+  private applyFinalUpdates() {
     this.syncContributorsToForm();
     this.refreshOrcidWarning();
 
@@ -735,8 +734,7 @@ export class PersonelComponent implements OnDestroy {
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
         // Reset NIST employee / associate fields
-        this.crntContrib = this.emptyContributor();
-        this.nistContribOrcid = '';
+        this.crntContrib = this.emptyContributor();        
 
         const val = typeof usrInput === 'string'; //checks the type of input value
         if (!val){ 
@@ -753,9 +751,6 @@ export class PersonelComponent implements OnDestroy {
               this.crntContrib.lastName = person.lastName;
               this.crntContrib.orcid = person.orcid;            // always a string now
               this.crntContrib.emailAddress = person.emailAddress;
-
-              // nistContribOrcid mirrors the staged ORCID for the template input
-              this.nistContribOrcid = person.orcid;
 
               this.crntContrib.groupOrgID = person.groupOrgID;
               this.crntContrib.groupNumber = person.groupNumber;
@@ -903,7 +898,6 @@ export class PersonelComponent implements OnDestroy {
     // Reset NIST employee / associate fields
     this.crntContrib = this.emptyContributor();
 
-    this.nistContribOrcid = "";
     this.nistContribRole = "";
     this.extContribRole = "";
 
@@ -1047,9 +1041,7 @@ export class PersonelComponent implements OnDestroy {
       }
       this.crntContrib.orcid = this.externalContributor.orcid;
     } else {
-      //we're adding a nist contributor so assign orcid text field
-      this.crntContrib.orcid = this.nistContribOrcid;
-      // check ORCID
+      // check ORCID NIST contributor — orcid already bound into crntContrib by the template
       const isORCID = this.isORCID(this.crntContrib.orcid);
 
       if (!isORCID && this.crntContrib.orcid.length > 0) {
@@ -1081,7 +1073,6 @@ export class PersonelComponent implements OnDestroy {
 
       primary_contact: this.primaryContactSelection,
       institution:     "",
-      role:            this.crntContrib.role,
 
       id: Date.now(),
       isEdit: false,
@@ -1279,7 +1270,6 @@ export class PersonelComponent implements OnDestroy {
 
   resetPersonnelForm(){
     this.nistContribRole = "";
-    this.nistContribOrcid = "";
     this.externalContributor.firstName = "";
     this.externalContributor.lastName = "";
     this.externalContributor.orcid = "";
@@ -1489,9 +1479,22 @@ export class PersonelComponent implements OnDestroy {
    */
   private normalizePeopleRecord(rec: PeopleServiceRecord): Person {
     return {
-      ...rec,
-      orcid: rec.orcid ?? "",
-      emailAddress: rec.emailAddress ?? "",
+      firstName:      rec.firstName,
+      lastName:       rec.lastName,
+      orcid:          rec.orcid ?? "",
+      emailAddress:   rec.emailAddress ?? "",
+
+      groupOrgID:     rec.groupOrgID,
+      groupNumber:    rec.groupNumber,
+      groupName:      rec.groupName,
+
+      divisionOrgID:  rec.divisionOrgID,
+      divisionNumber: rec.divisionNumber,
+      divisionName:   rec.divisionName,
+
+      ouOrgID:        rec.ouOrgID,
+      ouNumber:       rec.ouNumber,
+      ouName:         rec.ouName,
     };
   }
 }
