@@ -307,13 +307,12 @@ export class PersonelComponent implements OnDestroy {
     private dropDownService: DropDownSelectService,
     private fb: UntypedFormBuilder,
     private sdsvc: StaffDirectoryService,
-    private updateContributor: UpdateNistContributorService,
-    private updateOU: UpdateNistContributorService
+    private peopleUpdates: UpdateNistContributorService
   ) {
-    this.getNistContactsFromAPI();    
+    this.getNistContactsFromAPI();
     this.getNistOrganizations();
-    this.updateContributor.updateNISTContrib$.next({numUpdates:this.contribsUpdated, isUpdated:false});
-    this.updateOU.updateOUs$.next({numUpdates:this.OUsUpdated, isUpdated:false});
+    this.peopleUpdates.updateNISTContrib$.next({ numUpdates: this.contribsUpdated, isUpdated: false });
+    this.peopleUpdates.updateOUs$.next({ numUpdates: this.OUsUpdated, isUpdated: false });
   }
 
   personelForm = this.fb.group(
@@ -537,7 +536,7 @@ export class PersonelComponent implements OnDestroy {
                 tap((recs) => {
                   this.setResponsibleOrgs(recs as NistOrganization[]);
                   this.org_addRow();
-                  this.updateOU.updateOUs$.next({ numUpdates: ++this.OUsUpdated, isUpdated: true });
+                  this.peopleUpdates.updateOUs$.next({ numUpdates: ++this.OUsUpdated, isUpdated: true });
                 }),
                 map(() => result)
               );
@@ -687,9 +686,9 @@ export class PersonelComponent implements OnDestroy {
     this.refreshOrcidWarning();
 
     // set updateNISTContrib to true to "send message" to dmp-form.component to execute autosave 
-    this.updateContributor.updateNISTContrib$.next({ 
-      numUpdates: this.contribsUpdated, 
-      isUpdated: true 
+    this.peopleUpdates.updateNISTContrib$.next({
+      numUpdates: this.contribsUpdated,
+      isUpdated: true
     });
   }
 

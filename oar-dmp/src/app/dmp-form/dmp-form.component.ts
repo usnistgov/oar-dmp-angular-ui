@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, afterNextRender } from '@angular/core';
-import { ObservedValueOf, Subject, forkJoin, switchMap, EMPTY } from "rxjs";
+import { ObservedValueOf, Subject, merge, forkJoin, switchMap, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
@@ -17,7 +17,7 @@ import { UpdateNistContributorService } from '../shared/update-nist-contributor.
 import { UntypedFormControl } from '@angular/forms';
 import { UpdateIndicator } from '../types/update-indicator.type';
 
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, filter, debounceTime } from 'rxjs/operators';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { DmpPdf } from './dmp-pdf';
@@ -57,13 +57,15 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
   private destroy$ = new Subject<void>();
 
+  // --- Existing fields ------------------------------------------------------
   formButtonMessage: string = "";
   dmpExportFormatType: string = "";
 
-  // Guards so contributorsSubscribe()/OUsSubscribe() — which are called from
-  // patchDMP() on every patch — only wire up their stream once.
-  private contributorsWired = false;
-  private ousWired = false;
+  // Guard so the merged autosave stream is wired only once, even though
+  // patchDMP() — its trigger — fires on every patch.
+  private autoSaveWired = false;
+  /** True while a save was triggered by autosave (suppresses the success alert). */
+  private autoSaveInProgress = false;
 
   // get access to methods in DataDescriptionComponent child.
 
@@ -108,14 +110,6 @@ export class DmpFormComponent implements OnInit, OnDestroy {
 
   DMP_PDF?:DmpPdf;
 
-  // For monitoring people service changes in NIST contributors/researchers from personel component
-  contributorsUpdate: UpdateIndicator = {numUpdates:0, isUpdated:false};
-  contribTotalUpdates:number = 0;
-
-  // For monitoring people service changes of OU for primary NIST contributors/researchers from personel component
-  OUsUpdate: UpdateIndicator = {numUpdates:0, isUpdated:false};
-  OUsTotalUpdates:number = 0;
-
   canWrite:boolean  = false;
   isAdmin:boolean   = false;
   canDelete:boolean = false;
@@ -157,8 +151,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private form_buttons: SubmitDmpService,
     private formChanged: FormChangedService,
-    private updateContributor: UpdateNistContributorService,
-    private updateOUs: UpdateNistContributorService
+    private peopleUpdates: UpdateNistContributorService
   ) {
     afterNextRender(() => {
       // One-time wiring: track edits to the form. We ignore the burst of value
@@ -329,8 +322,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     this.dmp = { ...this.dmp, ...patch };
 
     if (this.canWrite) {
-      this.contributorsSubscribe();
-      this.OUsSubscribe();
+      this.autoSaveSubscribe();
     }
   }
 
@@ -386,48 +378,34 @@ export class DmpFormComponent implements OnInit, OnDestroy {
         }
       });
   }
-
+ 
   /**
-   * Reacts to NIST contributor metadata being auto-updated from the people
-   * service (signalled by the personel component). Wired at most once, even
-   * though patchDMP() may call this repeatedly.
+   * Autosave triggered by the people-service reconciliation in the personel
+   * component. Contributor-metadata updates and primary-contact OU updates
+   * arrive on two separate subjects, but a single reconciliation pass can emit
+   * on BOTH. We merge them and debounce so that one logical pass results in
+   * exactly one saveDraft() — instead of two competing saves, each firing its
+   * own router.navigate(['edit', id]).
+   *
+   * Wired at most once; patchDMP() may call this on every patch.
    */
-  private contributorsSubscribe(): void {
-    if (this.contributorsWired) return;
-    this.contributorsWired = true;
+  private autoSaveSubscribe(): void {
+    if (this.autoSaveWired) return;
+    this.autoSaveWired = true;
 
-    this.updateContributor.updateNISTContrib$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (hasChanged: UpdateIndicator) => {
-          if (hasChanged.isUpdated) {
-            this.contributorsUpdate.isUpdated = hasChanged.isUpdated;
-            this.contribTotalUpdates = hasChanged.numUpdates;
-            this.saveDraft();
-          }
-        }
-      });
-  }
-
-  /**
-   * Reacts to a primary contact's OU being auto-updated from the people
-   * service. Wired at most once.
-   */
-  private OUsSubscribe(): void {
-    if (this.ousWired) return;
-    this.ousWired = true;
-
-    this.updateOUs.updateOUs$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (hasChanged: UpdateIndicator) => {
-          if (hasChanged.isUpdated) {
-            this.OUsUpdate.isUpdated = hasChanged.isUpdated;
-            this.OUsTotalUpdates = hasChanged.numUpdates;
-            this.saveDraft();
-          }
-        }
-      });
+    merge(
+      this.peopleUpdates.updateNISTContrib$,
+      this.peopleUpdates.updateOUs$
+    ).pipe(
+      filter((indicator: UpdateIndicator) => indicator.isUpdated),
+      debounceTime(50),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.autoSaveInProgress = true;
+        this.saveDraft();
+      }
+    });
   }
 
   private changeElementClass (elID:string, add:string, remove:string){
@@ -490,31 +468,19 @@ export class DmpFormComponent implements OnInit, OnDestroy {
         this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
           {
             next: data => {
-              //try to reload the page to read the saved dmp from mongodb
+              // try to reload the page to read the saved dmp from mongodb
               this.router.navigate(['edit', this.id]);
               this.disableSaveButton();
               this.formSaved = true;
-              if (this.contributorsUpdate.isUpdated){
-                this.contributorsUpdate.numUpdates += 1;
-                if (this.contributorsUpdate.numUpdates === this.contribTotalUpdates){
-                  // REMOVE the alert(...) here — the personel panel now shows the details.
-                  this.contributorsUpdate = {numUpdates:0, isUpdated:false};
-                  this.contribTotalUpdates = 0;
-                }
-              }
-              else if (this.OUsUpdate.isUpdated){
-                this.OUsUpdate.numUpdates += 1;
-                if (this.OUsUpdate.numUpdates === this.OUsTotalUpdates){
-                  // REMOVE the alert(...) here too.
-                  this.OUsUpdate = {numUpdates:0, isUpdated:false};
-                  this.OUsTotalUpdates = 0;
-                }
-              }
-              else {
-                // Keep this one — it's the normal user-initiated save confirmation.
+
+              if (this.autoSaveInProgress) {
+                // Autosave from people-service reconciliation: stay silent,
+                // the personel panel already shows what changed.
+                this.autoSaveInProgress = false;
+              } else {
+                // Normal user-initiated save confirmation.
                 alert("Successfuly saved DMP record");
               }
-                
             },
             error: error => {
               console.log(error);
