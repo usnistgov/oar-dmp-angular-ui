@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, afterNextRender } from '@angular/core';
-import { ObservedValueOf, Subscription, Subject, forkJoin, switchMap, of, EMPTY } from "rxjs";
+import { ObservedValueOf, Subject, forkJoin, switchMap, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
@@ -57,19 +57,13 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
   private destroy$ = new Subject<void>();
 
-  formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
-
-  dmpExportFormatSubscription!: Subscription | null;
   dmpExportFormatType: string = "";
 
-  // To notify if any of the dmp contributors have their data updated from people service
-  // this is for auto updating of NIST contributors data
-  formContributorsSubscription!: Subscription | null;
-
-  // To notify if any of the dmp primary contributors have their OU updated from people service
-  // this is for auto updating of Organizations responsible for this DMP
-  formOUsSubscription!: Subscription | null;
+  // Guards so contributorsSubscribe()/OUsSubscribe() — which are called from
+  // patchDMP() on every patch — only wire up their stream once.
+  private contributorsWired = false;
+  private ousWired = false;
 
   // get access to methods in DataDescriptionComponent child.
 
@@ -126,6 +120,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   isAdmin:boolean   = false;
   canDelete:boolean = false;
 
+  // --- Robust init-state detection -----------------------------------------
   /**
    * The child forms we expect to register via addChildForm(). Initial-form-state
    * detection waits until ALL of these have reported in, instead of counting to
@@ -298,109 +293,9 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
   }
 
-
-  //subscribe to button subjects
-  formButtonSubscribe(){
-    if (!this.formButtonSubscription) {
-      //subscribe if not already subscribed
-      this.formButtonSubscription = this.form_buttons.buttonSubject$.subscribe({
-        next: (message) => {
-          // console.log(message);
-          // the message is not relevant here. it is just a trigger to reset the form
-          this.formButtonMessage = message;
-          if (this.formButtonMessage === "Reset"){
-            this.resetDmp();
-          }
-          else if (this.formButtonMessage === "Save"){
-            if (this.canWrite){
-              this.saveDraft();
-            }
-            else{
-              alert("Can not save changes to  DMP because you don't have write privileges on this record.");
-            }
-            
-          }
-          else if (this.formButtonMessage === "Download"){
-            if (this.dmpExportFormatType === ""){
-              alert("Please select DMP export format from the drop down menu.");
-            }
-            else {
-              if (this.formSaved){
-                if (this.action !=="new"){
-                  // prevent browser from exporting DMP twice when creating a fresh DMP record
-                  this.exportDMP(this.dmpExportFormatType);
-                }
-              }
-              else{
-                alert("Please save changes to your DMP form before exporting.");
-              }
-              
-            }
-          }
-        }
-      });
-    }
-
-  }
-
-  //subscribe to contributor subjects
-  contributorsSubscribe(){
-    if (!this.formContributorsSubscription) {
-      //subscribe if not already subscribed
-      this.formContributorsSubscription = this.updateContributor.updateNISTContrib$.subscribe({
-        next: (hasChanged:UpdateIndicator) => {          
-          if (hasChanged.isUpdated){
-            // change this flag to indicate that we need to display alert about auto update of NIST contributors metadata from people service
-            this.contributorsUpdate.isUpdated = hasChanged.isUpdated;
-            // update this counter to indicate how many contributors have been updated
-            this.contribTotalUpdates = hasChanged.numUpdates;
-            this.saveDraft();            
-          }          
-        }
-      });
-    }
-
-  }
-
-  //subscribe to OU subjects
-  OUsSubscribe(){
-    if (!this.formOUsSubscription) {
-      //subscribe if not already subscribed
-      this.formOUsSubscription = this.updateOUs.updateOUs$.subscribe({
-        next: (hasChanged:UpdateIndicator) => {          
-          if (hasChanged.isUpdated){
-            // change this flag to indicate that we need to display alert about auto update of NIST contributors metadata from people service
-            this.OUsUpdate.isUpdated = hasChanged.isUpdated;
-            // update this counter to indicate how many contributors have been updated
-            this.OUsTotalUpdates = hasChanged.numUpdates;
-            this.saveDraft();            
-          }
-        }
-      });
-    }
-
-  }
-
-  private changeElementClass (elID:string, add:string, remove:string){
-    var saveButton = document.getElementById(elID);
-    saveButton?.classList.remove(add);
-    saveButton?.classList.remove(remove);
-
-    saveButton?.classList.add(add);
-
-  }
-
-  formExportFormatSubscribe(){
-    if (!this.dmpExportFormatSubscription) {
-      //subscribe if not already subscribed
-      this.dmpExportFormatSubscription = this.form_buttons.exportFormatSubject$.subscribe({
-        next: (message) => {
-          this.dmpExportFormatType = message;          
-        }
-      });
-    }
-
-  }
+  // ==========================================================================
+  // Child form registration
+  // ==========================================================================
 
   // We need a method to register the child form groups. The method accepts a name 
   // (here "basicInfo" through "technical-requirements") and the form group. 
@@ -437,6 +332,111 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       this.contributorsSubscribe();
       this.OUsSubscribe();
     }
+  }
+
+  // ==========================================================================
+  // Subscriptions — all torn down via takeUntil(this.destroy$)
+  // ==========================================================================
+
+  /** Reacts to the Reset / Save / Download buttons in the control bar. */
+  private formButtonSubscribe(): void {
+    this.form_buttons.buttonSubject$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (message) => {
+          this.formButtonMessage = message; // the message itself is the trigger
+          if (this.formButtonMessage === "Reset") {
+            this.resetDmp();
+          } else if (this.formButtonMessage === "Save") {
+            if (this.canWrite) {
+              this.saveDraft();
+            } else {
+              alert("Can not save changes to DMP because you don't have write privileges on this record.");
+            }
+          } else if (this.formButtonMessage === "Download") {
+            this.handleDownloadRequest();
+          }
+        }
+      });
+  }
+
+  /** Extracted from the old inline Download branch for readability. */
+  private handleDownloadRequest(): void {
+    if (this.dmpExportFormatType === "") {
+      alert("Please select DMP export format from the drop down menu.");
+      return;
+    }
+    if (!this.formSaved) {
+      alert("Please save changes to your DMP form before exporting.");
+      return;
+    }
+    // Prevent the browser from exporting a DMP twice when creating a fresh record.
+    if (this.action !== "new") {
+      this.exportDMP(this.dmpExportFormatType);
+    }
+  }
+
+  /** Tracks the export format selected in the control bar's dropdown. */
+  private formExportFormatSubscribe(): void {
+    this.form_buttons.exportFormatSubject$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (message) => {
+          this.dmpExportFormatType = message;
+        }
+      });
+  }
+
+  /**
+   * Reacts to NIST contributor metadata being auto-updated from the people
+   * service (signalled by the personel component). Wired at most once, even
+   * though patchDMP() may call this repeatedly.
+   */
+  private contributorsSubscribe(): void {
+    if (this.contributorsWired) return;
+    this.contributorsWired = true;
+
+    this.updateContributor.updateNISTContrib$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (hasChanged: UpdateIndicator) => {
+          if (hasChanged.isUpdated) {
+            this.contributorsUpdate.isUpdated = hasChanged.isUpdated;
+            this.contribTotalUpdates = hasChanged.numUpdates;
+            this.saveDraft();
+          }
+        }
+      });
+  }
+
+  /**
+   * Reacts to a primary contact's OU being auto-updated from the people
+   * service. Wired at most once.
+   */
+  private OUsSubscribe(): void {
+    if (this.ousWired) return;
+    this.ousWired = true;
+
+    this.updateOUs.updateOUs$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (hasChanged: UpdateIndicator) => {
+          if (hasChanged.isUpdated) {
+            this.OUsUpdate.isUpdated = hasChanged.isUpdated;
+            this.OUsTotalUpdates = hasChanged.numUpdates;
+            this.saveDraft();
+          }
+        }
+      });
+  }
+
+  private changeElementClass (elID:string, add:string, remove:string){
+    var saveButton = document.getElementById(elID);
+    saveButton?.classList.remove(add);
+    saveButton?.classList.remove(remove);
+
+    saveButton?.classList.add(add);
+
   }
 
   enableSaveButton(){
