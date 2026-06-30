@@ -174,7 +174,8 @@ export class DmpService {
       switchMap(creds => {
         if (! creds)
           return throwError(() => new Error('Authentication Failed'));
-        return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
+        let res = this.http.get<any>(apiAddress, this.getHttpOptions(creds));
+        return res;
       })
     );
   }
