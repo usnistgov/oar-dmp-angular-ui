@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, afterNextRender  } from '@angular/core';
-import { ObservedValueOf, Subscription, forkJoin, switchMap, of, EMPTY } from "rxjs";
+import { Component, OnInit, OnDestroy, ViewChild, afterNextRender } from '@angular/core';
+import { ObservedValueOf, Subscription, Subject, forkJoin, switchMap, of, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
@@ -17,16 +17,7 @@ import { UpdateNistContributorService } from '../shared/update-nist-contributor.
 import { UntypedFormControl } from '@angular/forms';
 import { UpdateIndicator } from '../types/update-indicator.type';
 
-
-// for Communicating with backend services using HTTP
-import { Injectable } from '@angular/core';
-// import { HttpClient } from '@angular/common/http';
-/**
- * The HttpClient service makes use of observables for all transactions. You must import the RxJS observable and 
- * operator symbols that appear in the example snippets. These ConfigService imports are typical.
- */
-// import { Observable, throwError } from 'rxjs';
-// import { catchError, retry } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { DmpPdf } from './dmp-pdf';
@@ -60,8 +51,12 @@ import { saveAs } from 'file-saver';
   templateUrl: './dmp-form.component.html',
   styleUrls: ['./dmp-form.component.scss']
 })
-@Injectable()
-export class DmpFormComponent implements OnInit{
+
+export class DmpFormComponent implements OnInit, OnDestroy {
+  // --- Teardown ------------------------------------------------------------
+  /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
+  private destroy$ = new Subject<void>();
+
   formButtonSubscription!: Subscription | null;
   formButtonMessage: string = "";
 
@@ -131,147 +126,176 @@ export class DmpFormComponent implements OnInit{
   isAdmin:boolean   = false;
   canDelete:boolean = false;
 
+  /**
+   * The child forms we expect to register via addChildForm(). Initial-form-state
+   * detection waits until ALL of these have reported in, instead of counting to
+   * a magic number and sniffing for a specific property name. Add/remove/reorder
+   * children here only.
+   */
+  private readonly expectedForms: (keyof DMPForm)[] = [
+    'basicInfo',
+    'personel',
+    'keyWordsAndPhrases',
+    'technicalRequirements',
+    'ethicalIssues',
+    'securityAndPrivacy',
+    'dataDescription',
+    'dataPreservation',
+  ];
+  /** Which child forms have registered so far. */
+  private readyForms = new Set<keyof DMPForm>();
+
+  private get allFormsReady(): boolean {
+    return this.expectedForms.every(f => this.readyForms.has(f));
+  }
+
+  action: string = "";
+  id: string | null = null;
+  formSaved: boolean = true;
+  initialFormState: boolean = false;
+  getFromDB: boolean = false;
+
   constructor(
-    private fb: UntypedFormBuilder, 
-    private dmp_Service: DmpService, 
+    private fb: UntypedFormBuilder,
+    private dmp_Service: DmpService,
     private route: ActivatedRoute,
     private router: Router,
-    private form_buttons:SubmitDmpService,
+    private form_buttons: SubmitDmpService,
     private formChanged: FormChangedService,
     private updateContributor: UpdateNistContributorService,
     private updateOUs: UpdateNistContributorService
-    
-    ) {  
-      // console.log("constructor");
-      afterNextRender(() => {
-        // used for one-time initialisation: 
-        // subscribe to track if the form has been changed by performing
-        // changes to any inputs on the form
-        this.dmpFormGrp.valueChanges.subscribe(value => {   
-          // check if we're loading data from the backend database
-          // and if the form is in the initial state - meaning just
-          // freshly pulled out of the database and un-edited
-          if (this.getFromDB && this.initialFormState){
-            
-            // here we set save button to initial state, thus ignoring
-            // changes made to the form when initializing the form
-            // and when updating the form with the data that initially 
-            // comes from the back end
+  ) {
+    afterNextRender(() => {
+      // One-time wiring: track edits to the form. We ignore the burst of value
+      // changes that fires while the form is being populated from the backend.
+      this.dmpFormGrp.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          if (this.getFromDB && this.initialFormState) {
+            // Form is freshly loaded and un-edited: snap save button back to
+            // its initial state and ignore these programmatic changes.
             this.disableSaveButton();
             this.formSaved = true;
-            
-            // set initial form to false to indicate that any edits to the form
-            // need to be tracked
             this.initialFormState = false;
-
-            // set to false because we're done getting data from the backednd database.
             this.getFromDB = false;
-
-            
-          }
-          else {
-            // make changes to the background color because the form has been changed
+          } else {
+            // A genuine user edit.
             this.enableSaveButton();
             this.formSaved = false;
-            
-            
           }
         });
-        
-      });
-    }
+    });
+  }
 
-  action:string = "";
-  id:string | null = null;
-  formSaved:boolean = true;
-  initialFormState:boolean = false;
-  firstLoadCount:number = 0;
-  getFromDB:boolean = false;
+  // ==========================================================================
+  // Lifecycle
+  // ==========================================================================
 
   ngOnInit(): void {
-    // console.log("dmp-form.component ngOnInit")
-
-    // const elementToObserve = document.getElementById("footer");
-    
-    //     const resizeObserver = new ResizeObserver(entries => {
-    //       for (let entry of entries) {
-    //         const element = entry.target;
-    //         const newWidth = entry.contentRect.width;
-    //         const newHeight = entry.contentRect.height;
-        
-    //         // Do something with the new dimensions
-    //         // console.log('Element resized:', element, newWidth, newHeight);
-    //       }
-    //     });
-    
-    //     resizeObserver.observe(<Element>elementToObserve);
-    
     this.formButtonSubscribe();
-    this.formExportFormatSubscribe();    
+    this.formExportFormatSubscribe();
+
     this.id = this.route.snapshot.paramMap.get('id');
+    this.resolveActionFromRoute();
 
-    this.route.data.subscribe(data  => {
-      this.action = data["action"] ;
-      if (this.action === "edit"){
-        this.nameClass = "mnemonicNameDisabled"
-        this.nameDisabled = true;
-      }
-      else{
-        this.nameClass = "mnemonicNameNew"
-        this.nameDisabled = false;
-      }
-    });
+    if (this.action === "new") {
+      this.initNewDmp();
+    } else {
+      this.initExistingDmp();
+    }
+  }
 
-    // 1. Start with the permission check
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ==========================================================================
+  // Init helpers
+  // ==========================================================================
+
+  /** Reads the route's `action` data and sets the name field's enabled state. */
+  private resolveActionFromRoute(): void {
+    this.route.data
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.action = data["action"];
+        if (this.action === "edit") {
+          this.nameClass = "mnemonicNameDisabled";
+          this.nameDisabled = true;
+        } else {
+          this.nameClass = "mnemonicNameNew";
+          this.nameDisabled = false;
+        }
+      });
+  }
+
+  /**
+   * New DMP: no record exists yet, so there is nothing to check ACLs against.
+   * The user creating the record is implicitly the writer. We skip all four
+   * aclsPermission() calls (which would hit the API with a null record id) and
+   * just load a blank record.
+   */
+  private initNewDmp(): void {
+    this.dmp_Service.fetchDMP("new", null)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (dmpData) => {
+          this.initialDMP = dmpData;
+          this.dmp = dmpData;
+
+          // Creator can always write; admin/delete are meaningless pre-creation.
+          this.canWrite = true;
+          this.isAdmin = false;
+          this.canDelete = false;
+
+          // Disable save until the user actually makes a change.
+          this.disableSaveButton();
+        },
+        error: (error) => this.handleLoadError(error),
+      });
+  }
+
+  /**
+   * Existing DMP: gate on read access first, then fetch the record together
+   * with the write/admin/delete permissions in a single forkJoin.
+   */
+  private initExistingDmp(): void {
     this.dmp_Service.aclsPermission(this.id, 'read').pipe(
       switchMap(hasReadAccess => {
-        if (hasReadAccess) {
-          // 2. If true, move to the next "link" in the chain: fetch everything else
-          return forkJoin({
-            dmpData: this.dmp_Service.fetchDMP(this.action, this.id), // Fetch initial data from the backend
-            writePerm: this.dmp_Service.aclsPermission(this.id, 'write'),
-            adminPerm: this.dmp_Service.aclsPermission(this.id, 'admin'),
-            deletePerm: this.dmp_Service.aclsPermission(this.id, 'delete'),
-          });
+        if (!hasReadAccess) {
+          this.router.navigate(
+            ['error', { dmpError: "You do not have read privileges for this record." }]
+          );
+          return EMPTY; // kills the stream so next() never runs
         }
-        else {
-          // 3. If false, stop the chain and handle the lack of access
-          this.router.navigate(['error', { dmpError: "You do not have read privileges for this record." }]);
-          return EMPTY; // Effectively kills the stream so 'next' isn't called
-        }
-      })
-    ).subscribe(
-      {
-        next: (result) => {
-          const { dmpData, writePerm, adminPerm, deletePerm } = result;
-          if (this.id !==null){
-            // fetch DMP data from the backend
-            this.initialDMP = dmpData.data;
-            this.dmp = dmpData.data;
-            this.name.setValue(dmpData.name);
-            this.getFromDB = true;
-          }
-          else{
-            // empty new form for creating new DMP
-            this.initialDMP = dmpData;
-            this.dmp = dmpData;
-            // disable save button by default until user has made a change on the form
-            this.disableSaveButton();
-          }
+        return forkJoin({
+          dmpData:    this.dmp_Service.fetchDMP(this.action, this.id),
+          writePerm:  this.dmp_Service.aclsPermission(this.id, 'write'),
+          adminPerm:  this.dmp_Service.aclsPermission(this.id, 'admin'),
+          deletePerm: this.dmp_Service.aclsPermission(this.id, 'delete'),
+        });
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: ({ dmpData, writePerm, adminPerm, deletePerm }) => {
+        this.initialDMP = dmpData.data;
+        this.dmp = dmpData.data;
+        this.name.setValue(dmpData.name);
+        this.getFromDB = true;
 
-          // Set permission flags
-          this.canWrite = writePerm;
-          this.isAdmin = adminPerm;
-          this.canDelete = deletePerm
-        },
-        error: error => {
-          console.log(error.message);
-          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
-            
-        }
-      }
-    );
-    
+        this.canWrite = writePerm;
+        this.isAdmin = adminPerm;
+        this.canDelete = deletePerm;
+      },
+      error: (error) => this.handleLoadError(error),
+    });
+  }
+
+  /** Shared error path for both load flows. */
+  private handleLoadError(error: any): void {
+    console.error(error?.message ?? error);
+    this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
   }
 
 
@@ -389,58 +413,27 @@ export class DmpFormComponent implements OnInit{
   ) {
     // And in our template we can render all child components and register the formReady event.
     this.dmpFormGrp.setControl(name, group);
+    this.readyForms.add(name);
   }
 
-  // Our parent component should listen to any value changes in the child components. 
-  // For that we create another dmp property (dmp?: DMP_Meta;) that will contain the 
-  // latest value and add a patchDMP() method to update the dmp.
+  // ==========================================================================
+  // patchDMP — note the changed init-state detection (no magic number)
+  // ==========================================================================
+
   patchDMP(patch: Partial<DMP_Meta>) {
-    // patch contains value changes in the child components
     if (!this.dmp) throw new Error("Missing DMP in patch");
 
-    // ========================================
-    // NOTE:
-    // ========================================
-    // Currently we have 8 components within the form and they appear in this order on the GUI
-    //      1) Basic Information
-    //      2) Researchers
-    //      3) Keywords
-    //      4) Technical Requirements
-    //      5) Ethical Concerns
-    //      6) Security and Privacy
-    //      7) Data Description
-    //      8) Data Preservation and Accessibility
-    // On form init, those components send initialization patch to the main form component
-    // consequently the last component that sends init patch is Data Preservation and Accessibility.    
-    // This component has property 'preservationDescription' so check for that property as
-    // Initially the forms patch empty values of the form to the parent so we need to ignore these
-    // first 8 inital patch events.
-    const frmComponentNum: number = 8 // change this number if more form components are added in the future
-    this.firstLoadCount +=1;
-
-    if(this.getFromDB && this.firstLoadCount > frmComponentNum ){
-      // Once the initial empty patch values have been ignored,
-      // check for the last form patch that currently comes from 
-      // Data Preservation and Accessibility component. 
-      // One of the properites in this component is 'preservationDescription'
-      // so check for its presence to deterimine that it is indeed
-      // last component being patched
-      if (patch.hasOwnProperty('preservationDescription')){
-        // set the flag that indicates that we have loaded the 
-        // initial form state that came from back end database
-        this.initialFormState = true;
-        // console.log("last one");
-      }
-
+    // When loading from the backend, mark the initial form state as "settled"
+    // once every expected child form has registered and emitted. This replaces
+    // the old `firstLoadCount > 8` counter + `hasOwnProperty('preservationDescription')`
+    // sniff, which broke silently if components were added/removed/reordered.
+    if (this.getFromDB && this.allFormsReady) {
+      this.initialFormState = true;
     }
-    
-    // Example of spread operatior (...)
-    // let arr1 = [0, 1, 2];
-    // const arr2 = [3, 4, 5];
-    // arr1 = [...arr1, ...arr2];
-    // arr1 is now [0, 1, 2, 3, 4, 5]        
+
     this.dmp = { ...this.dmp, ...patch };
-    if (this.canWrite){
+
+    if (this.canWrite) {
       this.contributorsSubscribe();
       this.OUsSubscribe();
     }
