@@ -501,35 +501,30 @@ export class DmpFormComponent implements OnInit{
               this.router.navigate(['edit', this.id]);
               this.disableSaveButton();
               this.formSaved = true;
-              if (this.contributorsUpdate.isUpdated){                
-                // Automatically save updates to NIST contributors metadata
+              if (this.contributorsUpdate.isUpdated){
                 this.contributorsUpdate.numUpdates += 1;
                 if (this.contributorsUpdate.numUpdates === this.contribTotalUpdates){
-                  // When we are auto-saving the final contributor display the alert to inform the user about auto update
-                  alert("We have detected changes to profile information (e.g. ORCID, OU or Group) for one or more of NIST contributors associated with this DMP record. To ensure your records remain in sync with NIST People Service database, your DMP record has been automatically updated and saved.");
-                  // reset contributorsUpdate to initial state so that next time DMP gets sved we can display regular alert message.
+                  // REMOVE the alert(...) here — the personel panel now shows the details.
                   this.contributorsUpdate = {numUpdates:0, isUpdated:false};
                   this.contribTotalUpdates = 0;
                 }
               }
-              else if (this.OUsUpdate.isUpdated){                
-                // Automatically add new Organizations responsible for this DMP
+              else if (this.OUsUpdate.isUpdated){
                 this.OUsUpdate.numUpdates += 1;
                 if (this.OUsUpdate.numUpdates === this.OUsTotalUpdates){
-                  // When we are auto-saving the final Organization responsible for this DMP display the alert to inform the user about auto update
-                  alert("Organizations responsible for this DMP have been modified due to one or more primary contacts having changed OUs. To ensure your records remain in sync with NIST People Service database, your DMP record has been automatically updated and saved.");
-                  // reset OUsUpdate to initial state so that next time DMP gets sved we can display regular alert message.
+                  // REMOVE the alert(...) here too.
                   this.OUsUpdate = {numUpdates:0, isUpdated:false};
                   this.OUsTotalUpdates = 0;
                 }
               }
-              else {              
-                // Default save alert
+              else {
+                // Keep this one — it's the normal user-initiated save confirmation.
                 alert("Successfuly saved DMP record");
               }
                 
             },
             error: error => {
+              console.log(error);
               console.error(error.message);
               this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
             }

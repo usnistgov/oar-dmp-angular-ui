@@ -1,6 +1,31 @@
 
 <div class="dmpSection">
   <div class="header">Researchers</div>
+
+  <!-- The role="status" makes it announce to screen readers without stealing focus (appropriate for a non-urgent, after-the-fact notice). 
+   The *ngIf on autoUpdateChanges.length means it only renders when there's something to show, and disappears on dismiss. -->
+
+  <div class="autoupdate-notice" *ngIf="autoUpdateChanges.length" role="status">
+    <p class="autoupdate-notice__intro">
+      Some contributor details were automatically updated to match the latest
+      NIST People Service records, and this DMP was re-saved:
+    </p>
+    <ul class="autoupdate-notice__list">
+      <li *ngFor="let change of autoUpdateChanges">
+        <strong>{{ change.contributorName }}</strong> —
+        {{ change.field }}:
+        <ng-container *ngIf="change.showTransition; else newOnly">
+          {{ change.from || '(none)' }} → {{ change.to || '(none)' }}
+        </ng-container>
+        <ng-template #newOnly>
+          {{ change.to ? 'updated' : 'removed' }}
+        </ng-template>
+      </li>
+    </ul>
+    <button type="button" mat-flat-button class="autoupdate-notice__dismiss" (click)="dismissAutoUpdateNotice()">
+      Got it
+    </button>
+  </div>
   
   <div class="dmp-frm-container">
    

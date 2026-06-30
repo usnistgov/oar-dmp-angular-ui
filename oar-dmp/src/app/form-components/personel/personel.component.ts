@@ -54,6 +54,19 @@ interface externalContributor{
   role:string;
 }
 
+/**
+ * A single field change applied automatically from the People Service.
+ * Held in component view-state only — never logged or persisted, since it
+ * carries contributor PII.
+ */
+interface AutoUpdateChange {
+  contributorName: string;
+  field: string;        // human-readable label, e.g. "OU", "Group", "ORCID"
+  from: string;         // empty string when we don't show the old value
+  to: string;
+  showTransition: boolean;  // true => render "from → to"; false => render "to" only
+}
+
 // Schema for Contributors data table
 const CONTRIB_COL_SCHEMA = [
   {
@@ -193,6 +206,10 @@ export class PersonelComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   /** Cancels any in-flight NIST autoupdate run when the input rebinds. */
   private autoUpdateCancel$ = new Subject<void>();
+
+  /** Changes applied during the most recent autoupdate run, shown to the user
+  *  in a dismissible panel. Cleared on dismiss and at the start of each run. */
+  autoUpdateChanges: AutoUpdateChange[] = [];
 
   // ================================
   // used for organizations table
@@ -442,6 +459,7 @@ export class PersonelComponent implements OnDestroy {
     this.OUsUpdated = 0;
     this.NISTPersonMetaChanged = false;
     this.PrimContribOUChanged = false;
+    this.autoUpdateChanges = [];   // <-- reset the summary for this run
 
     // 1. Use dmpContributors as your source array and create the observable
     // 'from' emits each array element one by one
@@ -619,14 +637,13 @@ export class PersonelComponent implements OnDestroy {
       'groupOrgID', 'orcid', 'ouName', 'ouNumber', 'ouOrgID'
     ];
 
-    // Subset of the above that we log when changed
-    const fieldsToPrint: (keyof Person)[] = [
-      'divisionName',
-      'firstName', 'lastName', 'groupName',
-      'orcid', 'ouName'
+    // Subset we surface to the user (the rest are internal id/number fields)
+    const fieldsToReport: (keyof Person)[] = [
+      'divisionName', 'firstName', 'lastName', 'groupName', 'orcid', 'ouName'
     ];
 
-    console.group(`Changes for ${dmpContributor.firstName} ${dmpContributor.lastName}`);
+    const contributorName = `${dmpContributor.firstName} ${dmpContributor.lastName}`;
+
 
     fieldsToUpdate.forEach((field) => {
       const oldValue = dmpContributor[field];
@@ -645,30 +662,16 @@ export class PersonelComponent implements OnDestroy {
         // Apply the change
         (dmpContributor as any)[field] = newValue;
 
-        if (fieldsToPrint.includes(field)) {
-          if (field === 'groupName' && dmpContributor.primary_contact === PrimaryContact.Yes) {
-            console.log(
-              `%c\u2139 %c[OU CHANGE DETECTED] Primary contact moved to new OU Group: %cOld Value: %c${oldValue} %c--> %cNew Value: %c${newValue}`,
-              log_icon_style,
-              log_ou_style,
-              log_normal_style,
-              log_old_val_style,
-              log_ou_style,
-              log_normal_style,
-              log_ou_style
-            );
-          } else {
-            console.info(
-              `%c\u2139 %c[UPDATE] ${field}: %cOld Value: %c${oldValue} %c--> %cNew Value: %c${newValue}`,
-              log_icon_style,
-              log_new_val_style,
-              log_normal_style,
-              log_old_val_style,
-              log_new_val_style,
-              log_normal_style,
-              log_new_val_style
-            );
-          }
+        // Record a user-facing summary entry for the reportable fields
+        if (fieldsToReport.includes(field)) {
+          const transition = this.showsTransition(field);
+          this.autoUpdateChanges.push({
+            contributorName,
+            field: this.fieldLabel(field),
+            from: transition ? String(oldValue ?? "") : "",
+            to: String(newValue ?? ""),
+            showTransition: transition,
+          });
         }
       }
     });
@@ -1514,5 +1517,28 @@ export class PersonelComponent implements OnDestroy {
   private defaultPrimaryContactId(): string {
     const noOption = this.primaryContactOptions.find(o => o.value === PrimaryContact.No);
     return noOption ? String(noOption.id) : "";
+  }
+
+  /** Maps a raw People Service field key to a user-facing label. */
+  private fieldLabel(field: keyof Person): string {
+    const labels: Partial<Record<keyof Person, string>> = {
+      firstName:    'First name',
+      lastName:     'Last name',
+      groupName:    'Group',
+      divisionName: 'Division',
+      ouName:       'OU',
+      orcid:        'ORCID',
+    };
+    return labels[field] ?? String(field);
+  }
+
+  /** Whether to reveal the old→new transition for a field, or just state the
+   *  new value. Identifier fields (ORCID) expose less by hiding the old value. */
+  private showsTransition(field: keyof Person): boolean {
+    return field !== 'orcid';
+  }
+
+  dismissAutoUpdateNotice(): void {
+    this.autoUpdateChanges = [];
   }
 }
