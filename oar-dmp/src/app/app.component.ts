@@ -41,6 +41,7 @@ export class AppComponent {
     }
   ];
   disableSaveBtn:boolean = false;
+  hasUnsavedChanges: boolean = false;
   disableDownloadBtn:boolean = true;
 
   formChangedSubscription!: Subscription | null;  
@@ -111,11 +112,13 @@ export class AppComponent {
     if (!this.formChangedSubscription) {
       //subscribe if not already subscribed
       this.formChangedSubscription = this.formChangedService.disableSaveBtn$.subscribe({
-        next: (message) => {
-          this.disableSaveBtn = message;          
-        }
+        next: (message) => { this.disableSaveBtn = message; }
       });
     }
+    // new: track styling state
+    this.formChangedService.hasUnsavedChanges$.subscribe({
+      next: (unsaved) => { this.hasUnsavedChanges = unsaved; }
+    });
   }
   
 }

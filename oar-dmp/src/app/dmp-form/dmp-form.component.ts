@@ -483,23 +483,14 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  private changeElementClass (elID:string, add:string, remove:string){
-    var saveButton = document.getElementById(elID);
-    saveButton?.classList.remove(add);
-    saveButton?.classList.remove(remove);
-
-    saveButton?.classList.add(add);
-
-  }
-
-  enableSaveButton(){
+  enableSaveButton() {
     this.formChanged.disableSaveBtn$.next(false);
-    this.changeElementClass("btnSave", "btn_update", "btn_draft"); // add btn_update class, remove btn_draft class
+    this.formChanged.hasUnsavedChanges$.next(true);
   }
 
-  disableSaveButton(){
+  disableSaveButton() {
     this.formChanged.disableSaveBtn$.next(true);
-    this.changeElementClass("btnSave", "btn_draft", "btn_update"); // add btn_draft class, remove btn_update class
+    this.formChanged.hasUnsavedChanges$.next(false);
   }
 
   onSubmit() {

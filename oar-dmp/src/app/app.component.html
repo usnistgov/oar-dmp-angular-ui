@@ -17,15 +17,18 @@
                     Reset
                     </button> -->
                     <div>
-                    <button mat-button type="button" id="btnSave" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableSaveBtn">
-                        Save
-                    </button>
+                        <button mat-button type="button" id="btnSave"
+                                [ngClass]="hasUnsavedChanges ? 'btn_update' : 'btn_draft'"
+                                (click)="dmpButtonClick($event)"
+                                [disabled]="disableSaveBtn">
+                            Save
+                        </button>
                     </div>
                 
                     <div>
-                    <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableDownloadBtn">
-                        Download
-                    </button>
+                        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableDownloadBtn">
+                            Download
+                        </button>
                     </div>
                     
                     <div class="dmpExportSelect" >
