@@ -180,6 +180,15 @@ export class DmpService {
     );
   }
 
+  // Expose the default template shape.
+  // Add a getter so the component can
+  // use it as the canonical shape (returns a deep clone so callers can't mutate
+  // the template):
+
+  getBlankDmp(): DMP_Meta {
+    return JSON.parse(JSON.stringify(this.NewDmpRecord));
+  }
+
 }
 
 export function confirmDialog(message: string): boolean {

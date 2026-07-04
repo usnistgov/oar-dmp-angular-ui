@@ -21,6 +21,7 @@ import { takeUntil, filter, debounceTime } from 'rxjs/operators';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { DmpPdf } from './dmp-pdf';
+import _ from 'lodash';   // or: import * as _ from 'lodash';
 
 
 //  Interface for the DMP interface. This is where we define observed values of
@@ -141,8 +142,28 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   action: string = "";
   id: string | null = null;
   formSaved: boolean = true;
-  initialFormState: boolean = false;
-  getFromDB: boolean = false;
+
+
+  
+  // ============================================================================
+  // CONCEPT
+  // ----------------------------------------------------------------------------
+  // The forms emit their initial values in TWO passes during load (startWith on
+  // each child's valueChange output, then again when the @Input setter patches
+  // the loaded data). A time-based "load window" can't reliably span both passes.
+  //
+  // Instead: keep a deep-cloned snapshot of the loaded record (`loadedSnapshot`).
+  // On every valueChanges, the button is enabled ONLY if the current dmp differs
+  // from that snapshot. Re-emitting the same loaded values -> deep-equal -> stays
+  // disabled. A genuine user edit -> differs -> enabled. Timing-independent.
+  //
+  // Requires lodash (already used across this project):
+  //   import _ from 'lodash';   // or: import * as _ from 'lodash';
+  // ============================================================================
+
+  /** Deep snapshot of the record as loaded/last-saved. The form is considered
+   *  "unchanged" (save disabled) whenever the live dmp deep-equals this. */
+  private loadedSnapshot: DMP_Meta | null = null;
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -154,23 +175,12 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     private peopleUpdates: UpdateNistContributorService
   ) {
     afterNextRender(() => {
-      // One-time wiring: track edits to the form. We ignore the burst of value
-      // changes that fires while the form is being populated from the backend.
       this.dmpFormGrp.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          if (this.getFromDB && this.initialFormState) {
-            // Form is freshly loaded and un-edited: snap save button back to
-            // its initial state and ignore these programmatic changes.
-            this.disableSaveButton();
-            this.formSaved = true;
-            this.initialFormState = false;
-            this.getFromDB = false;
-          } else {
-            // A genuine user edit.
-            this.enableSaveButton();
-            this.formSaved = false;
-          }
+          // console.log( 'allFormsReady =', this.allFormsReady,
+          //             '| readyForms =', [...this.readyForms]);
+          this.refreshSaveButtonState();
         });
     });
   }
@@ -232,12 +242,11 @@ export class DmpFormComponent implements OnInit, OnDestroy {
           this.initialDMP = dmpData;
           this.dmp = dmpData;
 
-          // Creator can always write; admin/delete are meaningless pre-creation.
           this.canWrite = true;
           this.isAdmin = false;
           this.canDelete = false;
 
-          // Disable save until the user actually makes a change.
+          this.loadedSnapshot = _.cloneDeep(dmpData);
           this.disableSaveButton();
         },
         error: (error) => this.handleLoadError(error),
@@ -247,8 +256,10 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   /**
    * Existing DMP: gate on read access first, then fetch the record together
    * with the write/admin/delete permissions in a single forkJoin.
+   * open the load window before data arrives
    */
   private initExistingDmp(): void {
+
     this.dmp_Service.aclsPermission(this.id, 'read').pipe(
       switchMap(hasReadAccess => {
         if (!hasReadAccess) {
@@ -266,17 +277,45 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe({
+      // ============================================================================
+      // ROOT CAUSE
+      // ----------------------------------------------------------------------------
+      // Problem that is now solved is "Save" button being enabled on DMP record load.
+      // The example here shows one field (dataSizeDescription) in DMP record, but 
+      // can be extrapolated to any field that is not present in a legacy DMP record.
+      //
+      // The final diff is a SHAPE mismatch, not a value edit:
+      //   dataSizeDescription -> present on live dmp (""), absent on the snapshot.
+      //
+      // The loaded backend record predates the dataSizeDescription field, so it has
+      // no such key. The technical-requirements form binds the field and patches ""
+      // into this.dmp. The snapshot (cloned straight from dmpData.data) never had it.
+      //
+      // Older records can be missing ANY newer field, so hard-coding dataSizeDescription
+      // is a losing game. Instead, normalize BOTH the working record and the snapshot
+      // to the same canonical shape by layering the loaded data over the default
+      // template — the same defaults the forms themselves assume.
+      // ============================================================================
       next: ({ dmpData, writePerm, adminPerm, deletePerm }) => {
-        this.initialDMP = dmpData.data;
-        this.dmp = dmpData.data;
+        // Canonicalize: start from the blank template shape, overlay loaded data.
+        // _.merge deep-merges, so nested objects (funding, softwareDevelopment,
+        // ethical_issues, security_and_privacy) get their missing keys filled too.
+        const shaped: DMP_Meta = _.merge(this.dmp_Service.getBlankDmp(), dmpData.data);
+
+        this.initialDMP = shaped;
+        this.dmp = shaped;
         this.name.setValue(dmpData.name);
-        this.getFromDB = true;
+
+        // Baseline now has the SAME shape the forms will produce.
+        this.loadedSnapshot = _.cloneDeep(shaped);
 
         this.canWrite = writePerm;
         this.isAdmin = adminPerm;
         this.canDelete = deletePerm;
       },
-      error: (error) => this.handleLoadError(error),
+      error: (error) => {
+        this.handleLoadError(error);
+      },
     });
   }
 
@@ -311,18 +350,54 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   patchDMP(patch: Partial<DMP_Meta>) {
     if (!this.dmp) throw new Error("Missing DMP in patch");
 
-    // When loading from the backend, mark the initial form state as "settled"
-    // once every expected child form has registered and emitted. This replaces
-    // the old `firstLoadCount > 8` counter + `hasOwnProperty('preservationDescription')`
-    // sniff, which broke silently if components were added/removed/reordered.
-    if (this.getFromDB && this.allFormsReady) {
-      this.initialFormState = true;
-    }
-
     this.dmp = { ...this.dmp, ...patch };
+
+    this.refreshSaveButtonState();
 
     if (this.canWrite) {
       this.autoSaveSubscribe();
+    }
+  }
+
+  /**
+   * Enables the save button iff the live form differs from the loaded/last-saved
+   * snapshot. Called on every valueChanges and right after the snapshot is taken.
+   */
+  private refreshSaveButtonState(): void {
+    // Before we have a baseline (mid first-load), never show unsaved changes.
+    if (!this.loadedSnapshot) {
+      this.disableSaveButton();
+      this.formSaved = true;
+      return;
+    }
+
+    const changed = !_.isEqual(this.dmp, this.loadedSnapshot);
+
+    if (changed) {
+      const live: any = this.dmp;
+      const snap: any = this.loadedSnapshot;
+      const keys = new Set([...Object.keys(live), ...Object.keys(snap)]);
+      const diffs: any[] = [];
+      keys.forEach(k => {
+        const inLive = Object.prototype.hasOwnProperty.call(live, k);
+        const inSnap = Object.prototype.hasOwnProperty.call(snap, k);
+        if (!inLive || !inSnap) {
+          diffs.push({ key: k, presentInLive: inLive, presentInSnap: inSnap,
+                       liveVal: live[k], snapVal: snap[k] });
+        } else if (!_.isEqual(live[k], snap[k])) {
+          diffs.push({ key: k, liveType: typeof live[k], snapType: typeof snap[k],
+                       liveVal: live[k], snapVal: snap[k] });
+        }
+      });
+      // console.log('[refreshSaveButtonState] CHANGED. Diffs:', JSON.stringify(diffs));
+    }
+
+    if (changed) {
+      this.enableSaveButton();
+      this.formSaved = false;
+    } else {
+      this.disableSaveButton();
+      this.formSaved = true;
     }
   }
 
