@@ -14,13 +14,14 @@ import { DmpService } from '../shared/dmp.service'
 import { SubmitDmpService } from '../shared/submit-dmp.service';//for acknowledging when form button has been 'pressed'
 import { FormChangedService } from '../shared/form-changed.service';
 import { UpdateNistContributorService } from '../shared/update-nist-contributor.service';
+import { DmpExportService } from '../shared/dmp-export.service';
 import { UntypedFormControl } from '@angular/forms';
 import { UpdateIndicator } from '../types/update-indicator.type';
 
 import { takeUntil, filter, debounceTime } from 'rxjs/operators';
 
 import { Router, ActivatedRoute } from '@angular/router';
-import { DmpPdf } from './dmp-pdf';
+
 import _ from 'lodash';   // or: import * as _ from 'lodash';
 
 
@@ -44,8 +45,6 @@ interface DMPForm {
 // We define them all as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
 
-import jsPDF from 'jspdf';
-import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-dmp-form',
@@ -103,13 +102,9 @@ export class DmpFormComponent implements OnInit, OnDestroy {
 
   });
 
-  markdown:Array<string> = [];
-
   name = new UntypedFormControl('');
   nameDisabled = false;
   nameClass:string = "mnemonicNameNew";
-
-  DMP_PDF?:DmpPdf;
 
   canWrite:boolean  = false;
   isAdmin:boolean   = false;
@@ -165,14 +160,15 @@ export class DmpFormComponent implements OnInit, OnDestroy {
    *  "unchanged" (save disabled) whenever the live dmp deep-equals this. */
   private loadedSnapshot: DMP_Meta | null = null;
 
-  constructor(
+ constructor(
     private fb: UntypedFormBuilder,
     private dmp_Service: DmpService,
     private route: ActivatedRoute,
     private router: Router,
     private form_buttons: SubmitDmpService,
     private formChanged: FormChangedService,
-    private peopleUpdates: UpdateNistContributorService
+    private peopleUpdates: UpdateNistContributorService,
+    private exportService: DmpExportService
   ) {
     afterNextRender(() => {
       this.dmpFormGrp.valueChanges
@@ -437,9 +433,9 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       alert("Please save changes to your DMP form before exporting.");
       return;
     }
-    // Prevent the browser from exporting a DMP twice when creating a fresh record.
+    // Prevent exporting twice when creating a fresh record.
     if (this.action !== "new") {
-      this.exportDMP(this.dmpExportFormatType);
+      this.exportService.export(this.dmp, this.dmpExportFormatType as any);
     }
   }
 
@@ -609,451 +605,5 @@ export class DmpFormComponent implements OnInit, OnDestroy {
 
   }
 
-  exportDMP(dmpFormat:string) {
-    if (dmpFormat === "JSON"){
-      let dmp_record : DMP_Meta | undefined = this.dmp;
-      const blob = new Blob([JSON.stringify(dmp_record, null, 2)], {type: "text/json"});
-      saveAs(blob, "DMP.json");
-    }
-    else{
-      // Create A4 size PDF document 
-      // A4 measures 8.27 x 11.69 inches    
-      const pdf = new jsPDF('p', 'in', 'a4');
-      const ppi = 72; // pixels per inch resolution
-      const pageWidth = 8.27;
-      const pageHeight = 11.69
-      const margin = 0.5;
-      let verticalOffset = 0.5;
-      let lineFontSize = 35;
-      this.DMP_PDF = new DmpPdf(pdf, margin);
-      this.markdown = [];
-
-      if (dmpFormat === "PDF"){      
-        this.DMP_PDF.printHeader("Data Management Plan", 0.1, "#707b7c");
-      }
-      else if (dmpFormat === "Markdown"){
-        this.markdown.push("# Data Management Plan  \n");
-      }
-
-      this.PrintSectionHeading("Basic Information", "#1A52BC", dmpFormat, this.DMP_PDF);
-      
-
-      // Title
-      if (this.dmp?.title !== undefined && this.dmp?.title !== null){
-        if (dmpFormat === "PDF") 
-          this.DMP_PDF.printTextField("Title", this.dmp?.title);
-        if (dmpFormat === "Markdown") 
-          this.markdown.push("**Title:** " + this.escapeMarkdownText(this.dmp?.title) + "  \n");
-      }
-
-      // Start Date
-      if (this.dmp?.startDate !== undefined && this.dmp?.startDate !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Start Date", this.dmp?.startDate);
-        if (dmpFormat === "Markdown") 
-          this.markdown.push("**Start Date:** " + this.escapeMarkdownText(this.dmp?.startDate) + "  \n");
-      }
-
-      // End Date
-      /*
-      if (this.dmp?.endDate !== undefined && this.dmp?.endDate !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("End Date", this.dmp?.endDate);
-        if (dmpFormat === "Markdown") 
-          this.markdown.push("**End Date:** " + this.escapeMarkdownText(this.dmp?.endDate) + "  \n");
-      }
-      */
-
-      // Make DMP searchable
-      if (this.dmp?.dmpSearchable !== undefined && this.dmp?.dmpSearchable !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Make DMP Searchable", this.dmp?.dmpSearchable);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Make DMP Searchable:** " + this.escapeMarkdownText(this.dmp?.dmpSearchable) + "  \n");
-      }
-
-      //Funding
-      if (this.dmp?.funding !== undefined){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("Funding", ["Grant Source","Grant ID"], [[this.dmp.funding.grant_source, this.dmp.funding.grant_id]]);
-      }
-
-      // Project Description
-      if (this.dmp?.projectDescription !== undefined && this.dmp?.projectDescription !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Project Description", this.dmp?.projectDescription);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Project Description:** " + this.escapeMarkdownText(this.dmp?.projectDescription) + "  \n");
-      }
-
-      
-
-      // ========================== Researchers ============================
-
-      this.PrintSectionHeading("Researchers", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      // Contributors
-      if (this.dmp?.contributors !== undefined){
-        let tblHeaders = ["Name", "Surname", "Primary\nContact", "Institution", "ORG ID", /*"Role",*/ "e-mail", "ORCID" ];
-        let tblData:Array<Array<string>>=[];
-
-        for ( let i=0; i < this.dmp.contributors.length; i++){
-          let currRow: Array<string> = [];
-          currRow.push(this.dmp.contributors[i].firstName);
-          currRow.push(this.dmp.contributors[i].lastName);
-          currRow.push(this.dmp.contributors[i].primary_contact);
-          currRow.push(this.dmp.contributors[i].institution);
-          currRow.push(this.dmp.contributors[i].groupNumber);
-          // currRow.push(this.dmp.contributors[i].role);
-          currRow.push(this.dmp.contributors[i].emailAddress);
-          currRow.push(this.dmp.contributors[i].orcid);        
-          tblData.push(currRow);
-        }
-        
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("Contributors", tblHeaders, tblData);
-        if (dmpFormat === "Markdown"){
-          // change primary contact to be one line because Markdown does not allow new lines in a table cell
-          tblHeaders[2] = "Primary Contact"; 
-          this.markdownTable("Contributors", tblHeaders, tblData);
-        }
-          
-
-      } 
-
-      //Organization(s) Associated With This DMP
-      if(this.dmp?.organizations !== undefined){
-        let tblHeaders = ["Group Name", "Division Name", "OU Name"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.organizations.length; i++){
-          tblData.push([this.dmp.organizations[i].groupName, this.dmp.organizations[i].divisionName, this.dmp.organizations[i].ouName])
-        }
-
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("Organization(s) Associated With This DMP", tblHeaders, tblData);
-      }   
-
-      // ========================== Keywords / Phrases ============================
-
-      this.PrintSectionHeading("Keywords / Phrases", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      //Keywords / Phrases
-      if(this.dmp?.keywords !== undefined){
-        let tblHeaders = ["Keywords / Phrases"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.keywords.length; i++){
-          tblData.push([this.dmp.keywords[i]])
-        }
-        
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("", tblHeaders, tblData);
-      }
-
-      // =========================== Technical Requirements =========================
-
-      this.PrintSectionHeading("Technical Requirements", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      //Estimated Data Size
-      if(this.dmp?.dataSize !== undefined && this.dmp?.dataSize !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Estimated Data Size", this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Estimated Data Size:** " + this.escapeMarkdownText(this.dmp?.dataSize + this.dmp.sizeUnit + " " + this.dmp?.dataSizeDescription) + "  \n");
-      }
-
-      //Software Development
-      if(this.dmp?.softwareDevelopment !== undefined && this.dmp?.softwareDevelopment !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Software Development", this.dmp?.softwareDevelopment.development);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Software Development:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.development) + "  \n");
-
-        //Software developed for this project will be for
-        if(this.dmp?.softwareDevelopment.softwareUse !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Software developed for this project will be for", this.dmp?.softwareDevelopment.softwareUse);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Software developed for this project will be for:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareUse) + "  \n");
-        }
-
-        //Does the software development require a database?
-        if(this.dmp?.softwareDevelopment.softwareDatabase !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Does the software development require a database?", this.dmp?.softwareDevelopment.softwareDatabase);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Does the software development require a database?:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareDatabase) + "  \n");
-        }
-
-        //Will the software development produce a website interface?
-        if(this.dmp?.softwareDevelopment.softwareWebsite !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Will the software development produce a website interface?", this.dmp?.softwareDevelopment.softwareWebsite);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Will the software development produce a website interface?:** " + this.escapeMarkdownText(this.dmp?.softwareDevelopment.softwareWebsite) + "  \n");
-        }
-      }
-
-      // Technical resources equipment needed/used
-      if(this.dmp?.technicalResources !== undefined){
-        let tblHeaders = ["Technical resources equipment needed/used"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.technicalResources.length; i++){
-          tblData.push([this.dmp.technicalResources[i]])
-        }
-        
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("", tblHeaders, tblData);
-      }
-
-      // Instruments needed/used
-      if(this.dmp?.instruments !== undefined){
-        let tblHeaders = ["Instrument Name", "Description / URL Landing Page"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.instruments.length; i++){
-          let currRow: Array<string> = [];        
-          currRow.push(this.dmp.instruments[i].name);
-          currRow.push(this.dmp.instruments[i].description_url);
-          tblData.push(currRow);
-        }
-        
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("Instruments needed/used", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("Instruments needed/used", tblHeaders, tblData);
-      }
-
-      // ========================================= Ethical Issues ===========================
-
-      this.PrintSectionHeading("Ethical Concerns", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      if (this.dmp?.ethical_issues.irb_number !== undefined && this.dmp?.ethical_issues.irb_number !== null){
-        if (dmpFormat === "PDF") 
-          this.DMP_PDF.printTextField("IRB number", this.dmp?.ethical_issues.irb_number);
-        if (dmpFormat === "Markdown") 
-          this.markdown.push("**IRB number:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.irb_number) + "  \n");
-      }
-
-      if(this.dmp?.ethical_issues !== undefined){
-        //Are there any ethical issues related to the data that this DMP describes?
-        if(this.dmp?.ethical_issues.ethical_issues_exist !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Are there any ethical issues related to the data that this DMP describes?", 
-                                      this.dmp?.ethical_issues.ethical_issues_exist);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Are there any ethical issues related to the data that this DMP describes?:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_exist) + "  \n");
-        }
-
-        //Describe any ethical issues raised in this project (human subjects etc)
-        if(this.dmp?.ethical_issues.ethical_issues_description !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Describe any ethical issues raised in this project (human subjects etc)", 
-                                      this.dmp?.ethical_issues.ethical_issues_description);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Describe any ethical issues raised in this project (human subjects etc):** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_description) + "  \n");
-                            
-        }
-
-        //Ethical issues report
-        if(this.dmp?.ethical_issues.ethical_issues_report !== ""){
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTextField("Ethical issues report", 
-                                      this.dmp?.ethical_issues.ethical_issues_report);
-          if (dmpFormat === "Markdown")
-            this.markdown.push("**Ethical issues report:** " + this.escapeMarkdownText(this.dmp?.ethical_issues.ethical_issues_report) + "  \n");
-            
-        }
-
-      }
-
-      // ========================================= Security and Privacy =======================
-
-      this.PrintSectionHeading("Security and Privacy", "#1A52BC", dmpFormat, this.DMP_PDF);
-      
-      if(this.dmp?.security_and_privacy.data_sensitivity !== undefined){
-        let tblHeaders = ["Data Sensitivity Level(s)"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.security_and_privacy.data_sensitivity.length; i++){
-          tblData.push([this.dmp.security_and_privacy.data_sensitivity[i]])
-        }
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("", tblHeaders, tblData);
-
-        // if data sensitivyt levels have been selected check if there is extra metadata on CUI
-        if(this.dmp?.security_and_privacy.cui !== undefined){
-          tblHeaders = ["Controlled Unclassified Information (CUI)"];
-          tblData = [];
-          for ( let i=0; i < this.dmp.security_and_privacy.cui.length; i++){
-            tblData.push([this.dmp.security_and_privacy.cui[i]])
-          }
-          if (dmpFormat === "PDF")
-            this.DMP_PDF.printTable("", tblHeaders, tblData);
-          if (dmpFormat === "Markdown")
-            this.markdownTable("", tblHeaders, tblData);
-        }
-      }
-
-
-
-      // ========================================= Data Description ===========================
-
-      this.PrintSectionHeading("Data Description", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      if(this.dmp?.dataDescription !== undefined && this.dmp?.dataDescription !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("",this.dmp?.dataDescription);
-        if (dmpFormat === "Markdown")
-          this.markdown.push(this.escapeMarkdownText(this.dmp?.dataDescription) + "  \n");
-    
-      }
-
-      // Select categories of the data that will be generated
-      if(this.dmp?.dataCategories !== undefined){
-        let tblHeaders = ["Categories of the data that will be generated"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.dataCategories.length; i++){
-          tblData.push([this.dmp.dataCategories[i]])
-        }
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("", tblHeaders, tblData);
-      }
-
-      // ======================== Data Preservation and Accessibility ==========================
-
-      this.PrintSectionHeading("Data Preservation and Accessibility", "#1A52BC", dmpFormat, this.DMP_PDF);
-
-      // Preservation Description
-      if (this.dmp?.preservationDescription !== undefined && this.dmp?.preservationDescription !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Preservation Description", this.dmp?.preservationDescription);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Preservation Description**:" + this.escapeMarkdownText(this.dmp?.preservationDescription) + "  \n");
-      }
-
-      // Describe your plans for making the data discoverable (findable) and accessible
-      if (this.dmp?.dataAccess !== undefined && this.dmp?.dataAccess !== null){
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTextField("Data discoverablity and accessiblity plan", this.dmp?.dataAccess);
-        if (dmpFormat === "Markdown")
-          this.markdown.push("**Data discoverablity and accessiblity plan**:" + this.escapeMarkdownText(this.dmp?.dataAccess) + "  \n");
-      }    
-
-      // file path(s) / URL(s) for where data will be saved
-
-      if(this.dmp?.pathsURLs !== undefined){
-        let tblHeaders = ["File path(s) / URL(s) for where data will be saved"];
-        let tblData:Array<Array<string>>=[];
-        for ( let i=0; i < this.dmp.pathsURLs.length; i++){
-          tblData.push([this.dmp.pathsURLs[i]])
-        }
-        
-        if (dmpFormat === "PDF")
-          this.DMP_PDF.printTable("", tblHeaders, tblData);
-        if (dmpFormat === "Markdown")
-          this.markdownTable("", tblHeaders, tblData);
-      }
-
-      // ================================ Export DMP ================================
-      
-      if (dmpFormat === "PDF")
-        this.DMP_PDF.exportAsPDF();
-      else if (dmpFormat === "Markdown"){
-        const blob = new Blob(this.markdown, {type: "text/plain;charset=utf-8"});
-        saveAs(blob, "DMP.md");
-      }
-    }
-  }  
-
-  private markdownTable(fieldName: string, tblHead: Array<string>, tblBody: Array<Array<string>>) {
-    if (fieldName !== "") {
-      this.markdown.push("  \n");
-      this.markdown.push("**" + this.escapeMarkdownText(fieldName) + ":**  \n");
-    }
-    this.markdown.push("  \n");
-
-    const headerText = "|" + tblHead.map(h => this.escapeMarkdownCell(h)).join("|") + "|  \n";
-    this.markdown.push(headerText);
-
-    let headerSeparator = "|";
-    for (let i = 0; i < tblHead.length; i++) {
-      headerSeparator += " --- |";
-    }
-    headerSeparator += "  \n";
-    this.markdown.push(headerSeparator);
-
-    for (let i = 0; i < tblBody.length; i++) {
-      const tblRowContent = "|" + tblBody[i].map(c => this.escapeMarkdownCell(c)).join("|") + "|  \n";
-      this.markdown.push(tblRowContent);
-    }
-    this.markdown.push("  \n");
-  }
-
-  private PrintSectionHeading(sectionTitle:string, color: string, dmpFormat:string, pdf:DmpPdf){
-    if (dmpFormat === "PDF")
-      pdf.printHeader(sectionTitle, 0.05, color, 20);
-    if (dmpFormat === "Markdown"){
-      this.markdown.push("---  \n");
-      this.markdown.push("## " + sectionTitle + "  \n");
-      this.markdown.push("---  \n");
-    }
-
-  }
-
-  /**
-   * Escapes a value for safe inclusion in a Markdown TABLE CELL.
-   * Neutralizes pipes (which break table structure), newlines, and the
-   * leading block-level markers that could inject headings/quotes/lists.
-   * Also defuses inline HTML and link syntax.
-   */
-  private escapeMarkdownCell(value: any): string {
-    if (value === null || value === undefined) return "";
-    let s = String(value);
-
-    // Collapse newlines — they break table rows entirely.
-    s = s.replace(/\r\n|\r|\n/g, " ");
-
-    // Escape backslash first so our other escapes aren't double-eaten.
-    s = s.replace(/\\/g, "\\\\");
-
-    // Pipe is the table delimiter.
-    s = s.replace(/\|/g, "\\|");
-
-    // Neutralize inline HTML by escaping angle brackets.
-    s = s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-    // Defuse link / image syntax and inline code.
-    s = s.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
-    s = s.replace(/`/g, "\\`");
-
-    return s;
-  }
-
-  /**
-   * Escapes a value for safe inclusion in Markdown PROSE (the **field:** lines),
-   * where pipes are harmless but block-level markers and HTML still matter.
-   */
-  private escapeMarkdownText(value: any): string {
-    if (value === null || value === undefined) return "";
-    let s = String(value);
-
-    s = s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    s = s.replace(/`/g, "\\`");
-
-    // Escape leading block markers on each line so a value can't start a
-    // heading, blockquote, or list item.
-    s = s.replace(/^(\s*)([#>\-*+])/gm, "$1\\$2");
-
-    return s;
-  }
+  
 }

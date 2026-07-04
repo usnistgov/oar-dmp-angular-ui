@@ -60,6 +60,7 @@ oar-dmp/.angular
 oar-dmp/dist/*
 */node_modules
 */.idea**
+jest_out.txt
 
 oar-dmp/.vscode/*
 !oar-dmp/.vscode/settings.json
