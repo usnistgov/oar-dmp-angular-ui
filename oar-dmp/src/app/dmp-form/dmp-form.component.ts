@@ -502,79 +502,58 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   }
 
   saveDraft(){
-    if (!this.dmp){
-      alert("Cannot save DMP. Record name is empty. Missing DMP in submit")
-      throw new Error("Missing DMP in submit");
-    } 
+    // Guard: form data must be loaded. (A missing dmp is a load problem, not
+    // an empty name — the old message conflated the two.) Early-return instead
+    // of throwing: the user already saw the alert, and an uncaught throw here
+    // just produces a dead console error.
+    if (!this.dmp) {
+      alert("Cannot save DMP: form data is not loaded.");
+      return;
+    }
     if (this.name.value === '') {
-      alert("Cannot save DMP. Record name is empty.")
-      throw new Error("Record name is empty");
+      alert("Cannot save DMP. Record name is empty.");
+      return;
     }
-    // if (this.dmp.title === '') {
-    //   alert("Cannot save DMP. Title is empty.")
-    //   throw new Error("DMP title is empty");
-    // }
-    // if (this.dmp.projectDescription === '') {
-    //   alert("Cannot save DMP. Project description is empty.")
-    //   throw new Error("DMP project description is empty");
-    // }
-    // if (this.dmp.primary_NIST_contact.firstName === '' ) {
-    //   alert("Cannot save DMP. Primary contact first name is empty.")
-    //   throw new Error("DMP primary contact first name description is empty");
-    // }
-    // if (this.dmp.primary_NIST_contact.lastName === '' ) {
-    //   alert("Cannot save DMP. Primary contact last name is empty.")
-    //   throw new Error("DMP primary contact last name description is empty");
-    // }
     
-    if (this.id !==null){
+    if (this.id !== null) {
       // If id is not null then update dmp with the current id
-      if (this.action !=="new"){
-
-        this.dmp_Service.updateDMP(this.dmp, this.id).subscribe(
-          {
-            next: data => {
-              // try to reload the page to read the saved dmp from mongodb
-              this.router.navigate(['edit', this.id]);
-              this.disableSaveButton();
-              this.formSaved = true;
-
-              if (this.autoSaveInProgress) {
-                // Autosave from people-service reconciliation: stay silent,
-                // the personel panel already shows what changed.
-                this.autoSaveInProgress = false;
-              } else {
-                // Normal user-initiated save confirmation.
-                alert("Successfuly saved DMP record");
-              }
-            },
-            error: error => {
-              console.log(error);
-              console.error(error.message);
-              this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
-            }
-            
-          }
-        );
-      }
-      
-    }
-    else {
-      //create a new DMP
-      this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe(
-        {
+      if (this.action !== "new") {
+        this.dmp_Service.updateDMP(this.dmp, this.id).subscribe({
           next: data => {
-            this.id = data.id;
-            this.router.navigate(['edit', data.id]);
+            // try to reload the page to read the saved dmp from mongodb
+            this.router.navigate(['edit', this.id]);
             this.disableSaveButton();
             this.formSaved = true;
+
+            if (this.autoSaveInProgress) {
+              // Autosave from people-service reconciliation: stay silent,
+              // the personel panel already shows what changed.
+              this.autoSaveInProgress = false;
+            } else {
+              // Normal user-initiated save confirmation.
+              alert("Successfuly saved DMP record");
+            }
           },
           error: error => {
             console.error(error.message);
             this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
           }
+        });
+      }
+    } else {
+      // create a new DMP
+      this.dmp_Service.createDMP(this.dmp, this.name.value).subscribe({
+        next: data => {
+          this.id = data.id;
+          this.router.navigate(['edit', data.id]);
+          this.disableSaveButton();
+          this.formSaved = true;
+        },
+        error: error => {
+          console.error(error.message);
+          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
         }
-      );
+      });
     }
     
   }
