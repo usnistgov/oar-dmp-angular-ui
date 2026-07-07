@@ -19,14 +19,16 @@
                     <div>
                         <button mat-button type="button" id="btnSave"
                                 [ngClass]="hasUnsavedChanges ? 'btn_update' : 'btn_draft'"
-                                (click)="dmpButtonClick($event)"
+                                (click)="dmpButtonClick('Save')"
                                 [disabled]="disableSaveBtn">
                             Save
                         </button>
                     </div>
                 
                     <div>
-                        <button mat-button type="button" class="btn_draft" (click)="dmpButtonClick($event)" [disabled]="disableDownloadBtn">
+                        <button mat-button type="button" class="btn_draft"
+                                (click)="dmpButtonClick('Download')"
+                                [disabled]="disableDownloadBtn">
                             Download
                         </button>
                     </div>
