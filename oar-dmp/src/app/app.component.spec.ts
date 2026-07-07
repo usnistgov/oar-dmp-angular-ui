@@ -107,7 +107,23 @@ describe('AppComponent', () => {
     expect(staffDirectoryServiceMock.setAuthToken).toHaveBeenCalledWith('abc123');
   });
 
-  it('should set not logged in message when token is missing', async () => {
+  it('should fall back to userId when userName is missing', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      of({
+        token: 'abc123',
+        userId: 'user1',
+        userAttributes: {}
+      })
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('Welcome, user1');
+  });
+
+  it('should set not logged in message when token is missing', () => {
     authServiceMock.getCredentials.mockReturnValue(
       of({
         token: null,
@@ -159,7 +175,7 @@ describe('AppComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.authMessage).toBe('Unable to log in; authentication server communtication error');
+    expect(component.authMessage).toBe('Unable to log in; authentication server communication error');
     expect(component.readyDisplay).toBe(true);
   });
 
@@ -178,14 +194,18 @@ describe('AppComponent', () => {
     expect(component.disableDownloadBtn).toBe(false);
   });
 
-  it('should publish clicked button text', () => {
-    const event = {
-      currentTarget: {
-        innerText: 'Save'
-      }
-    };
+  it('should not emit when export format lookup returns no match', () => {
+    dropDownSelectServiceMock.getDropDownText.mockReturnValue([]);
 
-    component.dmpButtonClick(event);
+    component.exportType = 'unknown';
+    component.setExportFormat();
+
+    expect(submitDmpServiceMock.setexportFormat).not.toHaveBeenCalled();
+    expect(component.disableDownloadBtn).toBe(true);
+  });
+
+  it('should dispatch clicked button action', () => {
+    component.dmpButtonClick('Save');
 
     expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith('Save');
     expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith('Save');
@@ -201,39 +221,38 @@ describe('AppComponent', () => {
     expect(component.hasUnsavedChanges).toBe(true);
   });
 
-  it('should subscribe only once to disableSaveBtn$', () => {
-    const firstSubscription = component.formChangedSubscription;
-
-    component.saveButtonSubscribe();
-    const secondSubscription = component.formChangedSubscription;
-
-    component.saveButtonSubscribe();
-    const thirdSubscription = component.formChangedSubscription;
-
-    expect(secondSubscription).toBe(thirdSubscription);
-    expect(firstSubscription).toBe(secondSubscription);
-  });
-
-  it('should fall back to userId when userName is missing', () => {
-    authServiceMock.getCredentials.mockReturnValue(
-      of({
-        token: 'abc123',
-        userId: 'user1',
-        userAttributes: {}
-      })
-    );
-
-    fixture = TestBed.createComponent(AppComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.authMessage).toBe('Welcome, user1');
-  });
-
-  it('should subscribe to save button state during ngOnInit', () => {
+  it('should subscribe to form-change state during ngOnInit', () => {
     fixture.detectChanges(); // triggers ngOnInit
 
     disableSaveBtnSubject.next(true);
+    hasUnsavedChangesSubject.next(true);
+
     expect(component.disableSaveBtn).toBe(true);
+    expect(component.hasUnsavedChanges).toBe(true);
+  });
+
+  it('should re-enable save button when unsaved changes are emitted after a save', () => {
+    fixture.detectChanges();
+
+    // Simulate: record saved (save disabled), then edited (unsaved changes)
+    disableSaveBtnSubject.next(true);
+    expect(component.disableSaveBtn).toBe(true);
+
+    hasUnsavedChangesSubject.next(true);
+    disableSaveBtnSubject.next(false);
+
+    expect(component.hasUnsavedChanges).toBe(true);
+    expect(component.disableSaveBtn).toBe(false);
+  });
+
+  it('should stop reacting to emissions after destroy', () => {
+    fixture.detectChanges();
+    component.ngOnDestroy();
+
+    disableSaveBtnSubject.next(true);
+    hasUnsavedChangesSubject.next(true);
+
+    expect(component.disableSaveBtn).toBe(false);
+    expect(component.hasUnsavedChanges).toBe(false);
   });
 });
