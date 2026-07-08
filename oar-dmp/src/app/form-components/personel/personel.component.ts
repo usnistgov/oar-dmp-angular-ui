@@ -496,17 +496,16 @@ export class PersonelComponent implements OnDestroy {
           switchMap((idx: SDSIndex | null) => {
             if (!idx) {
               console.warn(`${dmpContributor.firstName} ${dmpContributor.lastName} not found.`);
+              // this branch warns but does not call recordUnmatchedContributor. 
+              // That's because a null index can be seen as ambiguous — it could mean "no such last name" or a transient service hiccup.
               return of<ContribReconcileResult | null>(null);
             }
 
             // query people service on last name
             const suggestions = idx.getSuggestions(usrLastName);
             if (suggestions.length === 0) {
-              if (suggestions.length === 0) {
-                console.warn(`People Service returned no suggestions for last name "${usrLastName}" ...`);
-                this.recordUnmatchedContributor(dmpContributor);
-                return of<ContribReconcileResult | null>(null);
-              }
+              console.warn(`People Service returned no suggestions for last name "${usrLastName}" ...`);
+              this.recordUnmatchedContributor(dmpContributor);
               return of<ContribReconcileResult | null>(null);
             }
 
@@ -1091,8 +1090,6 @@ export class PersonelComponent implements OnDestroy {
     }
 
     // ---- Duplicate detection ----
-    // Email is the preferred key, but it can be empty/null for NIST records,
-    // so fall back to a composite identity when email is absent.
     const isDuplicate = this.dmpContributors.some((member: any) =>
       this.sameContributor(member)
     );
