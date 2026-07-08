@@ -1,4 +1,6 @@
 export interface Person {
+  peopleID: number;
+  
   firstName:string;
   lastName:string;
   orcid:string;

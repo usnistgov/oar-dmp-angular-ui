@@ -26,6 +26,26 @@
       Got it
     </button>
   </div>
+
+  <div class="unmatched-notice" *ngIf="unmatchedContributors.length" role="status">
+    <p class="unmatched-notice__intro">
+      The following contributors could not be matched in the NIST People Service.
+      They may no longer be with NIST — review and remove them if appropriate:
+    </p>
+    <ul class="unmatched-notice__list">
+      <li *ngFor="let c of unmatchedContributors">
+        <strong>{{ c.contributorName }}</strong>
+        <button type="button" mat-button class="unmatched-notice__remove"
+                (click)="removeUnmatchedContributor(c)">
+          Remove
+        </button>
+      </li>
+    </ul>
+    <button type="button" mat-flat-button class="unmatched-notice__dismiss"
+            (click)="dismissUnmatchedNotice()">
+      Got it
+    </button>
+  </div>
   
   <div class="dmp-frm-container">
    

@@ -24,6 +24,7 @@ import * as _ from 'lodash';
 type PeopleServiceRecord = Omit<Person, 'orcid' | 'emailAddress'> & {
   orcid: string | null;
   emailAddress: string | null;
+  peopleID: number;   // present on raw record
 };
 
 // used for dropdown menu containing values "Yes" and "No" to indicate
@@ -211,6 +212,12 @@ export class PersonelComponent implements OnDestroy {
   *  in a dismissible panel. Cleared on dismiss and at the start of each run. */
   autoUpdateChanges: AutoUpdateChange[] = [];
 
+  /** Contributors the People Service could not match during the last autoupdate
+   *  run. Surfaced to the editor so they can remove people no longer at NIST.
+   *  Carries the table row `id` so the panel can remove them in place.
+   *  View-state only, rebuilt each run, cleared on dismiss. */
+  unmatchedContributors: { id: number; contributorName: string; peopleID: number }[] = [];
+
   // ================================
   // used for organizations table
   // ================================
@@ -383,6 +390,8 @@ export class PersonelComponent implements OnDestroy {
         this.dmpContributors.push({
           id:           index, 
           isEdit:       false, 
+
+          peopleID:         dmpContributor.peopleID ?? 0,   // <-- default for legacy records
       
           firstName:        dmpContributor.firstName,
           lastName:         dmpContributor.lastName,
@@ -460,6 +469,8 @@ export class PersonelComponent implements OnDestroy {
     this.PrimContribOUChanged = false;
     this.autoUpdateChanges = [];   // <-- reset the summary for this run
 
+    this.unmatchedContributors = [];
+
     // 1. Use dmpContributors as your source array and create the observable
     // 'from' emits each array element one by one
     const dmpContribObs = from(this.dmpContributors);
@@ -490,7 +501,14 @@ export class PersonelComponent implements OnDestroy {
 
             // query people service on last name
             const suggestions = idx.getSuggestions(usrLastName);
-            if (suggestions.length === 0) return of<ContribReconcileResult | null>(null);
+            if (suggestions.length === 0) {
+              if (suggestions.length === 0) {
+                console.warn(`People Service returned no suggestions for last name "${usrLastName}" ...`);
+                this.recordUnmatchedContributor(dmpContributor);
+                return of<ContribReconcileResult | null>(null);
+              }
+              return of<ContribReconcileResult | null>(null);
+            }
 
             //Convert the array of Promises into an array of Observables
             const suggestionObservables = suggestions.map((aPerson: any) => 
@@ -506,24 +524,23 @@ export class PersonelComponent implements OnDestroy {
               map((result): ContribReconcileResult => {
                 // 'result.records' is now PeopleServiceRecord[] thanks to the cast above
                 const records = result.records;
-                // NOTE: currently we don't have a better way to directly get the correct 
-                // record from people service, so we need to iterate over suggestions
-                // and do a match on email address.
-                // It would be good for the future to add NIST ID to dmp contacts metadata
-                // and use that to directly search people service.
+                // 4. Find the matching record by peopleID
+                // Match the loaded contributor to a People Service record by peopleID.
+                // Every NIST contributor now carries a real (positive) peopleID, so this is
+                // authoritative — no more email-based matching, which broke when a directory
+                // email changed (the very drift this autoupdate exists to catch).
+                const psRec = records.find((rec) => rec.peopleID === dmpContributor.peopleID);
 
-                // 4. Find the matching record by email
-                // Now TypeScript knows 'rec' is an element of that array
-                const psRec = records.find((rec) => rec.emailAddress === dmpContributor.emailAddress);
-                
                 if (psRec && this.NISTContributorHasChanged(dmpContributor, psRec)) {
                   this.updateContributorData(dmpContributor, psRec);
-                  // console.info(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} does not match most recent info found in the NIST people service database.`)
                   return { dmpContributor, psRec, changed: true };
                 }
-                else if (!psRec){
-                  console.warn(`Metadata for ${dmpContributor.firstName} ${dmpContributor.lastName} did not match list of suggested matches on e-mail ${dmpContributor.emailAddress}.`);
-                  console.warn(records);
+                else if (!psRec) {
+                  // Search returned people, but none matched this contributor's peopleID.
+                  // Leave the contributor untouched and record the miss for diagnosis.
+                  // console.warn(`No People Service match for ${dmpContributor.firstName} ...`);
+                  // console.warn(records);
+                  this.recordUnmatchedContributor(dmpContributor);
                 }
                 return { dmpContributor, changed: false };
               })
@@ -584,6 +601,8 @@ export class PersonelComponent implements OnDestroy {
    */
   private syncContributorsToForm(): void {
     const contributors: Contributor[] = this.dmpContributors.map((el) => ({
+      peopleID:        el.peopleID,
+      
       firstName:      el.firstName,
       lastName:       el.lastName,
       orcid:          el.orcid,
@@ -762,6 +781,8 @@ export class PersonelComponent implements OnDestroy {
             map((rec: PeopleServiceRecord) => {
               const person = this.normalizePeopleRecord(rec);   // null -> ""
 
+              this.crntContrib.peopleID = person.peopleID;
+              
               this.crntContrib.firstName = person.firstName;
               this.crntContrib.lastName = person.lastName;
               this.crntContrib.orcid = person.orcid;            // always a string now
@@ -1024,14 +1045,18 @@ export class PersonelComponent implements OnDestroy {
    * since NIST records can legitimately have a null/empty email.
    */
   private sameContributor(member: any): boolean {
+  // Prefer peopleID when both sides have a real (non-zero) one.
+    if (this.crntContrib.peopleID && member.peopleID &&
+        this.crntContrib.peopleID !== 0 && member.peopleID !== 0) {
+      return member.peopleID === this.crntContrib.peopleID;
+    }
+
+    // Fall back to email, then composite identity (existing logic).
     const stagedEmail = (this.crntContrib.emailAddress || "").trim().toLowerCase();
     const memberEmail = (member.emailAddress || "").trim().toLowerCase();
-
     if (stagedEmail && memberEmail) {
       return stagedEmail === memberEmail;
     }
-
-    // No reliable email on one or both — fall back to composite identity
     return (
       member.firstName === this.crntContrib.firstName &&
       member.lastName === this.crntContrib.lastName &&
@@ -1114,6 +1139,8 @@ export class PersonelComponent implements OnDestroy {
       }
     } else {
       newRow.institution = this.externalContributor.institution;
+      // generate a personID for external contributor
+      newRow.peopleID = this.generateExternalPeopleID();
     }
 
     // ---- Commit: prepend to table, sync once ----
@@ -1270,6 +1297,10 @@ export class PersonelComponent implements OnDestroy {
 
     // Remove from the display table
     this.dmpContributors = this.dmpContributors.filter((u) => u.id !== id);
+
+    // Keep the unmatched-notice panel in sync: if this contributor was listed
+    // there, drop it so the warning doesn't linger after the row is gone.
+    this.unmatchedContributors = this.unmatchedContributors.filter((u) => u.id !== id);
 
     // Rebuild the form from the table (single source of truth)
     this.syncContributorsToForm();
@@ -1484,6 +1515,7 @@ export class PersonelComponent implements OnDestroy {
       divisionOrgID: 0, divisionNumber: "", divisionName: "",
       ouOrgID: 0, ouNumber: "", ouName: "",
       primary_contact: "", role: "", institution: "",
+      peopleID: 0,   // <-- placeholder; real value assigned on selection/add
     };
   }
 
@@ -1510,6 +1542,8 @@ export class PersonelComponent implements OnDestroy {
       ouOrgID:        rec.ouOrgID,
       ouNumber:       rec.ouNumber,
       ouName:         rec.ouName,
+
+      peopleID:       rec.peopleID,   // <-- carry through
     };
   }  
 
@@ -1539,5 +1573,35 @@ export class PersonelComponent implements OnDestroy {
 
   dismissAutoUpdateNotice(): void {
     this.autoUpdateChanges = [];
+  }
+
+  dismissUnmatchedNotice(): void {
+    this.unmatchedContributors = [];
+  }
+
+  /**
+   * External contributors have no People Service record, so they get a
+   * negative pseudo-id. Real People Service ids are positive, so the sign
+   * alone distinguishes the two populations and prevents collisions.
+   */
+  private generateExternalPeopleID(): number {
+    // Large negative range keeps accidental collisions astronomically unlikely.
+    return -(Math.floor(Math.random() * 2_000_000_000) + 1);
+  }
+
+  private recordUnmatchedContributor(c: DataContributor): void {
+    this.unmatchedContributors.push({
+      id: c.id,
+      contributorName: `${c.firstName} ${c.lastName}`,
+      peopleID: c.peopleID,
+    });
+  }
+
+  /** Remove a contributor straight from the unmatched-notice panel.
+   *  Delegates to removeRow, which handles the confirm dialog, table + form
+   *  sync, button state, AND pruning this notice — so there's nothing left to
+   *  do here. A cancelled confirm leaves both the row and this entry in place. */
+  removeUnmatchedContributor(entry: { id: number }): void {
+    this.removeRow(entry.id);
   }
 }

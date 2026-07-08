@@ -4,4 +4,5 @@ export interface Contributor extends Person{
   primary_contact:string;
   institution:string;
   role: string;
+  peopleID: number;
 }

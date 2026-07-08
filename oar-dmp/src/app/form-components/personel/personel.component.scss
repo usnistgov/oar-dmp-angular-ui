@@ -66,3 +66,43 @@ td.cell-top{
     }
   }
 }
+
+.unmatched-notice {
+  border: 1px solid #B45309;
+  border-left-width: 4px;
+  background-color: #fdf6ec;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  &__intro { margin: 0 0 8px; }
+
+  &__list {
+    margin: 0 0 8px;
+    padding-left: 20px;
+    li {
+      margin: 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  &__remove {
+    color: #B45309;
+    font-weight: 500;
+    min-width: auto;
+    line-height: 1.6;
+  }
+
+  &__dismiss {
+    margin-top: 4px;
+    background-color: #B45309;
+    color: #ffffff;
+    font-weight: 500;
+    &:hover { background-color: #92400e; }
+  }
+}
