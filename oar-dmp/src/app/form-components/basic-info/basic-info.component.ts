@@ -20,8 +20,7 @@ export class BasicInfoComponent{
 
   basicInfoForm = this.fb.group({
     title: ['', Validators.required],
-    startDate: ['', Validators.required],
-    endDate: ['', Validators.required],
+    startDate: ['', Validators.required],    
     dmpSearchable: ['', Validators.required],
     grant_source: ['Grant Number', Validators.required],
     grant_id: ['', Validators.required],
@@ -54,7 +53,6 @@ export class BasicInfoComponent{
         {
           title: basic_info.title,
           startDate: basic_info.startDate,
-          // endDate: basic_info.endDate,
           dmpSearchable: basic_info.dmpSearchable,
           grant_source: basic_info.funding.grant_source,
           grant_id: basic_info.funding.grant_id,
@@ -85,7 +83,6 @@ export class BasicInfoComponent{
             // to our part of the form 
             title: formValue.title,
             startDate: formValue.startDate,
-            // endDate: formValue.endDate,
             dmpSearchable: formValue.dmpSearchable,
             funding: {grant_source:formValue.grant_source, grant_id:formValue.grant_id},
             projectDescription:formValue.projectDescription

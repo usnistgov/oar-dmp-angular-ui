@@ -48,7 +48,6 @@ export class DmpService {
     //Basic Info Meta data
     title:                    '',
     startDate:                '',
-    // endDate:                  '',
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
