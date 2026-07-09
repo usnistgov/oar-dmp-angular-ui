@@ -113,7 +113,6 @@ export class DataPreservationComponent {
   }
 
   removeReactivePathsURLs(keyword: string) {
-    
     this.reactivePathsURLs.update(pathsURLs => {
       const index = pathsURLs.indexOf(keyword);
       if (index < 0) {
@@ -122,17 +121,14 @@ export class DataPreservationComponent {
 
       pathsURLs.splice(index, 1);
 
-      // reset the pathsURLs array
-      this.preservationForm.value['pathsURLs'] = [];     
-
-      // repopulate the array
-      pathsURLs.forEach((element)=>{
-        this.preservationForm.value['pathsURLs'].push({pathsURLs:element.trim()});
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactivePathsURLs. Patch once with the full array.
+      this.preservationForm.patchValue({
+        pathsURLs: [...pathsURLs]
       });
+
       return [...pathsURLs];
     });
-
-    
   }
 
   addReactivePathsURLs(event: MatChipInputEvent): void {
@@ -142,21 +138,18 @@ export class DataPreservationComponent {
                   .filter(chip => chip.trim().length > 0);
 
     // Add our path
-    if (chips) {
+    if (chips.length) {
       this.reactivePathsURLs.update(pathsURLs => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...pathsURLs, ...chips])];
-      }); 
-      chips.forEach((chip)=>{
-        this.preservationForm.patchValue({
-          pathsURLs: chip
-        })
+        const merged = [...new Set([...pathsURLs, ...chips])];
+
+        // Patch once with the full deduped string[] — matching the shape used
+        // on load and in removeReactivePathsURLs.
+        this.preservationForm.patchValue({ pathsURLs: merged });
+
+        return merged;
       });
-      
     }
 
-    // Clear the input value
     event.chipInput!.clear();
   }
 
