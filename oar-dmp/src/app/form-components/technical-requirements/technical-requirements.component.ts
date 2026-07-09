@@ -1,12 +1,10 @@
-import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
-// import { DMP_Meta } from 'src/app/types/DMP.types';
-// import { SoftwareDevelopment } from 'src/app/types/software-development.type';
 import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
@@ -52,7 +50,7 @@ const INSTR_COL_SCHEMA = [
   styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StorageNeedsComponent {  
+export class StorageNeedsComponent implements OnInit {
   // ================================  
 
   disableAdd:boolean = true;

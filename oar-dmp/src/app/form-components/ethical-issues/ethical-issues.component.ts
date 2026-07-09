@@ -1,5 +1,5 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
-import { UntypedFormBuilder, Validators, ControlValueAccessor, NgControl, AbstractControl, FormControl} from '@angular/forms';
+import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 
@@ -8,7 +8,7 @@ import { DMP_Meta } from '../../types/DMP.types';
   templateUrl: './ethical-issues.component.html',
   styleUrls: ['./ethical-issues.component.scss', '../form-layout.scss']
 })
-export class EthicalIssuesComponent {
+export class EthicalIssuesComponent implements OnInit {
   // Let's start with a child component that is responsible for a part of the form. 
   // The component injects the FormBuilder and creates a new form group with their 
   // form controls, validators and any other configuration

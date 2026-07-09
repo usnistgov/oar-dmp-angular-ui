@@ -1,17 +1,15 @@
-import { Component, Input, Output } from '@angular/core';
+import { Component, Input, Output, OnInit } from '@angular/core';
 import { UntypedFormBuilder, Validators} from '@angular/forms';
 
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
-
-import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-basic-info',
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss', '../form-layout.scss', '../form-table.scss']
 })
-export class BasicInfoComponent{
+export class BasicInfoComponent implements OnInit {
   
 
   // Let's start with a child component that is responsible for a part of the form. 

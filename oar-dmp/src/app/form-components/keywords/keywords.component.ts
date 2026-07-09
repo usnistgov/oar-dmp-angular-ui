@@ -1,11 +1,9 @@
-import { Component, Input, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
-import { MatChipInputEvent, MatChipInput} from '@angular/material/chips';
+import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
-
-import {ChangeDetectionStrategy, inject, signal} from '@angular/core';
 
 @Component({
   selector: 'app-keywords',
