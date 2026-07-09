@@ -14,7 +14,7 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
   // Let's start with a child component that is responsible for a part of the form.
   // The component injects the FormBuilder and creates a new form group with their
   // form controls, validators and any other configuration
-  ethicalIsuesForm = this.fb.group({
+  ethicalIssuesForm = this.fb.group({
     IRBNumber: [''],
     ethicalIssue: ['', Validators.required],
     ethicalIssueDescription: [''],
@@ -30,7 +30,7 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
     // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
     // loaded data), and the children aren't instantiated until initialDMP is set
     // (*ngIf="initialDMP" on the parent form).
-    this.ethicalIsuesForm.patchValue({
+    this.ethicalIssuesForm.patchValue({
       IRBNumber:                ethicalIssues.ethical_issues.irb_number,
       ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
       ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
@@ -47,8 +47,8 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
     // the form value changes but not initially. That's why we use startWith to provide the
     // initial value. And we use defer() to use the latest form value for startWith()
     // whenever someone subscribes.
-    this.ethicalIsuesForm.valueChanges.pipe(
-      startWith(this.ethicalIsuesForm.value),
+    this.ethicalIssuesForm.valueChanges.pipe(
+      startWith(this.ethicalIssuesForm.value),
       map(
         (formValue): Partial<DMP_Meta> => ({
           // The observable emits a partial DMP_Meta object that only contains the properties related
@@ -67,7 +67,7 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
   // Because RxJS observables are compatible with Angular EventEmitters we can create an
   // observable with of() that emits the created form group and use it as an output.
   @Output()
-  formReady = of(this.ethicalIsuesForm);
+  formReady = of(this.ethicalIssuesForm);
 
 
   constructor(private fb: UntypedFormBuilder) {
@@ -78,11 +78,11 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
     // Visibility of the description/report boxes is derived directly from the
     // control value (see selEthicalIssues), so there is nothing to snapshot here.
     // When the answer changes to "no", clear the dependent fields.
-    this.ethicalIsuesForm.controls['ethicalIssue'].valueChanges
+    this.ethicalIssuesForm.controls['ethicalIssue'].valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
         if (value === 'no') {
-          this.ethicalIsuesForm.patchValue({
+          this.ethicalIssuesForm.patchValue({
             ethicalReport: "",
             ethicalIssueDescription: "",
           });
@@ -100,7 +100,7 @@ export class EthicalIssuesComponent implements OnInit, OnDestroy {
    * how the value changed (user click, patchValue, reset, or input rebind).
    */
   selEthicalIssues(name: string): boolean {
-    return this.ethicalIsuesForm.controls['ethicalIssue'].value === name;
+    return this.ethicalIssuesForm.controls['ethicalIssue'].value === name;
   }
 
 }
