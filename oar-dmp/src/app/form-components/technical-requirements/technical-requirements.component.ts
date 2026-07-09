@@ -382,7 +382,7 @@ export class StorageNeedsComponent {
   setDataSizeDescription(e: string): void {    
     this.technicalRequirementsForm.patchValue(
       {
-        setDataSizeDescription: e
+        dataSizeDescription: e
       }
     )
   }
@@ -464,45 +464,34 @@ export class StorageNeedsComponent {
 
   removeSelectedRows() {
     const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
-    
-    if (result) {
-      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
-      this.resetTable();
 
-      this.dmpInstrumentsTbl.forEach((element)=>{        
-        // re populate instruments array
-        this.technicalRequirementsForm.value['instruments'].push({
-          name:element.name,
-          description_url: element.description_url
-        });
-      });
-      if (this.dmpInstrumentsTbl.length === 0){
-        // If the table is empty disable clear and remove buttons
-        this.disableClear=true;
-        this.disableRemove=true;
-      }
+    if (!result) return;
+
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
+
+    // Rebuild the form from the table.
+    this.syncInstrumentsToForm();
+
+    if (this.dmpInstrumentsTbl.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
   }
 
-  removeRow(id:any) {
+  removeRow(id: any) {
     const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
-    
-    if (result) {
-      var selRow = this.dmpInstrumentsTbl.filter((u) => u.id === id);
-      this.technicalRequirementsForm.value['instruments'].forEach( (value:Instrument, index:number) => {
-        selRow.forEach((instrument)=>{
-          if (value.description_url === instrument.description_url)
-          // console.log(instrument);
-          //remove from DmpRecord
-          this.technicalRequirementsForm.value['instruments'].splice(index,1);
-        });
-      });
-      // remove from the display table
-      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u) => u.id !== id);
 
-      this.technicalRequirementsForm.patchValue({
-        instruments: this.technicalRequirementsForm.value['instruments']
-      })
+    if (!result) return;
+
+    // Remove from the display table.
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter(u => u.id !== id);
+
+    // Rebuild the form from the table.
+    this.syncInstrumentsToForm();
+
+    if (this.dmpInstrumentsTbl.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
   }  
 
@@ -533,38 +522,29 @@ export class StorageNeedsComponent {
 
   }
 
-  onDoneClick(e:any){
+  onDoneClick(e: any) {
     if (!e.name.length) {
       this.errorMessage = "Instrument name can't be empty";
       return;
     }
-    else if(!e.description_url.length) {
+    else if (!e.description_url.length) {
       this.errorMessage = "Description / URL can't be empty";
       return;
     }
 
     this.errorMessage = '';
-    this.resetTable();// check if this step is needed
-    
-    this.dmpInstrumentsTbl.forEach((element)=>{
-      if(element.id === e.id){
-        element.isEdit = false;
-      } 
 
-      // re populate instruments array
-      this.technicalRequirementsForm.value['instruments'].push({
-        name: element.name,
-        description_url: element.description_url
-      });
+    // Close the edited row.
+    const row = this.dmpInstrumentsTbl.find(r => r.id === e.id);
+    if (row) {
+      row.isEdit = false;
     }
-  )
 
-  this.disableClear=false;
-  this.disableRemove=false;
-  this.technicalRequirementsForm.patchValue({
-    instruments: this.technicalRequirementsForm.value['instruments']
-  })
+    this.disableClear = false;
+    this.disableRemove = false;
 
+    // Rebuild the form from the table (single source of truth).
+    this.syncInstrumentsToForm();
   }
 
   /**
@@ -591,10 +571,8 @@ export class StorageNeedsComponent {
     }
   }
   
-  resetTable(){
-    this.technicalRequirementsForm.patchValue({
-      instruments:[]
-    })
+  resetTable() {
+    this.syncInstrumentsToForm(); // dmpInstrumentsTbl is the source; emits [] when empty
   }
 
   checkInstrData(e:any){
@@ -646,9 +624,13 @@ export class StorageNeedsComponent {
       this.technicalRequirementsForm.value['technicalResources'] = [];
 
       // repopulate the array
-      technicalResources.forEach((element)=>{
-        this.technicalRequirementsForm.value['technicalResources'].push({technicalResources:element.trim()});
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactiveInstruments. (Previously this pushed
+      // {technicalResources: element} objects, which corrupted the array shape.)
+      this.technicalRequirementsForm.patchValue({
+        technicalResources: [...technicalResources]
       });
+
       return [...technicalResources];
     });
 
@@ -656,24 +638,24 @@ export class StorageNeedsComponent {
   }
 
   addReactiveInstruments(event: MatChipInputEvent): void {
-    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
-    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    // To clean up the chips array and ensure no empty strings or "just whitespace"
+    // items make it through, fall back to an empty array [] and filter out blanks.
     const chips = (this.spChips.splitChips(event.value.trim()) || [])
                   .filter(chip => chip.trim().length > 0);
 
-    // Add our instrument
-    if (chips) {
+    // Add our instrument(s)
+    if (chips.length) {
       this.reactiveInstruments.update(technicalResources => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...technicalResources, ...chips])];
-      });  
-      chips.forEach((chip)=>{
-        this.technicalRequirementsForm.patchValue({
-          technicalResources: chip
-        })
+        // Combine both arrays into a Set to force uniqueness,
+        // then spread it back into a standard string[].
+        const merged = [...new Set([...technicalResources, ...chips])];
+
+        // Patch the control ONCE with the full deduped string[] — matching the
+        // shape used on load and in removeReactiveInstruments.
+        this.technicalRequirementsForm.patchValue({ technicalResources: merged });
+
+        return merged;
       });
-      
     }
 
     // Clear the input value
@@ -708,6 +690,19 @@ export class StorageNeedsComponent {
     this.addReactiveInstruments(mockEvent);
     // Clear input value
     this.instrumentsInputVal = '';
+  }
+
+  /**
+   * Rebuilds the form's instruments array from the dmpInstrumentsTbl table.
+   * The table is the single source of truth; the form mirrors it.
+   * Emits a plain Instrument[] via patchValue (never mutate .value directly).
+   */
+  private syncInstrumentsToForm(): void {
+    const instruments = this.dmpInstrumentsTbl.map(r => ({
+      name: r.name,
+      description_url: r.description_url,
+    }));
+    this.technicalRequirementsForm.patchValue({ instruments });
   }
 
 

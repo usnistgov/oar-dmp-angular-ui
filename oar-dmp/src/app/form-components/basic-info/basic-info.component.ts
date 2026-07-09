@@ -23,7 +23,7 @@ export class BasicInfoComponent{
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
     dmpSearchable: ['', Validators.required],
-    grant_source: ['', Validators.required],
+    grant_source: ['Grant Number', Validators.required],
     grant_id: ['', Validators.required],
     projectDescription: ['', Validators.required]
 
