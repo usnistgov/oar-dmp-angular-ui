@@ -220,6 +220,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: rgb(221, 246, 253);
 }
 
-@media only screen and (min-width: 1280) {
+@media only screen and (min-width: 1280px) {
   #DmpPublished, #PageError, #PageNotFound {min-height: 600px;}
 }
