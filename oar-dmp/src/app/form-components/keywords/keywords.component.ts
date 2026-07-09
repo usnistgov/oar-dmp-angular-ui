@@ -96,7 +96,6 @@ export class KeywordsComponent {
   }
 
   removeReactiveKeyword(keyword: string) {
-    
     this.reactiveKeywords.update(keywords => {
       const index = keywords.indexOf(keyword);
       if (index < 0) {
@@ -104,14 +103,16 @@ export class KeywordsComponent {
       }
 
       keywords.splice(index, 1);
-      this.resetKeyWordsForm();
-      keywords.forEach((element)=>{
-        this.keyWordsForm.value['keywords'].push({keywords:element.trim()});
+
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactiveKeyword. Patch once with the full array
+      // rather than resetting and pushing objects.
+      this.keyWordsForm.patchValue({
+        keywords: [...keywords]
       });
+
       return [...keywords];
     });
-
-    
   }
 
   addReactiveKeyword(event: MatChipInputEvent): void {
