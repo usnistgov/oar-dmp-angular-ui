@@ -401,16 +401,14 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   // Subscriptions — all torn down via takeUntil(this.destroy$)
   // ==========================================================================
 
-  /** Reacts to the Reset / Save / Download buttons in the control bar. */
+  /** Reacts to the  / Save / Download buttons in the control bar. */
   private formButtonSubscribe(): void {
     this.form_buttons.buttonSubject$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (message) => {
           this.formButtonMessage = message; // the message itself is the trigger
-          if (this.formButtonMessage === "Reset") {
-            this.resetDmp();
-          } else if (this.formButtonMessage === "Save") {
+          if (this.formButtonMessage === "Save") {
             if (this.canWrite) {
               this.saveDraft();
             } else {
@@ -552,44 +550,6 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       });
     }
     
-  }
-
-  resetDmp(){
-    this.dmpFormGrp.controls['basicInfo'].reset();
-    this.dmpFormGrp.controls['basicInfo'].patchValue({
-      organizations:[]
-  })
-    this.dmpFormGrp.controls['ethicalIssues'].reset();
-    this.dmpFormGrp.controls['ethicalIssues'].patchValue({
-        ethicalIssue:"no",
-        ethicalPII:"no"
-    })
-
-    this.personnelForm.resetPersonnelForm();
-    this.keyWordsTable.clearKeywordsTable();
-
-    // this.dmpFormGrp.controls['technicalRequirements'].reset();
-    this.technicalRequirementsTable.resetTechnicalRequirements();
-    
-    this.ethicalIssuesRadioBtns.resetRadioButtons();
-    this.dmpFormGrp.controls['dataDescription'].reset();
-    // We have to set this one separately because it is an array
-    // so once form reset is done to it, new data can't be appended
-    // so we have to set it back to an empty array.
-    this.dmpFormGrp.controls['dataDescription'].patchValue({
-      dataCategories: []
-    })
-    // This sends signal to DataDescriptionComponent to reset checkboxes
-    this.dataCategoriesCheckBoxes.resetCheckboxes();
-
-    // Reset Data Preservation component of the form
-    this.dmpFormGrp.controls['dataPreservation'].patchValue({
-      preservationDescription:"",
-      dataAccess:"",
-      pathsURLs: []
-    })
-
-    this.preservationLinksTable.clearTable();
   }
 
   buildErrorMessage(error:any){
