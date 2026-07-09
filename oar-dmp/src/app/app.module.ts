@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { BasicInfoComponent } from './form-components/basic-info/basic-info.component';
 import { PersonelComponent } from './form-components/personel/personel.component';
 import { KeywordsComponent } from './form-components/keywords/keywords.component';
-import { StorageNeedsComponent } from './form-components/technical-requirements/technical-requirements.component';
+import { TechnicalRequirementsComponent } from './form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from './form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from './form-components/data-description/data-description.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
@@ -50,7 +50,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BasicInfoComponent,
     PersonelComponent,
     KeywordsComponent,
-    StorageNeedsComponent,
+    TechnicalRequirementsComponent,
     EthicalIssuesComponent,
     DataDescriptionComponent,
     ResourceOptionsComponent,

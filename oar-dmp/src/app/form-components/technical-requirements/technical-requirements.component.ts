@@ -50,7 +50,7 @@ const INSTR_COL_SCHEMA = [
   styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StorageNeedsComponent implements OnInit {
+export class TechnicalRequirementsComponent implements OnInit {
   // ================================  
 
   disableAdd:boolean = true;

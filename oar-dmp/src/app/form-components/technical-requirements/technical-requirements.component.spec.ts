@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StorageNeedsComponent } from './technical-requirements.component';
+import { TechnicalRequirementsComponent } from './technical-requirements.component';
 import { FormBuilder } from '@angular/forms';
 
-describe('StorageNeedsComponent', () => {
-  let component: StorageNeedsComponent;
-  let fixture: ComponentFixture<StorageNeedsComponent>;
+describe('TechnicalRequirementsComponent', () => {
+  let component: TechnicalRequirementsComponent;
+  let fixture: ComponentFixture<TechnicalRequirementsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ StorageNeedsComponent ],
+      declarations: [ TechnicalRequirementsComponent ],
       providers: [ FormBuilder ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StorageNeedsComponent);
+    fixture = TestBed.createComponent(TechnicalRequirementsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

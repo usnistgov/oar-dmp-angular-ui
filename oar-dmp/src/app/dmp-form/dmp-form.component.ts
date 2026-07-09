@@ -4,7 +4,7 @@ import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
 import { PersonelComponent } from '../form-components/personel/personel.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
-import { StorageNeedsComponent } from '../form-components/technical-requirements/technical-requirements.component';
+import { TechnicalRequirementsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
 import { SecurityAndPrivacyComponent } from '../form-components/security-and-privacy/security-and-privacy.component';
 import { DataDescriptionComponent } from '../form-components/data-description/data-description.component';
@@ -31,7 +31,7 @@ interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
   personel?: ObservedValueOf<PersonelComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
-  technicalRequirements?:ObservedValueOf<StorageNeedsComponent["formReady"]>;
+  technicalRequirements?:ObservedValueOf<TechnicalRequirementsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
   securityAndPrivacy?: ObservedValueOf<SecurityAndPrivacyComponent["formReady"]>;
   dataDescription?: ObservedValueOf<DataDescriptionComponent["formReady"]>;
@@ -40,7 +40,7 @@ interface DMPForm {
 }
 
 // In the example above we have a number of child components: 
-// BasicInfoComponent through StorageNeedsComponent, 
+// BasicInfoComponent through TechnicalRequirementsComponent, 
 // which are combined into the main form group as basicInfo through dataPreservation. 
 // We define them all as optional because initially our form group will 
 // be empty until the first child component has emitted its formReady event.
@@ -78,7 +78,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   // For clearing data preservation links
   @ViewChild(DataPreservationComponent) preservationLinksTable!: DataPreservationComponent;
   // For clearing Technical resources table
-  @ViewChild(StorageNeedsComponent) technicalRequirementsTable!: StorageNeedsComponent;
+  @ViewChild(TechnicalRequirementsComponent) technicalRequirementsTable!: TechnicalRequirementsComponent;
   // For clearing Contributors resources table
   @ViewChild(PersonelComponent) personnelForm!: PersonelComponent;
  
