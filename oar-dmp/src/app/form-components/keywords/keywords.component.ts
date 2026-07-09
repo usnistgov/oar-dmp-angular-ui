@@ -120,20 +120,13 @@ export class KeywordsComponent {
                   .filter(chip => chip.trim().length > 0);
 
     // Add our keyword
-    if (chips) {
+    if (chips.length) {
       this.reactiveKeywords.update(keywords => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...keywords, ...chips])];
-      });      
-      chips.forEach((chip)=>{
-        this.keyWordsForm.patchValue({
-          keywords: chip
-        })
+        const merged = [...new Set([...keywords, ...chips])];
+        this.keyWordsForm.patchValue({ keywords: merged });
+        return merged;
       });
     }
-
-    // Clear the input value
     event.chipInput!.clear();
   }
 
