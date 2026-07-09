@@ -199,7 +199,7 @@ const log_new_val_style = 'color: #005eda; font-weight: bold;';
 
 
 @Component({
-  selector: 'app-personel',
+  selector: 'app-personnel',
   templateUrl: './personel.component.html',
   styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
