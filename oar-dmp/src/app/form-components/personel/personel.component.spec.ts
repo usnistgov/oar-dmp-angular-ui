@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { of } from 'rxjs';
 
-import { PersonelComponent } from './personel.component';
+import { PersonnelComponent } from './personel.component';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { UpdateNistContributorService } from 'src/app/shared/update-nist-contributor.service';
 import { StaffDirectoryService } from 'oarng';
@@ -14,9 +14,9 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 // Spied per-test to control the confirm/cancel result.
 import * as dmpService from 'src/app/shared/dmp.service';
 
-describe('PersonelComponent', () => {
-  let component: PersonelComponent;
-  let fixture: ComponentFixture<PersonelComponent>;
+describe('PersonnelComponent', () => {
+  let component: PersonnelComponent;
+  let fixture: ComponentFixture<PersonnelComponent>;
 
   // Minimal fake of StaffDirectoryService — returns empty results so the
   // component's valueChanges pipelines and autoupdate run without network.
@@ -29,7 +29,7 @@ describe('PersonelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    declarations: [ PersonelComponent ],
+    declarations: [ PersonnelComponent ],
     providers: [
       DropDownSelectService,
       FormBuilder,
@@ -48,7 +48,7 @@ describe('PersonelComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PersonelComponent);
+    fixture = TestBed.createComponent(PersonnelComponent);
     component = fixture.componentInstance;
     // no detectChanges() — logic tests don't need the template rendered
   });

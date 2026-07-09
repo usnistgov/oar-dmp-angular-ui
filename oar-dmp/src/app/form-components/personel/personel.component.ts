@@ -203,7 +203,7 @@ const log_new_val_style = 'color: #005eda; font-weight: bold;';
   templateUrl: './personel.component.html',
   styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
-export class PersonelComponent implements OnDestroy {
+export class PersonnelComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   /** Cancels any in-flight NIST autoupdate run when the input rebinds. */
   private autoUpdateCancel$ = new Subject<void>();
@@ -385,7 +385,7 @@ export class PersonelComponent implements OnDestroy {
     personel.contributors.forEach(
       (dmpContributor, index) => {
         if (!dmpContributor.orcid){
-          this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+          this.contribOrcidWarn = PersonnelComponent.ORCID_WARNING;
         }
         this.dmpContributors.push({
           id:           index, 
@@ -634,7 +634,7 @@ export class PersonelComponent implements OnDestroy {
     const anyMissing = this.dmpContributors.some(
       (c) => !c.orcid || c.orcid.length === 0
     );
-    this.contribOrcidWarn = anyMissing ? PersonelComponent.ORCID_WARNING : "";
+    this.contribOrcidWarn = anyMissing ? PersonnelComponent.ORCID_WARNING : "";
   }
 
   /**
@@ -1084,7 +1084,7 @@ export class PersonelComponent implements OnDestroy {
       const isORCID = this.isORCID(this.crntContrib.orcid);
 
       if (!isORCID && this.crntContrib.orcid.length > 0) {
-        this.errorMessage = PersonelComponent.ORCID_ERROR;
+        this.errorMessage = PersonnelComponent.ORCID_ERROR;
         return;
       }
     }
@@ -1191,11 +1191,11 @@ export class PersonelComponent implements OnDestroy {
 
     // ORCID (optional, but must be valid if present)
     if (orcid.length > 0 && !this.isORCID(orcid)) {
-      this.errorMessage = PersonelComponent.ORCID_ERROR;
+      this.errorMessage = PersonnelComponent.ORCID_ERROR;
       return false;
     }
     if (orcid.length === 0) {
-      this.contribOrcidWarn = PersonelComponent.ORCID_WARNING;
+      this.contribOrcidWarn = PersonnelComponent.ORCID_WARNING;
     }
 
     return true;

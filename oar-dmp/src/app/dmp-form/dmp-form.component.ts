@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, afterNextRender } from '@angul
 import { ObservedValueOf, Subject, merge, forkJoin, switchMap, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
-import { PersonelComponent } from '../form-components/personel/personel.component';
+import { PersonnelComponent } from '../form-components/personel/personel.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { TechnicalRequirementsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
@@ -29,7 +29,7 @@ import _ from 'lodash';   // or: import * as _ from 'lodash';
 //  different DMP form components
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
-  personel?: ObservedValueOf<PersonelComponent["formReady"]>;
+  personel?: ObservedValueOf<PersonnelComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   technicalRequirements?:ObservedValueOf<TechnicalRequirementsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
@@ -80,7 +80,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   // For clearing Technical resources table
   @ViewChild(TechnicalRequirementsComponent) technicalRequirementsTable!: TechnicalRequirementsComponent;
   // For clearing Contributors resources table
-  @ViewChild(PersonelComponent) personnelForm!: PersonelComponent;
+  @ViewChild(PersonnelComponent) personnelForm!: PersonnelComponent;
  
   // We want to load the initial data via service and provide it to the child components. 
   // Assuming that we have a DMP object I call that property initialDMP:
