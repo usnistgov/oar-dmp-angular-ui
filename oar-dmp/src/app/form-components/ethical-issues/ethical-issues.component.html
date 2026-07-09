@@ -11,12 +11,12 @@
     </div>
     <div class="dmp-frm-label">Are there any ethical issues related to the data that this DMP describes?</div>
     <div>
-      <input type="radio" id="ethicalIssuesY" name="ethicalIssues" value="yes" (click)="setEthicalIssues('yes')" 
+      <input type="radio" id="ethicalIssuesY" name="ethicalIssues" value="yes"
       [formControl]="ethicalIsuesForm.controls['ethicalIssue']"
       >
       <label for="ethicalIssuesY">Yes</label>
 
-      <input type="radio" id="ethicalIssuesN" name="ethicalIssues" value="no" (click)="setEthicalIssues('no')" 
+      <input type="radio" id="ethicalIssuesN" name="ethicalIssues" value="no"
       [formControl]="ethicalIsuesForm.controls['ethicalIssue']"
       >
       <label for="ethicalIssuesN">No</label>
