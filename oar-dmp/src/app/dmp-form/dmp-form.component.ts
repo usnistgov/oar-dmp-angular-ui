@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, afterNextRender } from '@angul
 import { ObservedValueOf, Subject, merge, forkJoin, switchMap, EMPTY } from "rxjs";
 import { UntypedFormBuilder } from '@angular/forms';
 import { BasicInfoComponent } from '../form-components/basic-info/basic-info.component';
-import { PersonnelComponent } from '../form-components/personel/personel.component';
+import { PersonnelComponent } from '../form-components/personnel/personnel.component';
 import { KeywordsComponent } from '../form-components/keywords/keywords.component';
 import { TechnicalRequirementsComponent } from '../form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from '../form-components/ethical-issues/ethical-issues.component';
@@ -29,7 +29,7 @@ import _ from 'lodash';   // or: import * as _ from 'lodash';
 //  different DMP form components
 interface DMPForm {
   basicInfo?: ObservedValueOf<BasicInfoComponent["formReady"]>;
-  personel?: ObservedValueOf<PersonnelComponent["formReady"]>;
+  personnel?: ObservedValueOf<PersonnelComponent["formReady"]>;
   keyWordsAndPhrases?:ObservedValueOf<KeywordsComponent["formReady"]>;
   technicalRequirements?:ObservedValueOf<TechnicalRequirementsComponent["formReady"]>;
   ethicalIssues?: ObservedValueOf<EthicalIssuesComponent["formReady"]>;
@@ -119,7 +119,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
    */
   private readonly expectedForms: (keyof DMPForm)[] = [
     'basicInfo',
-    'personel',
+    'personnel',
     'keyWordsAndPhrases',
     'technicalRequirements',
     'ethicalIssues',
@@ -449,7 +449,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   }
  
   /**
-   * Autosave triggered by the people-service reconciliation in the personel
+   * Autosave triggered by the people-service reconciliation in the personnel
    * component. Contributor-metadata updates and primary-contact OU updates
    * arrive on two separate subjects, but a single reconciliation pass can emit
    * on BOTH. We merge them and debounce so that one logical pass results in
@@ -521,7 +521,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
 
             if (this.autoSaveInProgress) {
               // Autosave from people-service reconciliation: stay silent,
-              // the personel panel already shows what changed.
+              // the personnel panel already shows what changed.
               this.autoSaveInProgress = false;
             } else {
               // Normal user-initiated save confirmation.

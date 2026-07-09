@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { of } from 'rxjs';
 
-import { PersonnelComponent } from './personel.component';
+import { PersonnelComponent } from './personnel.component';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 import { UpdateNistContributorService } from 'src/app/shared/update-nist-contributor.service';
 import { StaffDirectoryService } from 'oarng';
@@ -115,7 +115,7 @@ describe('PersonnelComponent', () => {
     expect(row.firstName).toBe('Ada');
     expect(row.institution).toBe('NIST');
 
-    const formContributors = component.personelForm.value['contributors'] as any[];
+    const formContributors = component.personnelForm.value['contributors'] as any[];
     expect(formContributors.length).toBe(1);
     expect(formContributors[0].lastName).toBe('Lovelace');
     // table-only fields must NOT leak into the form
@@ -310,7 +310,7 @@ describe('PersonnelComponent', () => {
     component.removeRow(id);
 
     expect(component.dmpContributors.length).toBe(0);
-    expect((component.personelForm.value['contributors'] as any[]).length).toBe(0);
+    expect((component.personnelForm.value['contributors'] as any[]).length).toBe(0);
     expect(component.disableClear).toBe(true);
     expect(component.disableRemove).toBe(true);
   });

@@ -200,8 +200,8 @@ const log_new_val_style = 'color: #005eda; font-weight: bold;';
 
 @Component({
   selector: 'app-personnel',
-  templateUrl: './personel.component.html',
-  styleUrls: ['./personel.component.scss', '../form-layout.scss', '../form-table.scss']
+  templateUrl: './personnel.component.html',
+  styleUrls: ['./personnel.component.scss', '../form-layout.scss', '../form-table.scss']
 })
 export class PersonnelComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
@@ -322,7 +322,7 @@ export class PersonnelComponent implements OnDestroy {
     this.peopleUpdates.updateOUs$.next({ numUpdates: this.OUsUpdated, isUpdated: false });
   }
 
-  personelForm = this.fb.group(
+  personnelForm = this.fb.group(
     {
       dmp_contributor:            [''],
       contributors:               [[]],
@@ -335,7 +335,7 @@ export class PersonnelComponent implements OnDestroy {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
-  set initialDMP_Meta(personel: DMP_Meta) {
+  set initialDMP_Meta(personnel: DMP_Meta) {
     // Cancel any autoupdate from a previous bind before we replace the data.
     this.autoUpdateCancel$.next();
 
@@ -343,8 +343,8 @@ export class PersonnelComponent implements OnDestroy {
     this.dmpContributors = [];
     this.dmpOrganizations = [];
 
-    if (Object.keys(personel).length < 1){
-      this.personelForm.patchValue({
+    if (Object.keys(personnel).length < 1){
+      this.personnelForm.patchValue({
         contributors:               [],
         organizations:              []
       });
@@ -353,7 +353,7 @@ export class PersonnelComponent implements OnDestroy {
 
     // loop over organizations array sent from the server and populate local copy of 
     // organizations aray in order to populate the table of organizations in the GUI interface
-    personel.organizations.forEach( 
+    personnel.organizations.forEach( 
       (org, index) => {        
         this.dmpOrganizations.push(
           {
@@ -382,7 +382,7 @@ export class PersonnelComponent implements OnDestroy {
 
     // loop over contributors array sent from the server and populate local copy
     this.contribOrcidWarn = '';
-    personel.contributors.forEach(
+    personnel.contributors.forEach(
       (dmpContributor, index) => {
         if (!dmpContributor.orcid){
           this.contribOrcidWarn = PersonnelComponent.ORCID_WARNING;
@@ -429,15 +429,15 @@ export class PersonnelComponent implements OnDestroy {
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 
   // observable with of() that emits the created form group and use it as an output.
   @Output()
-  formReady = of(this.personelForm);
+  formReady = of(this.personnelForm);
 
   // We need to extract the form values and provide them to the parent component whenever 
   // a value changes. And again we can provide an observable as @Output() instead of creating 
   // an event emitter:
   @Output()
   valueChange = defer(() =>
-    this.personelForm.valueChanges.pipe(
-      startWith(this.personelForm.value),
+    this.personnelForm.valueChanges.pipe(
+      startWith(this.personnelForm.value),
       map(
         (formValue): Partial<DMP_Meta> =>(
           {
@@ -624,7 +624,7 @@ export class PersonnelComponent implements OnDestroy {
       role:            el.role,
     }));
 
-    this.personelForm.patchValue({ contributors });
+    this.personnelForm.patchValue({ contributors });
   }
 
   /**
@@ -762,7 +762,7 @@ export class PersonnelComponent implements OnDestroy {
     // ---------------------------------------------------------------------------------------------
     //                              NIST CONTRIBUTOR
     // ---------------------------------------------------------------------------------------------
-    this.fltr_NIST_Contributor = this.personelForm.controls['dmp_contributor'].valueChanges.pipe(
+    this.fltr_NIST_Contributor = this.personnelForm.controls['dmp_contributor'].valueChanges.pipe(
       switchMap(usrInput => {        
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
@@ -936,7 +936,7 @@ export class PersonnelComponent implements OnDestroy {
     this.nistContribRole = "";
     this.extContribRole = "";
 
-    this.personelForm.controls['dmp_contributor'].setValue("");
+    this.personnelForm.controls['dmp_contributor'].setValue("");
 
     this.externalContributor = this.emptyContributor();
   }
@@ -969,7 +969,7 @@ export class PersonnelComponent implements OnDestroy {
     if (result) {
       this.dmpContributors = [];
       this.resetWarningAndErrorMessages();
-      this.personelForm.patchValue({ contributors: [] })
+      this.personnelForm.patchValue({ contributors: [] })
       this.disableClear=true;
       this.disableRemove=true;
     }
@@ -1328,7 +1328,7 @@ export class PersonnelComponent implements OnDestroy {
    * This function gets all NIST organizations by querying people service
    */
   getNistOrganizations(){ 
-    this.fltr_NIST_Org = this.personelForm.controls['nistOrganization'].valueChanges.pipe(
+    this.fltr_NIST_Org = this.personnelForm.controls['nistOrganization'].valueChanges.pipe(
       switchMap(usrInput => {
         const val = typeof usrInput === 'string';
         if (!val){
@@ -1411,7 +1411,7 @@ export class PersonnelComponent implements OnDestroy {
 
     if (result) {
       this.dmpOrganizations = [];
-      this.personelForm.patchValue({organizations:[]});      
+      this.personnelForm.patchValue({organizations:[]});      
       this.org_disableAdd=true;
       this.org_disableClear=true;
       this.org_disableRemove=true;
@@ -1459,7 +1459,7 @@ export class PersonnelComponent implements OnDestroy {
     this.org_disableRemove = false;
 
     // Reset the field so it's clear multiple orgs can be added
-    this.personelForm.controls['nistOrganization'].setValue("");
+    this.personnelForm.controls['nistOrganization'].setValue("");
   }
 
   org_removeRow(id: any) {
@@ -1501,7 +1501,7 @@ export class PersonnelComponent implements OnDestroy {
       ouAcronym:       org.ouAcronym,
     }));
 
-    this.personelForm.patchValue({ organizations });
+    this.personnelForm.patchValue({ organizations });
   }
 
   /** Returns a blank contributor used as the "currently being added" staging buffer. */

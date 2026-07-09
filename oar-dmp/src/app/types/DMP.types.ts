@@ -1,5 +1,5 @@
 import { BasicInfo } from "./basic-info.type";
-import { Personel } from "./personel.type";
+import { Personel } from "./personnel.type";
 import { Keywords } from "./keywords.type";
 import { TechnicalRequirements } from "./technical-requirements.type";
 import { EthicalIssues } from "./ethical-issues.type";

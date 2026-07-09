@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http'
 
 import { AppComponent } from './app.component';
 import { BasicInfoComponent } from './form-components/basic-info/basic-info.component';
-import { PersonnelComponent } from './form-components/personel/personel.component';
+import { PersonnelComponent } from './form-components/personnel/personnel.component';
 import { KeywordsComponent } from './form-components/keywords/keywords.component';
 import { TechnicalRequirementsComponent } from './form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from './form-components/ethical-issues/ethical-issues.component';
