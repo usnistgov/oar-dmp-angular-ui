@@ -160,22 +160,15 @@ export class DataDescriptionComponent implements OnInit {
 
   }
 
-  dataCategoryChange(e:any) {
-    this.setStorageTier(e.target.defaultValue,e.target.checked);    
-    
-    // pass by reference
-    let dataCategories = this.dataDescriptionForm.value['dataCategories'] as string[];
+  dataCategoryChange(e: any) {
+    this.setStorageTier(e.target.defaultValue, e.target.checked);
 
-    if (e.target.checked){      
-      dataCategories.push(e.target.defaultValue);
-    }
-    else{
-      dataCategories.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          dataCategories.splice(index,1)
-        });
-    }
+    const current = (this.dataDescriptionForm.value['dataCategories'] as string[]) ?? [];
+    const next = e.target.checked
+      ? [...current, e.target.defaultValue]
+      : current.filter(v => v !== e.target.defaultValue);
 
+    this.dataDescriptionForm.patchValue({ dataCategories: next });
   }
 
 }

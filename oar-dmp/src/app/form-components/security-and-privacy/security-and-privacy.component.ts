@@ -42,7 +42,6 @@ export class SecurityAndPrivacyComponent {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
-  @Input()
   set initialDMP_Meta(securityAndPrivacy: DMP_Meta) {
     // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
     // loaded data), and children aren't created until initialDMP is set
@@ -103,40 +102,28 @@ export class SecurityAndPrivacyComponent {
   @Output()
   formReady = of(this.securityAndPrivacyForm);
 
-  dataSensitivityChange(e:any){
-    this.dataSensitivityMap.set(e.target.defaultValue,e.target.checked)
+  dataSensitivityChange(e: any) {
+    this.dataSensitivityMap.set(e.target.defaultValue, e.target.checked);
 
     this.showCUI();
 
-    // pass by reference
-    let data_sensitivity = this.securityAndPrivacyForm.value['dataSensitivity'] as string[];
+    const current = (this.securityAndPrivacyForm.value['dataSensitivity'] as string[]) ?? [];
+    const next = e.target.checked
+      ? [...current, e.target.defaultValue]
+      : current.filter(v => v !== e.target.defaultValue);
 
-    if (e.target.checked){      
-      data_sensitivity.push(e.target.defaultValue);
-    }
-    else{
-      data_sensitivity.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          data_sensitivity.splice(index,1)
-        });
-    }
+    this.securityAndPrivacyForm.patchValue({ dataSensitivity: next });
   }
 
-  cuiChange(e:any){
-    this.cuiMap.set(e.target.defaultValue,e.target.checked)
+  cuiChange(e: any) {
+    this.cuiMap.set(e.target.defaultValue, e.target.checked);
 
-    // pass by reference
-    let CUI = this.securityAndPrivacyForm.value['dataCUI'] as string[];
+    const current = (this.securityAndPrivacyForm.value['dataCUI'] as string[]) ?? [];
+    const next = e.target.checked
+      ? [...current, e.target.defaultValue]
+      : current.filter(v => v !== e.target.defaultValue);
 
-    if (e.target.checked){      
-      CUI.push(e.target.defaultValue);
-    }
-    else{
-      CUI.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          CUI.splice(index,1)
-        });
-    }
+    this.securityAndPrivacyForm.patchValue({ dataCUI: next });
   }
 
   private showCUI(){
