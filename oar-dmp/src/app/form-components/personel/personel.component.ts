@@ -125,7 +125,7 @@ const CONTRIB_COL_SCHEMA = [
   
 ]
 
-interface dmpOgranizations {
+interface dmpOrganizations {
   groupName: string,
   groupNumber: string,
   groupOrgID: number,
@@ -225,14 +225,14 @@ export class PersonelComponent implements OnDestroy {
   org_disableClear:boolean = true;
   org_disableRemove:boolean = true;
   org_errorMessage: string = '';
-  dmpOrganizations: dmpOgranizations[] = []
+  dmpOrganizations: dmpOrganizations[] = []
   org_displayedColumns: string[] = ORG_COL_SCHEMA.map((col) => col.key);
   org_columnsSchema: any = ORG_COL_SCHEMA;
   fltr_NIST_Org!: Observable<SDSuggestion[]>;
 
   // ================================  
   /** 
-   * Organizations hieararchy:
+   * Organizations hierarchy:
    * based on  orG_LVL_ID number
    * level 3 = group
    * level 2 = division
@@ -287,7 +287,7 @@ export class PersonelComponent implements OnDestroy {
 
   contribOrcidWarn: string = ""; //contributor orcid warning message
   errorMessage: string = ""; // contributor error message
-  static ORCID_ERROR = "Ivalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
+  static ORCID_ERROR = "Invalid ORCID format. The correct ORCID format is of the form xxxx-xxxx-xxxx-xxxx where first three groups are numeric and final fourth group is numeric with optional letter 'X' at the end";
   static ORCID_WARNING = "Warning: Missing contributor ORCID information. While this is not a mandatory field for a DMP it will be required if this DMP results in a publication.";
   
   // =====================

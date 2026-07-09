@@ -179,7 +179,7 @@ export class DmpExportService {
     doc.printHeader('Data Preservation and Accessibility', 0.05, SECTION_COLOR, 20);
 
     if (dmp.preservationDescription != null) doc.printTextField('Preservation Description', dmp.preservationDescription);
-    if (dmp.dataAccess != null) doc.printTextField('Data discoverablity and accessiblity plan', dmp.dataAccess);
+    if (dmp.dataAccess != null) doc.printTextField('Data discoverability and accessibility plan', dmp.dataAccess);
     if (dmp.pathsURLs !== undefined) {
       doc.printTable('', ['File path(s) / URL(s) for where data will be saved'],
         dmp.pathsURLs.map(p => [p]));
@@ -310,7 +310,7 @@ export class DmpExportService {
   private buildPreservationMd(md: string[], dmp: DMP_Meta): void {
     this.sectionHeadingMd(md, 'Data Preservation and Accessibility');
     if (dmp.preservationDescription != null) md.push('**Preservation Description**:' + this.escapeMarkdownText(dmp.preservationDescription) + '  \n');
-    if (dmp.dataAccess != null) md.push('**Data discoverablity and accessiblity plan**:' + this.escapeMarkdownText(dmp.dataAccess) + '  \n');
+    if (dmp.dataAccess != null) md.push('**Data discoverability and accessibility plan**:' + this.escapeMarkdownText(dmp.dataAccess) + '  \n');
     if (dmp.pathsURLs !== undefined) {
       this.markdownTable(md, '', ['File path(s) / URL(s) for where data will be saved'],
         dmp.pathsURLs.map(p => [p]));

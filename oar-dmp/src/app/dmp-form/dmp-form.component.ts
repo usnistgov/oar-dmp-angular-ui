@@ -525,7 +525,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
               this.autoSaveInProgress = false;
             } else {
               // Normal user-initiated save confirmation.
-              alert("Successfuly saved DMP record");
+              alert("Successfully saved DMP record");
             }
           },
           error: error => {

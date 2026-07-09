@@ -396,7 +396,7 @@ export class StorageNeedsComponent implements OnInit {
     else{
       //if there is software development being done as part of a DMP send message
       //to resource options to highlight correct row in the Software Tools table
-      //located in resource-options compomnent 
+      //located in resource-options component 
       // this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
       // this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
 
@@ -424,7 +424,7 @@ export class StorageNeedsComponent implements OnInit {
     // this.softwareUse = e;
     this.sftDev["softwareUse"] = e;
     //send message to resource options to highlight correct row in the Software Tools table
-    //located in resource-options compomnent 
+    //located in resource-options component 
     this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
   }
 
@@ -433,7 +433,7 @@ export class StorageNeedsComponent implements OnInit {
     // this.databaseUse = sel;
     this.sftDev["softwareDatabase"] = sel;
     //send message to resource options to highlight correct row in the Database table
-    //located in resource-options compomnent 
+    //located in resource-options component 
     this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
 
   }
@@ -443,7 +443,7 @@ export class StorageNeedsComponent implements OnInit {
     // this.websiteUse = sel;
     this.sftDev["softwareWebsite"] = sel;
     //send message to resource options to highlight correct row in the Database table
-    //located in resource-options compomnent 
+    //located in resource-options component 
     this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
 
   }
