@@ -25,25 +25,15 @@ export class EthicalIssuesComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(ethicalIssues: DMP_Meta) {
-
-    if (Object.keys(ethicalIssues).length < 1){
-      this.ethicalIsuesForm.patchValue({
-        IRBNumber:                '',
-        ethicalIssue:             '',
-        ethicalReport:            '',
-        ethicalIssueDescription:  ''
-      });
-    }
-    else{
-      this.ethicalIsuesForm.patchValue({
-        IRBNumber:                ethicalIssues.ethical_issues.irb_number,
-        ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
-        ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
-        ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
-      });      
-    }
-
-    
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
+    this.ethicalIsuesForm.patchValue({
+      IRBNumber:                ethicalIssues.ethical_issues.irb_number,
+      ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
+      ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
+      ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
+    });
   }
 
   // We need to extract the form values and provide them to the parent component whenever 

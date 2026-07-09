@@ -119,75 +119,63 @@ export class StorageNeedsComponent {
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
-    if (Object.keys(technical_requirements).length < 1){
-      this.technicalRequirementsForm.patchValue({
-          dataSize:                       "",
-          sizeUnit:                       "",
-          dataSizeDescription:            "",
-          development:                    "",
-          softwareUse:                    "",
-          softwareDatabase:               "",
-          softwareWebsite:                "",
-          technicalResources:             [],
-          instruments:                    []
-        });
-      this.reactiveInstruments = signal([]);
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form). 
 
+    // loop over instruments array sent from the server and populate local copy of 
+    // instruments array to populate the table of instruments in the user interface
+
+    technical_requirements.instruments.forEach(
+      (anInstrument, index) => {
+        this.dmpInstrumentsTbl.push({
+          id:               index, 
+          isEdit:           false, 
+          name:             anInstrument.name,
+          description_url:  anInstrument.description_url,
+
+          
+        });
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+
+    this.reactiveInstruments = signal(technical_requirements.technicalResources);
+
+    // set initial values for technical requirements part of the form
+    // to what has been sent from the server
+    if (technical_requirements.softwareDevelopment.development === "yes"){
+      // If the software development option is set to yes then pass all initial values
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
+        softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
+        softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
+      });
     }
     else{
-      // loop over instruments array sent from the server and populate local copy of 
-      // instruments array to populate the table of instruments in the user interface
-
-      technical_requirements.instruments.forEach(
-        (anInstrument, index) => {
-          this.dmpInstrumentsTbl.push({
-            id:               index, 
-            isEdit:           false, 
-            name:             anInstrument.name,
-            description_url:  anInstrument.description_url,
-
-            
-          });
-          this.disableClear=false;
-          this.disableRemove=false;
-        }
-      );
-
-      this.reactiveInstruments = signal(technical_requirements.technicalResources);
-
-      // set initial values for technical requirements part of the form
-      // to what has been sent from the server
-      if (technical_requirements.softwareDevelopment.development === "yes"){
-        // If the software development option is set to yes then pass all initial values
-        this.technicalRequirementsForm.patchValue({
-          dataSize:                       technical_requirements.dataSize,
-          sizeUnit:                       technical_requirements.sizeUnit,
-          dataSizeDescription:            technical_requirements.dataSizeDescription,
-          development:                    technical_requirements.softwareDevelopment.development,
-          softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
-          softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
-          softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
-          technicalResources:             technical_requirements.technicalResources,
-          instruments:                    technical_requirements.instruments
-        });
-      }
-      else{
-        // else if software development is set to no don't set options for 
-        // softwareUse, softwareDatabase, softwareWebsite
-        // This will force the user to make a selection if they change software development to yes
-        this.technicalRequirementsForm.patchValue({
-          dataSize:                       technical_requirements.dataSize,
-          sizeUnit:                       technical_requirements.sizeUnit,
-          dataSizeDescription:            technical_requirements.dataSizeDescription,
-          development:                    technical_requirements.softwareDevelopment.development,
-          softwareUse:                    "",
-          softwareDatabase:               "",
-          softwareWebsite:                "",
-          technicalResources:             technical_requirements.technicalResources,
-          instruments:                    technical_requirements.instruments
-        });
-      }
+      // else if software development is set to no don't set options for 
+      // softwareUse, softwareDatabase, softwareWebsite
+      // This will force the user to make a selection if they change software development to yes
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    "",
+        softwareDatabase:               "",
+        softwareWebsite:                "",
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
+      });
     }
+    
   }
 
   // Because RxJS observables are compatible with Angular EventEmitters we can create an 

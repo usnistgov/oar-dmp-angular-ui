@@ -42,47 +42,36 @@ export class SecurityAndPrivacyComponent {
   // the form values. For that we create an input property with a setter that updates 
   // the form. Here you could do any data transformation you need.
   @Input()
+  @Input()
   set initialDMP_Meta(securityAndPrivacy: DMP_Meta) {
-    if (Object.keys(securityAndPrivacy).length < 1){
-      this.securityAndPrivacyForm.patchValue({
-        dataSensitivity:          [],
-        dataCUI:                  []
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and children aren't created until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form). So security_and_privacy is present.
+    if (securityAndPrivacy.security_and_privacy.data_sensitivity !== undefined) {
+      securityAndPrivacy.security_and_privacy.data_sensitivity.forEach((value) => {
+        // populate map for displaying check marks on the GUI form
+        this.dataSensitivityMap.set(value, true);
+        this.showCUI();
       });
+    } else {
+      // initialize array if it doesn't exist in an old DMP record
+      securityAndPrivacy.security_and_privacy.data_sensitivity = [];
     }
-    else {
-      if(securityAndPrivacy.security_and_privacy.data_sensitivity !== undefined){
-        securityAndPrivacy.security_and_privacy.data_sensitivity.forEach (
-          (value)=>{
-            // populate map for displaying check marks on the GUI form
-            this.dataSensitivityMap.set(value,true)
 
-            this.showCUI();
-          }
-        );
-      }
-      else{
-        // initialize arrays if they don't exist in od DMP records
-        securityAndPrivacy.security_and_privacy.data_sensitivity = [];
-      }
-
-      if(securityAndPrivacy.security_and_privacy.cui !== undefined){
-        securityAndPrivacy.security_and_privacy.cui.forEach (
-          (value)=>{
-            // populate map for displaying check marks on the GUI form
-            this.cuiMap.set(value,true)
-          }
-        );
-      }
-      else{
-        // initialize arrays if they don't exist in od DMP records
-        securityAndPrivacy.security_and_privacy.cui = [];
-      }
-
-      this.securityAndPrivacyForm.patchValue({
-        dataSensitivity:          securityAndPrivacy.security_and_privacy.data_sensitivity,
-        dataCUI:                  securityAndPrivacy.security_and_privacy.cui
+    if (securityAndPrivacy.security_and_privacy.cui !== undefined) {
+      securityAndPrivacy.security_and_privacy.cui.forEach((value) => {
+        // populate map for displaying check marks on the GUI form
+        this.cuiMap.set(value, true);
       });
+    } else {
+      // initialize array if it doesn't exist in an old DMP record
+      securityAndPrivacy.security_and_privacy.cui = [];
     }
+
+    this.securityAndPrivacyForm.patchValue({
+      dataSensitivity: securityAndPrivacy.security_and_privacy.data_sensitivity,
+      dataCUI: securityAndPrivacy.security_and_privacy.cui,
+    });
   }
 
   // We need to extract the form values and provide them to the parent component whenever 

@@ -47,26 +47,17 @@ export class DataDescriptionComponent implements OnInit {
 
   @Input()
   set initialDMP_Meta(data_description: DMP_Meta) {
-    if (Object.keys(data_description).length < 1){
-      this.dataDescriptionForm.patchValue(
-        {
-          dataDescription:                '',
-          dataCategories:                 []
-        }
-      ); 
-    }
-    else{
-      this.initialCategories = data_description.dataCategories;
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form). 
+    this.initialCategories = data_description.dataCategories;
 
-      this.dataDescriptionForm.patchValue(
-        {
-          dataDescription:                data_description.dataDescription,
-          dataCategories:                 data_description.dataCategories
-        }
-      );      
-    }
-    
-    
+    this.dataDescriptionForm.patchValue(
+      {
+        dataDescription:                data_description.dataDescription,
+        dataCategories:                 data_description.dataCategories
+      }
+    );
   }
 
   @Output()

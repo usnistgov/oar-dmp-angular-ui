@@ -36,31 +36,19 @@ export class BasicInfoComponent{
   // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(basic_info: DMP_Meta) {
-    if (Object.keys(basic_info).length < 1){
-      this.basicInfoForm.patchValue(
-        {
-          title: '',
-          startDate: '',
-          dmpSearchable: '',
-          grant_source: '',
-          grant_id: '',
-          projectDescription: ''
-        }
-      );      
-    }
-    else{
-      this.basicInfoForm.patchValue(
-        {
-          title: basic_info.title,
-          startDate: basic_info.startDate,
-          dmpSearchable: basic_info.dmpSearchable,
-          grant_source: basic_info.funding.grant_source,
-          grant_id: basic_info.funding.grant_id,
-          projectDescription: basic_info.projectDescription
-        }
-      );
-    }
-    
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form). So funding et al. are always present.
+    this.basicInfoForm.patchValue(
+      {
+        title: basic_info.title,
+        startDate: basic_info.startDate,
+        dmpSearchable: basic_info.dmpSearchable,
+        grant_source: basic_info.funding.grant_source,
+        grant_id: basic_info.funding.grant_id,
+        projectDescription: basic_info.projectDescription
+      }
+    );    
   }
 
   // We need to extract the form values and provide them to the parent component whenever 
