@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 // In the child, we need to import the service "ResourcesService" file to be able to use it.
@@ -11,7 +11,7 @@ import { LoadResourcesService } from '../shared/load-resources.service';
   templateUrl: './resource-options.component.html',
   styleUrls: ['./resource-options.component.scss']
 })
-export class ResourceOptionsComponent implements OnInit, AfterViewInit {
+export class ResourceOptionsComponent implements OnInit {
 
   storageSubscription!: Subscription | null;
   softwareSubscription!: Subscription | null;
@@ -31,9 +31,6 @@ export class ResourceOptionsComponent implements OnInit, AfterViewInit {
     this.storageSubscribe();
     this.softwareSubscribe();
     this.availableResources = this.nistResources.getAllResources();
-  }
-
-  ngAfterViewInit(): void {
   }
 
   //subscribe to a particular subject
