@@ -22,29 +22,28 @@ describe('PersonnelComponent', () => {
   // component's valueChanges pipelines and autoupdate run without network.
   const staffDirectoryStub: Partial<StaffDirectoryService> = {
     getPeopleIndexFor: () => of(null) as any,
-    getOrgsIndexFor:   () => of(null) as any,
-    getParentOrgs:     () => of([]) as any,
-    getOrgsFor:        () => of([]) as any,
+    getOrgsIndexFor: () => of(null) as any,
+    getParentOrgs: () => of([]) as any,
+    getOrgsFor: () => of([]) as any,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    declarations: [ PersonnelComponent ],
-    providers: [
-      DropDownSelectService,
-      FormBuilder,
-      UpdateNistContributorService,
-      { provide: StaffDirectoryService, useValue: staffDirectoryStub },
-    ],
-    imports: [
-      HttpClientTestingModule,
-      MatAutocompleteModule,
-      FormsModule,
-      ReactiveFormsModule,   // <-- add this — supplies NgControl for [formControl]
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-  })
-  .compileComponents();
+      declarations: [PersonnelComponent],
+      providers: [
+        DropDownSelectService,
+        FormBuilder,
+        UpdateNistContributorService,
+        { provide: StaffDirectoryService, useValue: staffDirectoryStub },
+      ],
+      imports: [
+        HttpClientTestingModule,
+        MatAutocompleteModule,
+        FormsModule,
+        ReactiveFormsModule, // <-- supplies NgControl for [formControl]
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -69,7 +68,7 @@ describe('PersonnelComponent', () => {
       divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
       ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
       primary_contact: '', role: 'Project Leader', institution: '',
-      peopleID: 12345,   // NIST contributors carry a real, positive People Service id
+      peopleID: 12345, // NIST contributors carry a real, positive People Service id
       ...overrides,
     } as any;
 
@@ -88,9 +87,43 @@ describe('PersonnelComponent', () => {
       divisionOrgID: 0, divisionNumber: '', divisionName: '',
       ouOrgID: 0, ouNumber: '', ouName: '',
       primary_contact: '', role: '',
-      peopleID: 0,   // externals get a generated negative id inside addRow
+      peopleID: 0, // externals get a generated negative id inside addRow
       ...fields,
     } as any;
+  }
+
+  function seedLoadedNistContributor(peopleID: number, over: Partial<any> = {}) {
+    component.dmpContributors = [{
+      id: 1, isEdit: false,
+      firstName: 'Ada', lastName: 'Lovelace',
+      orcid: '0000-0002-1825-0097', emailAddress: 'ada@nist.gov',
+      groupOrgID: 641, groupNumber: '641', groupName: 'Software Group',
+      divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
+      ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
+      primary_contact: 'No', role: 'Project Leader', institution: 'NIST',
+      peopleID,
+      ...over,
+    } as any];
+  }
+
+  function fakePerson(fields: Partial<any>): any {
+    return {
+      firstName: '', lastName: '', orcid: null, emailAddress: null,
+      groupOrgID: 0, groupNumber: '', groupName: '',
+      divisionOrgID: 0, divisionNumber: '', divisionName: '',
+      ouOrgID: 0, ouNumber: '', ouName: '',
+      peopleID: 0,
+      ...fields,
+    };
+  }
+
+  function fakeIndex(...people: any[]): any {
+    return {
+      getSuggestions: () => people.map((p) => ({
+        display: `${p.firstName} ${p.lastName}`,
+        getRecord: () => Promise.resolve(p),
+      })),
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -179,7 +212,7 @@ describe('PersonnelComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Duplicate detection — now keyed on peopleID
+  // Duplicate detection — keyed on peopleID
   // ---------------------------------------------------------------------------
 
   it('rejects a duplicate contributor by matching peopleID', () => {
@@ -270,10 +303,10 @@ describe('PersonnelComponent', () => {
 
   it('rejects an external contributor with markup in the name', () => {
     stageExternalContributor({
-      firstName: '<script>alert(1)</script>',
-      lastName: 'Doe',
-      emailAddress: 'doe@example.com',
-      institution: 'Example U',
+      firstName: '<script>',
+      lastName: 'Curie',
+      emailAddress: 'marie@example.com',
+      institution: 'Sorbonne',
     });
 
     component.addRow();
@@ -282,161 +315,47 @@ describe('PersonnelComponent', () => {
     expect(component.errorMessage).toContain('First Name');
   });
 
-  it('accepts an external contributor with a legitimate accented name', () => {
+  it('rejects an external contributor with an invalid email', () => {
     stageExternalContributor({
-      firstName: 'Begoña',
-      lastName: "O'Brien-Smith",
-      emailAddress: 'b@example.com',
-      institution: 'Universität Wien',
+      firstName: 'Marie', lastName: 'Curie',
+      emailAddress: 'not-an-email', institution: 'Sorbonne',
+    });
+
+    component.addRow();
+
+    expect(component.dmpContributors.length).toBe(0);
+    expect(component.errorMessage).toContain('e-mail');
+  });
+
+  it('rejects an external contributor with an invalid ORCID', () => {
+    stageExternalContributor({
+      firstName: 'Marie', lastName: 'Curie',
+      emailAddress: 'marie@example.com', institution: 'Sorbonne',
+      orcid: 'not-an-orcid',
+    });
+
+    component.addRow();
+
+    expect(component.dmpContributors.length).toBe(0);
+    expect(component.errorMessage).toBe(PersonnelComponent.ORCID_ERROR);
+  });
+
+  it('sets the ORCID warning when an external contributor has no ORCID', () => {
+    stageExternalContributor({
+      firstName: 'Marie', lastName: 'Curie',
+      emailAddress: 'marie@example.com', institution: 'Sorbonne',
+      orcid: '',
     });
 
     component.addRow();
 
     expect(component.dmpContributors.length).toBe(1);
-    expect(component.dmpContributors[0].firstName).toBe('Begoña');
+    expect(component.contribOrcidWarn).toBe(PersonnelComponent.ORCID_WARNING);
   });
 
   // ---------------------------------------------------------------------------
-  // Remove
+  // People Service autoupdate reconciliation
   // ---------------------------------------------------------------------------
-
-  it('removes a contributor and updates the form and button state', () => {
-    jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
-
-    stageNistContributor();
-    component.addRow();
-    const id = component.dmpContributors[0].id;
-
-    component.removeRow(id);
-
-    expect(component.dmpContributors.length).toBe(0);
-    expect((component.personnelForm.value['contributors'] as any[]).length).toBe(0);
-    expect(component.disableClear).toBe(true);
-    expect(component.disableRemove).toBe(true);
-  });
-
-  it('does not remove a contributor when the confirm dialog is cancelled', () => {
-    jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(false);
-
-    stageNistContributor();
-    component.addRow();
-    const id = component.dmpContributors[0].id;
-
-    component.removeRow(id);
-
-    expect(component.dmpContributors.length).toBe(1);
-  });
-
-  // ---------------------------------------------------------------------------
-  // Unmatched-contributor notice
-  // ---------------------------------------------------------------------------
-
-  it('prunes an unmatched-notice entry when its row is removed via removeRow', () => {
-    jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
-
-    stageNistContributor({ peopleID: 777 });
-    component.addRow();
-    const row = component.dmpContributors[0];
-
-    // Simulate the autoupdate pass having flagged this contributor as unmatched.
-    component.unmatchedContributors = [
-      { id: row.id, contributorName: `${row.firstName} ${row.lastName}`, peopleID: row.peopleID },
-    ];
-
-    component.removeRow(row.id);
-
-    expect(component.dmpContributors.length).toBe(0);
-    // removeRow must also drop the matching notice entry so the two stay in sync.
-    expect(component.unmatchedContributors.length).toBe(0);
-  });
-
-  it('removeUnmatchedContributor deletes the row and clears the notice', () => {
-    jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
-
-    stageNistContributor({ peopleID: 888 });
-    component.addRow();
-    const row = component.dmpContributors[0];
-
-    component.unmatchedContributors = [
-      { id: row.id, contributorName: `${row.firstName} ${row.lastName}`, peopleID: row.peopleID },
-    ];
-
-    component.removeUnmatchedContributor({ id: row.id } as any);
-
-    expect(component.dmpContributors.length).toBe(0);
-    expect(component.unmatchedContributors.length).toBe(0);
-  });
-
-  it('keeps the unmatched-notice entry if the confirm dialog is cancelled', () => {
-    jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(false);
-
-    stageNistContributor({ peopleID: 999 });
-    component.addRow();
-    const row = component.dmpContributors[0];
-
-    component.unmatchedContributors = [
-      { id: row.id, contributorName: `${row.firstName} ${row.lastName}`, peopleID: row.peopleID },
-    ];
-
-    component.removeUnmatchedContributor({ id: row.id } as any);
-
-    // Cancelled delete: both the row and the notice entry must remain.
-    expect(component.dmpContributors.length).toBe(1);
-    expect(component.unmatchedContributors.length).toBe(1);
-  });
-
-  it('dismissUnmatchedNotice clears the panel without touching the table', () => {
-    stageNistContributor({ peopleID: 1010 });
-    component.addRow();
-    const row = component.dmpContributors[0];
-
-    component.unmatchedContributors = [
-      { id: row.id, contributorName: `${row.firstName} ${row.lastName}`, peopleID: row.peopleID },
-    ];
-
-    component.dismissUnmatchedNotice();
-
-    expect(component.unmatchedContributors.length).toBe(0);
-    // Dismissing the notice must NOT remove the contributor from the table.
-    expect(component.dmpContributors.length).toBe(1);
-  });
-
-  // ---------------------------------------------------------------------------
-  // Unmatched detection through the autoupdate pipeline
-  //
-  // These drive runNistAutoUpdate for real by overriding getPeopleIndexFor to
-  // return a fake index. They prove recordUnmatchedContributor is reached on
-  // the two miss paths, not just that removal works once the array is set.
-  //
-  // Helpers:
-  //  - fakeIndex(...suggestions) builds an SDIndex-like object whose
-  //    getSuggestions returns the given suggestions regardless of query.
-  //  - fakePerson(rec) builds a suggestion whose getRecord() resolves to rec.
-  // ---------------------------------------------------------------------------
-
-  function fakePerson(rec: any) {
-    return { getRecord: () => Promise.resolve(rec) };
-  }
-
-  function fakeIndex(...suggestions: any[]) {
-    return { getSuggestions: (_q: string) => suggestions } as any;
-  }
-
-  /** Loads a single NIST contributor into the table WITHOUT going through the
-   *  autoupdate pipeline, so a test can invoke runNistAutoUpdate deliberately. */
-  function seedLoadedNistContributor(peopleID: number, over: Partial<any> = {}) {
-    component.dmpContributors = [{
-      id: 1, isEdit: false,
-      firstName: 'Ada', lastName: 'Lovelace',
-      orcid: '0000-0002-1825-0097', emailAddress: 'ada@nist.gov',
-      groupOrgID: 641, groupNumber: '641', groupName: 'Software Group',
-      divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
-      ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
-      primary_contact: 'No', role: 'Project Leader', institution: 'NIST',
-      peopleID,
-      ...over,
-    } as any];
-  }
 
   it('records an unmatched contributor when the search returns no suggestions', async () => {
     jest.spyOn(component['sdsvc'], 'getPeopleIndexFor')
@@ -461,7 +380,7 @@ describe('PersonnelComponent', () => {
       groupOrgID: 1, groupNumber: '1', groupName: 'X',
       divisionOrgID: 1, divisionNumber: '1', divisionName: 'Y',
       ouOrgID: 1, ouNumber: '1', ouName: 'Z',
-      peopleID: 999,   // does NOT match the contributor's 500
+      peopleID: 999, // does NOT match the contributor's 500
     });
 
     jest.spyOn(component['sdsvc'], 'getPeopleIndexFor')
@@ -486,7 +405,7 @@ describe('PersonnelComponent', () => {
       groupOrgID: 641, groupNumber: '641', groupName: 'Software Group',
       divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
       ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
-      peopleID: 500,   // matches
+      peopleID: 500, // matches
     });
 
     jest.spyOn(component['sdsvc'], 'getPeopleIndexFor')
@@ -516,5 +435,346 @@ describe('PersonnelComponent', () => {
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.unmatchedContributors.length).toBe(0);
+  });
+
+  // ---------------------------------------------------------------------------
+  // initialDMP_Meta input setter
+  // ---------------------------------------------------------------------------
+
+  describe('initialDMP_Meta input setter', () => {
+    const mockDmp: any = {
+      contributors: [{
+        firstName: 'Ada', lastName: 'Lovelace',
+        orcid: '0000-0002-1825-0097', emailAddress: 'ada@nist.gov',
+        groupOrgID: 641, groupNumber: '641', groupName: 'Software Group',
+        divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
+        ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
+        primary_contact: 'No', role: 'Project Leader', institution: 'NIST',
+        peopleID: 500,
+      }],
+      organizations: [{
+        groupName: 'Software Group', groupNumber: '641', groupOrgID: 641,
+        divisionName: 'ITL Division', divisionNumber: '640', divisionOrgID: 640, divisionAcronym: 'ITL',
+        ouName: 'ITL', ouNumber: '600', ouOrgID: 600, ouAcronym: 'ITL',
+      }],
+    };
+
+    it('populates dmpContributors and dmpOrganizations tables from the input', () => {
+      component.initialDMP_Meta = mockDmp;
+      expect(component.dmpContributors.length).toBe(1);
+      expect(component.dmpContributors[0].firstName).toBe('Ada');
+      expect(component.dmpOrganizations.length).toBe(1);
+      expect(component.dmpOrganizations[0].groupName).toBe('Software Group');
+    });
+
+    it('mirrors loaded contributors/organizations into the form', () => {
+      component.initialDMP_Meta = mockDmp;
+      const formValue = component.personnelForm.value;
+      expect((formValue['contributors'] as any[]).length).toBe(1);
+      expect((formValue['organizations'] as any[]).length).toBe(1);
+    });
+
+    it('sets the ORCID warning when a loaded contributor has no ORCID', () => {
+      component.initialDMP_Meta = { ...mockDmp, contributors: [{ ...mockDmp.contributors[0], orcid: '' }] };
+      expect(component.contribOrcidWarn).toBe(PersonnelComponent.ORCID_WARNING);
+    });
+
+    it('resets tables to empty when given an empty object', () => {
+      component.initialDMP_Meta = mockDmp;
+      expect(component.dmpContributors.length).toBe(1);
+
+      component.initialDMP_Meta = {} as any;
+      expect(component.dmpContributors).toEqual([]);
+      expect(component.dmpOrganizations).toEqual([]);
+    });
+
+    it('cancels a previous autoupdate run when rebound', () => {
+      const cancelSpy = jest.spyOn(component['autoUpdateCancel$'], 'next');
+      component.initialDMP_Meta = mockDmp;
+      component.initialDMP_Meta = mockDmp;
+      expect(cancelSpy).toHaveBeenCalled();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Contributor table row operations
+  // ---------------------------------------------------------------------------
+
+  describe('contributor table row operations', () => {
+    let dateNowSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // addRow() generates each row's id via Date.now(); two calls in quick
+      // succession can land in the same millisecond and collide. Stub it
+      // with an incrementing counter so every row gets a guaranteed-unique id.
+      let counter = 1000;
+      dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => counter++);
+
+      stageNistContributor({ peopleID: 1 });
+      component.addRow();
+      stageNistContributor({ peopleID: 2, firstName: 'Grace', lastName: 'Hopper' });
+      component.addRow();
+    });
+
+    afterEach(() => {
+      dateNowSpy.mockRestore();
+    });
+
+    it('removeRow deletes the matching row and syncs the form when confirmed', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      const idToRemove = component.dmpContributors.find(c => c.firstName === 'Ada')!.id;
+
+      component.removeRow(idToRemove);
+
+      expect(component.dmpContributors.length).toBe(1);
+      expect(component.dmpContributors[0].firstName).toBe('Grace');
+    });
+
+    it('removeRow does nothing when the confirm dialog is cancelled', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(false);
+      const idToRemove = component.dmpContributors[0].id;
+
+      component.removeRow(idToRemove);
+
+      expect(component.dmpContributors.length).toBe(2);
+    });
+
+    it('removeRow disables Clear/Remove buttons once the table is empty', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      component.dmpContributors.forEach(c => component.removeRow(c.id));
+
+      expect(component.disableClear).toBe(true);
+      expect(component.disableRemove).toBe(true);
+    });
+
+    it('removeSelectedRows removes only rows flagged isSelected', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      const adaRow = component.dmpContributors.find(c => c.firstName === 'Ada')!;
+      (adaRow as any).isSelected = true;
+
+      component.removeSelectedRows();
+
+      expect(component.dmpContributors.length).toBe(1);
+      expect(component.dmpContributors[0].firstName).toBe('Grace');
+    });
+
+    it('clearTable empties the contributors table and form when confirmed', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+
+      component.clearTable();
+
+      expect(component.dmpContributors).toEqual([]);
+      expect(component.personnelForm.value['contributors']).toEqual([]);
+      expect(component.disableClear).toBe(true);
+      expect(component.disableRemove).toBe(true);
+    });
+
+    it('clearTable does nothing when cancelled', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(false);
+
+      component.clearTable();
+
+      expect(component.dmpContributors.length).toBe(2);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Organizations table: org_addRow / org_removeRow / org_clearTable
+  // ---------------------------------------------------------------------------
+
+  describe('organizations table operations', () => {
+    beforeEach(() => {
+      component.orgGroupName = 'Software Group';
+      component.orgGroupNumber = '641';
+      component.orgGroupOrgID = 641;
+      component.orgDivisionName = 'ITL Division';
+      component.orgDivisionNumber = '640';
+      component.orgDivisionOrgID = 640;
+      component.orgDivisionAcronym = 'ITL';
+      component.orgOuName = 'ITL';
+      component.orgOuNumber = '600';
+      component.orgOuOrgID = 600;
+      component.orgOuAcronym = 'ITL';
+    });
+
+    it('org_addRow adds a new organization row and syncs the form', () => {
+      component.org_addRow();
+      expect(component.dmpOrganizations.length).toBe(1);
+      expect(component.personnelForm.value['organizations']).toHaveLength(1);
+      expect(component.org_disableClear).toBe(false);
+      expect(component.org_disableRemove).toBe(false);
+    });
+
+    it('org_addRow rejects a duplicate group+division+OU combination', () => {
+      component.org_addRow();
+      component.org_addRow();
+      expect(component.dmpOrganizations.length).toBe(1);
+      expect(component.org_errorMessage).toContain('already associated');
+    });
+
+    it('org_removeRow deletes the row and syncs the form when confirmed', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      component.org_addRow();
+      const id = component.dmpOrganizations[0].id;
+
+      component.org_removeRow(id);
+
+      expect(component.dmpOrganizations).toEqual([]);
+      expect(component.org_disableClear).toBe(true);
+      expect(component.org_disableRemove).toBe(true);
+    });
+
+    it('org_clearTable empties organizations when confirmed', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      component.org_addRow();
+
+      component.org_clearTable();
+
+      expect(component.dmpOrganizations).toEqual([]);
+      expect(component.personnelForm.value['organizations']).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Dropdown selection helpers
+  // ---------------------------------------------------------------------------
+
+  describe('dropdown selection helpers', () => {
+    it('selPrimaryContact resolves "Yes" from primaryContactOptions', () => {
+      component.primaryContact = '0'; // id 0 => Yes per primaryContactOptions
+      component.selPrimaryContact();
+      expect(component.primaryContactSelection).toBe('Yes');
+    });
+
+    it('selContributorRole resolves the role value from contributorRoles', () => {
+      const anyRole = component.contributorRoles[0];
+      component.nistContribRole = String(anyRole.id);
+      component.selContributorRole();
+      expect(component.crntContrib.role).toBe(anyRole.value);
+    });
+
+    it('selExtContributorRole falls back to empty string for an unmatched selection', () => {
+      component.extContribRole = 'nonexistent-id';
+      component.selExtContributorRole();
+      expect(component.crntContrib.role).toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // onDoneClick — inline edit of an external contributor row
+  // ---------------------------------------------------------------------------
+
+  describe('onDoneClick (inline edit)', () => {
+    beforeEach(() => {
+      component.dmpContributors = [{
+        id: 1, isEdit: true,
+        firstName: 'Marie', lastName: 'Curie', orcid: '', emailAddress: 'marie@example.com',
+        groupOrgID: 0, groupNumber: '', groupName: '',
+        divisionOrgID: 0, divisionNumber: '', divisionName: '',
+        ouOrgID: 0, ouNumber: '', ouName: '',
+        primary_contact: 'No', role: 'Project Leader', institution: 'Sorbonne',
+        peopleID: -1,
+      } as any];
+    });
+
+    it('applies edits and clears isEdit on success', () => {
+      component.onDoneClick({
+        id: 1, firstName: 'Marie', lastName: 'Curie',
+        orcid: '', institution: 'Sorbonne', emailAddress: 'marie@example.com',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.isEdit).toBe(false);
+      expect(row.primary_contact).toBe('No');
+    });
+
+    it('rejects the edit and leaves isEdit true when validation fails', () => {
+      component.onDoneClick({
+        id: 1, firstName: '123', lastName: 'Curie',
+        orcid: '', institution: 'Sorbonne', emailAddress: 'marie@example.com',
+      });
+
+      expect(component.dmpContributors[0].isEdit).toBe(true);
+      expect(component.errorMessage).toContain('First Name');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Outputs: valueChange / formReady
+  // ---------------------------------------------------------------------------
+
+  describe('valueChange output', () => {
+    it('emits the current form value immediately on subscribe', async () => {
+      const emitted = await new Promise(resolve =>
+        component.valueChange.subscribe(v => resolve(v))
+      );
+      expect(emitted).toEqual({ contributors: [], organizations: [] });
+    });
+
+    it('emits an updated value after a contributor is added', async () => {
+      stageNistContributor({ peopleID: 1 });
+      component.addRow();
+
+      const emitted: any = await new Promise(resolve =>
+        component.valueChange.subscribe(v => resolve(v))
+      );
+      expect(emitted.contributors.length).toBe(1);
+    });
+  });
+
+  describe('formReady output', () => {
+    it('emits the personnelForm instance', async () => {
+      const emittedForm = await new Promise(resolve =>
+        component.formReady.subscribe(f => resolve(f))
+      );
+      expect(emittedForm).toBe(component.personnelForm);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // ngOnDestroy
+  // ---------------------------------------------------------------------------
+
+  describe('ngOnDestroy', () => {
+    it('completes both destroy$ and autoUpdateCancel$ subjects', () => {
+      const destroySpy = jest.spyOn(component['destroy$'], 'complete');
+      const cancelSpy = jest.spyOn(component['autoUpdateCancel$'], 'complete');
+
+      component.ngOnDestroy();
+
+      expect(destroySpy).toHaveBeenCalled();
+      expect(cancelSpy).toHaveBeenCalled();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Notice dismissal
+  // ---------------------------------------------------------------------------
+
+  describe('notice dismissal', () => {
+    it('dismissAutoUpdateNotice clears autoUpdateChanges', () => {
+      component.autoUpdateChanges = [{ contributorName: 'Ada', field: 'ORCID', from: '', to: '1', showTransition: false }];
+      component.dismissAutoUpdateNotice();
+      expect(component.autoUpdateChanges).toEqual([]);
+    });
+
+    it('dismissUnmatchedNotice clears unmatchedContributors', () => {
+      component.unmatchedContributors = [{ id: 1, contributorName: 'Ada', peopleID: 500 }];
+      component.dismissUnmatchedNotice();
+      expect(component.unmatchedContributors).toEqual([]);
+    });
+
+    it('removeUnmatchedContributor delegates to removeRow and prunes both lists', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      stageNistContributor({ peopleID: 500 });
+      component.addRow();
+      const id = component.dmpContributors[0].id;
+      component.unmatchedContributors = [{ id, contributorName: 'Ada Lovelace', peopleID: 500 }];
+
+      component.removeUnmatchedContributor({ id });
+
+      expect(component.dmpContributors.length).toBe(0);
+      expect(component.unmatchedContributors.length).toBe(0);
+    });
   });
 });
