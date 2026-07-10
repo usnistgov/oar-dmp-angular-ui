@@ -18,9 +18,6 @@ export class DataDescriptionComponent implements OnInit {
 
   availableCategories: DataCategories[] = [
     { id: 0, name: 'Published Results and SRD' },
-    // { id: 1, name: 'Reference' },
-    // { id: 2, name: 'Resource' },
-    // { id: 3, name: 'Published' },
     { id: 2, name: 'Publishable' },
     { id: 3, name: 'Working' },
     { id: 4, name: 'Derived' },
@@ -119,12 +116,11 @@ export class DataDescriptionComponent implements OnInit {
 
   /**
    * Determines the storage tier for a set of selected categories.
-   * Highest tier present wins (top > mid > low). Includes the currently
-   * commented-out categories so this stays correct if they are re-enabled.
+   * Highest tier present wins (top > mid > low).
    */
   private computeStorageTier(categories: string[]): string {
-    const top = ['Published Results and SRD', 'Reference', 'Resource'];
-    const mid = ['Published', 'Publishable'];
+    const top = ['Published Results and SRD'];
+    const mid = ['Publishable'];
     const low = ['Working', 'Derived'];
 
     if (categories.some(c => top.includes(c))) return 'top';
