@@ -32,13 +32,12 @@ import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PageErrorComponent } from './page-error/page-error.component';
 import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
-// import { ConfigModule } from './config/config.module';
 import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
 
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
-import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule, 
+import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule,
   AuthenticationService, MockAuthenticationService, FooterComponent, HeaderComponent } from 'oarng';
 
 
@@ -66,7 +65,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    // AuthModule,
+    // AuthModule,  // enabled in production; MockAuthenticationService used in dev
     ConfigModule,
     StaffDirModule,
     FrameModule,
@@ -94,7 +93,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   providers: [
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
-    { provide: AuthenticationService, useClass:MockAuthenticationService }
+    { provide: AuthenticationService, useClass:MockAuthenticationService } // MockAuthenticationService used in dev. Comment out in production
   ],
 
   bootstrap: [AppComponent]
