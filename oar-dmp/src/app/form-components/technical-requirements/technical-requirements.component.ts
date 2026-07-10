@@ -1,14 +1,13 @@
-import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
-import { defer, map, of, startWith } from 'rxjs';
+import { defer, map, of, startWith, Subject, takeUntil } from 'rxjs';
 import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
 import { SoftwareDevelopment } from '../../types/software-development.type';
-import { Subscription } from 'rxjs';
 
 import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
@@ -50,8 +49,11 @@ const INSTR_COL_SCHEMA = [
   styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TechnicalRequirementsComponent implements OnInit {
+export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   // ================================  
+
+  /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
+  private destroy$ = new Subject<void>();
 
   disableAdd:boolean = true;
   disableClear:boolean = true;
@@ -73,7 +75,8 @@ export class TechnicalRequirementsComponent implements OnInit {
 
   // ================================  
 
-  storageSubscription!: Subscription | null;  
+  /** Guard so the data-category stream is wired at most once. */
+  private dataCategoryWired = false;
   errorMessage: string = '';
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
@@ -252,11 +255,19 @@ export class TechnicalRequirementsComponent implements OnInit {
   dataSetSize = "";
   dataCategoryIsSet:boolean = false;
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   //subscribe to a particular subject
   dataCategorySubscribe() {
-    if (!this.storageSubscription) {
-      //subscribe if not already subscribed
-      this.storageSubscription = this.sharedService.dataCategories$.subscribe({
+    if (this.dataCategoryWired) return;
+    this.dataCategoryWired = true;
+
+    this.sharedService.dataCategories$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (message) => {
           this.dataCategoryIsSet = message;
           if(!message){
@@ -267,7 +278,6 @@ export class TechnicalRequirementsComponent implements OnInit {
           }
         }
       });
-    }
   }
 
   dataSizeRegEx : RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
