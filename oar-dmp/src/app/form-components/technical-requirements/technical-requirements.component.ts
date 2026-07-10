@@ -419,20 +419,12 @@ export class TechnicalRequirementsComponent implements OnInit {
   setDatabaseUse(sel: string){
     // this.databaseUse = sel;
     this.sftDev["softwareDatabase"] = sel;
-    //send message to resource options to highlight correct row in the Database table
-    //located in resource-options component 
-    this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
-
   }
 
   // determines whether a website will be used for the softwre development
   setWebsiteDev(sel: string){
     // this.websiteUse = sel;
     this.sftDev["softwareWebsite"] = sel;
-    //send message to resource options to highlight correct row in the Database table
-    //located in resource-options component 
-    this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
-
   }
 
   removeSelectedRows() {

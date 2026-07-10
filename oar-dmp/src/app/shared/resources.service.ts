@@ -24,12 +24,6 @@ export class ResourcesService {
   // property for setting software options
   softwareSubject$ = new Subject<string>();
 
-  // property for setting database options
-  databaseSubject$ = new Subject<string>();
-
-  // property for setting website options
-  websiteSubject$ = new Subject<string>();
-
   // property for setting data categories to inform
   // technical requirements module
   dataCategories$ = new Subject<boolean>();
