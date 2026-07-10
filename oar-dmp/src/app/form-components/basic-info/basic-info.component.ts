@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
 import { UntypedFormBuilder, Validators} from '@angular/forms';
 
 import { defer, map, of, startWith } from 'rxjs';
@@ -9,8 +9,8 @@ import { DMP_Meta } from '../../types/DMP.types';
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss', '../form-layout.scss', '../form-table.scss']
 })
-export class BasicInfoComponent implements OnInit {
-  
+export class BasicInfoComponent {
+
 
   // Let's start with a child component that is responsible for a part of the form. 
   // The component injects the FormBuilder and creates a new form group with their 
@@ -86,15 +86,5 @@ export class BasicInfoComponent implements OnInit {
   constructor(private fb: UntypedFormBuilder) {
     // console.log("Basic Info Component");   
   }
-
-  ngOnInit(): void {
-    // /**
-    //  * NOTE Comment below when woking with API
-    //  */
-    // this.getNistOrganizations();
-
-  }
-
-  
 
 }
