@@ -393,19 +393,6 @@ export class TechnicalRequirementsComponent implements OnInit {
       this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
       this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);      
     }
-    else{
-      //if there is software development being done as part of a DMP send message
-      //to resource options to highlight correct row in the Software Tools table
-      //located in resource-options component 
-      // this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
-      // this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
-
-      // this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
-      // this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
-
-      // this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
-      // this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
-    }
   }
 
   //returns true or false to determine whether to display options for type of softwae
