@@ -1,47 +1,54 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { lowerCase } from 'lodash';
 
+/**
+ * Decides whether a resource-grid cell should be highlighted for the current
+ * selection.
+ *
+ * @param item    A single-key object from nist-resources.json describing which
+ *                selection values light up this cell, e.g.
+ *                { storageSelection: ['GB', 'TB'] }. The key names a selection
+ *                dimension; the value lists the matching options.
+ * @param message The component's current selections keyed by the same names,
+ *                e.g. { storageSelection: 'GB', softwareSelection: 'internal' }.
+ *
+ * Returns true when the current selection for `item`'s key is a case-insensitive
+ * substring of any option in `item`'s value array.
+ */
 @Pipe({
   name: 'filter'
 })
 export class FilterPipe implements PipeTransform {
 
-  transform(item: Object, message: any): boolean {
+  transform(
+    item: Record<string, string[]> | null | undefined,
+    message: Record<string, string> | null | undefined
+  ): boolean {
     if (!item) {
       return false;
     }
     if (!message) {
       return false;
     }
-    //the lenght of item object must always be 1 because it has to have one key-value pair
-    if (Object.keys(item).length !==1){
-      return false
+    // The item object must always describe exactly one selection dimension.
+    if (Object.keys(item).length !== 1) {
+      return false;
     }
 
-    let k: keyof typeof item;     
-    let searchItem: string = ""; 
-    let options: Array<typeof item>;
-    for (k in item){
-      searchItem = message[k];
-      if (searchItem ===''){
-        return false
+    for (const k of Object.keys(item)) {
+      const selection = message[k];
+      // No current selection for this dimension (empty or key absent): no match.
+      if (!selection) {
+        return false;
       }
-      // convert message to lowerCase
-      searchItem = searchItem.toLocaleLowerCase();
-      // Conversion of type 'X' to type 'Y' may be a mistake in TS
-      // The error "Conversion of type 'X' to type 'Y' may be a mistake because 
-      // neither type sufficiently overlaps with the other" occurs when we use a 
-      // type assertion with incompatible types.
 
-      // To solve the error, widen the item[k] type to unknown first and then narrow it down to Array<string>.
-      let a = item[k] as unknown as Array<string>
-      let searchResult = a.filter(element => {
-        // iterate over elements in item array
-        // convert element in array to lowerCase and search against searchItem
-        return element.toLocaleLowerCase().includes(searchItem);      
-      });
+      const needle = selection.toLocaleLowerCase();
+      const options = item[k] ?? [];
 
-      if (searchResult.length > 0){
+      const matched = options.some(
+        (option) => option.toLocaleLowerCase().includes(needle)
+      );
+
+      if (matched) {
         return true;
       }
     }
