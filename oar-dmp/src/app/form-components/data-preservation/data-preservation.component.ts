@@ -132,10 +132,11 @@ export class DataPreservationComponent {
   }
 
   addReactivePathsURLs(event: MatChipInputEvent): void {
-    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
-    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through,
+    // we trim each chip first, then drop any that are empty after trimming.
     const chips = (this.spChips.splitChips(event.value.trim()) || [])
-                  .filter(chip => chip.trim().length > 0);
+      .map(chip => chip.trim())
+      .filter(chip => chip.length > 0);
 
     // Add our path
     if (chips.length) {
@@ -148,9 +149,9 @@ export class DataPreservationComponent {
 
         return merged;
       });
-    }
 
-    event.chipInput!.clear();
+      event.chipInput!.clear();
+    }
   }
 
   onBlur(event: FocusEvent) {
