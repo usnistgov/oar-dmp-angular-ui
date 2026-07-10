@@ -35,10 +35,18 @@ export class NistResourcesService {
   }
 
   /**
-     * Handle the HTTP errors.
-     * @param error The error object.
-     * @returns An observable containing the error message.
-     */
+   * Handle the HTTP errors.
+   *
+   * This service runs from an APP_INITIALIZER, so failures happen during
+   * bootstrap before the router/UI exist. The NIST resources drive only the
+   * supplementary resource-highlighting panel, and getNistResources() already
+   * falls back to an empty { RESOURCES: [] }, so a load failure is non-fatal:
+   * we log it and let the app continue rather than blocking the user with an
+   * alert. The error is still re-thrown to preserve the observable contract.
+   *
+   * @param error The error object.
+   * @returns An observable containing the error message.
+   */
   private handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
@@ -48,7 +56,7 @@ export class NistResourcesService {
         // Get server-side error
         errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    window.alert(errorMessage);
+    console.error('Failed to load NIST resources: ' + errorMessage);
     return throwError(() => {
         return errorMessage;
     });
