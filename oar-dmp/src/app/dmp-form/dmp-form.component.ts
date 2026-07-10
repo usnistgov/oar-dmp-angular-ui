@@ -359,6 +359,10 @@ export class DmpFormComponent implements OnInit, OnDestroy {
    * Enables the save button iff the live form differs from the loaded/last-saved
    * snapshot. Called on every valueChanges and right after the snapshot is taken.
    */
+  /**
+   * Enables the save button iff the live form differs from the loaded/last-saved
+   * snapshot. Called on every valueChanges and right after the snapshot is taken.
+   */
   private refreshSaveButtonState(): void {
     // Before we have a baseline (mid first-load), never show unsaved changes.
     if (!this.loadedSnapshot) {
@@ -368,25 +372,6 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     }
 
     const changed = !_.isEqual(this.dmp, this.loadedSnapshot);
-
-    if (changed) {
-      const live: any = this.dmp;
-      const snap: any = this.loadedSnapshot;
-      const keys = new Set([...Object.keys(live), ...Object.keys(snap)]);
-      const diffs: any[] = [];
-      keys.forEach(k => {
-        const inLive = Object.prototype.hasOwnProperty.call(live, k);
-        const inSnap = Object.prototype.hasOwnProperty.call(snap, k);
-        if (!inLive || !inSnap) {
-          diffs.push({ key: k, presentInLive: inLive, presentInSnap: inSnap,
-                       liveVal: live[k], snapVal: snap[k] });
-        } else if (!_.isEqual(live[k], snap[k])) {
-          diffs.push({ key: k, liveType: typeof live[k], snapType: typeof snap[k],
-                       liveVal: live[k], snapVal: snap[k] });
-        }
-      });
-      // console.log('[refreshSaveButtonState] CHANGED. Diffs:', JSON.stringify(diffs));
-    }
 
     if (changed) {
       this.enableSaveButton();
