@@ -16,6 +16,13 @@ export class DataDescriptionComponent implements OnInit {
   pyramid: string = 'assets/images/pyramid.png'
   alttext: string = "Pyramid View of Data Categories"
 
+  // WARNING: the template (data-description.component.html) binds each checkbox
+  // by fixed array position — availableCategories[0]..[3] — not by `id`. The
+  // order and length of this array are therefore load-bearing: reordering,
+  // inserting, or removing an entry will silently rebind checkboxes to the
+  // wrong category without any compile-time or runtime error. If you change
+  // this array, update the positional [n] references in the HTML to match.
+  // (`id` is not used in logic or templates; matching is done by `name`.)
   availableCategories: DataCategories[] = [
     { id: 0, name: 'Published Results and SRD' },
     { id: 2, name: 'Publishable' },
