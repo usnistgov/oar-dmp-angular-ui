@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SubmitDmpService } from '../submit-dmp.service';
+import { SubmitDmpService } from './submit-dmp.service';
 
 describe('SubmitDmpService', () => {
   let service: SubmitDmpService;
