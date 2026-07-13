@@ -31,7 +31,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PageErrorComponent } from './page-error/page-error.component';
-import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
 import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
 
@@ -57,7 +56,6 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     DmpFormComponent,
     PageNotFoundComponent,
     PageErrorComponent,
-    PageDmpPublishedComponent,
     FilterPipe,
     SecurityAndPrivacyComponent
   ],
