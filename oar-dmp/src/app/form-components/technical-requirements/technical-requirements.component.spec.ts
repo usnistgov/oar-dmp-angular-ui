@@ -123,7 +123,7 @@ describe('TechnicalRequirementsComponent', () => {
 
     it('patches all software sub-fields when development is "yes"', () => {
       component.initialDMP_Meta = makeDmp({
-        dataSize: 10, sizeUnit: 'TB', dataSizeDescription: 'Total',
+        dataSize: '10', sizeUnit: 'TB', dataSizeDescription: 'Total',
         softwareDevelopment: { development: 'yes', softwareUse: 'internal', softwareDatabase: 'yes', softwareWebsite: 'no' },
       });
 
@@ -160,7 +160,7 @@ describe('TechnicalRequirementsComponent', () => {
   // -------------------------------------------------------------------------
   describe('ngOnInit', () => {
     it('resolves the dataSize dropdown id from the loaded sizeUnit', () => {
-      component.initialDMP_Meta = makeDmp({ dataSize: 5, sizeUnit: 'TB', softwareDevelopment: { development: 'no', softwareUse: '', softwareDatabase: '', softwareWebsite: '' } });
+      component.initialDMP_Meta = makeDmp({ dataSize: '5', sizeUnit: 'TB', softwareDevelopment: { development: 'no', softwareUse: '', softwareDatabase: '', softwareWebsite: '' } });
       fixture.detectChanges(); // triggers ngOnInit
       // 'TB' maps to id "3" in dataUnits
       expect(component.dataSize).toBe('3');
