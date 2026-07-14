@@ -63,7 +63,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    // AuthModule,  // enabled in production; MockAuthenticationService used in dev
+    AuthModule,  // enabled in production; MockAuthenticationService used in dev
     ConfigModule,
     StaffDirModule,
     FrameModule,
@@ -91,7 +91,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   providers: [
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
-    { provide: AuthenticationService, useClass:MockAuthenticationService } // MockAuthenticationService used in dev. Comment out in production
+    // { provide: AuthenticationService, useClass:MockAuthenticationService } // MockAuthenticationService used in dev. Comment out in production
   ],
 
   bootstrap: [AppComponent]
