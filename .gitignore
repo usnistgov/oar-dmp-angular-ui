@@ -59,6 +59,7 @@ my_project_tree.txt
 Thumbs.db
 
 #oar-dmp
+oar-dmp/.vscode
 oar-dmp/.angular
 oar-dmp/dist/*
 */node_modules
