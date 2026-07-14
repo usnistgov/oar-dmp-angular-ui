@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { UntypedFormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { DataCategories } from '../../types/data-categories.type';
@@ -58,7 +58,7 @@ export class DataDescriptionComponent implements OnInit {
       startWith(this.dataDescriptionForm.value),
       map(
         (formValue): Partial<DMP_Meta> => ({
-          dataDescription: formValue.dataDescription,
+          dataDescription: formValue.dataDescription ?? '',
           dataCategories: formValue.dataCategories ?? [],
         })
       )
@@ -72,10 +72,8 @@ export class DataDescriptionComponent implements OnInit {
     //resources service to talk between two components
     // (DataDescriptionComponent and ResourceOptionsComponent)
     private sharedService: ResourcesService,
-    private fb: UntypedFormBuilder
-  ) {
-    // console.log("Data Description Component");
-  }
+    private fb: FormBuilder
+  ) { }
 
   resetCheckboxes() {
     // Uncheck everything: clears the control and notifies the Storage panel.
@@ -145,5 +143,4 @@ export class DataDescriptionComponent implements OnInit {
     // setStorageTier now owns both the form update and the resource messaging.
     this.setStorageTier(e.target.defaultValue, e.target.checked);
   }
-
 }

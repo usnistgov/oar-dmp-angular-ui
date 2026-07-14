@@ -4,7 +4,7 @@ import { ROLES } from '../../types/contributor-roles';
 import { Contributor } from '../../types/contributor.type';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 
-import { UntypedFormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { Observable, defer, of, startWith, from, forkJoin, Subject } from 'rxjs';
 import { concatMap, map, switchMap, catchError, tap, takeUntil } from 'rxjs/operators';
 import { DMP_Meta } from '../../types/DMP.types';
@@ -312,7 +312,7 @@ export class PersonnelComponent implements OnDestroy {
    
   constructor(
     private dropDownService: DropDownSelectService,
-    private fb: UntypedFormBuilder,
+    private fb: FormBuilder,
     private sdsvc: StaffDirectoryService,
     private peopleUpdates: UpdateNistContributorService
   ) {
@@ -322,12 +322,16 @@ export class PersonnelComponent implements OnDestroy {
     this.peopleUpdates.updateOUs$.next({ numUpdates: this.OUsUpdated, isUpdated: false });
   }
 
+  // dmp_contributor / nistOrganization hold a typed string while the user is
+  // typing, or an SDSuggestion object once a dropdown option is picked — hence
+  // the `string | SDSuggestion` type. contributors/organizations mirror the
+  // table arrays. Explicit types stop the typed FormBuilder inferring never[].
   personnelForm = this.fb.group(
     {
-      dmp_contributor:            [''],
-      contributors:               [[]],
-      nistOrganization:           [],
-      organizations:              [[]]
+      dmp_contributor:  [''  as string | SDSuggestion],
+      contributors:     [[]  as Contributor[]],
+      nistOrganization: [null as string | SDSuggestion | null],
+      organizations:    [[]  as ResponsibleOrganizations[]]
     }
   );
 
@@ -441,8 +445,8 @@ export class PersonnelComponent implements OnDestroy {
       map(
         (formValue): Partial<DMP_Meta> =>(
           {
-            contributors:           formValue.contributors,
-            organizations:          formValue.organizations
+            contributors:  formValue.contributors  ?? [],
+            organizations: formValue.organizations ?? []
           }
         )
       )
@@ -763,23 +767,27 @@ export class PersonnelComponent implements OnDestroy {
     //                              NIST CONTRIBUTOR
     // ---------------------------------------------------------------------------------------------
     this.fltr_NIST_Contributor = this.personnelForm.controls['dmp_contributor'].valueChanges.pipe(
-      switchMap(usrInput => {        
+      switchMap((usrInput: string | SDSuggestion | null) => {
+        // Null/empty guard: nothing selected or typed yet.
+        if (usrInput == null) {
+          return [] as SDSuggestion[];
+        }
         // clear values until the user has picked a selection. 
         // This forces the form to accept only values that were selected from the dropdown menu
         // Reset NIST employee / associate fields
         this.crntContrib = this.emptyContributor();        
 
-        const val = typeof usrInput === 'string'; //checks the type of input value
-        if (!val){ 
+        if (typeof usrInput !== 'string'){   // an SDSuggestion was picked
           // if value is not string that means the user has picked a selection from dropdown suggestion box
           // so return an empty array to clear the dropdown suggestion box and set form values accordingly
 
           // returning result made to an async call
           this.personID = usrInput.id;
           return usrInput.getRecord().pipe(
-            map((rec: PeopleServiceRecord) => {
-              const person = this.normalizePeopleRecord(rec);   // null -> ""
-
+            map((rec) => {
+              // getRecord() is typed loosely (anyobj) by the oarng library;
+              // assert to the raw record shape at this boundary.
+              const person = this.normalizePeopleRecord(rec as PeopleServiceRecord);   // null -> ""
               this.crntContrib.peopleID = person.peopleID;
               
               this.crntContrib.firstName = person.firstName;
@@ -1329,9 +1337,11 @@ export class PersonnelComponent implements OnDestroy {
    */
   getNistOrganizations(){ 
     this.fltr_NIST_Org = this.personnelForm.controls['nistOrganization'].valueChanges.pipe(
-      switchMap(usrInput => {
-        const val = typeof usrInput === 'string';
-        if (!val){
+      switchMap((usrInput: string | SDSuggestion | null) => {
+        if (usrInput == null) {
+          return [] as SDSuggestion[];
+        }
+        if (typeof usrInput !== 'string'){   // an SDSuggestion was picked
           // Make async call to get parent organizations of the organization selected by the user
           return this.sdsvc.getParentOrgs(usrInput.id, true).pipe(
             map((recs) => {

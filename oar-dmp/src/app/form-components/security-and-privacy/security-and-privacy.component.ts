@@ -76,4 +76,9 @@ export class SecurityAndPrivacyComponent {
     const next = checked ? [...current, type] : current.filter(v => v !== type);
     this.securityAndPrivacyForm.patchValue({ dataCUI: next });
   }
+
+  /** Safely reads the checked state from a checkbox change event. */
+  isChecked(event: Event): boolean {
+    return (event.target as HTMLInputElement).checked;
+  }
 }

@@ -8,7 +8,7 @@
           type="checkbox"
           [id]="'dataSensitivity' + level"
           [checked]="isSensitivitySelected(level)"
-          (change)="toggleSensitivity(level, $event.target.checked)"
+          (change)="toggleSensitivity(level, isChecked($event))"
         >&nbsp;<label [for]="'dataSensitivity' + level"> {{ level }} </label>
       </ng-container>
       <br>
@@ -19,7 +19,7 @@
             type="checkbox"
             [id]="'cui' + type"
             [checked]="isCuiSelected(type)"
-            (change)="toggleCui(type, $event.target.checked)"
+            (change)="toggleCui(type, isChecked($event))"
           >&nbsp;<label [for]="'cui' + type"> {{ type }} </label>
         </ng-container>
         <br>

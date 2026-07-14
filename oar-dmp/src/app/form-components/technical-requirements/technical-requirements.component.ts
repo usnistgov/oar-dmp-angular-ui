@@ -3,16 +3,16 @@ import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { defer, map, of, startWith, Subject, takeUntil } from 'rxjs';
 import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
-import { SoftwareDevelopment } from '../../types/software-development.type';
 
 import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
+import { SoftwareDevelopment } from '../../types/software-development.type';
 
-interface InstrTblRow {  
+interface InstrTblRow {
   name: string;
   description_url: string;
   id: number;
@@ -50,7 +50,7 @@ const INSTR_COL_SCHEMA = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
-  // ================================  
+  // ================================
 
   /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
   private destroy$ = new Subject<void>();
@@ -69,11 +69,11 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     name:"",
     description_url:""
 
-  } 
+  }
 
   dmpInstrumentsTbl: InstrTblRow[] = []
 
-  // ================================  
+  // ================================
 
   /** Guard so the data-category stream is wired at most once. */
   private dataCategoryWired = false;
@@ -81,7 +81,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
 
-  reactiveInstruments = signal(['']);
+  reactiveInstruments = signal<string[]>(['']);
   instrumentsInputVal = '';
   // Reference the HTML input element that uses chips matching the #equipmentChips in the HTML
   @ViewChild('equipmentChips') chipInputEl!: ElementRef<HTMLInputElement>;
@@ -89,8 +89,10 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   // This finds the MatChipInput directive inside that same element
   @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
 
-  // This mimics the technical-requirements type interface from 
-  // types/technical-requirements.type.ts
+  // This mimics the technical-requirements type interface from
+  // types/technical-requirements.type.ts. technicalResources and instruments
+  // are explicitly typed so the typed FormBuilder infers string[]/Instrument[]
+  // rather than never[].
   technicalRequirementsForm = this.fb.group(
     {
       dataSize: ['', [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$")]], // only numbers
@@ -100,49 +102,43 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       softwareUse: [''],
       softwareDatabase: [''],
       softwareWebsite: [''],
-      technicalResources: [[]],
-      instruments: [[]]
+      technicalResources: [[] as string[]],
+      instruments: [[] as Instrument[]]
     }
   );
-  
+
   // message:any
   constructor(
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
-    private fb: UntypedFormBuilder,
+    private fb: FormBuilder,
     private spChips: ChipsSplitterService
-  ) { 
-    // console.log("Technical Requirements Component");
-  }
+  ) { }
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
     // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
     // loaded data), and the children aren't instantiated until initialDMP is set
-    // (*ngIf="initialDMP" on the parent form). 
+    // (*ngIf="initialDMP" on the parent form).
 
-    // loop over instruments array sent from the server and populate local copy of 
+    // loop over instruments array sent from the server and populate local copy of
     // instruments array to populate the table of instruments in the user interface
-
     technical_requirements.instruments.forEach(
       (anInstrument, index) => {
         this.dmpInstrumentsTbl.push({
-          id:               index, 
-          isEdit:           false, 
+          id:               index,
+          isEdit:           false,
           name:             anInstrument.name,
           description_url:  anInstrument.description_url,
-
-          
         });
         this.disableClear=false;
         this.disableRemove=false;
       }
     );
 
-    this.reactiveInstruments = signal(technical_requirements.technicalResources);
+    // Use .set() rather than reassigning the signal, so existing references
+    // (template bindings) keep pointing at the live signal.
+    this.reactiveInstruments.set(technical_requirements.technicalResources);
 
     // set initial values for technical requirements part of the form
     // to what has been sent from the server
@@ -161,7 +157,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       });
     }
     else{
-      // else if software development is set to no don't set options for 
+      // else if software development is set to no don't set options for
       // softwareUse, softwareDatabase, softwareWebsite
       // This will force the user to make a selection if they change software development to yes
       this.technicalRequirementsForm.patchValue({
@@ -176,43 +172,30 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
         instruments:                    technical_requirements.instruments
       });
     }
-    
   }
 
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
   @Output()
   formReady = of(this.technicalRequirementsForm);
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.technicalRequirementsForm.valueChanges.pipe(
       startWith(this.technicalRequirementsForm.value),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
+        (formValue): Partial<DMP_Meta> => ({
           dataSize:                       formValue.dataSize,
-          sizeUnit:                       formValue.sizeUnit,
-          dataSizeDescription:            formValue.dataSizeDescription,
+          sizeUnit:                       formValue.sizeUnit ?? '',
+          dataSizeDescription:            formValue.dataSizeDescription ?? '',
           softwareDevelopment:            {
-                                            "development":formValue.development,
-                                            "softwareUse":formValue.softwareUse,
-                                            "softwareDatabase":formValue.softwareDatabase,
-                                            "softwareWebsite":formValue.softwareWebsite
+                                            "development":formValue.development ?? '',
+                                            "softwareUse":formValue.softwareUse ?? '',
+                                            "softwareDatabase":formValue.softwareDatabase ?? '',
+                                            "softwareWebsite":formValue.softwareWebsite ?? ''
                                           },
-          technicalResources:             formValue.technicalResources,
-          instruments:                    formValue.instruments
+          technicalResources:             formValue.technicalResources ?? [],
+          instruments:                    formValue.instruments ?? []
         })
       )
-
     )
   );
 
@@ -220,12 +203,12 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.dataCategorySubscribe()
     // This function gets executed after initial data from the parent has been passed in and allows for
     // setting check states used for radio buttons etc.
-    
-    this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value;
+
+    this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value ?? '';
     for (var val of this.dataUnits) {
       if(val.size === this.dataSetSize){
         this.dataSize = val.id
-      }      
+      }
     }
 
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
@@ -233,24 +216,23 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       // dataSizeInput can be none or undefined if no data has be inserted in the text box
       // so check first if the value of the textbox is a string
       if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
-        this.sharedService.setStorageMessage(this.dataSetSize); 
+        this.sharedService.setStorageMessage(this.dataSetSize);
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
 
     //this triggers highlighting in the resource options table / guide
-    this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value);
+    this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value ?? '');
 
     // if software development is set to yes then set the rest of the radio buttons
     // according to passed metadata
     if (this.technicalRequirementsForm.controls['development'].value === "yes"){
-      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
-      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
-      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);
-    }    
-
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value ?? '');
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value ?? '');
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value ?? '');
+    }
   }
-  
+
   dataSize = "";
   dataSetSize = "";
   dataCategoryIsSet:boolean = false;
@@ -283,7 +265,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   dataSizeRegEx : RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
   // used for estimated data size drop down of data units options
-  dataUnits =[    
+  dataUnits =[
     {
       id: "1",
       size: 'MB'
@@ -303,9 +285,9 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     // assign the value to dataSetSize variable that is further used
     // in HTML portion of the component for changing the class name
     // of myDiv1
-  
+
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;    
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
     // dataSizeInput can be none or undefined if no data has be inserted in the text box
     // so check first if the value of the textbox is a string
     if (typeof dataSizeInput === 'string'){
@@ -332,11 +314,11 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   }
 
   setDataSize(e:any){
-    //send message to subscribed components    
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    //send message to subscribed components
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value ?? '';
     if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
-        this.sharedService.setStorageMessage(this.dataSetSize);    
+        this.sharedService.setStorageMessage(this.dataSetSize);
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
@@ -347,8 +329,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
         this.sharedService.storageSubject$.next("");
       }
     }
-    
-
   }
 
   techRsrc: string[] = [];
@@ -375,7 +355,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.techRsrcErr = '';
   }
 
-  setDataSizeDescription(e: string): void {    
+  setDataSizeDescription(e: string): void {
     this.technicalRequirementsForm.patchValue(
       {
         dataSizeDescription: e
@@ -399,20 +379,20 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
         softwareDatabase:               "",
         softwareWebsite:                ""
       });
-      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
-      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
-      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);      
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value ?? '');
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value ?? '');
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value ?? '');
     }
   }
 
   //returns true or false to determine whether to display options for type of softwae
   // that is being developed as part of a DMP
   selSoftwareDev(name:string): boolean{
-    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so nothing is shown  
-      return false;  
+    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so nothing is shown
+      return false;
     }
-    else {      
-      return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false 
+    else {
+      return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false
     }
   }
 
@@ -421,7 +401,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     // this.softwareUse = e;
     this.sftDev["softwareUse"] = e;
     //send message to resource options to highlight correct row in the Software Tools table
-    //located in resource-options component 
+    //located in resource-options component
     this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
   }
 
@@ -468,7 +448,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       this.disableClear = true;
       this.disableRemove = true;
     }
-  }  
+  }
 
   addRow(){
     // Disable buttons while the user is inputing new row
@@ -486,15 +466,14 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       isEdit: false,
     };
 
-    // add new row to the dmpInstrumentsTbl array 
+    // add new row to the dmpInstrumentsTbl array
     // using the spread operator '...'
-    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];    
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
 
     //update changes made to the table in the form
     this.onDoneClick(newRow);
 
     this.resetInstrumentFields();
-
   }
 
   onDoneClick(e: any) {
@@ -529,15 +508,11 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.errorMessage = "";
 
     this.dmpInstrument = {name:"", description_url:""};
-
-
   }
-  
-  
 
   clearTable(){
     const result = confirmDialog("Are you sure you want to delete all instrument(s) for this DMP?");
-    
+
     if (result) {
       this.dmpInstrumentsTbl = []
       this.resetTable();
@@ -545,7 +520,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       this.disableRemove=true;
     }
   }
-  
+
   resetTable() {
     this.syncInstrumentsToForm(); // dmpInstrumentsTbl is the source; emits [] when empty
   }
@@ -553,7 +528,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   checkInstrData(e:any){
     // Check if both Instrument Name and Description/url have been filled out
     if (this.dmpInstrument.name !== '' && this.dmpInstrument.description_url !== ''){
-      this.disableAdd = false;      
+      this.disableAdd = false;
     }
     else{
       this.disableAdd = true;
@@ -582,11 +557,10 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       technicalResources:[]
     })
     this.clearTable();
-    
   }
 
   removeReactiveInstruments(keyword: string) {
-    
+
     this.reactiveInstruments.update(technicalResources => {
       const index = technicalResources.indexOf(keyword);
       if (index < 0) {
@@ -594,9 +568,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       }
 
       technicalResources.splice(index, 1);
-
-      // reset the technicalResources array
-      this.technicalRequirementsForm.value['technicalResources'] = [];
 
       // repopulate the array
       // Keep the form control in sync as a plain string[] — the same shape
@@ -608,8 +579,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
 
       return [...technicalResources];
     });
-
-    
   }
 
   addReactiveInstruments(event: MatChipInputEvent): void {
@@ -638,9 +607,9 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   }
 
   onBlur(event: FocusEvent) {
-    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed
     // elsewhere with a mouse
-    
+
     // Trigger event if input is not empty
     if (this.instrumentsInputVal !== ''){
       this.triggerAddChip();
@@ -648,9 +617,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   }
 
   onInputChange(value: string){
-    // console.log('onInputChange', value);
     this.instrumentsInputVal = value;
-
   }
 
   triggerAddChip() {
@@ -679,7 +646,4 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     }));
     this.technicalRequirementsForm.patchValue({ instruments });
   }
-
-
-
 }
