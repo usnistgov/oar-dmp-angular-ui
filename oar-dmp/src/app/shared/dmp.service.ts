@@ -1,20 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, catchError, throwError, switchMap } from 'rxjs';
+import { of, throwError, switchMap } from 'rxjs';
 import { DMP_Meta } from '../types/DMP.types';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MIDASDMP } from '../types/midas-dmp.type';
 import { ConfigurationService, AuthenticationService, Credentials } from 'oarng';
 import { DMPConfiguration } from './config.model';
-// import { ConfigurationService } from '../config/config.module';
-// import * as jsonData from '../../assets/environment.json'// remove this line and import configservice from ../service config.service
 
 @Injectable({
   providedIn: 'root'
 })
 export class DmpService {
-
-  // PDR_API = "http://localhost:9091/midas/dmp/mdm1"//https://mdsdev.nist.gov
-  // dmpsAPI = "http://127.0.0.1:5000/dmps"  
 
   // The link for the API that saves and gets data for DMP is provided in the 
   // environment.json file located in assets directory
@@ -48,19 +43,10 @@ export class DmpService {
     //Basic Info Meta data
     title:                    '',
     startDate:                '',
-    // endDate:                  '',
     dmpSearchable:            'yes',
     funding:                  {grant_source:'Grant Number', grant_id:''},
     projectDescription:       '',
     
-
-    //Personel
-    // primary_NIST_contact:     {
-    //   firstName:"", lastName:"", orcid:"", emailAddress:"",
-    //   groupOrgID:0, groupNumber:"", groupName:"",
-    //   divisionOrgID:0, divisionNumber:"", divisionName:"",
-    //   ouOrgID:0, ouNumber:"", ouName:"",
-    // },
     organizations:            [],
     contributors:             [],
 
@@ -153,9 +139,6 @@ export class DmpService {
         return this.http.post<any>(apiAddress,
                                    JSON.stringify(midasDMP),
                                    this.getHttpOptions(creds));
-        // return this.http.post<Array<any>>(this.dmpsAPI,
-        //                                   JSON.stringify(midasDMP),
-        //                                   this.getHttpOptions(creds))
       })
     );
     
@@ -174,9 +157,19 @@ export class DmpService {
       switchMap(creds => {
         if (! creds)
           return throwError(() => new Error('Authentication Failed'));
-        return this.http.get<any>(apiAddress, this.getHttpOptions(creds))
+        let res = this.http.get<any>(apiAddress, this.getHttpOptions(creds));
+        return res;
       })
     );
+  }
+
+  // Expose the default template shape.
+  // Add a getter so the component can
+  // use it as the canonical shape (returns a deep clone so callers can't mutate
+  // the template):
+
+  getBlankDmp(): DMP_Meta {
+    return JSON.parse(JSON.stringify(this.NewDmpRecord));
   }
 
 }

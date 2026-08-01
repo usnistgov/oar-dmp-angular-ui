@@ -5,9 +5,9 @@ import { HttpClientModule } from '@angular/common/http'
 
 import { AppComponent } from './app.component';
 import { BasicInfoComponent } from './form-components/basic-info/basic-info.component';
-import { PersonelComponent } from './form-components/personel/personel.component';
+import { PersonnelComponent } from './form-components/personnel/personnel.component';
 import { KeywordsComponent } from './form-components/keywords/keywords.component';
-import { StorageNeedsComponent } from './form-components/technical-requirements/technical-requirements.component';
+import { TechnicalRequirementsComponent } from './form-components/technical-requirements/technical-requirements.component';
 import { EthicalIssuesComponent } from './form-components/ethical-issues/ethical-issues.component';
 import { DataDescriptionComponent } from './form-components/data-description/data-description.component';
 import { ResourceOptionsComponent } from './resource-options/resource-options.component';
@@ -31,14 +31,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PageErrorComponent } from './page-error/page-error.component';
-import { PageDmpPublishedComponent } from './page-dmp-published/page-dmp-published.component';
-// import { ConfigModule } from './config/config.module';
 import { NistResourcesModule } from './config/nist-resources.module';
 import { FilterPipe } from './resource-options/filter.pipe';
 
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
-import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule, 
+import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule,
   AuthenticationService, MockAuthenticationService, FooterComponent, HeaderComponent } from 'oarng';
 
 
@@ -48,9 +46,9 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   declarations: [
     AppComponent,
     BasicInfoComponent,
-    PersonelComponent,
+    PersonnelComponent,
     KeywordsComponent,
-    StorageNeedsComponent,
+    TechnicalRequirementsComponent,
     EthicalIssuesComponent,
     DataDescriptionComponent,
     ResourceOptionsComponent,
@@ -58,7 +56,6 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     DmpFormComponent,
     PageNotFoundComponent,
     PageErrorComponent,
-    PageDmpPublishedComponent,
     FilterPipe,
     SecurityAndPrivacyComponent
   ],
@@ -66,7 +63,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    AuthModule,
+    AuthModule,  // enabled in production; MockAuthenticationService used in dev
     ConfigModule,
     StaffDirModule,
     FrameModule,
@@ -94,7 +91,7 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
   providers: [
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
-    // { provide: AuthenticationService, useClass:MockAuthenticationService }
+    // { provide: AuthenticationService, useClass:MockAuthenticationService } // MockAuthenticationService used in dev. Comment out in production
   ],
 
   bootstrap: [AppComponent]

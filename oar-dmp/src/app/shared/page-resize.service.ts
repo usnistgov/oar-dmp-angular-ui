@@ -24,12 +24,12 @@ import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
  * Otherwise we're seeing it in mobile device mode so no need to pad the page
  */
 export class PageResizeService {
-  resorcesHeight: number;
+  resourcesHeight : number;
   footerWidth: number;
   renderer: Renderer2
 
   constructor(rendererFactory: RendererFactory2) { 
-    this.resorcesHeight = 0;
+    this.resourcesHeight = 0;
     this.footerWidth = 0;
     this.renderer = rendererFactory.createRenderer(null, null);
   }
@@ -41,7 +41,7 @@ export class PageResizeService {
 
     const resourcesObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
-        this.resorcesHeight = entry.contentRect.height;    
+        this.resourcesHeight = entry.contentRect.height;    
       }
     });
 
@@ -55,7 +55,7 @@ export class PageResizeService {
         if ( this.footerWidth > 1280){
           // if witdh of the viewing screen is greater than 1280px then extend the height of the page content container
           // to match the height of right hand side the resources table
-          let contentHeight = this.resorcesHeight - 90;
+          let contentHeight = this.resourcesHeight - 90;
           this.renderer.setStyle(pageContent, 'height', contentHeight+'px');
         }
         else{

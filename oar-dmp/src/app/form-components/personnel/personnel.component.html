@@ -1,6 +1,51 @@
 
 <div class="dmpSection">
   <div class="header">Researchers</div>
+
+  <!-- The role="status" makes it announce to screen readers without stealing focus (appropriate for a non-urgent, after-the-fact notice). 
+   The *ngIf on autoUpdateChanges.length means it only renders when there's something to show, and disappears on dismiss. -->
+
+  <div class="autoupdate-notice" *ngIf="autoUpdateChanges.length" role="status">
+    <p class="autoupdate-notice__intro">
+      Some contributor details were automatically updated to match the latest
+      NIST People Service records, and this DMP was re-saved:
+    </p>
+    <ul class="autoupdate-notice__list">
+      <li *ngFor="let change of autoUpdateChanges">
+        <strong>{{ change.contributorName }}</strong> —
+        {{ change.field }}:
+        <ng-container *ngIf="change.showTransition; else newOnly">
+          {{ change.from || '(none)' }} → {{ change.to || '(none)' }}
+        </ng-container>
+        <ng-template #newOnly>
+          {{ change.to ? 'updated' : 'removed' }}
+        </ng-template>
+      </li>
+    </ul>
+    <button type="button" mat-flat-button class="autoupdate-notice__dismiss" (click)="dismissAutoUpdateNotice()">
+      Got it
+    </button>
+  </div>
+
+  <div class="unmatched-notice" *ngIf="unmatchedContributors.length" role="status">
+    <p class="unmatched-notice__intro">
+      The following contributors could not be matched in the NIST People Service.
+      They may no longer be with NIST — review and remove them if appropriate:
+    </p>
+    <ul class="unmatched-notice__list">
+      <li *ngFor="let c of unmatchedContributors">
+        <strong>{{ c.contributorName }}</strong>
+        <button type="button" mat-button class="unmatched-notice__remove"
+                (click)="removeUnmatchedContributor(c)">
+          Remove
+        </button>
+      </li>
+    </ul>
+    <button type="button" mat-flat-button class="unmatched-notice__dismiss"
+            (click)="dismissUnmatchedNotice()">
+      Got it
+    </button>
+  </div>
   
   <div class="dmp-frm-container">
    
@@ -30,10 +75,10 @@
               <!-- <tr>
                 <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
                 <td class="cell-top">
-                  <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personelForm.controls['primaryNistContact']">
+                  <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personnelForm.controls['primaryNistContact']">
                   <label for="primCntcY">Yes</label>
 
-                  <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personelForm.controls['primaryNistContact']">
+                  <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personnelForm.controls['primaryNistContact']">
                   <label for="primCntcN">No</label>
                 </td>
               </tr> -->
@@ -63,7 +108,7 @@
                           aria-label="Nist Contributor"
                           style="background-color: rgb(252, 252, 252);"
                           matInput
-                          [formControl]="personelForm.controls['dmp_contributor']"
+                          [formControl]="personnelForm.controls['dmp_contributor']"
                           [matAutocomplete]="dmp_contributor">
                     <mat-autocomplete 
                       #dmp_contributor="matAutocomplete"
@@ -79,7 +124,7 @@
               </tr>
               <tr>
                 <td class="cell-top">ORCID</td>
-                <td class="cell-top"><input type="text" [(ngModel)]="nistContribOrcid"></td>
+                <td class="cell-top"><input type="text" [(ngModel)]="crntContrib.orcid"></td>
               </tr>
               <tr>
                 <td>Role</td>
@@ -270,7 +315,7 @@
                     aria-label="NIST Organization"
                     style="background-color: rgb(252, 252, 252);"
                     matInput
-                    [formControl]="personelForm.controls['nistOrganization']"
+                    [formControl]="personnelForm.controls['nistOrganization']"
                     [matAutocomplete]="nistOrganization"
                     >
               <mat-autocomplete 

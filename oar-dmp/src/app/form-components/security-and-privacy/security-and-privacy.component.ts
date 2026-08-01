@@ -1,5 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
-import { UntypedFormBuilder, Validators} from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 
@@ -10,154 +10,75 @@ import { DMP_Meta } from '../../types/DMP.types';
 })
 export class SecurityAndPrivacyComponent {
 
-  constructor(private fb: UntypedFormBuilder) {
-    // console.log("Security and Privacy Component");
-  }
+  readonly sensitivityLevels = ['Low', 'Medium', 'High'];
+  readonly cuiTypes = ['BII', 'PII', 'Export Controlled (EAR)', 'ITAR', 'Proprietary'];
 
-  dataSensitivityMap = new Map([
-    ['Low', false],
-    ['Medium', false],
-    ['High', false]
-  ]);
-
-  cuiMap = new Map([
-    ['BII', false],
-    ['PII', false],
-    ['Export Controlled (EAR)', false],
-    ['ITAR', false],
-    ['Proprietary', false]
-  ]);
-
-  showCUI_chk: boolean = false;
-
-  // Let's start with a child component that is responsible for a part of the form. 
-  // The component injects the FormBuilder and creates a new form group with their 
-  // form controls, validators and any other configuration
   securityAndPrivacyForm = this.fb.group({
-    dataSensitivity: [[]],
-    dataCUI:[[]]
+    dataSensitivity: [[] as string[]],
+    dataCUI: [[] as string[]]
   });
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
+  constructor(private fb: UntypedFormBuilder) {}
+
   @Input()
   set initialDMP_Meta(securityAndPrivacy: DMP_Meta) {
-    if (Object.keys(securityAndPrivacy).length < 1){
-      this.securityAndPrivacyForm.patchValue({
-        dataSensitivity:          [],
-        dataCUI:                  []
-      });
-    }
-    else {
-      if(securityAndPrivacy.security_and_privacy.data_sensitivity !== undefined){
-        securityAndPrivacy.security_and_privacy.data_sensitivity.forEach (
-          (value)=>{
-            // populate map for displaying check marks on the GUI form
-            this.dataSensitivityMap.set(value,true)
-
-            this.showCUI();
-          }
-        );
-      }
-      else{
-        // initialize arrays if they don't exist in od DMP records
-        securityAndPrivacy.security_and_privacy.data_sensitivity = [];
-      }
-
-      if(securityAndPrivacy.security_and_privacy.cui !== undefined){
-        securityAndPrivacy.security_and_privacy.cui.forEach (
-          (value)=>{
-            // populate map for displaying check marks on the GUI form
-            this.cuiMap.set(value,true)
-          }
-        );
-      }
-      else{
-        // initialize arrays if they don't exist in od DMP records
-        securityAndPrivacy.security_and_privacy.cui = [];
-      }
-
-      this.securityAndPrivacyForm.patchValue({
-        dataSensitivity:          securityAndPrivacy.security_and_privacy.data_sensitivity,
-        dataCUI:                  securityAndPrivacy.security_and_privacy.cui
-      });
-    }
+    // Parent always supplies a fully-shaped object; guard defensively anyway.
+    const sp = securityAndPrivacy.security_and_privacy;
+    this.securityAndPrivacyForm.patchValue({
+      dataSensitivity: sp.data_sensitivity ?? [],
+      dataCUI: sp.cui ?? [],
+    });
   }
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.securityAndPrivacyForm.valueChanges.pipe(
       startWith(this.securityAndPrivacyForm.value),
-      map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to this part of the form 
-          security_and_privacy: {
-            data_sensitivity:               formValue.dataSensitivity,
-            cui:                            formValue.dataCUI
-          }               
-          
-        })
-      )
+      map((formValue): Partial<DMP_Meta> => ({
+        security_and_privacy: {
+          data_sensitivity: formValue.dataSensitivity ?? [],
+          cui: formValue.dataCUI ?? []
+        }
+      }))
     )
   );
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
+
   @Output()
   formReady = of(this.securityAndPrivacyForm);
 
-  dataSensitivityChange(e:any){
-    this.dataSensitivityMap.set(e.target.defaultValue,e.target.checked)
+  // --- Derived checkbox state (control is the single source of truth) ---
 
-    this.showCUI();
+  isSensitivitySelected(level: string): boolean {
+    return (this.securityAndPrivacyForm.value['dataSensitivity'] as string[] ?? []).includes(level);
+  }
 
-    // pass by reference
-    let data_sensitivity = this.securityAndPrivacyForm.value['dataSensitivity'] as string[];
+  isCuiSelected(type: string): boolean {
+    return (this.securityAndPrivacyForm.value['dataCUI'] as string[] ?? []).includes(type);
+  }
 
-    if (e.target.checked){      
-      data_sensitivity.push(e.target.defaultValue);
-    }
-    else{
-      data_sensitivity.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          data_sensitivity.splice(index,1)
-        });
+  get showCUI_chk(): boolean {
+    return this.isSensitivitySelected('Medium') || this.isSensitivitySelected('High');
+  }
+
+  toggleSensitivity(level: string, checked: boolean): void {
+    const current = this.securityAndPrivacyForm.value['dataSensitivity'] as string[] ?? [];
+    const next = checked ? [...current, level] : current.filter(v => v !== level);
+    this.securityAndPrivacyForm.patchValue({ dataSensitivity: next });
+
+    // If CUI section just became hidden, its selections should not linger.
+    if (!this.showCUI_chk) {
+      this.securityAndPrivacyForm.patchValue({ dataCUI: [] });
     }
   }
 
-  cuiChange(e:any){
-    this.cuiMap.set(e.target.defaultValue,e.target.checked)
-
-    // pass by reference
-    let CUI = this.securityAndPrivacyForm.value['dataCUI'] as string[];
-
-    if (e.target.checked){      
-      CUI.push(e.target.defaultValue);
-    }
-    else{
-      CUI.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          CUI.splice(index,1)
-        });
-    }
+  toggleCui(type: string, checked: boolean): void {
+    const current = this.securityAndPrivacyForm.value['dataCUI'] as string[] ?? [];
+    const next = checked ? [...current, type] : current.filter(v => v !== type);
+    this.securityAndPrivacyForm.patchValue({ dataCUI: next });
   }
 
-  private showCUI(){
-    // set flag whether to show CUI check marks on the GUI form
-    if (this.dataSensitivityMap.get('Medium') || this.dataSensitivityMap.get('High')){
-      this.showCUI_chk = true;
-    }
-    else{
-      this.showCUI_chk = false;
-    }
+  /** Safely reads the checked state from a checkbox change event. */
+  isChecked(event: Event): boolean {
+    return (event.target as HTMLInputElement).checked;
   }
-
 }

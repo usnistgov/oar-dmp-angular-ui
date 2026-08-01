@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { FormArray, UntypedFormBuilder, FormControl } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { DataCategories } from '../../types/data-categories.type';
@@ -14,59 +14,42 @@ import { DataCategories } from '../../types/data-categories.type';
 export class DataDescriptionComponent implements OnInit {
 
   pyramid: string = 'assets/images/pyramid.png'
-  alttext: string="Pyramid View of Data Categories"
+  alttext: string = "Pyramid View of Data Categories"
 
-  availableCategories:DataCategories[]=[
+  // WARNING: the template (data-description.component.html) binds each checkbox
+  // by fixed array position — availableCategories[0]..[3] — not by `id`. The
+  // order and length of this array are therefore load-bearing: reordering,
+  // inserting, or removing an entry will silently rebind checkboxes to the
+  // wrong category without any compile-time or runtime error. If you change
+  // this array, update the positional [n] references in the HTML to match.
+  // (`id` is not used in logic or templates; matching is done by `name`.)
+  availableCategories: DataCategories[] = [
     { id: 0, name: 'Published Results and SRD' },
-    // { id: 1, name: 'Reference' },
-    // { id: 2, name: 'Resource' },
-    // { id: 3, name: 'Published' },
     { id: 2, name: 'Publishable' },
     { id: 3, name: 'Working' },
     { id: 4, name: 'Derived' },
-
   ]
 
   initialCategories: string[] = [];
 
-  dataCategoriesMap = new Map([
-    ['Published Results and SRD', false],
-    // ['Reference', false],
-    // ['Resource', false],
-    // ['Published', false],
-    ['Publishable', false],
-    ['Working', false],
-    ['Derived', false]
-  ]);
-
   dataDescriptionForm = this.fb.group({
     dataDescription: [''],
-    dataCategories: [[]]   
-
+    dataCategories: [[] as string[]]
   });
 
   @Input()
   set initialDMP_Meta(data_description: DMP_Meta) {
-    if (Object.keys(data_description).length < 1){
-      this.dataDescriptionForm.patchValue(
-        {
-          dataDescription:                '',
-          dataCategories:                 []
-        }
-      ); 
-    }
-    else{
-      this.initialCategories = data_description.dataCategories;
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
+    this.initialCategories = data_description.dataCategories ?? [];
 
-      this.dataDescriptionForm.patchValue(
-        {
-          dataDescription:                data_description.dataDescription,
-          dataCategories:                 data_description.dataCategories
-        }
-      );      
-    }
-    
-    
+    this.dataDescriptionForm.patchValue(
+      {
+        dataDescription: data_description.dataDescription,
+        dataCategories: data_description.dataCategories ?? []
+      }
+    );
   }
 
   @Output()
@@ -75,116 +58,89 @@ export class DataDescriptionComponent implements OnInit {
       startWith(this.dataDescriptionForm.value),
       map(
         (formValue): Partial<DMP_Meta> => ({
-          dataDescription:    formValue.dataDescription,
-          dataCategories:     formValue.dataCategories,
+          dataDescription: formValue.dataDescription ?? '',
+          dataCategories: formValue.dataCategories ?? [],
         })
       )
     )
   );
-  
+
   @Output()
-  formReady = of(this.dataDescriptionForm); 
+  formReady = of(this.dataDescriptionForm);
 
   constructor(
-    //resources service to talk between two components 
+    //resources service to talk between two components
     // (DataDescriptionComponent and ResourceOptionsComponent)
     private sharedService: ResourcesService,
-    private fb: UntypedFormBuilder
-  ) { 
-    // console.log("Data Description Component");
-  }
+    private fb: FormBuilder
+  ) { }
 
-  resetCheckboxes(){
-    
-    for (let category of this.dataCategoriesMap) {
-      // Fire off events to uncheck all checkboxes in Data Description part of the form
-      // and send message to highlight correct options in the Storage panel
-      this.setStorageTier(category[0],false);
-
+  resetCheckboxes() {
+    // Uncheck everything: clears the control and notifies the Storage panel.
+    for (const category of this.availableCategories) {
+      this.setStorageTier(category.name, false);
     }
   }
 
-  ngOnInit(): void {   
-    for (let category of this.initialCategories) {
+  ngOnInit(): void {
+    for (const category of this.initialCategories) {
       // Fire off events to check selected checkboxes in Data Description part of the form
       // and send message to highlight correct options in the Storage panel
-      this.setStorageTier(category,true);
+      this.setStorageTier(category, true);
     }
   }
 
   /**
-   * This function implements logic of creating storage tiers based on users selection of 
-   * categories of the data that will be generated by a DMP. This is based on the selection
-   * of checkboxes in the "Data Description" section of DMP user interface.
-   * It also fires off messages to resource options to correctly highlight suggestions
-   * in the "Storage" section of the resources panel.
-   * @param category 
-   * @param checked 
+   * Adds/removes a category on the form control (the single source of truth),
+   * then recomputes the storage tier from the resulting selection and fires
+   * the appropriate messages to the resource-options component.
+   * @param category
+   * @param checked
    */
+  setStorageTier(category: string, checked: boolean): void {
+    // Update the form control array (single source of truth)
+    const current = this.dataDescriptionForm.value['dataCategories'] as string[] ?? [];
+    const next = checked
+      ? (current.includes(category) ? current : [...current, category])
+      : current.filter(v => v !== category);
+    this.dataDescriptionForm.patchValue({ dataCategories: next });
 
-  setStorageTier(category:string,checked:boolean){
-    var storageTier: string = "";
-    this.dataCategoriesMap.set(category,checked)
+    // Compute storage tier from the current selection
+    const storageTier = this.computeStorageTier(next);
 
-    // Go through possibilities with tiers based on check box selections
-    for (let entry of this.dataCategoriesMap.entries()){
-      if (entry[0] === "Published Results and SRD" || entry[0] === "Reference" || entry[0] === "Resource" ){
-        if(entry[1]){
-            storageTier = "top";
-            break;
-        }
-      }
-      else if (entry[0] === "Published" || entry[0] === "Publishable" ){
-        if(entry[1]){
-            storageTier = "mid";
-            break;
-        }
-      }
-      else if (entry[0] === "Working" || entry[0] === "Derived" ){
-        if(entry[1]){
-            storageTier = "low";
-            break;
-        }
-      }
-    }   
-    
     this.sharedService.setStorageMessage(storageTier);
     this.sharedService.storageSubject$.next(storageTier);
 
-    // since data categories check boxes take presidence over estimated data size option in 
-    // technical requirements module, make sure to send apropriate message to the technical
-    // requirements module
-    if (storageTier === ""){
-      // if not check boxes are selected send false to indicate that storage resources should
-      // be highlighted according to estimated data size settings
-      this.sharedService.setDataCategories(false);
-      this.sharedService.dataCategories$.next(false);
-    }
-    else{
-      // if any of the boxes are selected send true to indicate that technical requirements module
-      // should not be sending any messages to the resource options component
-      this.sharedService.setDataCategories(true);
-      this.sharedService.dataCategories$.next(true);
-    }
-
+    // Data-category selections take precedence over the estimated-data-size
+    // option in technical requirements. Tell that module whether any category
+    // is set so it knows whether to drive the storage highlight itself.
+    const anySelected = storageTier !== "";
+    this.sharedService.setDataCategories(anySelected);
+    this.sharedService.dataCategories$.next(anySelected);
   }
 
-  dataCategoryChange(e:any) {
-    this.setStorageTier(e.target.defaultValue,e.target.checked);    
-    
-    // pass by reference
-    let dataCategories = this.dataDescriptionForm.value['dataCategories'] as string[];
+  /**
+   * Determines the storage tier for a set of selected categories.
+   * Highest tier present wins (top > mid > low).
+   */
+  private computeStorageTier(categories: string[]): string {
+    const top = ['Published Results and SRD'];
+    const mid = ['Publishable'];
+    const low = ['Working', 'Derived'];
 
-    if (e.target.checked){      
-      dataCategories.push(e.target.defaultValue);
-    }
-    else{
-      dataCategories.forEach((value,index)=>{
-        if(value === e.target.defaultValue) 
-          dataCategories.splice(index,1)
-        });
-    }
-
+    if (categories.some(c => top.includes(c))) return 'top';
+    if (categories.some(c => mid.includes(c))) return 'mid';
+    if (categories.some(c => low.includes(c))) return 'low';
+    return '';
   }
 
+  /** Checkbox display state, derived from the form control. */
+  isCategorySelected(category: string): boolean {
+    return (this.dataDescriptionForm.value['dataCategories'] as string[] ?? []).includes(category);
+  }
+
+  dataCategoryChange(e: any) {
+    // setStorageTier now owns both the form update and the resource messaging.
+    this.setStorageTier(e.target.defaultValue, e.target.checked);
+  }
 }

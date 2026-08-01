@@ -41,6 +41,9 @@ testem.log
 /typings
 VERSION
 dockbuild.log
+.nvmrc
+my_project_tree.txt
+
 
 # Other
 .cache
@@ -56,10 +59,13 @@ dockbuild.log
 Thumbs.db
 
 #oar-dmp
+oar-dmp/.vscode
 oar-dmp/.angular
 oar-dmp/dist/*
 */node_modules
 */.idea**
+jest_out.txt
+proj_tree.txt
 
 oar-dmp/.vscode/*
 !oar-dmp/.vscode/settings.json

@@ -1,21 +1,18 @@
-import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { confirmDialog } from 'src/app/shared/dmp.service';
 import { DropDownSelectService } from '../../shared/drop-down-select.service';
 //resources service to talk between two components
 import { ResourcesService } from '../../shared/resources.service';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
-import { defer, map, of, startWith } from 'rxjs';
-// import { DMP_Meta } from 'src/app/types/DMP.types';
-// import { SoftwareDevelopment } from 'src/app/types/software-development.type';
+import { FormBuilder, Validators } from '@angular/forms';
+import { defer, map, of, startWith, Subject, takeUntil } from 'rxjs';
 import { Instrument } from '../../types/instrument.type';
 import { DMP_Meta } from '../../types/DMP.types';
-import { SoftwareDevelopment } from '../../types/software-development.type';
-import { Subscription } from 'rxjs';
 
 import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
+import { SoftwareDevelopment } from '../../types/software-development.type';
 
-interface InstrTblRow {  
+interface InstrTblRow {
   name: string;
   description_url: string;
   id: number;
@@ -52,8 +49,11 @@ const INSTR_COL_SCHEMA = [
   styleUrls: ['./technical-requirements.component.scss', '../form-layout.scss', '../form-table.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StorageNeedsComponent {  
-  // ================================  
+export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
+  // ================================
+
+  /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
+  private destroy$ = new Subject<void>();
 
   disableAdd:boolean = true;
   disableClear:boolean = true;
@@ -69,18 +69,19 @@ export class StorageNeedsComponent {
     name:"",
     description_url:""
 
-  } 
+  }
 
   dmpInstrumentsTbl: InstrTblRow[] = []
 
-  // ================================  
+  // ================================
 
-  storageSubscription!: Subscription | null;  
+  /** Guard so the data-category stream is wired at most once. */
+  private dataCategoryWired = false;
   errorMessage: string = '';
   sftDev: SoftwareDevelopment = {development:"", softwareUse:"", softwareDatabase:"", softwareWebsite:""}
   separatorExp: RegExp = /,|;/;
 
-  reactiveInstruments = signal(['']);
+  reactiveInstruments = signal<string[]>(['']);
   instrumentsInputVal = '';
   // Reference the HTML input element that uses chips matching the #equipmentChips in the HTML
   @ViewChild('equipmentChips') chipInputEl!: ElementRef<HTMLInputElement>;
@@ -88,8 +89,10 @@ export class StorageNeedsComponent {
   // This finds the MatChipInput directive inside that same element
   @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
 
-  // This mimics the technical-requirements type interface from 
-  // types/technical-requirements.type.ts
+  // This mimics the technical-requirements type interface from
+  // types/technical-requirements.type.ts. technicalResources and instruments
+  // are explicitly typed so the typed FormBuilder infers string[]/Instrument[]
+  // rather than never[].
   technicalRequirementsForm = this.fb.group(
     {
       dataSize: ['', [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$")]], // only numbers
@@ -99,131 +102,100 @@ export class StorageNeedsComponent {
       softwareUse: [''],
       softwareDatabase: [''],
       softwareWebsite: [''],
-      technicalResources: [[]],
-      instruments: [[]]
+      technicalResources: [[] as string[]],
+      instruments: [[] as Instrument[]]
     }
   );
-  
+
   // message:any
   constructor(
     private dropDownService: DropDownSelectService,
     private sharedService: ResourcesService,
-    private fb: UntypedFormBuilder,
+    private fb: FormBuilder,
     private spChips: ChipsSplitterService
-  ) { 
-    // console.log("Technical Requirements Component");
-  }
+  ) { }
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(technical_requirements: DMP_Meta) {
-    if (Object.keys(technical_requirements).length < 1){
-      this.technicalRequirementsForm.patchValue({
-          dataSize:                       "",
-          sizeUnit:                       "",
-          dataSizeDescription:            "",
-          development:                    "",
-          softwareUse:                    "",
-          softwareDatabase:               "",
-          softwareWebsite:                "",
-          technicalResources:             [],
-          instruments:                    []
-        });
-      this.reactiveInstruments = signal([]);
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
 
+    // loop over instruments array sent from the server and populate local copy of
+    // instruments array to populate the table of instruments in the user interface
+    technical_requirements.instruments.forEach(
+      (anInstrument, index) => {
+        this.dmpInstrumentsTbl.push({
+          id:               index,
+          isEdit:           false,
+          name:             anInstrument.name,
+          description_url:  anInstrument.description_url,
+        });
+        this.disableClear=false;
+        this.disableRemove=false;
+      }
+    );
+
+    // Use .set() rather than reassigning the signal, so existing references
+    // (template bindings) keep pointing at the live signal.
+    this.reactiveInstruments.set(technical_requirements.technicalResources);
+
+    // set initial values for technical requirements part of the form
+    // to what has been sent from the server
+    if (technical_requirements.softwareDevelopment.development === "yes"){
+      // If the software development option is set to yes then pass all initial values
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
+        softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
+        softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
+      });
     }
     else{
-      // loop over instruments array sent from the server and populate local copy of 
-      // instruments array to populate the table of instruments in the user interface
-
-      technical_requirements.instruments.forEach(
-        (anInstrument, index) => {
-          this.dmpInstrumentsTbl.push({
-            id:               index, 
-            isEdit:           false, 
-            name:             anInstrument.name,
-            description_url:  anInstrument.description_url,
-
-            
-          });
-          this.disableClear=false;
-          this.disableRemove=false;
-        }
-      );
-
-      this.reactiveInstruments = signal(technical_requirements.technicalResources);
-
-      // set initial values for technical requirements part of the form
-      // to what has been sent from the server
-      if (technical_requirements.softwareDevelopment.development === "yes"){
-        // If the software development option is set to yes then pass all initial values
-        this.technicalRequirementsForm.patchValue({
-          dataSize:                       technical_requirements.dataSize,
-          sizeUnit:                       technical_requirements.sizeUnit,
-          dataSizeDescription:            technical_requirements.dataSizeDescription,
-          development:                    technical_requirements.softwareDevelopment.development,
-          softwareUse:                    technical_requirements.softwareDevelopment.softwareUse,
-          softwareDatabase:               technical_requirements.softwareDevelopment.softwareDatabase,
-          softwareWebsite:                technical_requirements.softwareDevelopment.softwareWebsite,
-          technicalResources:             technical_requirements.technicalResources,
-          instruments:                    technical_requirements.instruments
-        });
-      }
-      else{
-        // else if software development is set to no don't set options for 
-        // softwareUse, softwareDatabase, softwareWebsite
-        // This will force the user to make a selection if they change software development to yes
-        this.technicalRequirementsForm.patchValue({
-          dataSize:                       technical_requirements.dataSize,
-          sizeUnit:                       technical_requirements.sizeUnit,
-          dataSizeDescription:            technical_requirements.dataSizeDescription,
-          development:                    technical_requirements.softwareDevelopment.development,
-          softwareUse:                    "",
-          softwareDatabase:               "",
-          softwareWebsite:                "",
-          technicalResources:             technical_requirements.technicalResources,
-          instruments:                    technical_requirements.instruments
-        });
-      }
+      // else if software development is set to no don't set options for
+      // softwareUse, softwareDatabase, softwareWebsite
+      // This will force the user to make a selection if they change software development to yes
+      this.technicalRequirementsForm.patchValue({
+        dataSize:                       technical_requirements.dataSize,
+        sizeUnit:                       technical_requirements.sizeUnit,
+        dataSizeDescription:            technical_requirements.dataSizeDescription,
+        development:                    technical_requirements.softwareDevelopment.development,
+        softwareUse:                    "",
+        softwareDatabase:               "",
+        softwareWebsite:                "",
+        technicalResources:             technical_requirements.technicalResources,
+        instruments:                    technical_requirements.instruments
+      });
     }
   }
 
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
   @Output()
   formReady = of(this.technicalRequirementsForm);
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.technicalRequirementsForm.valueChanges.pipe(
       startWith(this.technicalRequirementsForm.value),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
+        (formValue): Partial<DMP_Meta> => ({
           dataSize:                       formValue.dataSize,
-          sizeUnit:                       formValue.sizeUnit,
-          dataSizeDescription:            formValue.dataSizeDescription,
+          sizeUnit:                       formValue.sizeUnit ?? '',
+          dataSizeDescription:            formValue.dataSizeDescription ?? '',
           softwareDevelopment:            {
-                                            "development":formValue.development,
-                                            "softwareUse":formValue.softwareUse,
-                                            "softwareDatabase":formValue.softwareDatabase,
-                                            "softwareWebsite":formValue.softwareWebsite
+                                            "development":formValue.development ?? '',
+                                            "softwareUse":formValue.softwareUse ?? '',
+                                            "softwareDatabase":formValue.softwareDatabase ?? '',
+                                            "softwareWebsite":formValue.softwareWebsite ?? ''
                                           },
-          technicalResources:             formValue.technicalResources,
-          instruments:                    formValue.instruments
+          technicalResources:             formValue.technicalResources ?? [],
+          instruments:                    formValue.instruments ?? []
         })
       )
-
     )
   );
 
@@ -231,12 +203,12 @@ export class StorageNeedsComponent {
     this.dataCategorySubscribe()
     // This function gets executed after initial data from the parent has been passed in and allows for
     // setting check states used for radio buttons etc.
-    
-    this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value;
+
+    this.dataSetSize = this.technicalRequirementsForm.controls['sizeUnit'].value ?? '';
     for (var val of this.dataUnits) {
       if(val.size === this.dataSetSize){
         this.dataSize = val.id
-      }      
+      }
     }
 
     let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
@@ -244,33 +216,40 @@ export class StorageNeedsComponent {
       // dataSizeInput can be none or undefined if no data has be inserted in the text box
       // so check first if the value of the textbox is a string
       if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
-        this.sharedService.setStorageMessage(this.dataSetSize); 
+        this.sharedService.setStorageMessage(this.dataSetSize);
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
 
     //this triggers highlighting in the resource options table / guide
-    this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value);
+    this.setSoftwareDev(this.technicalRequirementsForm.controls['development'].value ?? '');
 
     // if software development is set to yes then set the rest of the radio buttons
     // according to passed metadata
     if (this.technicalRequirementsForm.controls['development'].value === "yes"){
-      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
-      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
-      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);
-    }    
-
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value ?? '');
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value ?? '');
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value ?? '');
+    }
   }
-  
+
   dataSize = "";
   dataSetSize = "";
   dataCategoryIsSet:boolean = false;
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   //subscribe to a particular subject
   dataCategorySubscribe() {
-    if (!this.storageSubscription) {
-      //subscribe if not already subscribed
-      this.storageSubscription = this.sharedService.dataCategories$.subscribe({
+    if (this.dataCategoryWired) return;
+    this.dataCategoryWired = true;
+
+    this.sharedService.dataCategories$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (message) => {
           this.dataCategoryIsSet = message;
           if(!message){
@@ -281,13 +260,12 @@ export class StorageNeedsComponent {
           }
         }
       });
-    }
   }
 
   dataSizeRegEx : RegExp = new RegExp("^[0-9]+(\.[0-9]+)?$");
 
   // used for estimated data size drop down of data units options
-  dataUnits =[    
+  dataUnits =[
     {
       id: "1",
       size: 'MB'
@@ -307,9 +285,9 @@ export class StorageNeedsComponent {
     // assign the value to dataSetSize variable that is further used
     // in HTML portion of the component for changing the class name
     // of myDiv1
-  
+
     this.dataSetSize = this.dropDownService.getDropDownText(this.dataSize, this.dataUnits)[0].size;
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;    
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
     // dataSizeInput can be none or undefined if no data has be inserted in the text box
     // so check first if the value of the textbox is a string
     if (typeof dataSizeInput === 'string'){
@@ -336,11 +314,11 @@ export class StorageNeedsComponent {
   }
 
   setDataSize(e:any){
-    //send message to subscribed components    
-    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value;
+    //send message to subscribed components
+    let dataSizeInput = this.technicalRequirementsForm.controls['dataSize'].value ?? '';
     if (this.dataSizeRegEx.test(dataSizeInput.trim()) && parseFloat (dataSizeInput.trim()) > 0){
       if (!this.dataCategoryIsSet){// send message to resource options component only if data category check boxes have not been set
-        this.sharedService.setStorageMessage(this.dataSetSize);    
+        this.sharedService.setStorageMessage(this.dataSetSize);
         this.sharedService.storageSubject$.next(this.dataSetSize);
       }
     }
@@ -351,8 +329,6 @@ export class StorageNeedsComponent {
         this.sharedService.storageSubject$.next("");
       }
     }
-    
-
   }
 
   techRsrc: string[] = [];
@@ -379,10 +355,10 @@ export class StorageNeedsComponent {
     this.techRsrcErr = '';
   }
 
-  setDataSizeDescription(e: string): void {    
+  setDataSizeDescription(e: string): void {
     this.technicalRequirementsForm.patchValue(
       {
-        setDataSizeDescription: e
+        dataSizeDescription: e
       }
     )
   }
@@ -403,33 +379,20 @@ export class StorageNeedsComponent {
         softwareDatabase:               "",
         softwareWebsite:                ""
       });
-      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value);
-      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value);
-      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value);      
-    }
-    else{
-      //if there is software development being done as part of a DMP send message
-      //to resource options to highlight correct row in the Software Tools table
-      //located in resource-options compomnent 
-      // this.sharedService.setSoftwareMessage(this.sftDev["softwareUse"])
-      // this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
-
-      // this.sharedService.setDatabaseMessage(this.sftDev["softwareDatabase"])
-      // this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
-
-      // this.sharedService.setWebsiteMessage(this.sftDev["softwareWebsite"])
-      // this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
+      this.setSoftwareUse(this.technicalRequirementsForm.controls['softwareUse'].value ?? '');
+      this.setDatabaseUse(this.technicalRequirementsForm.controls['softwareDatabase'].value ?? '');
+      this.setWebsiteDev(this.technicalRequirementsForm.controls['softwareWebsite'].value ?? '');
     }
   }
 
   //returns true or false to determine whether to display options for type of softwae
   // that is being developed as part of a DMP
   selSoftwareDev(name:string): boolean{
-    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so nothing is shown  
-      return false;  
+    if (!this.sftDev["development"]) { // if no radio button is selected, always return false so nothing is shown
+      return false;
     }
-    else {      
-      return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false 
+    else {
+      return (this.sftDev["development"] === name); // if current radio button is selected, return true, else return false
     }
   }
 
@@ -438,7 +401,7 @@ export class StorageNeedsComponent {
     // this.softwareUse = e;
     this.sftDev["softwareUse"] = e;
     //send message to resource options to highlight correct row in the Software Tools table
-    //located in resource-options compomnent 
+    //located in resource-options component
     this.sharedService.softwareSubject$.next(this.sftDev["softwareUse"])
   }
 
@@ -446,65 +409,46 @@ export class StorageNeedsComponent {
   setDatabaseUse(sel: string){
     // this.databaseUse = sel;
     this.sftDev["softwareDatabase"] = sel;
-    //send message to resource options to highlight correct row in the Database table
-    //located in resource-options compomnent 
-    this.sharedService.databaseSubject$.next(this.sftDev["softwareDatabase"])
-
   }
 
   // determines whether a website will be used for the softwre development
   setWebsiteDev(sel: string){
     // this.websiteUse = sel;
     this.sftDev["softwareWebsite"] = sel;
-    //send message to resource options to highlight correct row in the Database table
-    //located in resource-options compomnent 
-    this.sharedService.websiteSubject$.next(this.sftDev["softwareWebsite"])
-
   }
 
   removeSelectedRows() {
     const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
-    
-    if (result) {
-      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
-      this.resetTable();
 
-      this.dmpInstrumentsTbl.forEach((element)=>{        
-        // re populate instruments array
-        this.technicalRequirementsForm.value['instruments'].push({
-          name:element.name,
-          description_url: element.description_url
-        });
-      });
-      if (this.dmpInstrumentsTbl.length === 0){
-        // If the table is empty disable clear and remove buttons
-        this.disableClear=true;
-        this.disableRemove=true;
-      }
+    if (!result) return;
+
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u: any) => !u.isSelected);
+
+    // Rebuild the form from the table.
+    this.syncInstrumentsToForm();
+
+    if (this.dmpInstrumentsTbl.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
   }
 
-  removeRow(id:any) {
+  removeRow(id: any) {
     const result = confirmDialog("Are you sure you want to delete selected instrument(s) for this DMP?");
-    
-    if (result) {
-      var selRow = this.dmpInstrumentsTbl.filter((u) => u.id === id);
-      this.technicalRequirementsForm.value['instruments'].forEach( (value:Instrument, index:number) => {
-        selRow.forEach((instrument)=>{
-          if (value.description_url === instrument.description_url)
-          // console.log(instrument);
-          //remove from DmpRecord
-          this.technicalRequirementsForm.value['instruments'].splice(index,1);
-        });
-      });
-      // remove from the display table
-      this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter((u) => u.id !== id);
 
-      this.technicalRequirementsForm.patchValue({
-        instruments: this.technicalRequirementsForm.value['instruments']
-      })
+    if (!result) return;
+
+    // Remove from the display table.
+    this.dmpInstrumentsTbl = this.dmpInstrumentsTbl.filter(u => u.id !== id);
+
+    // Rebuild the form from the table.
+    this.syncInstrumentsToForm();
+
+    if (this.dmpInstrumentsTbl.length === 0) {
+      this.disableClear = true;
+      this.disableRemove = true;
     }
-  }  
+  }
 
   addRow(){
     // Disable buttons while the user is inputing new row
@@ -522,49 +466,39 @@ export class StorageNeedsComponent {
       isEdit: false,
     };
 
-    // add new row to the dmpInstrumentsTbl array 
+    // add new row to the dmpInstrumentsTbl array
     // using the spread operator '...'
-    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];    
+    this.dmpInstrumentsTbl = [newRow, ...this.dmpInstrumentsTbl];
 
     //update changes made to the table in the form
     this.onDoneClick(newRow);
 
     this.resetInstrumentFields();
-
   }
 
-  onDoneClick(e:any){
+  onDoneClick(e: any) {
     if (!e.name.length) {
       this.errorMessage = "Instrument name can't be empty";
       return;
     }
-    else if(!e.description_url.length) {
+    else if (!e.description_url.length) {
       this.errorMessage = "Description / URL can't be empty";
       return;
     }
 
     this.errorMessage = '';
-    this.resetTable();// check if this step is needed
-    
-    this.dmpInstrumentsTbl.forEach((element)=>{
-      if(element.id === e.id){
-        element.isEdit = false;
-      } 
 
-      // re populate instruments array
-      this.technicalRequirementsForm.value['instruments'].push({
-        name: element.name,
-        description_url: element.description_url
-      });
+    // Close the edited row.
+    const row = this.dmpInstrumentsTbl.find(r => r.id === e.id);
+    if (row) {
+      row.isEdit = false;
     }
-  )
 
-  this.disableClear=false;
-  this.disableRemove=false;
-  this.technicalRequirementsForm.patchValue({
-    instruments: this.technicalRequirementsForm.value['instruments']
-  })
+    this.disableClear = false;
+    this.disableRemove = false;
 
+    // Rebuild the form from the table (single source of truth).
+    this.syncInstrumentsToForm();
   }
 
   /**
@@ -574,15 +508,11 @@ export class StorageNeedsComponent {
     this.errorMessage = "";
 
     this.dmpInstrument = {name:"", description_url:""};
-
-
   }
-  
-  
 
   clearTable(){
     const result = confirmDialog("Are you sure you want to delete all instrument(s) for this DMP?");
-    
+
     if (result) {
       this.dmpInstrumentsTbl = []
       this.resetTable();
@@ -590,17 +520,15 @@ export class StorageNeedsComponent {
       this.disableRemove=true;
     }
   }
-  
-  resetTable(){
-    this.technicalRequirementsForm.patchValue({
-      instruments:[]
-    })
+
+  resetTable() {
+    this.syncInstrumentsToForm(); // dmpInstrumentsTbl is the source; emits [] when empty
   }
 
   checkInstrData(e:any){
     // Check if both Instrument Name and Description/url have been filled out
     if (this.dmpInstrument.name !== '' && this.dmpInstrument.description_url !== ''){
-      this.disableAdd = false;      
+      this.disableAdd = false;
     }
     else{
       this.disableAdd = true;
@@ -629,11 +557,10 @@ export class StorageNeedsComponent {
       technicalResources:[]
     })
     this.clearTable();
-    
   }
 
   removeReactiveInstruments(keyword: string) {
-    
+
     this.reactiveInstruments.update(technicalResources => {
       const index = technicalResources.indexOf(keyword);
       if (index < 0) {
@@ -642,38 +569,37 @@ export class StorageNeedsComponent {
 
       technicalResources.splice(index, 1);
 
-      // reset the technicalResources array
-      this.technicalRequirementsForm.value['technicalResources'] = [];
-
       // repopulate the array
-      technicalResources.forEach((element)=>{
-        this.technicalRequirementsForm.value['technicalResources'].push({technicalResources:element.trim()});
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactiveInstruments. (Previously this pushed
+      // {technicalResources: element} objects, which corrupted the array shape.)
+      this.technicalRequirementsForm.patchValue({
+        technicalResources: [...technicalResources]
       });
+
       return [...technicalResources];
     });
-
-    
   }
 
   addReactiveInstruments(event: MatChipInputEvent): void {
-    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
-    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    // To clean up the chips array and ensure no empty strings or "just whitespace"
+    // items make it through, fall back to an empty array [] and filter out blanks.
     const chips = (this.spChips.splitChips(event.value.trim()) || [])
                   .filter(chip => chip.trim().length > 0);
 
-    // Add our instrument
-    if (chips) {
+    // Add our instrument(s)
+    if (chips.length) {
       this.reactiveInstruments.update(technicalResources => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...technicalResources, ...chips])];
-      });  
-      chips.forEach((chip)=>{
-        this.technicalRequirementsForm.patchValue({
-          technicalResources: chip
-        })
+        // Combine both arrays into a Set to force uniqueness,
+        // then spread it back into a standard string[].
+        const merged = [...new Set([...technicalResources, ...chips])];
+
+        // Patch the control ONCE with the full deduped string[] — matching the
+        // shape used on load and in removeReactiveInstruments.
+        this.technicalRequirementsForm.patchValue({ technicalResources: merged });
+
+        return merged;
       });
-      
     }
 
     // Clear the input value
@@ -681,9 +607,9 @@ export class StorageNeedsComponent {
   }
 
   onBlur(event: FocusEvent) {
-    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed
     // elsewhere with a mouse
-    
+
     // Trigger event if input is not empty
     if (this.instrumentsInputVal !== ''){
       this.triggerAddChip();
@@ -691,9 +617,7 @@ export class StorageNeedsComponent {
   }
 
   onInputChange(value: string){
-    // console.log('onInputChange', value);
     this.instrumentsInputVal = value;
-
   }
 
   triggerAddChip() {
@@ -710,6 +634,16 @@ export class StorageNeedsComponent {
     this.instrumentsInputVal = '';
   }
 
-
-
+  /**
+   * Rebuilds the form's instruments array from the dmpInstrumentsTbl table.
+   * The table is the single source of truth; the form mirrors it.
+   * Emits a plain Instrument[] via patchValue (never mutate .value directly).
+   */
+  private syncInstrumentsToForm(): void {
+    const instruments = this.dmpInstrumentsTbl.map(r => ({
+      name: r.name,
+      description_url: r.description_url,
+    }));
+    this.technicalRequirementsForm.patchValue({ instruments });
+  }
 }

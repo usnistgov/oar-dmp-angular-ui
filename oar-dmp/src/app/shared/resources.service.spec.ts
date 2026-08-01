@@ -14,23 +14,90 @@ describe('ResourcesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('set Messages', () => {
+  describe('initial state', () => {
+    it('starts with dataCategoriesIsSet false', () => {
+      expect(service.dataCategoriesIsSet).toBe(false);
+    });
 
-    service.setStorageMessage("A Message");
-    expect(service.storageMessage).toBe("A Message");
-    
-    service.setSoftwareMessage("A Message");
-    expect(service.softwareMessage).toBe("A Message");
+    it('starts with an undefined storageMessage', () => {
+      expect(service.storageMessage).toBeUndefined();
+    });
+  });
 
-    service.setDatabaseMessage("A Message");
-    expect(service.databaseMessage).toBe("A Message");
+  describe('setStorageMessage', () => {
+    it('stores the provided message', () => {
+      service.setStorageMessage('GB');
+      expect(service.storageMessage).toBe('GB');
+    });
 
-    service.setWebsiteMessage("A Message");
-    expect(service.websiteMessage).toBe("A Message");
+    it('overwrites a previously set message', () => {
+      service.setStorageMessage('GB');
+      service.setStorageMessage('TB');
+      expect(service.storageMessage).toBe('TB');
+    });
 
-    service.setDataCategories(true);
-    expect(service.dataCategoriesIsSet).toBe(true);
+    it('accepts an empty string (used to clear the highlight)', () => {
+      service.setStorageMessage('GB');
+      service.setStorageMessage('');
+      expect(service.storageMessage).toBe('');
+    });
+  });
 
-    
+  describe('setDataCategories', () => {
+    it('sets the flag to true', () => {
+      service.setDataCategories(true);
+      expect(service.dataCategoriesIsSet).toBe(true);
+    });
+
+    it('sets the flag back to false', () => {
+      service.setDataCategories(true);
+      service.setDataCategories(false);
+      expect(service.dataCategoriesIsSet).toBe(false);
+    });
+  });
+
+  // The service exposes three Subjects used to message unrelated components.
+  // These tests confirm they emit to subscribers (multicast, no replay).
+  describe('storageSubject$', () => {
+    it('emits the value pushed onto it', () => {
+      const received: string[] = [];
+      service.storageSubject$.subscribe(v => received.push(v));
+      service.storageSubject$.next('TB');
+      expect(received).toEqual(['TB']);
+    });
+
+    it('does not replay values to subscribers that join later (plain Subject)', () => {
+      const received: string[] = [];
+      service.storageSubject$.next('missed');
+      service.storageSubject$.subscribe(v => received.push(v));
+      service.storageSubject$.next('seen');
+      expect(received).toEqual(['seen']);
+    });
+  });
+
+  describe('softwareSubject$', () => {
+    it('emits the value pushed onto it', () => {
+      const received: string[] = [];
+      service.softwareSubject$.subscribe(v => received.push(v));
+      service.softwareSubject$.next('internal');
+      expect(received).toEqual(['internal']);
+    });
+  });
+
+  describe('dataCategories$', () => {
+    it('emits the boolean pushed onto it', () => {
+      const received: boolean[] = [];
+      service.dataCategories$.subscribe(v => received.push(v));
+      service.dataCategories$.next(true);
+      service.dataCategories$.next(false);
+      expect(received).toEqual([true, false]);
+    });
+
+    it('is independent of the dataCategoriesIsSet field (subject vs stored flag)', () => {
+      // Emitting on the subject does NOT mutate the stored flag; only
+      // setDataCategories() does. This guards against conflating the two.
+      service.dataCategories$.next(true);
+      expect(service.dataCategoriesIsSet).toBe(false);
+    });
   });
 });

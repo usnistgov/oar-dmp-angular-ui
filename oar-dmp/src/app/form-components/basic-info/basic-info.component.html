@@ -20,17 +20,6 @@
       </div>
     </div>
 
-    <!-- 
-    <div class="dmp-frm-row">
-      <div class="col-25">
-        <label for="end_date">End Date</label>
-      </div>
-      <div class="col-75">
-        <input type="date" id="end_date" [formControl]="basicInfoForm.controls['endDate']">
-      </div>
-    </div> 
-    -->
-
     <div class="dmp-frm-row">
       <div class="col-25">
         Make DMP Searchable
@@ -50,7 +39,7 @@
       </div>
       <div class="col-75" id="funding">
         <div>
-          <input type="radio" id="operatingUnit" name="grant_source" value="Operating Unit" checked 
+          <input type="radio" id="operatingUnit" name="grant_source" value="Operating Unit" 
           [formControl]="basicInfoForm.controls['grant_source']">
           <label for="operatingUnit">Operating Unit</label>
         </div>
@@ -80,7 +69,7 @@
     
     <div class="dmp-frm-row">
       <div class="col-25">
-        <label for="project_description">Project Description<!--<span class="required_DMP_Field" >*</span>--></label>
+        <label for="project_description">Project Description</label>
       </div>
       <div class="col-75">
         <textarea id="project_description" name="projectDescription" rows="5" placeholder="Description behind the science of the project"
@@ -90,45 +79,4 @@
 
   </div>  
 
-  <table>
-    
-    <tr class="hidden-row">
-      <td class="description">DMP Idntifier</td>
-      <!-- hide this  -->
-      <td>
-        <div>
-          <input type="radio" id="dmpHandle" name="dmpIdType" value="dmpHandle" checked>
-          <label for="dmpHandle">handle</label>
-        </div>
-        <div>
-          <input type="radio" id="dmpDoi" name="dmpIdType" value="dmpDoi">
-          <label for="dmpDoi">doi</label>
-        </div>
-        <div>
-          <input type="radio" id="dmpArk" name="dmpIdType" value="dmpArk">
-          <label for="dmpArk">ark</label>
-        </div>
-        <div>
-          <input type="radio" id="dmpUrl" name="dmpIdType" value="dmpUrl">
-          <label for="dmpUrl">url</label>
-        </div>
-        <div>
-          <input type="radio" id="dmpOther" name="dmpIdType" value="dmpOther">
-          <label for="dmpOther">other</label>
-        </div>
-        <input type="text" placeholder="DMP Idntifier">
-      </td>
-    </tr>
-    
-
-  
-    <tr>
-        
-      <td></td>
-      <td></td>
-    </tr>
-    
-    
-  </table>
-  
 </div>

@@ -1,27 +1,26 @@
-import { Component, Input, Output, ViewChild, ElementRef } from '@angular/core';
-import { UntypedFormBuilder } from '@angular/forms';
-import { MatChipInputEvent, MatChipInput} from '@angular/material/chips';
+import { Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
 import { defer, map, of, startWith } from 'rxjs';
 import { DMP_Meta } from '../../types/DMP.types';
 import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
 
-import {ChangeDetectionStrategy, inject, signal} from '@angular/core';
-
 @Component({
   selector: 'app-keywords',
   templateUrl: './keywords.component.html',
-  styleUrls: ['./keywords.component.scss', '../form-layout.scss', '../form-table.scss'], 
+  styleUrls: ['./keywords.component.scss', '../form-layout.scss', '../form-table.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KeywordsComponent {  
+export class KeywordsComponent {
 
-  keyWordsForm = this.fb.group(
-    {
-      keywords:[[]]
-    }
-  );
+  // The keywords control is explicitly typed string[] so the typed FormBuilder
+  // infers FormControl<string[] | null> rather than FormControl<never[] | null>,
+  // which would reject patchValue({ keywords: string[] }).
+  keyWordsForm = this.fb.group({
+    keywords: [[] as string[]]
+  });
 
-  reactiveKeywords = signal(['']);
+  reactiveKeywords = signal<string[]>(['']);
   keywordsInputVal = '';
   // Reference the HTML input element that uses chips matching the #chipInput in the HTML
   @ViewChild('chipInput') chipInputEl!: ElementRef<HTMLInputElement>;
@@ -29,79 +28,51 @@ export class KeywordsComponent {
   // This finds the MatChipInput directive inside that same element
   @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
 
-  constructor(private fb: UntypedFormBuilder, private spChips: ChipsSplitterService) { 
-    // console.log("Keywords Component");
-  }
+  constructor(private fb: FormBuilder, private spChips: ChipsSplitterService) { }
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(key_words: DMP_Meta){
-    if (Object.keys(key_words).length < 1){
-      this.keyWordsForm.patchValue({
-        keywords: []
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
+    this.keyWordsForm.patchValue({
+      keywords: key_words.keywords
+    });
 
-      })
-
-      this.reactiveKeywords = signal([]);
-    }
-    else{
-      // set initial value of keywords form to what has been sent from the server
-      this.keyWordsForm.patchValue({
-        keywords: key_words.keywords
-
-      })
-
-      this.reactiveKeywords = signal(key_words.keywords);
-    }
+    // Use .set() rather than reassigning the signal, so existing references
+    // (template bindings, computeds) keep pointing at the live signal.
+    this.reactiveKeywords.set(key_words.keywords);
   }
 
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
   @Output()
   formReady = of(this.keyWordsForm);
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.keyWordsForm.valueChanges.pipe(
       startWith(this.keyWordsForm.value),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
-          keywords: formValue.keywords
+        (formValue): Partial<DMP_Meta> => ({
+          keywords: formValue.keywords ?? []
         })
       )
-
     )
   );
 
   errorMessage: string = '';
-  
+
   clearKeywordsTable(){
     this.resetKeyWordsForm();
   }
 
   resetKeyWordsForm(){
     // reset the keywords array
-    this.keyWordsForm.setValue(
-      {
-        keywords:[]
-      }
-    )
-
+    this.keyWordsForm.setValue({
+      keywords: []
+    });
   }
 
   removeReactiveKeyword(keyword: string) {
-    
     this.reactiveKeywords.update(keywords => {
       const index = keywords.indexOf(keyword);
       if (index < 0) {
@@ -109,44 +80,41 @@ export class KeywordsComponent {
       }
 
       keywords.splice(index, 1);
-      this.resetKeyWordsForm();
-      keywords.forEach((element)=>{
-        this.keyWordsForm.value['keywords'].push({keywords:element.trim()});
+
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactiveKeyword. Patch once with the full array
+      // rather than resetting and pushing objects.
+      this.keyWordsForm.patchValue({
+        keywords: [...keywords]
       });
+
       return [...keywords];
     });
-
-    
   }
 
   addReactiveKeyword(event: MatChipInputEvent): void {
-    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
-    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through,
+    // we trim each chip first, then drop any that are empty after trimming.
     const chips = (this.spChips.splitChips(event.value.trim()) || [])
-                  .filter(chip => chip.trim().length > 0);
+      .map(chip => chip.trim())
+      .filter(chip => chip.length > 0);
 
     // Add our keyword
-    if (chips) {
+    if (chips.length) {
       this.reactiveKeywords.update(keywords => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...keywords, ...chips])];
-      });      
-      chips.forEach((chip)=>{
-        this.keyWordsForm.patchValue({
-          keywords: chip
-        })
+        const merged = [...new Set([...keywords, ...chips])];
+        this.keyWordsForm.patchValue({ keywords: merged });
+        return merged;
       });
-    }
 
-    // Clear the input value
-    event.chipInput!.clear();
+      event.chipInput!.clear();
+    }
   }
 
   onBlur(event: FocusEvent) {
-    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed
     // elsewhere with a mouse
-    
+
     // Trigger event if input is not empty
     if (this.keywordsInputVal !== ''){
       this.triggerAddChip();
@@ -154,9 +122,7 @@ export class KeywordsComponent {
   }
 
   onInputChange(value: string){
-    // console.log('onInputChange', value);
     this.keywordsInputVal = value;
-
   }
 
   triggerAddChip() {
@@ -172,7 +138,4 @@ export class KeywordsComponent {
     // Clear input value
     this.keywordsInputVal = '';
   }
-
-  
-
 }

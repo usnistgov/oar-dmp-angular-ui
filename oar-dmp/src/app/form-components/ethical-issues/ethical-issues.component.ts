@@ -1,6 +1,7 @@
-import { Component, Input, Output, OnInit } from '@angular/core';
-import { UntypedFormBuilder, Validators, ControlValueAccessor, NgControl, AbstractControl, FormControl} from '@angular/forms';
-import { defer, map, of, startWith } from 'rxjs';
+import { Component, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { defer, map, of, startWith, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DMP_Meta } from '../../types/DMP.types';
 
 @Component({
@@ -8,122 +9,75 @@ import { DMP_Meta } from '../../types/DMP.types';
   templateUrl: './ethical-issues.component.html',
   styleUrls: ['./ethical-issues.component.scss', '../form-layout.scss']
 })
-export class EthicalIssuesComponent {
-  // Let's start with a child component that is responsible for a part of the form. 
-  // The component injects the FormBuilder and creates a new form group with their 
-  // form controls, validators and any other configuration
-  ethicalIsuesForm = this.fb.group({
+export class EthicalIssuesComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  ethicalIssuesForm = this.fb.group({
     IRBNumber: [''],
     ethicalIssue: ['', Validators.required],
     ethicalIssueDescription: [''],
     ethicalReport: ['']
-
   });
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(ethicalIssues: DMP_Meta) {
-
-    if (Object.keys(ethicalIssues).length < 1){
-      this.ethicalIsuesForm.patchValue({
-        IRBNumber:                '',
-        ethicalIssue:             '',
-        ethicalReport:            '',
-        ethicalIssueDescription:  ''
-      });
-    }
-    else{
-      this.ethicalIsuesForm.patchValue({
-        IRBNumber:                ethicalIssues.ethical_issues.irb_number,
-        ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
-        ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
-        ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
-      });      
-    }
-
-    
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
+    this.ethicalIssuesForm.patchValue({
+      IRBNumber:                ethicalIssues.ethical_issues.irb_number,
+      ethicalIssue:             ethicalIssues.ethical_issues.ethical_issues_exist,
+      ethicalReport:            ethicalIssues.ethical_issues.ethical_issues_report,
+      ethicalIssueDescription:  ethicalIssues.ethical_issues.ethical_issues_description
+    });
   }
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
-    this.ethicalIsuesForm.valueChanges.pipe(
-      startWith(this.ethicalIsuesForm.value),
+    this.ethicalIssuesForm.valueChanges.pipe(
+      startWith(this.ethicalIssuesForm.value),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to this part of the form 
+        (formValue): Partial<DMP_Meta> => ({
           ethical_issues: {
-            irb_number:                     formValue.IRBNumber,
-            ethical_issues_exist:           formValue.ethicalIssue,
-            ethical_issues_description:     formValue.ethicalIssueDescription,
-            ethical_issues_report:          formValue.ethicalReport
-          }               
-          
+            irb_number:                 formValue.IRBNumber ?? '',
+            ethical_issues_exist:       formValue.ethicalIssue ?? '',
+            ethical_issues_description: formValue.ethicalIssueDescription ?? '',
+            ethical_issues_report:      formValue.ethicalReport ?? ''
+          }
         })
       )
     )
   );
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
+
   @Output()
-  formReady = of(this.ethicalIsuesForm);  
-  
+  formReady = of(this.ethicalIssuesForm);
 
-  constructor(private fb: UntypedFormBuilder) {
-    // console.log("Ethical Issues Component");
-   }
-
-  private selectedEthicalIssue: string="no"; 
+  constructor(private fb: FormBuilder) { }
 
   ngOnInit(): void {
-    // sets this value after initial data from the parent has been passed in and allows for
-    // <div *ngIf="selEthicalIssues('yes')"> in ethica-issues.component.html to display text
-    // boxes if there are existing ethical issues
-    this.selectedEthicalIssue = this.ethicalIsuesForm.controls['ethicalIssue'].value;
-  }
-
-  setEthicalIssues(e: string): void {
-    this.selectedEthicalIssue = e; 
-    if (e === 'no'){
-      // if there are not ethical issues clear description and report fields
-           
-      this.ethicalIsuesForm.patchValue({        
-        ethicalReport:            "",
-        ethicalIssueDescription:  "",
+    // When the answer changes to "no", clear the dependent fields.
+    this.ethicalIssuesForm.controls['ethicalIssue'].valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        if (value === 'no') {
+          this.ethicalIssuesForm.patchValue({
+            ethicalReport: "",
+            ethicalIssueDescription: "",
+          });
+        }
       });
-    }
-    // console.log(this.selectedEthicalIssue);
   }
 
-  selEthicalIssues(name:string): boolean{
-    if (!this.selectedEthicalIssue) { // if no radio button is selected, always return false so every nothing is shown  
-      return false;  
-    }  
-    return (this.selectedEthicalIssue === name); // if current radio button is selected, return true, else return false 
-
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
-   * This function resets radio buttons to "no" - which is their initial state
-   * It also enables hiding of ethical issues description and report text boxes
-   * since default values are that there are no ethical issues.
+   * Visibility is derived from the control, so it stays correct regardless of
+   * how the value changed (user click, patchValue, reset, or input rebind).
    */
-
-  resetRadioButtons (){
-    this.selectedEthicalIssue = "no";
-
+  selEthicalIssues(name: string): boolean {
+    return this.ethicalIssuesForm.controls['ethicalIssue'].value === name;
   }
-
-  
-
-
 }

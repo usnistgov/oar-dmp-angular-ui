@@ -1,5 +1,5 @@
 import { Component, Input, Output, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
-import { UntypedFormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { defer, map, of, startWith } from 'rxjs';
 
 import { MatChipInputEvent, MatChipInput } from '@angular/material/chips';
@@ -17,114 +17,83 @@ import { DMP_Meta } from '../../types/DMP.types';
 export class DataPreservationComponent {
   separatorExp: RegExp = /,|;/;
 
-  reactivePathsURLs = signal(['']);
+  reactivePathsURLs = signal<string[]>(['']);
   pathsInputVal = '';
   // Reference the HTML input element that uses chips matching the #pathInput in the HTML
   @ViewChild('pathInput') chipInputEl!: ElementRef<HTMLInputElement>;
 
   // This finds the MatChipInput directive inside that same element
   @ViewChild(MatChipInput) chipInputDirective!: MatChipInput;
-  
+
+  // pathsURLs is explicitly typed string[] so the typed FormBuilder infers
+  // FormControl<string[] | null> rather than FormControl<never[] | null>.
   preservationForm = this.fb.group(
     {
       preservationDescription: [''],
       dataAccess: [''],
-      pathsURLs:[[]]
+      pathsURLs: [[] as string[]]
     }
   );
 
-  constructor(private fb: UntypedFormBuilder, private spChips: ChipsSplitterService) { 
-    // console.log("Data Preservation Component");
-  }
+  constructor(private fb: FormBuilder, private spChips: ChipsSplitterService) { }
 
-  // We want to receive the initial data from the parent component and initialize 
-  // the form values. For that we create an input property with a setter that updates 
-  // the form. Here you could do any data transformation you need.
   @Input()
   set initialDMP_Meta(data_preservation: DMP_Meta) {
-    if (Object.keys(data_preservation).length < 1){
-      this.preservationForm.patchValue(
-        {
-          preservationDescription:  '',
-          dataAccess:               '',
-          pathsURLs:                []
+    // Parent always supplies a fully-shaped object (getBlankDmp() overlaid with
+    // loaded data), and the children aren't instantiated until initialDMP is set
+    // (*ngIf="initialDMP" on the parent form).
 
-        }
-      );
-      this.reactivePathsURLs = signal([]);
-    }
-    else{
-      // set initial values for data preservation part of the form
-      // to what has been sent from the server
-      this.preservationForm.patchValue(
-        {
-          preservationDescription:  data_preservation.preservationDescription,
-          dataAccess:               data_preservation.dataAccess,
-          pathsURLs:                data_preservation.pathsURLs
-
-        }
-      );
-
-      this.reactivePathsURLs = signal(data_preservation.pathsURLs);
-
+    // set initial values for data preservation part of the form
+    // to what has been sent from the server
+    this.preservationForm.patchValue(
+      {
+        preservationDescription:  data_preservation.preservationDescription,
+        dataAccess:               data_preservation.dataAccess,
+        pathsURLs:                data_preservation.pathsURLs
       }
-    
-    
+    );
+
+    // Use .set() rather than reassigning the signal, so existing references
+    // (template bindings, computeds) keep pointing at the live signal.
+    this.reactivePathsURLs.set(data_preservation.pathsURLs);
   }
 
-  // Because RxJS observables are compatible with Angular EventEmitters we can create an 
-  // observable with of() that emits the created form group and use it as an output.
   @Output()
   formReady = of(this.preservationForm);
 
-  // We need to extract the form values and provide them to the parent component whenever 
-  // a value changes. And again we can provide an observable as @Output() instead of creating 
-  // an event emitter:
   @Output()
   valueChange = defer(() =>
-    // There are a few important things to note here: form.valueChanges will only emit when 
-    // the form value changes but not initially. That's why we use startWith to provide the 
-    // initial value. And we use defer() to use the latest form value for startWith() 
-    // whenever someone subscribes.
     this.preservationForm.valueChanges.pipe(
       startWith(this.preservationForm.value),
       map(
-        (formValue): Partial<DMP_Meta> => ({           
-          // The observable emits a partial DMP_Meta object that only contains the properties related 
-          // to our part of the form 
-          preservationDescription: formValue.preservationDescription,
-          dataAccess:              formValue.dataAccess, 
-          pathsURLs:               formValue.pathsURLs
+        (formValue): Partial<DMP_Meta> => ({
+          preservationDescription: formValue.preservationDescription ?? '',
+          dataAccess:              formValue.dataAccess ?? '',
+          pathsURLs:               formValue.pathsURLs ?? []
         })
       )
-
     )
   );
-  
 
   errorMessage: string = '';
-  
+
   clearTable(){
     this.resetTable();
   }
 
   resetTable(){
-    // this.preservationForm.value['pathsURLs'] = []
     this.preservationForm.setValue({
       // all of preservationForm needs to be "changed" in order to fire the update event and propagate
       // changes up to the parent form but since we are only trying to update the table
       // don't change preservation description text therefore re-assign it to preservationDescription
-      preservationDescription: this.preservationForm.value['preservationDescription'],
-      dataAccess: this.preservationForm.value['dataAccess'],
+      preservationDescription: this.preservationForm.value['preservationDescription'] ?? '',
+      dataAccess: this.preservationForm.value['dataAccess'] ?? '',
       // only change table values
-      pathsURLs:[]
-
-    })
-
+      pathsURLs: []
+    });
   }
 
   removeReactivePathsURLs(keyword: string) {
-    
     this.reactivePathsURLs.update(pathsURLs => {
       const index = pathsURLs.indexOf(keyword);
       if (index < 0) {
@@ -133,48 +102,43 @@ export class DataPreservationComponent {
 
       pathsURLs.splice(index, 1);
 
-      // reset the pathsURLs array
-      this.preservationForm.value['pathsURLs'] = [];     
-
-      // repopulate the array
-      pathsURLs.forEach((element)=>{
-        this.preservationForm.value['pathsURLs'].push({pathsURLs:element.trim()});
+      // Keep the form control in sync as a plain string[] — the same shape
+      // used on load and in addReactivePathsURLs. Patch once with the full array.
+      this.preservationForm.patchValue({
+        pathsURLs: [...pathsURLs]
       });
+
       return [...pathsURLs];
     });
-
-    
   }
 
   addReactivePathsURLs(event: MatChipInputEvent): void {
-    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through, 
-    // we should make fall back to an empty array [] and use the JavaScript .filter() method. 
+    // To clean up chips array and ensure no empty strings or "just whitespace" items make it through,
+    // we trim each chip first, then drop any that are empty after trimming.
     const chips = (this.spChips.splitChips(event.value.trim()) || [])
-                  .filter(chip => chip.trim().length > 0);
+      .map(chip => chip.trim())
+      .filter(chip => chip.length > 0);
 
     // Add our path
-    if (chips) {
+    if (chips.length) {
       this.reactivePathsURLs.update(pathsURLs => {
-        // Combine both arrays into a Set to force uniqueness, 
-        // then spread it back into a standard array.
-        return [...new Set([...pathsURLs, ...chips])];
-      }); 
-      chips.forEach((chip)=>{
-        this.preservationForm.patchValue({
-          pathsURLs: chip
-        })
-      });
-      
-    }
+        const merged = [...new Set([...pathsURLs, ...chips])];
 
-    // Clear the input value
-    event.chipInput!.clear();
+        // Patch once with the full deduped string[] — matching the shape used
+        // on load and in removeReactivePathsURLs.
+        this.preservationForm.patchValue({ pathsURLs: merged });
+
+        return merged;
+      });
+
+      event.chipInput!.clear();
+    }
   }
 
   onBlur(event: FocusEvent) {
-    // this is called if user did not hit enter on keyboard to add chips but has rather pressed 
+    // this is called if user did not hit enter on keyboard to add chips but has rather pressed
     // elsewhere with a mouse
-    
+
     // Trigger event if input is not empty
     if (this.pathsInputVal !== ''){
       this.triggerAddChip();
@@ -182,9 +146,7 @@ export class DataPreservationComponent {
   }
 
   onInputChange(value: string){
-    // console.log('onInputChange', value);
     this.pathsInputVal = value;
-
   }
 
   triggerAddChip() {
@@ -200,5 +162,4 @@ export class DataPreservationComponent {
     // Clear input value
     this.pathsInputVal = '';
   }
-
 }

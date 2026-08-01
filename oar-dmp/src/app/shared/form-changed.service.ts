@@ -11,10 +11,9 @@ export class FormChangedService {
     // this.enableSaveButton = false;
   }
 
-  // enableSaveButton:boolean;
+  /** true => save button disabled (no unsaved changes). */
   disableSaveBtn$ = new Subject<boolean>();
 
-  // toggleSaveButton(enable:boolean){
-  //   this.enableSaveButton = enable
-  // }
+  /** true => there are unsaved changes (button shows the "update" style). */
+  hasUnsavedChanges$ = new Subject<boolean>();
 }

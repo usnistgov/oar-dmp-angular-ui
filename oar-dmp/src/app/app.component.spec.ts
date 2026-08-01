@@ -1,73 +1,258 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_BASE_HREF } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { of, Subject, throwError } from 'rxjs';
 
-import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatAutocompleteModule } from '@angular/material/autocomplete'; 
-
-import { AngularResizeEventModule } from 'angular-resize-event';
-
-import { FrameModule, AuthenticationService, MockAuthenticationService } from 'oarng';
-import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
-import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
-import { DomPositioningModule } from './shared/dom-positioning.module';
-import { NistResourcesModule } from './config/nist-resources.module';
+import { AuthenticationService, StaffDirectoryService } from 'oarng';
+import { SubmitDmpService } from './shared/submit-dmp.service';
+import { DropDownSelectService } from './shared/drop-down-select.service';
+import { FormChangedService } from './shared/form-changed.service';
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let component: AppComponent;
+
+  let authServiceMock: {
+    getCredentials: jest.Mock;
+  };
+
+  let staffDirectoryServiceMock: {
+    setAuthToken: jest.Mock;
+  };
+
+  let submitDmpServiceMock: {
+    setexportFormat: jest.Mock;
+    exportFormatSubject$: { next: jest.Mock };
+    setButtonMessage: jest.Mock;
+    buttonSubject$: { next: jest.Mock };
+  };
+
+  let dropDownSelectServiceMock: {
+    getDropDownText: jest.Mock;
+  };
+
+  let disableSaveBtnSubject: Subject<boolean>;
+  let hasUnsavedChangesSubject: Subject<boolean>;
+
+  let formChangedServiceMock: {
+    disableSaveBtn$: Subject<boolean>;
+    hasUnsavedChanges$: Subject<boolean>;
+  };
+
   beforeEach(async () => {
+    authServiceMock = {
+      getCredentials: jest.fn()
+    };
+
+    staffDirectoryServiceMock = {
+      setAuthToken: jest.fn()
+    };
+
+    submitDmpServiceMock = {
+      setexportFormat: jest.fn(),
+      exportFormatSubject$: { next: jest.fn() },
+      setButtonMessage: jest.fn(),
+      buttonSubject$: { next: jest.fn() }
+    };
+
+    dropDownSelectServiceMock = {
+      getDropDownText: jest.fn()
+    };
+
+    disableSaveBtnSubject = new Subject<boolean>();
+    hasUnsavedChangesSubject = new Subject<boolean>();
+
+    formChangedServiceMock = {
+      disableSaveBtn$: disableSaveBtnSubject,
+      hasUnsavedChanges$: hasUnsavedChangesSubject
+    };
+
+    authServiceMock.getCredentials.mockReturnValue(
+      of({
+        token: 'abc123',
+        userId: 'user1',
+        userAttributes: { userName: 'Niksa' }
+      })
+    );
+
     await TestBed.configureTestingModule({
-        declarations: [ AppComponent ],
-        imports: [
-            HttpClientTestingModule,
-            BrowserModule,
-            FormsModule,
-            FrameModule,
-            ReactiveFormsModule,
-            BrowserAnimationsModule,
-
-            MatTableModule,
-            MatInputModule,
-            MatButtonModule,
-            MatDatepickerModule,
-            MatNativeDateModule,
-            MatCheckboxModule,
-            MatDialogModule,
-
-            MatAutocompleteModule,
-            DmpRoutingModule,
-            DomPositioningModule,
-            AngularResizeEventModule,
-            NistResourcesModule
-        ],
-        providers: [
-            { provide: AuthenticationService, useClass: MockAuthenticationService },
-            { provide: APP_BASE_HREF, useValue: "/test" },
-            DomPositioningModule
-        ]
+      declarations: [AppComponent],
+      providers: [
+        { provide: AuthenticationService, useValue: authServiceMock },
+        { provide: StaffDirectoryService, useValue: staffDirectoryServiceMock },
+        { provide: SubmitDmpService, useValue: submitDmpServiceMock },
+        { provide: DropDownSelectService, useValue: dropDownSelectServiceMock },
+        { provide: FormChangedService, useValue: formChangedServiceMock }
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it(`should have as title 'dmp_ui2'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('dmp_ui2');
+  it('should have title dmp_ui2', () => {
+    expect(component.title).toBe('dmp_ui2');
   });
 
+  it('should set authenticated user message on init', () => {
+    fixture.detectChanges();
 
+    expect(component.readyDisplay).toBe(true);
+    expect(component.authMessage).toBe('Welcome, Niksa');
+    expect(staffDirectoryServiceMock.setAuthToken).toHaveBeenCalledWith('abc123');
+  });
+
+  it('should fall back to userId when userName is missing', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      of({
+        token: 'abc123',
+        userId: 'user1',
+        userAttributes: {}
+      })
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('Welcome, user1');
+  });
+
+  it('should set not logged in message when token is missing', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      of({
+        token: null,
+        userId: 'user1',
+        userAttributes: { userName: 'Niksa' }
+      })
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('You are not logged in.');
+    expect(component.readyDisplay).toBe(true);
+  });
+
+  it('should handle 401 auth error', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      throwError(() => ({ status: 401, message: 'Unauthorized' }))
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('User Log-in failure');
+    expect(component.readyDisplay).toBe(true);
+  });
+
+  it('should handle 500 auth error', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      throwError(() => ({ status: 500, message: 'Server error' }))
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('Unable to log in; authentication server error');
+    expect(component.readyDisplay).toBe(true);
+  });
+
+  it('should handle generic auth communication error', () => {
+    authServiceMock.getCredentials.mockReturnValue(
+      throwError(() => ({ status: 400, message: 'Bad request' }))
+    );
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.authMessage).toBe('Unable to log in; authentication server communication error');
+    expect(component.readyDisplay).toBe(true);
+  });
+
+  it('should update export format and enable download button', () => {
+    dropDownSelectServiceMock.getDropDownText.mockReturnValue([
+      { id: '1', format: 'PDF' }
+    ]);
+
+    component.exportType = '1';
+    component.setExportFormat();
+
+    expect(submitDmpServiceMock.setexportFormat).toHaveBeenCalledWith('PDF');
+    expect(submitDmpServiceMock.exportFormatSubject$.next).toHaveBeenCalledWith('PDF');
+    expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith('Download');
+    expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith('Download');
+    expect(component.disableDownloadBtn).toBe(false);
+  });
+
+  it('should not emit when export format lookup returns no match', () => {
+    dropDownSelectServiceMock.getDropDownText.mockReturnValue([]);
+
+    component.exportType = 'unknown';
+    component.setExportFormat();
+
+    expect(submitDmpServiceMock.setexportFormat).not.toHaveBeenCalled();
+    expect(component.disableDownloadBtn).toBe(true);
+  });
+
+  it('should dispatch clicked button action', () => {
+    component.dmpButtonClick('Save');
+
+    expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith('Save');
+    expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith('Save');
+  });
+
+  it('should react to save button state changes', () => {
+    component.saveButtonSubscribe();
+
+    disableSaveBtnSubject.next(true);
+    hasUnsavedChangesSubject.next(true);
+
+    expect(component.disableSaveBtn).toBe(true);
+    expect(component.hasUnsavedChanges).toBe(true);
+  });
+
+  it('should subscribe to form-change state during ngOnInit', () => {
+    fixture.detectChanges(); // triggers ngOnInit
+
+    disableSaveBtnSubject.next(true);
+    hasUnsavedChangesSubject.next(true);
+
+    expect(component.disableSaveBtn).toBe(true);
+    expect(component.hasUnsavedChanges).toBe(true);
+  });
+
+  it('should re-enable save button when unsaved changes are emitted after a save', () => {
+    fixture.detectChanges();
+
+    // Simulate: record saved (save disabled), then edited (unsaved changes)
+    disableSaveBtnSubject.next(true);
+    expect(component.disableSaveBtn).toBe(true);
+
+    hasUnsavedChangesSubject.next(true);
+    disableSaveBtnSubject.next(false);
+
+    expect(component.hasUnsavedChanges).toBe(true);
+    expect(component.disableSaveBtn).toBe(false);
+  });
+
+  it('should stop reacting to emissions after destroy', () => {
+    fixture.detectChanges();
+    component.ngOnDestroy();
+
+    disableSaveBtnSubject.next(true);
+    hasUnsavedChangesSubject.next(true);
+
+    expect(component.disableSaveBtn).toBe(false);
+    expect(component.hasUnsavedChanges).toBe(false);
+  });
 });
