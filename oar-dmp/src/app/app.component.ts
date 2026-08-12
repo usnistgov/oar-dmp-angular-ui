@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { Credentials, AuthenticationService, StaffDirectoryService } from 'oarng';
+import { Credentials, AuthenticationService, StaffDirectoryService, ConfigurationService,
+  PermissionManagerDialogComponent } from 'oarng';
+import { MatDialog } from '@angular/material/dialog';
 import { SubmitDmpService } from './shared/submit-dmp.service';
 import { DropDownSelectService } from './shared/drop-down-select.service';
 import { FormChangedService } from './shared/form-changed.service';
+import { DMPConfiguration } from './shared/config.model';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   disableSaveBtn: boolean = false;
   hasUnsavedChanges: boolean = false;
   disableDownloadBtn: boolean = true;
+  currentDmpId: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -35,7 +39,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private sdsvc: StaffDirectoryService,
     private form_buttons: SubmitDmpService,
     private dropDownService: DropDownSelectService,
-    private formChangedService: FormChangedService
+    private formChangedService: FormChangedService,
+    private dialog: MatDialog,
+    private configService: ConfigurationService
   ) { }
 
   ngOnInit(): void {
@@ -69,6 +75,10 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.saveButtonSubscribe();
+
+    this.formChangedService.currentDmpId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => { this.currentDmpId = id; });
   }
 
   ngOnDestroy(): void {
@@ -97,6 +107,20 @@ export class AppComponent implements OnInit, OnDestroy {
   dmpButtonClick(action: string): void {
     this.form_buttons.setButtonMessage(action);
     this.form_buttons.buttonSubject$.next(action);
+  }
+
+  openShareDialog(): void {
+    if (!this.currentDmpId) return;
+    this.dialog.open(PermissionManagerDialogComponent, {
+      data: {
+        record: {
+          id: this.currentDmpId,
+          apiBase: this.configService.getConfig<DMPConfiguration>().PDRDMP
+        },
+        title: 'Share my record'
+      },
+      maxWidth: '95vw'
+    });
   }
 
   // Subscribe to form-change state. Called once from ngOnInit; teardown via destroy$.

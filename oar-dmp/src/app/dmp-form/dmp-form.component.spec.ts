@@ -80,7 +80,8 @@ describe('DmpFormComponent', () => {
 
     formChangedServiceMock = {
       disableSaveBtn$: { next: jest.fn() },
-      hasUnsavedChanges$: { next: jest.fn() }
+      hasUnsavedChanges$: { next: jest.fn() },
+      currentDmpId$: { next: jest.fn() }
     };
 
     peopleUpdatesMock = {
@@ -428,6 +429,22 @@ describe('DmpFormComponent', () => {
       component.ngOnDestroy();
       expect(nextSpy).toHaveBeenCalled();
       expect(completeSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('currentDmpId$ propagation', () => {
+    it('should push the route id into FormChangedService on init', () => {
+      activatedRouteMock.snapshot.paramMap.get.mockReturnValue('dmp-999');
+      activatedRouteMock.data = of({ action: 'edit' });
+      fixture.detectChanges();
+      expect(formChangedServiceMock.currentDmpId$.next).toHaveBeenCalledWith('dmp-999');
+    });
+
+    it('should push null into FormChangedService on destroy', () => {
+      activatedRouteMock.data = of({ action: 'new' });
+      fixture.detectChanges();
+      component.ngOnDestroy();
+      expect(formChangedServiceMock.currentDmpId$.next).toHaveBeenCalledWith(null);
     });
   });
 });
