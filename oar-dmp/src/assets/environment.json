@@ -6,8 +6,5 @@
   "staffdir": {
     "serviceEndpoint":  "http://localhost:9091/midas/nsd/oar1",
     "requireAuthToken": true
-  },
-  "peopleURL": "http://localhost:9091/midas/nsd/oar1/people/index",
-  "orgURL": "http://localhost:9091/midas/nsd/oar1/orgs/index",
-  "personURL": "http://localhost:9091/midas/nsd/oar1/people/"
+  }
 }
