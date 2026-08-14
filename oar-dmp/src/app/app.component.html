@@ -21,7 +21,15 @@
                             Save
                         </button>
                     </div>
-                
+
+                    <div *ngIf="currentDmpId">
+                        <button mat-button type="button" class="btn_draft"
+                                aria-label="Share this record with other users"
+                                (click)="openShareDialog()">
+                            Share
+                        </button>
+                    </div>
+
                     <div>
                         <button mat-button type="button" class="btn_draft"
                                 (click)="dmpButtonClick('Download')"
