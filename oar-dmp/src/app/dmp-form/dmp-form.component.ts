@@ -190,6 +190,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
     this.formExportFormatSubscribe();
 
     this.id = this.route.snapshot.paramMap.get('id');
+    this.formChanged.currentDmpId$.next(this.id);
     this.resolveActionFromRoute();
 
     if (this.action === "new") {
@@ -200,6 +201,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.formChanged.currentDmpId$.next(null);
     this.destroy$.next();
     this.destroy$.complete();
   }
