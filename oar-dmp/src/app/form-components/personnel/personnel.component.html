@@ -138,16 +138,6 @@
               </div>
 
               <div class="field-grid-row">
-                <div class="field-grid-label cell-top">
-                  ORCID
-                  <span class="inline-info-icon-wrap" matTooltip="ORCID is added automatically from the NIST People database when one is on file for the selected NIST contributor. If none is on file, you can enter one manually if you know this contributor has an ORCID. An ORCID is required if this DMP results in a publication." matTooltipPosition="above">
-                    <mat-icon class="header-inline-info-icon">info</mat-icon>
-                  </span>
-                </div>
-                <div class="field-grid-field cell-top"><input type="text" [(ngModel)]="crntContrib.orcid"></div>
-              </div>
-
-              <div class="field-grid-row">
                 <div class="field-grid-label">
                   Role
                   <span class="inline-info-icon-wrap" matTooltip="The contributor's role on this DMP. This field is optional and, unlike Primary Contact, does not affect which OUs are considered responsible for the DMP." matTooltipPosition="above">
@@ -165,6 +155,16 @@
                     </option>
                   </select>
                 </div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label cell-top">
+                  ORCID
+                  <span class="inline-info-icon-wrap" matTooltip="ORCID is added automatically from the NIST People database when one is on file for the selected NIST contributor. If none is on file, you can enter one manually if you know this contributor has an ORCID. An ORCID is required if this DMP results in a publication." matTooltipPosition="above">
+                    <mat-icon class="header-inline-info-icon">info</mat-icon>
+                  </span>
+                </div>
+                <div class="field-grid-field cell-top"><input type="text" [(ngModel)]="crntContrib.orcid"></div>
               </div>
 
             </div>
@@ -195,22 +195,12 @@
               <div class="field-grid-row">
                 <div class="field-grid-label">Last Name<span class="requiredField" >*</span></div>
                 <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.lastName"></div>
-              </div>
-
-              <div class="field-grid-row">
-                <div class="field-grid-label">Contributor ORCID</div>
-                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.orcid"></div>
-              </div>
+              </div>              
 
               <div class="field-grid-row">
                 <div class="field-grid-label description">Institution / Affiliation<span class="requiredField" >*</span></div>
                 <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.institution"></div>
-              </div>
-
-              <div class="field-grid-row">
-                <div class="field-grid-label">e-mail<span class="requiredField" >*</span></div>
-                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.emailAddress"></div>
-              </div>
+              </div>              
 
               <div class="field-grid-row">
                 <div class="field-grid-label">Role</div>
@@ -226,6 +216,16 @@
 
                   </select>
                 </div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">e-mail<span class="requiredField" >*</span></div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.emailAddress"></div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">Contributor ORCID</div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.orcid"></div>
               </div>
 
             </div>
