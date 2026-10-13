@@ -6,10 +6,6 @@
 // }
 $button_red: #B20000;
 
-.btn-edit {
-  text-align: right;
-}
-
 .button-add-row {
   line-height: 20px;
   background: #1b2f9e;
@@ -154,7 +150,7 @@ table.mat-elevation-z8 {
   width: 48px;
 }
 .mat-column-isEdit {
-  width: 140px;
+  width: 80px;
 }
 
 // --- Contributors table (personnel.component - CONTRIB_COL_SCHEMA) ---
@@ -237,11 +233,17 @@ table.mat-elevation-z8 {
 .btn-edit {
   text-align: left;
   display: flex;
+  flex-direction: column;  // stack Edit/Delete vertically instead of side by side
   justify-content: flex-start;
-  align-items: center;
-  gap: 4px;
+  align-items: flex-start; // keep each button at its natural width, left-aligned
+  gap: 0px;
   width: 100%;
-  flex-wrap: nowrap; // guard against the two buttons wrapping onto separate lines
+
+  // Scoped override: only buttons inside .btn-edit (Edit/Delete/Done) pick
+  // up the shorter height. CSS custom properties cascade, so setting this
+  // here doesn't touch --mdc-text-button-container-height anywhere else in
+  // the app.
+  --mdc-text-button-container-height: 28px;
 }
 
 ::ng-deep .btn-edit button.mat-mdc-button {
