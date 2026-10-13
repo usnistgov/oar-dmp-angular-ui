@@ -480,7 +480,7 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.name.value === '') {
-      alert("Cannot save DMP. DMP Short Name.");
+      alert("Cannot save DMP. DMP Short Name is empty.");
       return;
     }
 
@@ -523,8 +523,15 @@ export class DmpFormComponent implements OnInit, OnDestroy {
             }
           },
           error: error => {
+            // Save failures (e.g. a duplicate DMP Short Name, transient network
+            // error) must NOT navigate away from the form — doing so would
+            // discard everything the user just entered. Unlike a LOAD failure
+            // (handleLoadError, which has no form data to lose), a save
+            // failure keeps the user on the form so they can correct the
+            // problem and retry without re-entering the whole record.
             console.error(error.message);
-            this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+            this.autoSaveInProgress = false;
+            alert("Failed to save DMP. This may be because the DMP Short Name is already in use by another record. Please check your entries and try again.");
           }
         });
       }
@@ -538,8 +545,10 @@ export class DmpFormComponent implements OnInit, OnDestroy {
           this.formSaved = true;
         },
         error: error => {
+          // See comment above: save failures stay on the form, they don't
+          // navigate to the error page.
           console.error(error.message);
-          this.router.navigate(['error', { dmpError: this.buildErrorMessage(error) }]);
+          alert("Failed to save DMP. This may be because the DMP Short Name is already in use by another record. Please check your entries and try again.");
         }
       });
     }

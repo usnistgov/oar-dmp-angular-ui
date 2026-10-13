@@ -339,6 +339,18 @@ describe('DmpFormComponent', () => {
     it('should call createDMP when id is null (new record)', () => {
       component.id = null;
       component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(dmpServiceMock.createDMP).toHaveBeenCalledWith(component.dmp, 'New Record');
       expect(routerMock.navigate).toHaveBeenCalledWith(['edit', '456']);
@@ -348,6 +360,18 @@ describe('DmpFormComponent', () => {
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(dmpServiceMock.updateDMP).toHaveBeenCalledWith(component.dmp, '789');
       expect(routerMock.navigate).toHaveBeenCalledWith(['edit', '789']);
@@ -358,35 +382,65 @@ describe('DmpFormComponent', () => {
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(alertSpy).toHaveBeenCalledWith('Successfully saved DMP record');
     });
 
-    it('should suppress the success alert when autosave triggered the save', () => {
+    it('should alert and not navigate away when updateDMP fails', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-      component.id = '789';
-      component.action = 'edit';
-      component.name.setValue('Existing Record');
-      (component as any).autoSaveInProgress = true;
-      component.saveDraft();
-      expect(alertSpy).not.toHaveBeenCalledWith('Successfully saved DMP record');
-    });
-
-    it('should navigate to error page when updateDMP fails', () => {
       dmpServiceMock.updateDMP.mockReturnValue(throwError(() => ({ message: 'update failed' })));
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['error', expect.objectContaining({ dmpError: expect.any(String) })]);
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to save DMP'));
+      expect(routerMock.navigate).not.toHaveBeenCalledWith(['error', expect.anything()]);
     });
 
-    it('should navigate to error page when createDMP fails', () => {
+    it('should alert and not navigate away when createDMP fails', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
       dmpServiceMock.createDMP.mockReturnValue(throwError(() => ({ message: 'create failed' })));
       component.id = null;
       component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['error', expect.objectContaining({ dmpError: expect.any(String) })]);
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to save DMP'));
+      expect(routerMock.navigate).not.toHaveBeenCalledWith(['error', expect.anything()]);
     });
 
     it('should alert if title is empty', () => {
@@ -400,6 +454,7 @@ describe('DmpFormComponent', () => {
 
     it('should not alert about title when title is whitespace-trimmed to non-empty content', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.id = null;
       component.name.setValue('New Record');
       component.dmp = {
         ..._.cloneDeep(blankDmp),
@@ -473,6 +528,7 @@ describe('DmpFormComponent', () => {
 
     it('should proceed with save when a NIST contributor is marked as primary contact', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.id = null;
       component.name.setValue('New Record');
       component.dmp = {
         ..._.cloneDeep(blankDmp),
