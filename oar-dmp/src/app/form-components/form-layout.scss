@@ -113,32 +113,6 @@ label {
   }
 }
 
-// Inline info icon used within plain form text (not a colored header/
-// sub-header bar) — e.g. next to "Estimated Data Size" or "IRB Number".
-// Plain inline-flex, no absolute positioning, since it just needs to sit
-// next to text rather than anchor to the edge of a full-width bar (that's
-// what .header-info-icon-wrap/.subheader-info-icon-wrap are for).
-.inline-info-icon-wrap {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  pointer-events: auto;
-}
-
-.header-inline-info-icon {
-  font-size: 16px;
-  height: 16px;
-  width: 16px;
-  line-height: 16px;
-  vertical-align: middle;
-  color: rgba(0, 0, 0, 0.55);
-  cursor: help;
-
-  &:hover {
-    color: rgba(0, 0, 0, 0.85);
-  }
-}
-
 // =============================
 // Bordered field group (shared across form components)
 // =============================

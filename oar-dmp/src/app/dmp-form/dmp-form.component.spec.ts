@@ -333,7 +333,7 @@ describe('DmpFormComponent', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
       component.name.setValue('');
       component.saveDraft();
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Record name is empty'));
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('DMP Short Name'));
     });
 
     it('should call createDMP when id is null (new record)', () => {
@@ -387,6 +387,109 @@ describe('DmpFormComponent', () => {
       component.name.setValue('New Record');
       component.saveDraft();
       expect(routerMock.navigate).toHaveBeenCalledWith(['error', expect.objectContaining({ dmpError: expect.any(String) })]);
+    });
+
+    it('should alert if title is empty', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = { ..._.cloneDeep(blankDmp), title: '' } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should not alert about title when title is whitespace-trimmed to non-empty content', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: '',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(dmpServiceMock.createDMP).toHaveBeenCalled();
+    });
+
+    it('should alert if title is only whitespace', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = { ..._.cloneDeep(blankDmp), title: '   ' } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Title field'));
+    });
+
+    it('should alert if no NIST primary contact exists', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should alert if contributors exist but none are a NIST primary contact', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [
+          // External primary contact: institution is not 'NIST', so this must not count.
+          {
+            firstName: 'Marie', lastName: 'Curie', orcid: '', emailAddress: 'marie@example.com',
+            groupOrgID: 0, groupNumber: '', groupName: '',
+            divisionOrgID: 0, divisionNumber: '', divisionName: '',
+            ouOrgID: 0, ouNumber: '', ouName: '',
+            primary_contact: 'Yes', institution: 'Sorbonne', role: 'Project Member',
+            peopleID: -1,
+          },
+          // NIST contributor, but not marked as primary contact.
+          {
+            firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+            groupOrgID: 1, groupNumber: '1', groupName: 'G',
+            divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+            ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+            primary_contact: 'No', institution: 'NIST', role: 'Project Member',
+            peopleID: 2,
+          },
+        ],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should proceed with save when a NIST contributor is marked as primary contact', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).toHaveBeenCalled();
     });
   });
 

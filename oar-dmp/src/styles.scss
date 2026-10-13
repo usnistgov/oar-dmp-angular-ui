@@ -162,3 +162,39 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @media only screen and (min-width: 1280px) {
   #PageError, #PageNotFound {min-height: 600px;}
 }
+
+.req_DMP_Field{
+  font-weight: bold !important;
+  font-size:large ;
+  color: crimson!important;
+}
+
+.req_DMP_Field_note {
+  margin: 0 0 8px;
+}
+
+// Inline info icon used within plain form text (not a colored header/
+// sub-header bar), e.g. next to "Estimated Data Size". Plain inline-flex,
+// no absolute positioning — unlike .subheader-info-icon-wrap, which relies
+// on its .sub-category parent being position:relative to anchor to the
+// right edge of a full-width bar. This one just needs to sit next to text.
+.inline-info-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  pointer-events: auto;
+}
+
+.header-inline-info-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  line-height: 16px;
+  vertical-align: middle;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: help;
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.85);
+  }
+}

@@ -480,10 +480,29 @@ export class DmpFormComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.name.value === '') {
-      alert("Cannot save DMP. Record name is empty.");
+      alert("Cannot save DMP. DMP Short Name.");
       return;
     }
-    
+
+    // Title (Basic Info section) is required to save/create a DMP record.
+    if (!this.dmp.title || this.dmp.title.trim() === '') {
+      alert("Cannot save DMP. Title field in Basic Information section is empty.");
+      return;
+    }
+
+    // At least one contributor must be a NIST Employee/Associate marked as
+    // the Primary Contact. institution === 'NIST' distinguishes NIST
+    // contributors from external ones (see personnel.component.ts); the
+    // literal 'Yes' matches the PrimaryContact enum persisted on each
+    // contributor record.
+    const hasNistPrimaryContact = (this.dmp.contributors ?? []).some(
+      (c) => c.institution === 'NIST' && c.primary_contact === 'Yes'
+    );
+    if (!hasNistPrimaryContact) {
+      alert("Cannot save DMP. At least one NIST Employee / Associate contributor must be designated as the Primary Contact.");
+      return;
+    }
+
     if (this.id !== null) {
       // If id is not null then update dmp with the current id
       if (this.action !== "new") {
