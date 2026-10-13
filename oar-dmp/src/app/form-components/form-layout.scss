@@ -255,7 +255,7 @@ label {
 // --- Modifier: --plain ---
 // For grids where every row is a plain label + plain field (no
 // mat-form-field reference point to align against) — e.g. External
-// Collaborator's fields. Resets the mat-form-field-specific vertical offset
+// Contributor's fields. Resets the mat-form-field-specific vertical offset
 // and uses a simpler 2-column layout with a wider label column.
 .field-grid--plain .field-grid-label {
   padding-top: 0;

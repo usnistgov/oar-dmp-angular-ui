@@ -472,7 +472,7 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
 
   addRow(){
     // Validate required fields before adding — mirrors the External
-    // Collaborator pattern (validateExternalContributorInput), which checks
+    // Contributor pattern (validateExternalContributorInput), which checks
     // all required fields up front and bails out with a specific
     // errorMessage on the first one that's missing, rather than relying on
     // the Add button's disabled state to prevent incomplete submissions.

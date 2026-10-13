@@ -87,7 +87,7 @@
             <div class="field-grid field-grid--plain">
               <div class="field-grid-row">
                 <div class="field-grid-label cell-top">
-                  Contributor<span class="requiredField" >*</span>
+                  Contributor
                   <span class="inline-info-icon-wrap" matTooltip="Search for NIST staff by first or last name, then select the person from the search suggestion list." matTooltipPosition="above">
                     <mat-icon class="header-inline-info-icon">info</mat-icon>
                   </span>
@@ -179,7 +179,7 @@
             (click)="setContributor('External')"
             (change)="onContributorChange($event.target)"
           >
-          <label for="contributorExternal">External Collaborator</label>
+          <label for="contributorExternal">External Contributor</label>
           <div *ngIf="selectedContributor('External')" class="bordered-field-group">
             <p><span class="requiredField" >*</span> Required fields to add external contributor</p>
             <div class="field-grid field-grid--plain">
