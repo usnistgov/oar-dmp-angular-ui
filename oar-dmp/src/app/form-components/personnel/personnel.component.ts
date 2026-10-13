@@ -92,8 +92,13 @@ const CONTRIB_COL_SCHEMA = [
     label: 'Last \nName',
   },
   {
+    // type: 'primary-contact-select' renders a <select> populated from
+    // primaryContactOptions ('Yes'/'No') in edit mode for NIST contributors
+    // only. External contributors render this read-only (always "No") since
+    // Primary Contact is a NIST-only designation — see onDoneClick's
+    // external-defaults enforcement.
     key: 'primary_contact',
-    type: 'text',
+    type: 'primary-contact-select',
     label: 'Primary \nContact',
   },
   {
@@ -115,7 +120,8 @@ const CONTRIB_COL_SCHEMA = [
     // type: 'role-select' renders a <select> populated from the same
     // contributorRoles list used when adding a contributor, instead of a
     // free-text input, so edits stay constrained to supported roles
-    // (consistent values, no typos, no unsupported roles).
+    // (consistent values, no typos, no unsupported roles). Shared by both
+    // NIST and External contributors.
     key: 'role',
     type: 'role-select',
     label: 'Role',
@@ -1012,26 +1018,51 @@ export class PersonnelComponent implements OnDestroy {
   }
 
   onDoneClick(e: any) {
-    // Validate when finishing an inline edit of an external contributor
     this.contribOrcidWarn = "";
-    const externalContrib: externalContributor = {
-      firstName:    e.firstName,
-      lastName:     e.lastName,
-      orcid:        e.orcid,
-      institution:  e.institution,
-      emailAddress: e.emailAddress,
-      role:         this.crntContrib.role,
-    };
 
-    if (!this.validateExternalContributorInput(externalContrib)) {
+    const row = this.dmpContributors.find((c) => c.id === e.id);
+    if (!row) {
       return;
     }
-    this.crntContrib.orcid = e.orcid;
-    this.errorMessage = "";
 
-    // Find the row being edited and apply changes to it directly
-    const row = this.dmpContributors.find((c) => c.id === e.id);
-    if (row) {
+    if (row.institution === 'NIST') {
+      // NIST contributor: firstName/lastName/emailAddress/institution/ORG ID
+      // are locked to the People Service record and were never rendered as
+      // editable inputs, so there is nothing to validate for them here.
+      // Only Role, Primary Contact, and ORCID are editable for a NIST row.
+      const orcid = (e.orcid || '').trim();
+      if (orcid.length > 0 && !this.isORCID(orcid)) {
+        this.errorMessage = PersonnelComponent.ORCID_ERROR;
+        return;
+      }
+
+      row.orcid = orcid;
+      row.role = e.role;
+      row.primary_contact = e.primary_contact;
+
+      if (orcid.length === 0) {
+        this.contribOrcidWarn = PersonnelComponent.ORCID_WARNING;
+      }
+
+      row.isEdit = false;
+      this.errorMessage = "";
+    } else {
+      // External contributor: validate as before.
+      const externalContrib: externalContributor = {
+        firstName:    e.firstName,
+        lastName:     e.lastName,
+        orcid:        e.orcid,
+        institution:  e.institution,
+        emailAddress: e.emailAddress,
+        role:         this.crntContrib.role,
+      };
+
+      if (!this.validateExternalContributorInput(externalContrib)) {
+        return;
+      }
+      this.crntContrib.orcid = e.orcid;
+      this.errorMessage = "";
+
       row.isEdit = false;
 
       // A divisionOrgID of 0 indicates an external contributor: enforce the

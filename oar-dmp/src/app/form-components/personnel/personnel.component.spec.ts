@@ -655,6 +655,146 @@ describe('PersonnelComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // onDoneClick — inline edit of a NIST contributor row
+  // ---------------------------------------------------------------------------
+
+  describe('onDoneClick (inline edit) — NIST contributor', () => {
+    beforeEach(() => {
+      component.dmpContributors = [{
+        id: 1, isEdit: true,
+        firstName: 'Ada', lastName: 'Lovelace', orcid: '0000-0002-1825-0097',
+        emailAddress: 'ada@nist.gov',
+        groupOrgID: 641, groupNumber: '641', groupName: 'Software Group',
+        divisionOrgID: 640, divisionNumber: '640', divisionName: 'ITL Division',
+        ouOrgID: 600, ouNumber: '600', ouName: 'ITL',
+        primary_contact: 'No', role: 'Project Member', institution: 'NIST',
+        peopleID: 500,
+      } as any];
+    });
+
+    it('applies Role, Primary Contact, and ORCID edits and clears isEdit on success', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '0000-0003-1111-2222',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.isEdit).toBe(false);
+      expect(row.role).toBe('Project Leader');
+      expect(row.primary_contact).toBe('Yes');
+      expect(row.orcid).toBe('0000-0003-1111-2222');
+    });
+
+    it('does not alter firstName, lastName, emailAddress, or institution', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '0000-0002-1825-0097',
+        // Even if a caller attempted to pass altered identity fields, NIST
+        // rows must never apply them — these fields aren't read from `e` at
+        // all for NIST rows.
+        firstName: 'Tampered',
+        lastName: 'Name',
+        emailAddress: 'tampered@example.com',
+        institution: 'NotNIST',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.firstName).toBe('Ada');
+      expect(row.lastName).toBe('Lovelace');
+      expect(row.emailAddress).toBe('ada@nist.gov');
+      expect(row.institution).toBe('NIST');
+    });
+
+    it('does not alter People-Service-owned org fields', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '0000-0002-1825-0097',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.groupOrgID).toBe(641);
+      expect(row.groupNumber).toBe('641');
+      expect(row.groupName).toBe('Software Group');
+      expect(row.divisionOrgID).toBe(640);
+      expect(row.ouOrgID).toBe(600);
+    });
+
+    it('rejects an invalid ORCID and leaves isEdit true', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: 'not-an-orcid',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.isEdit).toBe(true);
+      expect(component.errorMessage).toBe(PersonnelComponent.ORCID_ERROR);
+      // Role/primary_contact must not be applied when validation fails.
+      expect(row.role).toBe('Project Member');
+      expect(row.primary_contact).toBe('No');
+    });
+
+    it('accepts an empty ORCID and sets the ORCID warning', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '',
+      });
+
+      const row = component.dmpContributors[0];
+      expect(row.isEdit).toBe(false);
+      expect(row.orcid).toBe('');
+      expect(component.contribOrcidWarn).toBe(PersonnelComponent.ORCID_WARNING);
+    });
+
+    it('allows setting Primary Contact back to No', () => {
+      component.dmpContributors[0].primary_contact = 'Yes';
+
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Member',
+        primary_contact: 'No',
+        orcid: '0000-0002-1825-0097',
+      });
+
+      expect(component.dmpContributors[0].primary_contact).toBe('No');
+    });
+
+    it('syncs the edited contributor into the form', () => {
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '0000-0002-1825-0097',
+      });
+
+      const formContributors = component.personnelForm.value['contributors'] as any[];
+      const synced = formContributors.find((c: any) => c.emailAddress === 'ada@nist.gov');
+      expect(synced.role).toBe('Project Leader');
+      expect(synced.primary_contact).toBe('Yes');
+    });
+
+    it('re-enables Remove Selected after a successful edit', () => {
+      component.disableRemove = true;
+      component.onDoneClick({
+        id: 1,
+        role: 'Project Leader',
+        primary_contact: 'Yes',
+        orcid: '0000-0002-1825-0097',
+      });
+      expect(component.disableRemove).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // onDoneClick — inline edit of an external contributor row
   // ---------------------------------------------------------------------------
 

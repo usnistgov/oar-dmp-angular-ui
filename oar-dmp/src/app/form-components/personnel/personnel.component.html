@@ -280,16 +280,11 @@
                   ></mat-checkbox>
                 </ng-container>
       
-                <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
+                <!-- Edit button: show for all rows, not just non-NIST -->
                 <div class="btn-edit" *ngSwitchCase="'isEdit'">
-                  <span *ngIf="element.institution !== 'NIST'">
-                    <!--
-                      Display edit button only for non NIST contacts
-                    -->
-                    <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
-                      Edit
-                    </button>
-                  </span>
+                  <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
+                    Edit
+                  </button>
                   <button
                     type="button"
                     mat-button
@@ -328,17 +323,42 @@
 
                 <!-- Role: dropdown instead of free text, using the same contributorRoles
                     list as the "Add a Contributor" form, so edited roles stay within
-                    the supported set. -->
+                    the supported set. Shared by NIST and External contributors. -->
                 <select *ngSwitchCase="'role-select'" [(ngModel)]="element.role">
                   <option *ngFor="let roleOption of contributorRoles" [value]="roleOption.value">
                     {{ roleOption.value }}
                   </option>
                 </select>
 
-                <!-- default column cell -->
-                <mat-form-field class="form-input" *ngSwitchDefault>
-                  <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
-                </mat-form-field>
+                <!-- Primary Contact: editable dropdown (Yes/No) for NIST contributors
+                    only, since this designation only applies to NIST contributors.
+                    External contributors render it as plain read-only text — their
+                    value is always forced to "No" by onDoneClick's external-defaults
+                    enforcement, so there is nothing meaningful for them to edit here. -->
+                <ng-container *ngSwitchCase="'primary-contact-select'">
+                  <select *ngIf="element.institution === 'NIST'; else primaryContactReadonly" [(ngModel)]="element.primary_contact">
+                    <option *ngFor="let pc of primaryContactOptions" [value]="pc.value">
+                      {{ pc.value }}
+                    </option>
+                  </select>
+                  <ng-template #primaryContactReadonly>
+                    <span>{{ element.primary_contact }}</span>
+                  </ng-template>
+                </ng-container>
+
+                <!-- default column cell: firstName, lastName, emailAddress, orcid.
+                    For a NIST contributor, firstName/lastName/emailAddress must stay
+                    locked to the People Service record to avoid data drift — they
+                    render as plain read-only text instead of an editable input.
+                    ORCID is editable for both institution types. -->
+                <ng-container *ngSwitchDefault>
+                  <span *ngIf="element.institution === 'NIST' && col.key !== 'orcid'">
+                    {{ element[col.key] }}
+                  </span>
+                  <mat-form-field class="form-input" *ngIf="!(element.institution === 'NIST' && col.key !== 'orcid')">
+                    <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+                  </mat-form-field>
+                </ng-container>
 
               </div>
       
