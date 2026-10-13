@@ -333,3 +333,46 @@ label {
   background-color: whitesmoke; // matches mat-form-field fill's default container color
   box-sizing: border-box;
 }
+
+// =============================
+// Inline edit-mode mat-form-field (table cells, .form-input)
+// =============================
+// When a Contributors/Instruments table row enters edit mode, its plain text
+// cells swap to a mat-form-field (class "form-input"). Material's default
+// "fill" appearance reserves vertical space for a floating label plus a
+// hint/subscript line (for error messages) that this inline table-cell
+// usage never needs — it was making edit-mode rows render taller than
+// normal rows, with input boxes that look oversized/misaligned relative to
+// the table's compact row height (52px, per --mat-table-row-item-container-
+// height).
+//
+// ::ng-deep pierces mat-form-field's view encapsulation; scoped to
+// .form-input so only these table-cell edit fields are affected, not every
+// mat-form-field elsewhere in the app (e.g. the NIST Contributor/
+// Organization autocomplete fields, which keep their normal sizing).
+.form-input {
+  padding-right: 2px;
+  width: 100%;
+}
+
+::ng-deep .form-input .mat-mdc-text-field-wrapper {
+  padding: 0 2px !important;
+  height: 46px !important; // fits comfortably within the table's 52px row height
+}
+
+::ng-deep .form-input .mat-mdc-form-field-infix {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+  min-height: 0 !important;
+}
+
+::ng-deep .form-input .mat-mdc-form-field-subscript-wrapper {
+  // This reserves space below the input for hint/error text, which these
+  // inline edit fields never use — display: none removes that reserved
+  // space entirely rather than just hiding its (empty) content.
+  display: none !important;
+}
+
+::ng-deep .form-input input.mat-mdc-input-element {
+  font-size: 14px; // match the table's own row text size for visual consistency
+}
