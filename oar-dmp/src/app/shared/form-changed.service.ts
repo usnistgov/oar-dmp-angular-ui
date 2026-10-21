@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 //for sending messages between unrelated components
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormChangedService {
 
-  constructor() { 
+  constructor() {
     // this.enableSaveButton = false;
   }
 
@@ -16,4 +16,7 @@ export class FormChangedService {
 
   /** true => there are unsaved changes (button shows the "update" style). */
   hasUnsavedChanges$ = new Subject<boolean>();
+
+  /** The ID of the DMP currently open in the editor; null when on /new or no record loaded. */
+  currentDmpId$ = new BehaviorSubject<string | null>(null);
 }

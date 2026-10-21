@@ -15,6 +15,11 @@ FROM debian:bullseye-slim
 
 RUN sed -e '/bullseye-updates/ s/^deb/#deb/' /etc/apt/sources.list \
     > /tmp/sources.list && mv /tmp/sources.list /etc/apt/sources.list
+# Bullseye went end-of-life on 2026-08-31 and its packages were moved to the
+# Debian archive on 2026-10-04, so the indexes still resolve but the files 404.
+RUN sed -i -e 's|deb.debian.org/debian-security|archive.debian.org/debian-security|g' \
+           -e 's|deb.debian.org/debian |archive.debian.org/debian |g' \
+           /etc/apt/sources.list
 RUN apt-get update && \
     apt-get install -y --no-install-recommends zip wget ca-certificates git \
                                                xz-utils gnupg python3       \

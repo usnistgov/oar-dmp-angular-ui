@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { of, Subject, throwError } from 'rxjs';
+import { of, Subject, BehaviorSubject, throwError } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 import { AppComponent } from './app.component';
-import { AuthenticationService, StaffDirectoryService } from 'oarng';
+import { AuthenticationService, StaffDirectoryService, ConfigurationService } from 'oarng';
 import { SubmitDmpService } from './shared/submit-dmp.service';
 import { DropDownSelectService } from './shared/drop-down-select.service';
 import { FormChangedService } from './shared/form-changed.service';
@@ -33,11 +34,16 @@ describe('AppComponent', () => {
 
   let disableSaveBtnSubject: Subject<boolean>;
   let hasUnsavedChangesSubject: Subject<boolean>;
+  let currentDmpIdSubject: BehaviorSubject<string | null>;
 
   let formChangedServiceMock: {
     disableSaveBtn$: Subject<boolean>;
     hasUnsavedChanges$: Subject<boolean>;
+    currentDmpId$: BehaviorSubject<string | null>;
   };
+
+  let dialogMock: { open: jest.Mock };
+  let configServiceMock: { getConfig: jest.Mock };
 
   beforeEach(async () => {
     authServiceMock = {
@@ -61,10 +67,17 @@ describe('AppComponent', () => {
 
     disableSaveBtnSubject = new Subject<boolean>();
     hasUnsavedChangesSubject = new Subject<boolean>();
+    currentDmpIdSubject = new BehaviorSubject<string | null>(null);
 
     formChangedServiceMock = {
       disableSaveBtn$: disableSaveBtnSubject,
-      hasUnsavedChanges$: hasUnsavedChangesSubject
+      hasUnsavedChanges$: hasUnsavedChangesSubject,
+      currentDmpId$: currentDmpIdSubject
+    };
+
+    dialogMock = { open: jest.fn() };
+    configServiceMock = {
+      getConfig: jest.fn().mockReturnValue({ PDRDMP: 'http://localhost:9091/midas/dmp/mdm1' })
     };
 
     authServiceMock.getCredentials.mockReturnValue(
@@ -82,7 +95,9 @@ describe('AppComponent', () => {
         { provide: StaffDirectoryService, useValue: staffDirectoryServiceMock },
         { provide: SubmitDmpService, useValue: submitDmpServiceMock },
         { provide: DropDownSelectService, useValue: dropDownSelectServiceMock },
-        { provide: FormChangedService, useValue: formChangedServiceMock }
+        { provide: FormChangedService, useValue: formChangedServiceMock },
+        { provide: MatDialog, useValue: dialogMock },
+        { provide: ConfigurationService, useValue: configServiceMock }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -254,5 +269,53 @@ describe('AppComponent', () => {
 
     expect(component.disableSaveBtn).toBe(false);
     expect(component.hasUnsavedChanges).toBe(false);
+  });
+
+  describe('currentDmpId and Share dialog', () => {
+    it('should track currentDmpId from FormChangedService', () => {
+      fixture.detectChanges();
+      expect(component.currentDmpId).toBeNull();
+
+      currentDmpIdSubject.next('dmp-abc');
+      expect(component.currentDmpId).toBe('dmp-abc');
+
+      currentDmpIdSubject.next(null);
+      expect(component.currentDmpId).toBeNull();
+    });
+
+    it('should open dialog with correct data when currentDmpId is set', () => {
+      fixture.detectChanges();
+      currentDmpIdSubject.next('dmp-abc');
+
+      component.openShareDialog();
+
+      expect(dialogMock.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            record: { id: 'dmp-abc', apiBase: 'http://localhost:9091/midas/dmp/mdm1' },
+            title: 'Share my record'
+          }),
+          maxWidth: '95vw'
+        })
+      );
+    });
+
+    it('should not open dialog when currentDmpId is null', () => {
+      fixture.detectChanges();
+      expect(component.currentDmpId).toBeNull();
+
+      component.openShareDialog();
+
+      expect(dialogMock.open).not.toHaveBeenCalled();
+    });
+
+    it('should stop tracking currentDmpId after destroy', () => {
+      fixture.detectChanges();
+      component.ngOnDestroy();
+
+      currentDmpIdSubject.next('dmp-after-destroy');
+      expect(component.currentDmpId).toBeNull();
+    });
   });
 });
