@@ -17,6 +17,12 @@ import { DMP_Meta } from '../../types/DMP.types';
 export class DataPreservationComponent {
   separatorExp: RegExp = /,|;/;
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Describe how this project's data will be preserved long-term and how others " +
+    "will be able to find and access it. Add file paths or URLs where the data " +
+    "will be stored, if known.";
+
   reactivePathsURLs = signal<string[]>(['']);
   pathsInputVal = '';
   // Reference the HTML input element that uses chips matching the #pathInput in the HTML

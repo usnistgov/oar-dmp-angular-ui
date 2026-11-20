@@ -1,9 +1,17 @@
 <div class="dmpSection">
-  <div class="header">Ethical Concerns</div>
+  <div class="header">
+    Ethical Concerns
+    <span class="header-info-icon-wrap" [matTooltip]="sectionInfo" matTooltipPosition="above">
+      <mat-icon class="header-info-icon">info</mat-icon>
+    </span>
+  </div>
   <div class="dmp-frm-container"> 
     <div class="dmp-frm-row">
       <div class="col-25">
         <label for="IRB_Number">IRB Number</label><span class="span_info">(study number)</span>
+        <span class="inline-info-icon-wrap" matTooltip="Issued to researchers approved to conduct human or biological subject research, as proof of that approval." matTooltipPosition="above">
+          <mat-icon class="header-inline-info-icon">info</mat-icon>
+        </span>
       </div>
       <div class="col-75">
         <input type="text" id="IRB_Number" [formControl]="ethicalIssuesForm.controls['IRBNumber']" placeholder="IRB Number..." />

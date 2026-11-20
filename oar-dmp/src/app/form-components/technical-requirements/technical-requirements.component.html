@@ -1,10 +1,20 @@
 <div class="dmpSection">
-  <div class="header">Technical Requirements</div> 
+  <div class="header">
+    Technical Requirements
+    <span class="header-info-icon-wrap" [matTooltip]="sectionInfo" matTooltipPosition="above">
+      <mat-icon class="header-info-icon">info</mat-icon>
+    </span>
+  </div> 
 
   <div class="dmp-frm-container">
     <div class="dmp-frm-row">
       <div class="col-20">
-        <label for="estimated_data_size"><div class ="dmp_tooltip">Estimated Data Size<span class="dmp_tooltiptext">Is it total size over the project life or per year?</span></div></label>
+        <label for="estimated_data_size">
+          Estimated Data Size
+          <span class="inline-info-icon-wrap" matTooltip="Is it total size over the project life or per year?" matTooltipPosition="above">
+            <mat-icon class="header-inline-info-icon">info</mat-icon>
+          </span>
+        </label>
       </div>
       <div class="col-80">
         <input type="text" id="estimated_data_size" placeholder="Numeric value" (change)="setDataSize($event)" 
@@ -101,58 +111,55 @@
       </div>
     </div>
 
-    <div class="sub-category">Technical resources equipment needed/used</div>
-    <!-- <p class="chips-info" style="padding-top: 20px;">Copy/Paste or manually type in  equipment needed/used as comma separated values: <i>Hint: a, b, c</i></p>   -->
-    <div class="p-fluid">
-      <!-- <p-chips [formControl]="technicalRequirementsForm.controls['technicalResources']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips> -->
-       <mat-form-field class="example-form-field">
-          <mat-label>Click here to add equipment Needed/Used</mat-label>
-          <mat-chip-grid #reactiveChipGrid aria-label="Enter reactive form keywords" [formControl]="technicalRequirementsForm.controls['technicalResources']">
-          @for (keyword of reactiveInstruments(); track keyword) {
-            <mat-chip-row (removed)="removeReactiveInstruments(keyword)">
-              {{keyword}}
-            <button matChipRemove [attr.aria-label]="'remove reactive form' + keyword">
-              <mat-icon>cancel</mat-icon>
-            </button>
-            </mat-chip-row>
-          }
-          </mat-chip-grid>
-          <input
-            #equipmentChips
-            placeholder="Copy/Paste or manually type in equipment Needed/Used as comma or semicolon separated values e.g. a, b; c"
-            [matChipInputFor]="reactiveChipGrid"
-            (matChipInputTokenEnd)="addReactiveInstruments($event)"
-            (blur)="onBlur($event)"
-            (input)="onInputChange(equipmentChips.value)"
-          />
-        </mat-form-field>
+    <div class="sub-category">
+      Instruments needed/used
+      <span class="subheader-info-icon-wrap" [matTooltip]="instrumentsInfo" matTooltipPosition="above">
+        <mat-icon class="subheader-info-icon">info</mat-icon>
+      </span>
     </div>
 
-    <div class="sub-category">Instruments needed/used</div>
-
-    <b>Instruments used</b><br>
-    <div class="dmp-frm-row">
-      <div class="dmp-col-3">        
-        Instrument Name:<br>
-        <input type="text" [(ngModel)]="dmpInstrument.name" (input)="checkInstrData($event)" id="instrument_name" name="instrument_name" required minlength="4"  size="10" /><br>
+    <!-- one time case scenario: add 20px padding here to match padding used in other places used by main header sections -->
+    <div class="dmp-frm-row" style="padding-top: 20px;">
+      <div class="col-20">
+        Instruments used
       </div>
-      <div class="dmp-col-9">
-        Instrument Description / URL Landing Page:<br>
-        <input type="text" [(ngModel)]="dmpInstrument.description_url" (input)="checkInstrData($event)" id="instrument_url" name="instrument_url" required minlength="4"  size="10" /><br>  
+      <div class="col-80">
+        <div class="bordered-field-group">
+          <p><span class="requiredField">*</span> Required fields to add an instrument</p>
+          <div class="field-grid field-grid--instrument">
+            <div class="field-grid-row">
+              <div class="field-grid-label">
+                <label for="instrument_name">Instrument Name or Barcode or Property Number:<span class="requiredField">*</span></label>
+              </div>
+              <div class="field-grid-field">
+                <input type="text" [(ngModel)]="dmpInstrument.name" id="instrument_name" name="instrument_name" required minlength="4" size="10" class="instrument-field--name" />
+              </div>
+            </div>
+            <div class="field-grid-row">
+              <div class="field-grid-label">
+                <label for="instrument_url">Instrument Description or URL Landing Page:<span class="requiredField">*</span></label>
+              </div>
+              <div class="field-grid-field">
+                <input type="text" [(ngModel)]="dmpInstrument.description_url" id="instrument_url" name="instrument_url" required minlength="4" size="10" class="instrument-field--description" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
-    <article class="table-header">
+    <article class="table-header table-header-grouped">
       
       <!-- 
         set button type to 'button' to prevent it from acting like a submit button and triggering
         updateDMP in dmp.services.ts 
       -->
-      <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
-      <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
-      <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+      <div class="table-header-btn-group">
+        <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
+        <button type="button" class="button-add-row" mat-button (click)="addRow()">Add</button>
+      </div>
     </article>
 
     <div style="overflow-x:auto;">
@@ -165,7 +172,12 @@
           <!-- 
             table headers 
           -->
-          <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+          <th mat-header-cell *matHeaderCellDef>
+            <!-- Bypass CSS white-space quirks, flexbox wrappers, and Angular encapsulation completely by rendering explicit <br> elements in your HTML template when splitting on \n -->
+            <ng-container *ngFor="let line of col.label.split('\n'); let last = last">
+              {{ line }}<br *ngIf="!last" />
+            </ng-container>
+          </th>
           <!-- 
             table cells 
           -->
@@ -230,6 +242,38 @@
         <tr mat-header-row *matHeaderRowDef="instr_displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: instr_displayedColumns;"></tr>
       </table>
+    </div>
+    <br><br>
+    <div class="sub-category">
+      Technical facilities/resources needed/used
+      <span class="subheader-info-icon-wrap" [matTooltip]="facilitiesInfo" matTooltipPosition="above">
+        <mat-icon class="subheader-info-icon">info</mat-icon>
+      </span>
+    </div>
+    <!-- <p class="chips-info" style="padding-top: 20px;">Copy/Paste or manually type in  equipment needed/used as comma separated values: <i>Hint: a, b, c</i></p>   -->
+    <div class="p-fluid">
+      <!-- <p-chips [formControl]="technicalRequirementsForm.controls['technicalResources']" [separator]="separatorExp" placeholder="Hint: a, b, c"  ></p-chips> -->
+       <mat-form-field class="example-form-field">
+          <mat-label>Click here to add facilities/resources Needed/Used</mat-label>
+          <mat-chip-grid #reactiveChipGrid aria-label="Enter reactive form keywords" [formControl]="technicalRequirementsForm.controls['technicalResources']">
+          @for (keyword of reactiveInstruments(); track keyword) {
+            <mat-chip-row (removed)="removeReactiveInstruments(keyword)">
+              {{keyword}}
+            <button matChipRemove [attr.aria-label]="'remove reactive form' + keyword">
+              <mat-icon>cancel</mat-icon>
+            </button>
+            </mat-chip-row>
+          }
+          </mat-chip-grid>
+          <input
+            #equipmentChips
+            placeholder="Copy/Paste or manually type in facilities/resources Needed/Used as comma or semicolon separated values e.g. a, b; c"
+            [matChipInputFor]="reactiveChipGrid"
+            (matChipInputTokenEnd)="addReactiveInstruments($event)"
+            (blur)="onBlur($event)"
+            (input)="onInputChange(equipmentChips.value)"
+          />
+        </mat-form-field>
     </div>
   </div>
     

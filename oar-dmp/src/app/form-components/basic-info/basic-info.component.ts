@@ -11,6 +11,11 @@ import { DMP_Meta } from '../../types/DMP.types';
 })
 export class BasicInfoComponent {
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Enter the core identifying details for this DMP: project title, start date, " +
+    "whether it should be searchable, funding source, and a description of the project.";
+
   // The typed FormBuilder infers each control's type from its initial value, so
   // basicInfoForm.controls['title'] is FormControl<string | null> — which the
   // [formControl] directive accepts. (Under UntypedFormBuilder these were

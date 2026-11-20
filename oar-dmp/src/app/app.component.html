@@ -1,5 +1,5 @@
 <div *ngIf="readyDisplay">
-    <app-header appVersion="1.0" id="myHeader"></app-header>
+    <app-header [appVersion]="appVersion" [titleLn1]="titleLn1" [titleLn2]="titleLn2" id="myHeader"></app-header>
 </div>
 
 <div *ngIf="creds && readyDisplay" class="mat-typography">
@@ -7,7 +7,7 @@
                 <div class="dmpHelp">
                     <div class="dmpHelpButton">
                         <span >
-                            <a href="https://inet.nist.gov/mr/library/midas-user-guides/midas-tools/creating-data-management-plans-dmptool" target="_blank">DMP User Guide</a>
+                            <a href="https://inet.nist.gov/mr/library/midas-user-guides/midas-tools/creating-data-management-plans-dmptool" target="_blank" rel="noopener noreferrer">DMP User Guide</a>
                         </span>
                     </div>
                 </div>
@@ -21,22 +21,60 @@
                             Save
                         </button>
                     </div>
-                
-                    <div>
+
+                    <div *ngIf="currentDmpId">
                         <button mat-button type="button" class="btn_draft"
-                                (click)="dmpButtonClick('Download')"
-                                [disabled]="disableDownloadBtn">
-                            Download
+                                aria-label="Share this record with other users"
+                                (click)="openShareDialog()">
+                            Share
                         </button>
                     </div>
-                    
-                    <div class="dmpExportSelect" >
-                    <select name="exportType" [(ngModel)]="exportType" (change)="setExportFormat()" >
-                        <option value="" disabled selected>Select Format</option>
-                        <option [value]="item.id" *ngFor="let item of exportFormats">
-                            {{item.format}}
-                        </option>
-                    </select>
+
+                    <div class="dmp_download_label">Download:</div>
+
+                    <!--
+                      Each button is wrapped in a span carrying the matTooltip.
+                      matTooltip does not fire on a native disabled button (disabled
+                      elements don't dispatch mouseenter in most browsers), so the
+                      tooltip trigger must live on a non-disabled wrapper instead.
+                    -->
+                    <div class="dmp_download_group">
+                        <span class="dmp_download_tooltip_wrap"
+                              [matTooltip]="disableDownloadBtns ? 'Save your DMP before downloading' : ''"
+                              matTooltipPosition="above">
+                            <button mat-button type="button" class="btn_draft dmp_download_btn dmp_download_pdf"
+                                    id="btnDownloadPdf"
+                                    [disabled]="disableDownloadBtns"
+                                    (click)="dmpButtonClick('Download', 'PDF')">
+                                <mat-icon>picture_as_pdf</mat-icon> PDF
+                            </button>
+                        </span>
+                    </div>
+
+                    <div class="dmp_download_group">
+                        <span class="dmp_download_tooltip_wrap"
+                              [matTooltip]="disableDownloadBtns ? 'Save your DMP before downloading' : ''"
+                              matTooltipPosition="above">
+                            <button mat-button type="button" class="btn_draft dmp_download_btn dmp_download_md"
+                                    id="btnDownloadMarkdown"
+                                    [disabled]="disableDownloadBtns"
+                                    (click)="dmpButtonClick('Download', 'Markdown')">
+                                <mat-icon>description</mat-icon> Markdown
+                            </button>
+                        </span>
+                    </div>
+
+                    <div class="dmp_download_group">
+                        <span class="dmp_download_tooltip_wrap"
+                              [matTooltip]="disableDownloadBtns ? 'Save your DMP before downloading' : ''"
+                              matTooltipPosition="above">
+                            <button mat-button type="button" class="btn_draft dmp_download_btn dmp_download_json"
+                                    id="btnDownloadJson"
+                                    [disabled]="disableDownloadBtns"
+                                    (click)="dmpButtonClick('Download', 'JSON')">
+                                <mat-icon>data_object</mat-icon> JSON
+                            </button>
+                        </span>
                     </div>
                 </div>
             </div>

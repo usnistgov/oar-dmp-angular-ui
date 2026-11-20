@@ -26,6 +26,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 import { DmpRoutingModule } from './dmp-routing/dmp-routing.module';
@@ -37,7 +38,8 @@ import { FilterPipe } from './resource-options/filter.pipe';
 import { RELEASE } from '../environments/release-info';
 import { environment } from '../environments/environment';
 import { CONFIG_URL, RELEASE_INFO, AuthModule, FrameModule, StaffDirModule, ConfigModule,
-  AuthenticationService, MockAuthenticationService, FooterComponent, HeaderComponent } from 'oarng';
+  AuthenticationService, MockAuthenticationService, FooterComponent, HeaderComponent,
+  GroupsModule, GROUPS_AUTH_TOKEN } from 'oarng';
 
 
 import { SecurityAndPrivacyComponent } from './form-components/security-and-privacy/security-and-privacy.component';
@@ -83,14 +85,25 @@ import { SecurityAndPrivacyComponent } from './form-components/security-and-priv
     MatChipsModule,
     MatFormFieldModule,
     MatIconModule,
+    MatTooltipModule,
     
     DmpRoutingModule,
-    NistResourcesModule
+    NistResourcesModule,
+    GroupsModule
   ],
 
   providers: [
     { provide: RELEASE_INFO, useValue: RELEASE },
     { provide: CONFIG_URL, useValue: environment.configUrl },
+    {
+      provide: GROUPS_AUTH_TOKEN,
+      useFactory: (authSvc: AuthenticationService) => {
+        let cachedToken = '';
+        authSvc.getCredentials(true).subscribe(creds => { cachedToken = creds?.token ?? ''; });
+        return () => cachedToken;
+      },
+      deps: [AuthenticationService]
+    },
     // { provide: AuthenticationService, useClass:MockAuthenticationService } // MockAuthenticationService used in dev. Comment out in production
   ],
 

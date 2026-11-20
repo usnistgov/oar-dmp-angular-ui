@@ -6,7 +6,12 @@
     <p><span class="req_DMP_Field" >*</span> Required fields to save/create a DMP record</p>
     <table>
       <tr>
-        <td><label for="name">DMP Short Name:</label><span class="req_DMP_Field" >*</span></td>
+        <td>
+          <label for="name">DMP Short Name:</label><span class="req_DMP_Field">*</span>
+          <span class="inline-info-icon-wrap" matTooltip="A short, memorable identifier for this DMP record. It must be unique — no two DMP records can share the same short name." matTooltipPosition="above">
+            <mat-icon class="header-inline-info-icon">info</mat-icon>
+          </span>
+        </td>
         <td><div [ngClass]="nameClass"><input id="name" type="text" [formControl]="name" [readOnly]="nameDisabled" (change)="enableSaveButton()"></div></td>
       </tr>
     </table>

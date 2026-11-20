@@ -13,6 +13,11 @@ import { ChipsSplitterService } from 'src/app/shared/chips-splitter.service';
 })
 export class KeywordsComponent {
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Add search terms or short phrases that describe this project, separated by " +
+    "commas or semicolons. These help others discover your dataset when searching.";
+
   // The keywords control is explicitly typed string[] so the typed FormBuilder
   // infers FormControl<string[] | null> rather than FormControl<never[] | null>,
   // which would reject patchValue({ keywords: string[] }).

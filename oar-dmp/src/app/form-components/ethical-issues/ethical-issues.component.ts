@@ -12,6 +12,12 @@ import { DMP_Meta } from '../../types/DMP.types';
 export class EthicalIssuesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Indicate whether this project involves human subjects or other ethical " +
+    "considerations. If yes, provide an IRB number, a description of the issues, " +
+    "and where the ethics committee protocol can be found.";
+
   ethicalIssuesForm = this.fb.group({
     IRBNumber: [''],
     ethicalIssue: ['', Validators.required],

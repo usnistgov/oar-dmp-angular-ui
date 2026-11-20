@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import { DmpFormComponent } from './dmp-form.component';
 import { DmpService } from '../shared/dmp.service';
-import { SubmitDmpService } from '../shared/submit-dmp.service';
+import { SubmitDmpService, DmpButtonAction } from '../shared/submit-dmp.service';
 import { FormChangedService } from '../shared/form-changed.service';
 import { UpdateNistContributorService } from '../shared/update-nist-contributor.service';
 import { DmpExportService } from '../shared/dmp-export.service';
@@ -26,8 +26,7 @@ describe('DmpFormComponent', () => {
   let peopleUpdatesMock: any;
   let exportServiceMock: any;
 
-  let buttonSubject$: Subject<string>;
-  let exportFormatSubject$: Subject<string>;
+  let buttonSubject$: Subject<DmpButtonAction>;
   let updateNISTContrib$: Subject<any>;
   let updateOUs$: Subject<any>;
 
@@ -46,8 +45,7 @@ describe('DmpFormComponent', () => {
   };
 
   beforeEach(async () => {
-    buttonSubject$ = new Subject<string>();
-    exportFormatSubject$ = new Subject<string>();
+    buttonSubject$ = new Subject<DmpButtonAction>();
     updateNISTContrib$ = new Subject<any>();
     updateOUs$ = new Subject<any>();
 
@@ -74,13 +72,13 @@ describe('DmpFormComponent', () => {
     };
 
     submitDmpServiceMock = {
-      buttonSubject$: buttonSubject$.asObservable(),
-      exportFormatSubject$: exportFormatSubject$.asObservable()
+      buttonSubject$: buttonSubject$.asObservable()
     };
 
     formChangedServiceMock = {
       disableSaveBtn$: { next: jest.fn() },
-      hasUnsavedChanges$: { next: jest.fn() }
+      hasUnsavedChanges$: { next: jest.fn() },
+      currentDmpId$: { next: jest.fn() }
     };
 
     peopleUpdatesMock = {
@@ -240,58 +238,42 @@ describe('DmpFormComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should call saveDraft when "Save" is emitted and canWrite is true', () => {
+    it('should call saveDraft when a Save action is emitted and canWrite is true', () => {
       const saveSpy = jest.spyOn(component, 'saveDraft');
       component.canWrite = true;
-      buttonSubject$.next('Save');
+      buttonSubject$.next({ action: 'Save' });
       expect(saveSpy).toHaveBeenCalled();
     });
 
-    it('should alert and not save when "Save" is emitted without write access', () => {
+    it('should alert and not save when a Save action is emitted without write access', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
       const saveSpy = jest.spyOn(component, 'saveDraft');
       component.canWrite = false;
-      buttonSubject$.next('Save');
+      buttonSubject$.next({ action: 'Save' });
       expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("don't have write privileges"));
       expect(saveSpy).not.toHaveBeenCalled();
     });
 
-    it('should alert when downloading without selecting an export format', () => {
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-      component.dmpExportFormatType = '';
-      buttonSubject$.next('Download');
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('export format'));
+    it('should export immediately when a Download action arrives with a format', () => {
+      component.dmp = _.cloneDeep(blankDmp) as any;
+      buttonSubject$.next({ action: 'Download', format: 'PDF' });
+      expect(exportServiceMock.export).toHaveBeenCalledWith(component.dmp, 'PDF');
+    });
+
+    it('should export using whatever format is supplied on each Download click', () => {
+      component.dmp = _.cloneDeep(blankDmp) as any;
+      buttonSubject$.next({ action: 'Download', format: 'Markdown' });
+      expect(exportServiceMock.export).toHaveBeenLastCalledWith(component.dmp, 'Markdown');
+
+      buttonSubject$.next({ action: 'Download', format: 'JSON' });
+      expect(exportServiceMock.export).toHaveBeenLastCalledWith(component.dmp, 'JSON');
+    });
+
+    it('should log an error and not export when a Download action arrives with no format', () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      buttonSubject$.next({ action: 'Download' });
       expect(exportServiceMock.export).not.toHaveBeenCalled();
-    });
-
-    it('should alert when downloading with unsaved changes', () => {
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-      component.dmpExportFormatType = 'pdf';
-      component.formSaved = false;
-      buttonSubject$.next('Download');
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('save changes'));
-      expect(exportServiceMock.export).not.toHaveBeenCalled();
-    });
-
-    it('should export when format selected, form saved, and action is not "new"', () => {
-      component.dmpExportFormatType = 'pdf';
-      component.formSaved = true;
-      component.action = 'edit';
-      buttonSubject$.next('Download');
-      expect(exportServiceMock.export).toHaveBeenCalledWith(component.dmp, 'pdf');
-    });
-
-    it('should not export twice for a freshly created record (action === "new")', () => {
-      component.dmpExportFormatType = 'pdf';
-      component.formSaved = true;
-      component.action = 'new';
-      buttonSubject$.next('Download');
-      expect(exportServiceMock.export).not.toHaveBeenCalled();
-    });
-
-    it('should track selected export format from exportFormatSubject$', () => {
-      exportFormatSubject$.next('json');
-      expect(component.dmpExportFormatType).toBe('json');
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('without a format'));
     });
   });
 
@@ -351,12 +333,24 @@ describe('DmpFormComponent', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
       component.name.setValue('');
       component.saveDraft();
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Record name is empty'));
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('DMP Short Name'));
     });
 
     it('should call createDMP when id is null (new record)', () => {
       component.id = null;
       component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(dmpServiceMock.createDMP).toHaveBeenCalledWith(component.dmp, 'New Record');
       expect(routerMock.navigate).toHaveBeenCalledWith(['edit', '456']);
@@ -366,6 +360,18 @@ describe('DmpFormComponent', () => {
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(dmpServiceMock.updateDMP).toHaveBeenCalledWith(component.dmp, '789');
       expect(routerMock.navigate).toHaveBeenCalledWith(['edit', '789']);
@@ -376,35 +382,170 @@ describe('DmpFormComponent', () => {
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
       expect(alertSpy).toHaveBeenCalledWith('Successfully saved DMP record');
     });
 
-    it('should suppress the success alert when autosave triggered the save', () => {
+    it('should alert and not navigate away when updateDMP fails', () => {
       const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-      component.id = '789';
-      component.action = 'edit';
-      component.name.setValue('Existing Record');
-      (component as any).autoSaveInProgress = true;
-      component.saveDraft();
-      expect(alertSpy).not.toHaveBeenCalledWith('Successfully saved DMP record');
-    });
-
-    it('should navigate to error page when updateDMP fails', () => {
       dmpServiceMock.updateDMP.mockReturnValue(throwError(() => ({ message: 'update failed' })));
       component.id = '789';
       component.action = 'edit';
       component.name.setValue('Existing Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['error', expect.objectContaining({ dmpError: expect.any(String) })]);
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to save DMP'));
+      expect(routerMock.navigate).not.toHaveBeenCalledWith(['error', expect.anything()]);
     });
 
-    it('should navigate to error page when createDMP fails', () => {
+    it('should alert and not navigate away when createDMP fails', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
       dmpServiceMock.createDMP.mockReturnValue(throwError(() => ({ message: 'create failed' })));
       component.id = null;
       component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
       component.saveDraft();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['error', expect.objectContaining({ dmpError: expect.any(String) })]);
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to save DMP'));
+      expect(routerMock.navigate).not.toHaveBeenCalledWith(['error', expect.anything()]);
+    });
+
+    it('should alert if title is empty', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = { ..._.cloneDeep(blankDmp), title: '' } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should not alert about title when title is whitespace-trimmed to non-empty content', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.id = null;
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: '',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(dmpServiceMock.createDMP).toHaveBeenCalled();
+    });
+
+    it('should alert if title is only whitespace', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = { ..._.cloneDeep(blankDmp), title: '   ' } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Title field'));
+    });
+
+    it('should alert if no NIST primary contact exists', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should alert if contributors exist but none are a NIST primary contact', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [
+          // External primary contact: institution is not 'NIST', so this must not count.
+          {
+            firstName: 'Marie', lastName: 'Curie', orcid: '', emailAddress: 'marie@example.com',
+            groupOrgID: 0, groupNumber: '', groupName: '',
+            divisionOrgID: 0, divisionNumber: '', divisionName: '',
+            ouOrgID: 0, ouNumber: '', ouName: '',
+            primary_contact: 'Yes', institution: 'Sorbonne', role: 'Project Member',
+            peopleID: -1,
+          },
+          // NIST contributor, but not marked as primary contact.
+          {
+            firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+            groupOrgID: 1, groupNumber: '1', groupName: 'G',
+            divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+            ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+            primary_contact: 'No', institution: 'NIST', role: 'Project Member',
+            peopleID: 2,
+          },
+        ],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).not.toHaveBeenCalled();
+    });
+
+    it('should proceed with save when a NIST contributor is marked as primary contact', () => {
+      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+      component.id = null;
+      component.name.setValue('New Record');
+      component.dmp = {
+        ..._.cloneDeep(blankDmp),
+        title: 'Valid Title',
+        contributors: [{
+          firstName: 'Ada', lastName: 'Lovelace', orcid: '', emailAddress: 'ada@nist.gov',
+          groupOrgID: 1, groupNumber: '1', groupName: 'G',
+          divisionOrgID: 1, divisionNumber: '1', divisionName: 'D',
+          ouOrgID: 1, ouNumber: '1', ouName: 'OU',
+          primary_contact: 'Yes', institution: 'NIST', role: 'Project Leader',
+          peopleID: 1,
+        }],
+      } as any;
+      component.saveDraft();
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Title field'));
+      expect(alertSpy).not.toHaveBeenCalledWith(expect.stringContaining('Primary Contact'));
+      expect(dmpServiceMock.createDMP).toHaveBeenCalled();
     });
   });
 
@@ -428,6 +569,22 @@ describe('DmpFormComponent', () => {
       component.ngOnDestroy();
       expect(nextSpy).toHaveBeenCalled();
       expect(completeSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('currentDmpId$ propagation', () => {
+    it('should push the route id into FormChangedService on init', () => {
+      activatedRouteMock.snapshot.paramMap.get.mockReturnValue('dmp-999');
+      activatedRouteMock.data = of({ action: 'edit' });
+      fixture.detectChanges();
+      expect(formChangedServiceMock.currentDmpId$.next).toHaveBeenCalledWith('dmp-999');
+    });
+
+    it('should push null into FormChangedService on destroy', () => {
+      activatedRouteMock.data = of({ action: 'new' });
+      fixture.detectChanges();
+      component.ngOnDestroy();
+      expect(formChangedServiceMock.currentDmpId$.next).toHaveBeenCalledWith(null);
     });
   });
 });

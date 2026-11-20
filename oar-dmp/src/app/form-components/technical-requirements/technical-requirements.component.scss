@@ -13,3 +13,36 @@
 .example-form-field {
     width: 100%;
 }
+
+// Info icon next to a .sub-category bar. Mirrors the main .header treatment:
+// centered text, icon absolutely positioned at the right, white icon color
+// against the bar's dark background (#6a6d6e from the shared .sub-category
+// style) — just sized down to match the sub-heading's smaller visual weight.
+.sub-category {
+  position: relative;
+  text-align: center;
+}
+
+.subheader-info-icon-wrap {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.subheader-info-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: help;
+
+  &:hover {
+    color: #ffffff;
+  }
+}
+

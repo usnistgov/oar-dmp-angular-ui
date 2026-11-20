@@ -131,7 +131,7 @@ export class DmpExportService {
     if (dmp.instruments !== undefined) {
       const body = dmp.instruments.map(i => [i.name, i.description_url]);
       doc.printTable('Instruments needed/used',
-        ['Instrument Name', 'Description / URL Landing Page'], body);
+        ['Instrument Name or Barcode or Property Number', 'Instrument Description or URL Landing Page'], body);
     }
   }
 
@@ -273,7 +273,7 @@ export class DmpExportService {
     if (dmp.instruments !== undefined) {
       const body = dmp.instruments.map(i => [i.name, i.description_url]);
       this.markdownTable(md, 'Instruments needed/used',
-        ['Instrument Name', 'Description / URL Landing Page'], body);
+        ['Instrument Name or Barcode or Property Number', 'Instrument Description or URL Landing Page'], body);
     }
   }
 

@@ -25,21 +25,25 @@ const INSTR_COL_SCHEMA = [
     type: 'isSelected',
     label: '',
   },
-  {
-    key: 'name',
-    type: 'text',
-    label: 'Instrument Name',
-  },
-  {
-    key: 'description_url',
-    type: 'text',
-    label: 'Description / URL Landing Page',
-  },
-  // Edit button column
+  // Edit button column — moved to directly follow the checkbox column, matching
+  // the Contributors table's layout (CONTRIB_COL_SCHEMA) for a consistent
+  // column order across all three tables in this form.
   {
     key: 'isEdit',
     type: 'isEdit',
     label: '',
+  },
+  {
+    key: 'name',
+    type: 'text',
+    // added line breaks for headers
+    label: "Instrument Name or \nBarcode or \nProperty Number",
+  },
+  {
+    key: 'description_url',
+    type: 'text',
+    // added line breaks for headers
+    label: "Instrument Description or \nURL Landing Page:",
   },
 ]
 
@@ -55,8 +59,27 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
   /** Fires once on destroy; every long-lived subscription pipes takeUntil(this). */
   private destroy$ = new Subject<void>();
 
-  disableAdd:boolean = true;
-  disableClear:boolean = true;
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Estimate the data size this project will generate, indicate whether you're " +
+    "developing software, and list any facilities, resources, or instruments " +
+    "needed. See the info icons below for details on each. Depending on the " +
+    "choices you make here, different resources will be highlighted in the " +
+    "NIST Resources panel.";
+
+  // Shown via the info icon next to the "Technical facilities/resources
+  // needed/used" sub-heading.
+  facilitiesInfo: string =
+    "Larger facilities or shared resources not tied to a specific NIST asset " +
+    "barcode — for example a beamline at Argonne, the CNST Nanofab, or TACC. " +
+    "Separate multiple entries with commas or semicolons.";
+
+  // Shown via the info icon next to the "Instruments needed/used" sub-heading.
+  instrumentsInfo: string =
+    "Specific lab equipment with a NIST asset barcode — for example a " +
+    "microscope, scale, or probe station — along with a brief description or " +
+    "a URL to a landing page for each.";
+
   disableRemove:boolean = true;
 
   instr_displayedColumns: string[] = INSTR_COL_SCHEMA.map((col) => col.key);
@@ -131,7 +154,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
           name:             anInstrument.name,
           description_url:  anInstrument.description_url,
         });
-        this.disableClear=false;
         this.disableRemove=false;
       }
     );
@@ -428,7 +450,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.syncInstrumentsToForm();
 
     if (this.dmpInstrumentsTbl.length === 0) {
-      this.disableClear = true;
       this.disableRemove = true;
     }
   }
@@ -445,16 +466,21 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.syncInstrumentsToForm();
 
     if (this.dmpInstrumentsTbl.length === 0) {
-      this.disableClear = true;
       this.disableRemove = true;
     }
   }
 
   addRow(){
-    // Disable buttons while the user is inputing new row
-    this.disableAdd=true;
-    this.disableClear=true;
-    this.disableRemove=true;
+    // Validate required fields before adding — mirrors the External
+    // Contributor pattern (validateExternalContributorInput), which checks
+    // all required fields up front and bails out with a specific
+    // errorMessage on the first one that's missing, rather than relying on
+    // the Add button's disabled state to prevent incomplete submissions.
+    if (!this.validateInstrumentInput()) {
+      return;
+    }
+
+    this.errorMessage = "";
 
     this.crntInstrName = this.dmpInstrument.name;
     this.crntInstrURL = this.dmpInstrument.description_url
@@ -494,7 +520,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       row.isEdit = false;
     }
 
-    this.disableClear = false;
     this.disableRemove = false;
 
     // Rebuild the form from the table (single source of truth).
@@ -508,55 +533,6 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
     this.errorMessage = "";
 
     this.dmpInstrument = {name:"", description_url:""};
-  }
-
-  clearTable(){
-    const result = confirmDialog("Are you sure you want to delete all instrument(s) for this DMP?");
-
-    if (result) {
-      this.dmpInstrumentsTbl = []
-      this.resetTable();
-      this.disableClear=true;
-      this.disableRemove=true;
-    }
-  }
-
-  resetTable() {
-    this.syncInstrumentsToForm(); // dmpInstrumentsTbl is the source; emits [] when empty
-  }
-
-  checkInstrData(e:any){
-    // Check if both Instrument Name and Description/url have been filled out
-    if (this.dmpInstrument.name !== '' && this.dmpInstrument.description_url !== ''){
-      this.disableAdd = false;
-    }
-    else{
-      this.disableAdd = true;
-    }
-  }
-
-  resetTechnicalRequirements(){
-    this.dataSize = "";
-    this.dataSetSize = "TB";
-    this.setSoftwareDev('no');
-    this.setSoftwareUse('no');
-    this.setDatabaseUse('no');
-    this.setWebsiteDev('no');
-    this.technicalRequirementsForm.patchValue({
-      // all of technicalRequirementsForm needs to be "changed" in order to fire the update event and propagate
-      // changes up to the parent form
-      dataSize:             null,
-      sizeUnit:             "TB",
-      dataSizeDescription:  "",
-      development:          "no",
-      softwareUse:          null,
-      softwareDatabase:     null,
-      softwareWebsite:      null
-    })
-    this.technicalRequirementsForm.patchValue({
-      technicalResources:[]
-    })
-    this.clearTable();
   }
 
   removeReactiveInstruments(keyword: string) {
@@ -645,5 +621,33 @@ export class TechnicalRequirementsComponent implements OnInit, OnDestroy {
       description_url: r.description_url,
     }));
     this.technicalRequirementsForm.patchValue({ instruments });
+  }
+
+  /**
+   * Validates that both required instrument fields are populated before
+   * allowing the instrument to be added. Mirrors
+   * PersonnelComponent.validateExternalContributorInput's pattern: trims
+   * each value, sets a specific errorMessage per missing field, and returns
+   * false on the first failure so addRow() can bail out early.
+   */
+  private validateInstrumentInput(): boolean {
+    const name = (this.dmpInstrument.name || "").trim();
+    const descriptionUrl = (this.dmpInstrument.description_url || "").trim();
+
+    if (!name.length) {
+      this.errorMessage = "Missing or invalid instrument Name or Barcode or Property Number";
+      return false;
+    }
+
+    if (!descriptionUrl.length) {
+      this.errorMessage = "Missing or invalid instrument Instrument Description or URL Landing Page";
+      return false;
+    }
+
+    // Keep the trimmed values so leading/trailing whitespace doesn't get saved.
+    this.dmpInstrument.name = name;
+    this.dmpInstrument.description_url = descriptionUrl;
+
+    return true;
   }
 }

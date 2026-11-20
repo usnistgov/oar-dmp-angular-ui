@@ -54,8 +54,29 @@ $header_height: 50px;
   vertical-align: middle;
   display: table-cell;
 }
+
+.grid-table {
+  td {
+    // Reserve the same 4px on every cell (transparent by default) so
+    // toggling .selected's border-left doesn't shift text horizontally.
+    border-left: 4px solid transparent;
+  }
+}
+
+// Highlight for resource rows relevant to the user's current Technical
+// Requirements selections. Previously a near-invisible grey
+// (#F1F1F2 on a white background, ~4% lightness difference); this uses a
+// blue tint consistent with the app's brand color (#1A52BC, used in the
+// header and autoupdate-notice elsewhere), a left accent bar, and bolder
+// text so the highlight doesn't rely on color perception alone.
+// The transition animates the change in on select/deselect, drawing the
+// eye to what just became relevant right after the user makes a choice
+// elsewhere in the form.
 .selected{
-  background-color: #F1F1F2;
+  background-color: #e3ecfb;
+  border-left-color: #1A52BC;
+  font-weight: 600;
+  transition: background-color 0.3s ease, border-left-color 0.3s ease;
 }
 
 div {
@@ -70,4 +91,3 @@ div {
   top: $header_height;
   
 }
-

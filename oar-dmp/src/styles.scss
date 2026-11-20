@@ -99,59 +99,6 @@ div{
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-/* Tooltip container */
-.dmp_tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-/* Tooltip text */
-.dmp_tooltip .dmp_tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #ffffff;
-  color: #000000;
-  text-align: center;
-  padding: 5px 0;
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 6px;
-  border-color: #333;
-  font-size: small;
-  font-style: normal;
-  font-weight: normal;
-
-  /* Position the dmp_tooltip text */
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-
-  /* Fade in dmp_tooltip */
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Tooltip arrow */
-.dmp_tooltip .dmp_tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-/* Show the dmp_tooltip text when you mouse over the dmp_tooltip container */
-.dmp_tooltip:hover .dmp_tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
 .dmp-frm-row {
 	&:after {
 		content: "";
@@ -214,4 +161,40 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 @media only screen and (min-width: 1280px) {
   #PageError, #PageNotFound {min-height: 600px;}
+}
+
+.req_DMP_Field{
+  font-weight: bold !important;
+  font-size:large ;
+  color: crimson!important;
+}
+
+.req_DMP_Field_note {
+  margin: 0 0 8px;
+}
+
+// Inline info icon used within plain form text (not a colored header/
+// sub-header bar), e.g. next to "Estimated Data Size". Plain inline-flex,
+// no absolute positioning — unlike .subheader-info-icon-wrap, which relies
+// on its .sub-category parent being position:relative to anchor to the
+// right edge of a full-width bar. This one just needs to sit next to text.
+.inline-info-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  pointer-events: auto;
+}
+
+.header-inline-info-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  line-height: 16px;
+  vertical-align: middle;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: help;
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.85);
+  }
 }

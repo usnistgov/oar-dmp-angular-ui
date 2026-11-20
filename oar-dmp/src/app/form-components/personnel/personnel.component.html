@@ -1,6 +1,10 @@
-
 <div class="dmpSection">
-  <div class="header">Researchers</div>
+  <div class="header">
+    Researchers
+    <span class="header-info-icon-wrap" [matTooltip]="sectionInfo" matTooltipPosition="above">
+      <mat-icon class="header-info-icon">info</mat-icon>
+    </span>
+  </div>
 
   <!-- The role="status" makes it announce to screen readers without stealing focus (appropriate for a non-urgent, after-the-fact notice). 
    The *ngIf on autoUpdateChanges.length means it only renders when there's something to show, and disappears on dismiss. -->
@@ -48,9 +52,9 @@
   </div>
   
   <div class="dmp-frm-container">
-   
-    <p><span class="requiredField" >*</span> Required fields to add a contributor</p>
-
+    <p class="req_DMP_Field_note">
+      <span class="req_DMP_Field">*</span> At least one NIST Employee / Associate contributor must be marked as Primary Contact to save this DMP.
+    </p>
     <div class="dmp-frm-row">
       <div class="col-20">
         Add a Contributor
@@ -65,44 +69,34 @@
             id="contributorNIST" 
             name="contributor" 
             value="NIST"
+            [checked]="selectedContributor('NIST')"
             (click)="setContributor('NIST')"
             (change)="onContributorChange($event.target)"
           >
           <label for="contributorNIST">NIST Employee / Associate</label>
           <!-- ======================================================= -->        
-          <div *ngIf="selectedContributor('NIST')" class="contributor-box">
-            <table>
-              <!-- <tr>
-                <td class="cell-top">Primary NIST Contact<span class="requiredField" >*</span></td>
-                <td class="cell-top">
-                  <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personnelForm.controls['primaryNistContact']">
-                  <label for="primCntcY">Yes</label>
+          <div *ngIf="selectedContributor('NIST')" class="bordered-field-group">
+            <!-- <div class="field-grid-row">
+              <div class="field-grid-label cell-top">Primary NIST Contact<span class="requiredField" >*</span></div>
+              <div class="field-grid-field cell-top">
+                <input type="radio" id="primCntcY" name="primCntc" value="yes" [formControl]="personnelForm.controls['primaryNistContact']">
+                <label for="primCntcY">Yes</label>
 
-                  <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personnelForm.controls['primaryNistContact']">
-                  <label for="primCntcN">No</label>
-                </td>
-              </tr> -->
-              <tr>
-                <td>Primary Contact</td>
-                <td>
-                  <select
-                    name="primaryContact"
-                    [(ngModel)]="primaryContact"
-                    (change)="selPrimaryContact()"
-                    
-                  >
-                    <option *ngFor="let option of primaryContactOptions" [value]="option.id" >
-                        {{option.value}}
-                    </option>
-
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td class="cell-top">Contributor<span class="requiredField" >*</span></td>
-                <td>
-                  <mat-form-field class="example-full-width" appearance="fill" style="width:300px;">
-                    <!-- <mat-label>NIST Contributor</mat-label> -->
+                <input type="radio" id="primCntcN" name="primCntc" value="no" [checked]='true' [formControl]="personnelForm.controls['primaryNistContact']">
+                <label for="primCntcN">No</label>
+              </div>
+            </div> -->
+            
+            <div class="field-grid field-grid--plain">
+              <div class="field-grid-row">
+                <div class="field-grid-label cell-top">
+                  Contributor
+                  <span class="inline-info-icon-wrap" matTooltip="Search for NIST staff by first or last name, then select the person from the search suggestion list." matTooltipPosition="above">
+                    <mat-icon class="header-inline-info-icon">info</mat-icon>
+                  </span>
+                </div>
+                <div class="field-grid-field">
+                  <mat-form-field class="example-full-width" appearance="fill">
                     <input type="text"
                           placeholder="Type to search ..."
                           aria-label="Nist Contributor"
@@ -119,16 +113,38 @@
                       </mat-option>
                     </mat-autocomplete>
                   </mat-form-field>
+                </div>
+              </div>
 
-                </td>
-              </tr>
-              <tr>
-                <td class="cell-top">ORCID</td>
-                <td class="cell-top"><input type="text" [(ngModel)]="crntContrib.orcid"></td>
-              </tr>
-              <tr>
-                <td>Role</td>
-                <td>
+              <div class="field-grid-row">
+                <div class="field-grid-label">
+                  Primary Contact
+                  <span class="inline-info-icon-wrap" matTooltip="At least one NIST contributor must be marked as a primary contact. A primary contact's OU is automatically added as a responsible OU for this DMP. A DMP record can have more than one primary contact." matTooltipPosition="above">
+                    <mat-icon class="header-inline-info-icon">info</mat-icon>
+                  </span>
+                </div>
+                <div class="field-grid-field">
+                  <select
+                    name="primaryContact"
+                    [(ngModel)]="primaryContact"
+                    (change)="selPrimaryContact()"
+                    
+                  >
+                    <option *ngFor="let option of primaryContactOptions" [value]="option.id" >
+                        {{option.value}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">
+                  Role
+                  <span class="inline-info-icon-wrap" matTooltip="The contributor's role on this DMP. This field is optional and, unlike Primary Contact, does not affect which OUs are considered responsible for the DMP." matTooltipPosition="above">
+                    <mat-icon class="header-inline-info-icon">info</mat-icon>
+                  </span>
+                </div>
+                <div class="field-grid-field">
                   <select
                     name="nistContribRole"
                     [(ngModel)]="nistContribRole"
@@ -137,12 +153,21 @@
                     <option [value]="role.id" *ngFor="let role of contributorRoles">
                         {{role.value}}
                     </option>
-
                   </select>
-                </td>
-              </tr>
+                </div>
+              </div>
 
-            </table>
+              <div class="field-grid-row">
+                <div class="field-grid-label cell-top">
+                  ORCID
+                  <span class="inline-info-icon-wrap" matTooltip="ORCID is added automatically from the NIST People database when one is on file for the selected NIST contributor. If none is on file, you can enter one manually if you know this contributor has an ORCID. An ORCID is required if this DMP results in a publication." matTooltipPosition="above">
+                    <mat-icon class="header-inline-info-icon">info</mat-icon>
+                  </span>
+                </div>
+                <div class="field-grid-field cell-top"><input type="text" [(ngModel)]="crntContrib.orcid"></div>
+              </div>
+
+            </div>
           </div>
         </div>
         
@@ -157,32 +182,29 @@
             (click)="setContributor('External')"
             (change)="onContributorChange($event.target)"
           >
-          <label for="contributorExternal">External Collaborator</label>
-          <div *ngIf="selectedContributor('External')" class="contributor-box">
-            <table>
-              <tr>
-                <td>First Name<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.firstName"></td>
-              </tr>
-              <tr>
-                <td>Last Name<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.lastName"></td>
-              </tr>
-              <tr>
-                <td>Contributor ORCID</td>
-                <td><input type="text" [(ngModel)]="externalContributor.orcid"></td>
-              </tr>
-              <tr>
-                <td class="description">Institution / Affiliation<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.institution"></td>
-              </tr>
-              <tr>
-                <td>e-mail<span class="requiredField" >*</span></td>
-                <td><input type="text" [(ngModel)]="externalContributor.emailAddress"></td>
-              </tr>
-              <tr>
-                <td>Role</td>
-                <td>
+          <label for="contributorExternal">External Contributor</label>
+          <div *ngIf="selectedContributor('External')" class="bordered-field-group">
+            <p><span class="requiredField" >*</span> Required fields to add external contributor</p>
+            <div class="field-grid field-grid--plain">
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">First Name<span class="requiredField" >*</span></div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.firstName"></div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">Last Name<span class="requiredField" >*</span></div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.lastName"></div>
+              </div>              
+
+              <div class="field-grid-row">
+                <div class="field-grid-label description">Institution / Affiliation<span class="requiredField" >*</span></div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.institution"></div>
+              </div>              
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">Role</div>
+                <div class="field-grid-field">
                   <select
                     name="extContribRole"
                     [(ngModel)]="extContribRole"
@@ -193,10 +215,20 @@
                     </option>
 
                   </select>
-                </td>
-              </tr>
-              
-            </table>
+                </div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">e-mail<span class="requiredField" >*</span></div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.emailAddress"></div>
+              </div>
+
+              <div class="field-grid-row">
+                <div class="field-grid-label">Contributor ORCID</div>
+                <div class="field-grid-field"><input type="text" [(ngModel)]="externalContributor.orcid"></div>
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -208,15 +240,16 @@
       <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
       <p *ngIf="contribOrcidWarn" class="warning-msg">{{ contribOrcidWarn }}</p>
   
-      <article class="table-header">
+      <article class="table-header table-header-grouped">
       
         <!-- 
           set button type to 'button' to prevent it from acting like a submit button and triggering
           updateDMP in dmp.services.ts 
         -->
-        <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
-        <button type="button" class="button-clear-table" mat-button (click)="clearTable()" [disabled]="disableClear">Clear</button>
-        <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+        <div class="table-header-btn-group">
+          <button type="button" class="button-remove-rows" mat-button (click)="removeSelectedRows()" [disabled]="disableRemove">Remove Selected</button>
+          <button type="button" class="button-add-row" mat-button (click)="addRow()" [disabled]="disableAdd">Add</button>
+        </div>
       </article>
       
       <div style="overflow-x:auto;">
@@ -229,7 +262,11 @@
             <!-- 
               table headers 
             -->
-            <th mat-header-cell *matHeaderCellDef>  {{ col.label }} </th>
+            <th mat-header-cell *matHeaderCellDef>
+              <ng-container *ngFor="let line of col.label.split('\n'); let last = last">
+                {{ line }}<br *ngIf="!last" />
+              </ng-container>
+            </th>
             <!-- 
               table cells 
             -->
@@ -243,16 +280,11 @@
                   ></mat-checkbox>
                 </ng-container>
       
-                <!-- Switch if the column isEdit to display the Edit and delete buttons in the table cell -->
-                <div class="btn-edit" *ngSwitchCase="'isEdit'" style="width: 65px;">
-                  <span *ngIf="element.institution !== 'NIST'">
-                    <!--
-                      Display edit button only for non NIST contacts
-                    -->
-                    <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
-                      Edit
-                    </button>
-                  </span>
+                <!-- Edit button: show for all rows, not just non-NIST -->
+                <div class="btn-edit" *ngSwitchCase="'isEdit'">
+                  <button class="button-edit" mat-button (click)="element.isEdit = !element.isEdit">
+                    Edit
+                  </button>
                   <button
                     type="button"
                     mat-button
@@ -280,12 +312,54 @@
                     Done
                   </button>
                 </div>
-      
-                <!-- default column cell -->
-                <mat-form-field class="form-input" *ngSwitchDefault>
-                  <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
-                </mat-form-field>
-      
+
+                <!-- ORG ID: read-only even in edit mode. NIST contributors get this
+                    assigned automatically from the People Service, and external
+                    contributors never have one — there is nothing valid for a user to
+                    type here. -->
+                <span *ngSwitchCase="'readonly'">
+                  {{ element[col.key] }}
+                </span>
+
+                <!-- Role: dropdown instead of free text, using the same contributorRoles
+                    list as the "Add a Contributor" form, so edited roles stay within
+                    the supported set. Shared by NIST and External contributors. -->
+                <select *ngSwitchCase="'role-select'" [(ngModel)]="element.role">
+                  <option *ngFor="let roleOption of contributorRoles" [value]="roleOption.value">
+                    {{ roleOption.value }}
+                  </option>
+                </select>
+
+                <!-- Primary Contact: editable dropdown (Yes/No) for NIST contributors
+                    only, since this designation only applies to NIST contributors.
+                    External contributors render it as plain read-only text — their
+                    value is always forced to "No" by onDoneClick's external-defaults
+                    enforcement, so there is nothing meaningful for them to edit here. -->
+                <ng-container *ngSwitchCase="'primary-contact-select'">
+                  <select *ngIf="element.institution === 'NIST'; else primaryContactReadonly" [(ngModel)]="element.primary_contact">
+                    <option *ngFor="let pc of primaryContactOptions" [value]="pc.value">
+                      {{ pc.value }}
+                    </option>
+                  </select>
+                  <ng-template #primaryContactReadonly>
+                    <span>{{ element.primary_contact }}</span>
+                  </ng-template>
+                </ng-container>
+
+                <!-- default column cell: firstName, lastName, emailAddress, orcid.
+                    For a NIST contributor, firstName/lastName/emailAddress must stay
+                    locked to the People Service record to avoid data drift — they
+                    render as plain read-only text instead of an editable input.
+                    ORCID is editable for both institution types. -->
+                <ng-container *ngSwitchDefault>
+                  <span *ngIf="element.institution === 'NIST' && col.key !== 'orcid'">
+                    {{ element[col.key] }}
+                  </span>
+                  <mat-form-field class="form-input" *ngIf="!(element.institution === 'NIST' && col.key !== 'orcid')">
+                    <input [type]="col.type" matInput [(ngModel)]="element[col.key]" />
+                  </mat-form-field>
+                </ng-container>
+
               </div>
       
             </td>
@@ -331,15 +405,16 @@
         </div>
       </div> 
   
-      <article class="table-header">
+      <article class="table-header table-header-grouped">
         
         <!-- 
           set button type to 'button' to prevent it from acting like a submit button and triggering
           updateDMP in dmp.services.ts 
         -->
-        <button type="button" class="button-remove-rows" mat-button (click)="org_removeSelectedRows()" [disabled]="org_disableRemove">Remove Selected</button>
-        <button type="button" class="button-clear-table" mat-button (click)="org_clearTable()" [disabled]="org_disableClear">Clear</button>
-        <button type="button" class="button-add-row" mat-button (click)="org_addRow()" [disabled]="org_disableAdd">Add</button>
+        <div class="table-header-btn-group">
+          <button type="button" class="button-remove-rows" mat-button (click)="org_removeSelectedRows()" [disabled]="org_disableRemove">Remove Selected</button>
+          <button type="button" class="button-add-row" mat-button (click)="org_addRow()" [disabled]="org_disableAdd">Add</button>
+        </div>
       </article>
   
         

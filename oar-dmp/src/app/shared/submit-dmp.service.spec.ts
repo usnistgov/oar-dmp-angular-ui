@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 // Sibling import — the spec lives next to the service in shared/.
-import { SubmitDmpService } from './submit-dmp.service';
+import { SubmitDmpService, DmpButtonAction } from './submit-dmp.service';
 
 describe('SubmitDmpService', () => {
   let service: SubmitDmpService;
@@ -16,63 +16,53 @@ describe('SubmitDmpService', () => {
   });
 
   describe('setButtonMessage', () => {
-    it('stores the button message', () => {
-      service.setButtonMessage('Save');
-      expect(service.buttonMessage).toBe('Save');
+    it('stores the button action', () => {
+      service.setButtonMessage({ action: 'Save' });
+      expect(service.buttonMessage).toEqual({ action: 'Save' });
     });
 
-    it('overwrites a previously stored button message', () => {
-      service.setButtonMessage('Save');
-      service.setButtonMessage('Download');
-      expect(service.buttonMessage).toBe('Download');
-    });
-  });
-
-  describe('setexportFormat', () => {
-    it('stores the export format', () => {
-      service.setexportFormat('PDF');
-      expect(service.exportFormat).toBe('PDF');
+    it('stores a Download action together with its format', () => {
+      service.setButtonMessage({ action: 'Download', format: 'PDF' });
+      expect(service.buttonMessage).toEqual({ action: 'Download', format: 'PDF' });
     });
 
-    it('overwrites a previously stored export format', () => {
-      service.setexportFormat('PDF');
-      service.setexportFormat('JSON');
-      expect(service.exportFormat).toBe('JSON');
+    it('overwrites a previously stored button action', () => {
+      service.setButtonMessage({ action: 'Save' });
+      service.setButtonMessage({ action: 'Download', format: 'JSON' });
+      expect(service.buttonMessage).toEqual({ action: 'Download', format: 'JSON' });
     });
   });
 
   describe('buttonSubject$', () => {
-    it('emits the value pushed onto it', () => {
-      const received: string[] = [];
+    it('emits the action pushed onto it', () => {
+      const received: DmpButtonAction[] = [];
       service.buttonSubject$.subscribe(v => received.push(v));
-      service.buttonSubject$.next('Save');
-      expect(received).toEqual(['Save']);
+      service.buttonSubject$.next({ action: 'Save' });
+      expect(received).toEqual([{ action: 'Save' }]);
+    });
+
+    it('emits a Download action with its format', () => {
+      const received: DmpButtonAction[] = [];
+      service.buttonSubject$.subscribe(v => received.push(v));
+      service.buttonSubject$.next({ action: 'Download', format: 'Markdown' });
+      expect(received).toEqual([{ action: 'Download', format: 'Markdown' }]);
     });
 
     it('does not replay to late subscribers (plain Subject)', () => {
-      const received: string[] = [];
-      service.buttonSubject$.next('missed');
+      const received: DmpButtonAction[] = [];
+      service.buttonSubject$.next({ action: 'Save' }); // emitted before anyone subscribed
       service.buttonSubject$.subscribe(v => received.push(v));
-      service.buttonSubject$.next('Download');
-      expect(received).toEqual(['Download']);
+      service.buttonSubject$.next({ action: 'Download', format: 'PDF' });
+      expect(received).toEqual([{ action: 'Download', format: 'PDF' }]);
     });
   });
 
-  describe('exportFormatSubject$', () => {
-    it('emits the value pushed onto it', () => {
-      const received: string[] = [];
-      service.exportFormatSubject$.subscribe(v => received.push(v));
-      service.exportFormatSubject$.next('Markdown');
-      expect(received).toEqual(['Markdown']);
-    });
-  });
-
-  it('keeps the setter state and the subjects independent', () => {
-    // Calling a setter must NOT emit on the subject, and vice versa.
-    const received: string[] = [];
+  it('keeps setButtonMessage state and the subject independent', () => {
+    // Calling the setter must NOT emit on the subject, and vice versa.
+    const received: DmpButtonAction[] = [];
     service.buttonSubject$.subscribe(v => received.push(v));
-    service.setButtonMessage('Save');
+    service.setButtonMessage({ action: 'Save' });
     expect(received).toEqual([]); // setter didn't emit
-    expect(service.buttonMessage).toBe('Save');
+    expect(service.buttonMessage).toEqual({ action: 'Save' });
   });
 });

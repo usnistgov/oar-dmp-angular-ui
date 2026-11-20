@@ -38,6 +38,11 @@ describe('DataPreservationComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose a non-empty sectionInfo for the header tooltip', () => {
+    expect(component.sectionInfo).toBeTruthy();
+    expect(typeof component.sectionInfo).toBe('string');
+  });
+
   describe('preservationForm defaults', () => {
     it('should initialize with empty description, access, and pathsURLs', () => {
       expect(component.preservationForm.value).toEqual({

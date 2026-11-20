@@ -34,6 +34,11 @@ describe('BasicInfoComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose a non-empty sectionInfo for the header tooltip', () => {
+    expect(component.sectionInfo).toBeTruthy();
+    expect(typeof component.sectionInfo).toBe('string');
+  });
+
   describe('basicInfoForm defaults', () => {
     it('should initialize with expected default control values', () => {
       expect(component.basicInfoForm.value).toEqual({

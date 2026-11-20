@@ -13,6 +13,11 @@ export class SecurityAndPrivacyComponent {
   readonly sensitivityLevels = ['Low', 'Medium', 'High'];
   readonly cuiTypes = ['BII', 'PII', 'Export Controlled (EAR)', 'ITAR', 'Proprietary'];
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Select how sensitive this project's data is. Selecting Medium or High reveals " +
+    "additional options to classify the type of Controlled Unclassified Information (CUI) involved.";
+
   securityAndPrivacyForm = this.fb.group({
     dataSensitivity: [[] as string[]],
     dataCUI: [[] as string[]]

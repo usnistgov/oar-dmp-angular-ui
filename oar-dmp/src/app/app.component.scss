@@ -134,5 +134,63 @@ $header_height: 50px;
   }
 }
 
+// ==========================================================================
+// Download format buttons (PDF / Markdown / JSON)
+// ==========================================================================
 
 
+.dmp_download_label {
+  float: left;
+  padding: 0 8px 0 12px;
+  line-height: 36px; // vertically centers against the mat-button height alongside it
+  font-weight: 500;
+  color: #444;
+  white-space: nowrap;
+}
+
+.dmp_download_group {
+  float: left;
+}
+
+// The tooltip-carrying wrapper must behave like an inline block so it sits
+// correctly next to other floated button groups, and must actually receive
+// pointer events even though the button inside it may be disabled.
+.dmp_download_tooltip_wrap {
+  display: inline-block;
+  pointer-events: auto;
+}
+
+.dmp_download_btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    line-height: 18px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+// Subtle per-format icon accent, consistent with the mockup
+.dmp_download_pdf mat-icon {
+  color: #c62828;
+}
+
+.dmp_download_md mat-icon {
+  color: #1565c0;
+}
+
+.dmp_download_json mat-icon {
+  color: #6a1b9a;
+}
+
+.dmp_download_btn:disabled mat-icon {
+  color: inherit;
+}

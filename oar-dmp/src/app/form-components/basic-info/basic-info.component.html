@@ -1,10 +1,15 @@
 <div class="dmpSection">  
-  <div class="header">Basic Information</div>
+  <div class="header">
+    Basic Information
+    <span class="header-info-icon-wrap" [matTooltip]="sectionInfo" matTooltipPosition="above">
+      <mat-icon class="header-info-icon">info</mat-icon>
+    </span>
+  </div>
   <div class="dmp-frm-container">
     
     <div class="dmp-frm-row">
       <div class="col-25">
-        <label for="title">Title</label>
+        <label for="title">Title</label><span class="req_DMP_Field">*</span>
       </div>
       <div class="col-75">
         <input type="text" id="title" [formControl]="basicInfoForm.controls['title']" placeholder="Title..." />

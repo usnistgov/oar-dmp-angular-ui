@@ -71,6 +71,21 @@ describe('TechnicalRequirementsComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose a non-empty sectionInfo for the header tooltip', () => {
+    expect(component.sectionInfo).toBeTruthy();
+    expect(typeof component.sectionInfo).toBe('string');
+  });
+
+  it('should expose a non-empty facilitiesInfo for the facilities/resources sub-heading tooltip', () => {
+    expect(component.facilitiesInfo).toBeTruthy();
+    expect(typeof component.facilitiesInfo).toBe('string');
+  });
+
+  it('should expose a non-empty instrumentsInfo for the instruments sub-heading tooltip', () => {
+    expect(component.instrumentsInfo).toBeTruthy();
+    expect(typeof component.instrumentsInfo).toBe('string');
+  });
+
   // -------------------------------------------------------------------------
   // Form defaults
   // -------------------------------------------------------------------------
@@ -146,11 +161,10 @@ describe('TechnicalRequirementsComponent', () => {
       expect(v.softwareWebsite).toBe('');
     });
 
-    it('enables Clear/Remove buttons when instruments are loaded', () => {
+    it('enables the Remove Selected button when instruments are loaded', () => {
       component.initialDMP_Meta = makeDmp({
         instruments: [{ name: 'A', description_url: 'u' }],
       });
-      expect(component.disableClear).toBe(false);
       expect(component.disableRemove).toBe(false);
     });
   });
@@ -324,6 +338,17 @@ describe('TechnicalRequirementsComponent', () => {
       expect(component.dmpInstrumentsTbl.length).toBe(1);
     });
 
+    it('removeRow disables the Remove Selected button once the table is empty', () => {
+      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
+      component.dmpInstrument = { name: 'A', description_url: 'ua' };
+      component.addRow();
+
+      component.removeRow(component.dmpInstrumentsTbl[0].id);
+
+      expect(component.dmpInstrumentsTbl).toEqual([]);
+      expect(component.disableRemove).toBe(true);
+    });
+
     it('removeSelectedRows removes only rows flagged isSelected', () => {
       jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
       component.dmpInstrument = { name: 'A', description_url: 'ua' };
@@ -339,35 +364,69 @@ describe('TechnicalRequirementsComponent', () => {
       expect(component.dmpInstrumentsTbl[0].name).toBe('B');
     });
 
-    it('clearTable empties the instruments table and form when confirmed', () => {
+    it('removeSelectedRows disables the Remove Selected button once the table is empty', () => {
       jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(true);
       component.dmpInstrument = { name: 'A', description_url: 'ua' };
       component.addRow();
+      (component.dmpInstrumentsTbl[0] as any).isSelected = true;
 
-      component.clearTable();
+      component.removeSelectedRows();
 
       expect(component.dmpInstrumentsTbl).toEqual([]);
-      expect(component.technicalRequirementsForm.value.instruments).toEqual([]);
-      expect(component.disableClear).toBe(true);
       expect(component.disableRemove).toBe(true);
     });
 
-    it('clearTable does nothing when cancelled', () => {
-      jest.spyOn(dmpService, 'confirmDialog').mockReturnValue(false);
-      component.dmpInstrument = { name: 'A', description_url: 'ua' };
+  });
+
+  describe('addRow — required field validation', () => {
+    it('shows an error and does not add a row when the name is empty', () => {
+      component.dmpInstrument = { name: '', description_url: 'http://x/scope' };
       component.addRow();
-      component.clearTable();
-      expect(component.dmpInstrumentsTbl.length).toBe(1);
+
+      expect(component.dmpInstrumentsTbl.length).toBe(0);
+      expect(component.errorMessage).toContain('Name or Barcode or Property Number');
     });
 
-    it('checkInstrData enables Add only when both fields are filled', () => {
-      component.dmpInstrument = { name: 'X', description_url: '' };
-      component.checkInstrData({});
-      expect(component.disableAdd).toBe(true);
+    it('shows an error and does not add a row when the description/URL is empty', () => {
+      component.dmpInstrument = { name: 'Microscope', description_url: '' };
+      component.addRow();
 
-      component.dmpInstrument = { name: 'X', description_url: 'Y' };
-      component.checkInstrData({});
-      expect(component.disableAdd).toBe(false);
+      expect(component.dmpInstrumentsTbl.length).toBe(0);
+      expect(component.errorMessage).toContain('Instrument Description or URL Landing Page');
+    });
+
+    it('shows an error and does not add a row when both fields are empty', () => {
+      component.dmpInstrument = { name: '', description_url: '' };
+      component.addRow();
+
+      expect(component.dmpInstrumentsTbl.length).toBe(0);
+      // First check (name) wins when both are missing.
+      expect(component.errorMessage).toContain('Name or Barcode or Property Number');
+    });
+
+    it('shows an error when fields contain only whitespace', () => {
+      component.dmpInstrument = { name: '   ', description_url: 'http://x/scope' };
+      component.addRow();
+
+      expect(component.dmpInstrumentsTbl.length).toBe(0);
+      expect(component.errorMessage).toContain('Name or Barcode or Property Number');
+    });
+
+    it('adds the row and clears errorMessage when both fields are valid', () => {
+      component.errorMessage = 'stale error';
+      component.dmpInstrument = { name: 'Microscope', description_url: 'http://x/scope' };
+      component.addRow();
+
+      expect(component.dmpInstrumentsTbl.length).toBe(1);
+      expect(component.errorMessage).toBe('');
+    });
+
+    it('trims leading/trailing whitespace from both fields before adding', () => {
+      component.dmpInstrument = { name: '  Microscope  ', description_url: '  http://x/scope  ' };
+      component.addRow();
+
+      expect(component.dmpInstrumentsTbl[0].name).toBe('Microscope');
+      expect(component.dmpInstrumentsTbl[0].description_url).toBe('http://x/scope');
     });
   });
 

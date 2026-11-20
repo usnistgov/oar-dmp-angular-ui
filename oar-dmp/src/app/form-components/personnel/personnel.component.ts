@@ -84,17 +84,22 @@ const CONTRIB_COL_SCHEMA = [
   {
     key: 'firstName',
     type: 'text',
-    label: 'Name',
+    label: 'First \nName',
   },
   {
     key: 'lastName',
     type: 'text',
-    label: 'Surname',
+    label: 'Last \nName',
   },
   {
+    // type: 'primary-contact-select' renders a <select> populated from
+    // primaryContactOptions ('Yes'/'No') in edit mode for NIST contributors
+    // only. External contributors render this read-only (always "No") since
+    // Primary Contact is a NIST-only designation — see onDoneClick's
+    // external-defaults enforcement.
     key: 'primary_contact',
-    type: 'text',
-    label: 'Primary Contact',
+    type: 'primary-contact-select',
+    label: 'Primary \nContact',
   },
   {
     key: 'institution',
@@ -102,13 +107,23 @@ const CONTRIB_COL_SCHEMA = [
     label: 'Institution',
   },
   {
+    // ORG ID is assigned automatically from the NIST People Service for
+    // NIST contributors and is never applicable to external contributors
+    // (who have no ORG ID at all). type: 'readonly' renders this as plain
+    // text in edit mode instead of an editable input, since there is
+    // nothing a user should ever manually type here.
     key: 'groupNumber',
-    type: 'text',
+    type: 'readonly',
     label: 'ORG ID',
   },  
   {
+    // type: 'role-select' renders a <select> populated from the same
+    // contributorRoles list used when adding a contributor, instead of a
+    // free-text input, so edits stay constrained to supported roles
+    // (consistent values, no typos, no unsupported roles). Shared by both
+    // NIST and External contributors.
     key: 'role',
-    type: 'text',
+    type: 'role-select',
     label: 'Role',
   },
   {
@@ -150,6 +165,14 @@ const ORG_COL_SCHEMA = [
     type: 'isSelected',
     label: '',
   },
+  // Edit button column — moved to directly follow the checkbox column, matching
+  // the Contributors table's layout (CONTRIB_COL_SCHEMA) for a consistent
+  // column order across all three tables in this form.
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
   {
     key: 'groupName',
     type: 'text',
@@ -164,12 +187,6 @@ const ORG_COL_SCHEMA = [
     key: 'ouName',
     type: 'text',
     label: 'OU Name',
-  },
-  // Edit button column
-  {
-    key: 'isEdit',
-    type: 'isEdit',
-    label: '',
   },
 ]
 
@@ -187,6 +204,23 @@ const enum PrimaryContact {
 // Letters (incl. accented), spaces, hyphen, apostrophe, period, comma.
 // Rejects <, >, /, digits, and other control/markup characters.
 const name_regex = /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-.,' ]*$/;
+
+// Regex for institution/affiliation names, which routinely
+// contain characters a personal-name regex correctly rejects (digits,
+// ampersands, parentheses, slashes) — e.g. "3M", "Johnson & Johnson",
+// "National Institute of Standards and Technology (NIST)",
+// "University of California/Berkeley". Reusing name_regex for institutions
+// was the root cause of rejecting valid institution names containing
+// numbers.
+//
+// Anchored: the WHOLE value must start with an alphanumeric character
+// (rejects a string that's ONLY punctuation/special characters, e.g. "...",
+// "!!!", "---") and may continue with letters, digits, spaces, and a
+// conservative set of punctuation common in real organization names:
+// hyphen, period, comma, apostrophe, ampersand, parentheses, slash.
+// Still rejects <, >, and other markup/control characters, consistent with
+// the injection-safety intent of name_regex.
+const institution_regex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\-.,'&()/ ]*$/;
 // email regex taken from https://emailregex.com/index.html
 const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -208,6 +242,13 @@ export class PersonnelComponent implements OnDestroy {
   /** Cancels any in-flight NIST autoupdate run when the input rebinds. */
   private autoUpdateCancel$ = new Subject<void>();
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Add everyone involved in this project. Search for NIST staff by name, or add " +
+    "external collaborators manually, then select their role and whether they're the " +
+    "primary contact. Organizations responsible for the DMP are added automatically " +
+    "from the primary contact, or can be added manually below.";
+
   /** Changes applied during the most recent autoupdate run, shown to the user
   *  in a dismissible panel. Cleared on dismiss and at the start of each run. */
   autoUpdateChanges: AutoUpdateChange[] = [];
@@ -222,7 +263,6 @@ export class PersonnelComponent implements OnDestroy {
   // used for organizations table
   // ================================
   org_disableAdd:boolean = true;
-  org_disableClear:boolean = true;
   org_disableRemove:boolean = true;
   org_errorMessage: string = '';
   dmpOrganizations: dmpOrganizations[] = []
@@ -256,7 +296,6 @@ export class PersonnelComponent implements OnDestroy {
   orgOuAcronym!:string;
 
   disableAdd:boolean = true;
-  disableClear:boolean = true;
   disableRemove:boolean = true;
 
   contrib_dispCols: string[] = CONTRIB_COL_SCHEMA.map((col) => col.key);
@@ -320,6 +359,11 @@ export class PersonnelComponent implements OnDestroy {
     this.getNistOrganizations();
     this.peopleUpdates.updateNISTContrib$.next({ numUpdates: this.contribsUpdated, isUpdated: false });
     this.peopleUpdates.updateOUs$.next({ numUpdates: this.OUsUpdated, isUpdated: false });
+
+    // Default the contributor-type selection to NIST Employee / Associate so
+    // the radio button and its form appear pre-selected on load, rather than
+    // requiring the user to click it first.
+    this.setContributor('NIST');
   }
 
   // dmp_contributor / nistOrganization hold a typed string while the user is
@@ -379,7 +423,6 @@ export class PersonnelComponent implements OnDestroy {
             isEdit:false
           }
         );
-        this.org_disableClear=false;
         this.org_disableRemove=false;
       }
     );
@@ -418,7 +461,6 @@ export class PersonnelComponent implements OnDestroy {
           role:             dmpContributor.role,
           institution:      dmpContributor.institution
         });
-        this.disableClear=false;
         this.disableRemove=false;
       }
     );
@@ -966,20 +1008,7 @@ export class PersonnelComponent implements OnDestroy {
     this.refreshOrcidWarning();
 
     if (this.dmpContributors.length === 0) {
-      this.disableClear = true;
       this.disableRemove = true;
-    }
-  }
-
-  clearTable(){
-    const result = confirmDialog("Are you sure you want to delete all contributors for this DMP?");
-
-    if (result) {
-      this.dmpContributors = [];
-      this.resetWarningAndErrorMessages();
-      this.personnelForm.patchValue({ contributors: [] })
-      this.disableClear=true;
-      this.disableRemove=true;
     }
   }
 
@@ -989,26 +1018,51 @@ export class PersonnelComponent implements OnDestroy {
   }
 
   onDoneClick(e: any) {
-    // Validate when finishing an inline edit of an external contributor
     this.contribOrcidWarn = "";
-    const externalContrib: externalContributor = {
-      firstName:    e.firstName,
-      lastName:     e.lastName,
-      orcid:        e.orcid,
-      institution:  e.institution,
-      emailAddress: e.emailAddress,
-      role:         this.crntContrib.role,
-    };
 
-    if (!this.validateExternalContributorInput(externalContrib)) {
+    const row = this.dmpContributors.find((c) => c.id === e.id);
+    if (!row) {
       return;
     }
-    this.crntContrib.orcid = e.orcid;
-    this.errorMessage = "";
 
-    // Find the row being edited and apply changes to it directly
-    const row = this.dmpContributors.find((c) => c.id === e.id);
-    if (row) {
+    if (row.institution === 'NIST') {
+      // NIST contributor: firstName/lastName/emailAddress/institution/ORG ID
+      // are locked to the People Service record and were never rendered as
+      // editable inputs, so there is nothing to validate for them here.
+      // Only Role, Primary Contact, and ORCID are editable for a NIST row.
+      const orcid = (e.orcid || '').trim();
+      if (orcid.length > 0 && !this.isORCID(orcid)) {
+        this.errorMessage = PersonnelComponent.ORCID_ERROR;
+        return;
+      }
+
+      row.orcid = orcid;
+      row.role = e.role;
+      row.primary_contact = e.primary_contact;
+
+      if (orcid.length === 0) {
+        this.contribOrcidWarn = PersonnelComponent.ORCID_WARNING;
+      }
+
+      row.isEdit = false;
+      this.errorMessage = "";
+    } else {
+      // External contributor: validate as before.
+      const externalContrib: externalContributor = {
+        firstName:    e.firstName,
+        lastName:     e.lastName,
+        orcid:        e.orcid,
+        institution:  e.institution,
+        emailAddress: e.emailAddress,
+        role:         this.crntContrib.role,
+      };
+
+      if (!this.validateExternalContributorInput(externalContrib)) {
+        return;
+      }
+      this.crntContrib.orcid = e.orcid;
+      this.errorMessage = "";
+
       row.isEdit = false;
 
       // A divisionOrgID of 0 indicates an external contributor: enforce the
@@ -1041,7 +1095,6 @@ export class PersonnelComponent implements OnDestroy {
     this.syncContributorsToForm();
     this.refreshOrcidWarning();
 
-    this.disableClear = false;
     this.disableRemove = false;
   }
 
@@ -1107,7 +1160,6 @@ export class PersonnelComponent implements OnDestroy {
         "Contributor " + this.crntContrib.firstName + " " + this.crntContrib.lastName +
         " is already in the list of contributors";
       this.disableAdd = false;
-      this.disableClear = false;
       this.disableRemove = false;
       return;
     }
@@ -1154,7 +1206,6 @@ export class PersonnelComponent implements OnDestroy {
     this.refreshOrcidWarning();
 
     this.errorMessage = "";
-    this.disableClear = false;
     this.disableRemove = false;
 
     this.resetContributorFields();
@@ -1171,7 +1222,9 @@ export class PersonnelComponent implements OnDestroy {
     if (name_regex.test(firstName)) {
       this.crntContrib.firstName = firstName;
     } else {
-      this.errorMessage = "Missing or invalid contributor First Name";
+      this.errorMessage = "Missing or invalid contributor First Name. " +
+        "Only letters, spaces, hyphens, apostrophes, and periods are allowed, " +
+        "and it must start with a letter.";
       return false;
     }
 
@@ -1179,13 +1232,21 @@ export class PersonnelComponent implements OnDestroy {
     if (name_regex.test(lastName)) {
       this.crntContrib.lastName = lastName;
     } else {
-      this.errorMessage = "Missing or invalid contributor Last Name";
+      this.errorMessage = "Missing or invalid contributor Last Name. " +
+        "Only letters, spaces, hyphens, apostrophes, and periods are allowed, " +
+        "and it must start with a letter.";
       return false;
     }
 
-    // Institution
-    if (!name_regex.test(institution)) {
-      this.errorMessage = "Missing or invalid contributor Institution / Affiliation";
+    // Institution — uses institution_regex (not name_regex), since
+    // institution names routinely contain digits and punctuation
+    // (ampersands, parentheses, slashes) that a personal-name regex
+    // correctly rejects for First/Last Name but incorrectly rejected here.
+    if (!institution_regex.test(institution)) {
+      this.errorMessage = "Missing or invalid contributor Institution / Affiliation. " +
+        "Letters, numbers, spaces, hyphens, periods, commas, apostrophes, " +
+        "ampersands, parentheses, and slashes are allowed, and it must start " +
+        "with a letter or number.";
       return false;
     }
 
@@ -1314,23 +1375,9 @@ export class PersonnelComponent implements OnDestroy {
     this.errorMessage = "";
 
     if (this.dmpContributors.length === 0) {
-      this.disableClear = true;
       this.disableRemove = true;
     }
   }
-
-  resetPersonnelForm(){
-    this.nistContribRole = "";
-    this.externalContributor.firstName = "";
-    this.externalContributor.lastName = "";
-    this.externalContributor.orcid = "";
-    this.externalContributor.institution = "";
-    this.externalContributor.emailAddress = "";
-    this.contributorRadioSel = "";
-    this.clearTable();
-    this.org_clearTable();
-  }
-
 
   /**
    * This function gets all NIST organizations by querying people service
@@ -1411,20 +1458,7 @@ export class PersonnelComponent implements OnDestroy {
     this.syncOrganizationsToForm();
 
     if (this.dmpOrganizations.length === 0) {
-      this.org_disableClear = true;
       this.org_disableRemove = true;
-    }
-  }
-
-  org_clearTable(){
-    const result = confirmDialog("Are you sure you want to delete all organizations for this DMP?");
-
-    if (result) {
-      this.dmpOrganizations = [];
-      this.personnelForm.patchValue({organizations:[]});      
-      this.org_disableAdd=true;
-      this.org_disableClear=true;
-      this.org_disableRemove=true;
     }
   }
 
@@ -1465,7 +1499,6 @@ export class PersonnelComponent implements OnDestroy {
 
     this.org_errorMessage = "";
     this.org_disableAdd = true;
-    this.org_disableClear = false;
     this.org_disableRemove = false;
 
     // Reset the field so it's clear multiple orgs can be added
@@ -1485,7 +1518,6 @@ export class PersonnelComponent implements OnDestroy {
     this.syncOrganizationsToForm();
 
     if (this.dmpOrganizations.length === 0) {
-      this.org_disableClear = true;
       this.org_disableRemove = true;
     }
   }

@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { Credentials, AuthenticationService, StaffDirectoryService } from 'oarng';
+import { Credentials, AuthenticationService, StaffDirectoryService, ConfigurationService,
+  PermissionManagerDialogComponent } from 'oarng';
+import { MatDialog } from '@angular/material/dialog';
 import { SubmitDmpService } from './shared/submit-dmp.service';
-import { DropDownSelectService } from './shared/drop-down-select.service';
 import { FormChangedService } from './shared/form-changed.service';
+import { DMPConfiguration } from './shared/config.model';
 
 @Component({
   selector: 'app-root',
@@ -17,16 +19,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   authMessage: string = "You are not authenticated.";
 
-  exportType: string = "";
-  exportFormats = [
-    { id: "1", format: 'PDF' },
-    { id: "2", format: 'Markdown' },
-    { id: "3", format: 'JSON' }
-  ];
+  // Passed to <app-header>. Without these, oarng's HeaderComponent falls
+  // back to its own default title text ("MIDAS DATA PUBLISHING"), which is
+  // wrong for this app.
+  appVersion: string = "1.0";
+  titleLn1: string = "MIDAS";
+  titleLn2: string = "DATA MANAGEMENT";
 
   disableSaveBtn: boolean = false;
   hasUnsavedChanges: boolean = false;
-  disableDownloadBtn: boolean = true;
+  currentDmpId: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -34,8 +36,9 @@ export class AppComponent implements OnInit, OnDestroy {
     public authService: AuthenticationService,
     private sdsvc: StaffDirectoryService,
     private form_buttons: SubmitDmpService,
-    private dropDownService: DropDownSelectService,
-    private formChangedService: FormChangedService
+    private formChangedService: FormChangedService,
+    private dialog: MatDialog,
+    private configService: ConfigurationService
   ) { }
 
   ngOnInit(): void {
@@ -69,6 +72,10 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.saveButtonSubscribe();
+
+    this.formChangedService.currentDmpId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => { this.currentDmpId = id; });
   }
 
   ngOnDestroy(): void {
@@ -76,27 +83,39 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  setExportFormat(): void {
-    const match = this.dropDownService.getDropDownText(this.exportType, this.exportFormats)[0];
-    if (!match) {
-      return;
-    }
-    const dataFormat = match.format;
-    this.form_buttons.setexportFormat(dataFormat);
-    this.form_buttons.exportFormatSubject$.next(dataFormat);
-    this.form_buttons.setButtonMessage('Download');
-    this.form_buttons.buttonSubject$.next('Download');
-    this.disableDownloadBtn = false;
+  /**
+   * Download buttons are disabled until the record has been saved at least
+   * once (currentDmpId set) AND there are no unsaved edits since. This
+   * replaces the old alert-after-click validation in dmp-form's
+   * handleDownloadRequest with an upfront, visible disabled state.
+   */
+  get disableDownloadBtns(): boolean {
+    return !this.currentDmpId || this.hasUnsavedChanges;
   }
 
   /**
-   * Dispatches the selected action to the DMP form component.
-   * Actions are passed explicitly from the template (e.g. 'Save', 'Download')
-   * rather than read from button text, so display changes don't affect dispatch.
+   * Dispatches the selected action to the DMP form component. `format` is
+   * only relevant for 'Download' — each format button passes its own format
+   * directly, so there's no separate "select a format" step.
    */
-  dmpButtonClick(action: string): void {
-    this.form_buttons.setButtonMessage(action);
-    this.form_buttons.buttonSubject$.next(action);
+  dmpButtonClick(action: string, format?: string): void {
+    const payload = { action, format };
+    this.form_buttons.setButtonMessage(payload);
+    this.form_buttons.buttonSubject$.next(payload);
+  }
+
+  openShareDialog(): void {
+    if (!this.currentDmpId) return;
+    this.dialog.open(PermissionManagerDialogComponent, {
+      data: {
+        record: {
+          id: this.currentDmpId,
+          apiBase: this.configService.getConfig<DMPConfiguration>().PDRDMP
+        },
+        title: 'Share my record'
+      },
+      maxWidth: '95vw'
+    });
   }
 
   // Subscribe to form-change state. Called once from ngOnInit; teardown via destroy$.

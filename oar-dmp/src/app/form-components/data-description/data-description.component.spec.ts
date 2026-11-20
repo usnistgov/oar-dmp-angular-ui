@@ -43,6 +43,11 @@ describe('DataDescriptionComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose a non-empty sectionInfo for the header tooltip', () => {
+    expect(component.sectionInfo).toBeTruthy();
+    expect(typeof component.sectionInfo).toBe('string');
+  });
+
   describe('availableCategories', () => {
     it('should have exactly 4 categories in the fixed positional order the template depends on', () => {
       expect(component.availableCategories).toEqual([

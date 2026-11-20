@@ -6,10 +6,6 @@
 // }
 $button_red: #B20000;
 
-.btn-edit {
-  text-align: right;
-}
-
 .button-add-row {
   line-height: 20px;
   background: #1b2f9e;
@@ -51,6 +47,23 @@ $button_red: #B20000;
   justify-content: space-between;
 }
 
+// Modifier for toolbars with only a Remove Selected + Add pair (no Clear
+// button). The base .table-header uses space-between, which was originally
+// there to push a Clear button to the far side from Remove Selected/Add.
+// Without Clear, space-between instead splits Remove Selected and Add apart
+// to opposite ends — so here we collapse the toolbar to a single left-aligned
+// group and let .table-header-btn-group control the spacing between the two
+// buttons themselves.
+.table-header-grouped {
+  justify-content: flex-start;
+}
+
+.table-header-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 ::ng-deep .mat-form-field-infix {
   width: 100% !important;
 }
@@ -84,4 +97,161 @@ $button_red: #B20000;
   font-weight: bold !important;
   font-size:large !important;
   color: rgb(20, 67, 220)!important;
+}
+
+// =============================
+// Explicit column widths (Contributors, Organizations, Instruments tables)
+// =============================
+// mat-table doesn't size columns from matColumnDef — Angular Material
+// generates a .mat-column-{key} class on every header/body cell based on
+// the column's `key` in each component's *_COL_SCHEMA array.
+//
+// RESPONSIVE STRATEGY: percentage widths alone cause columns (and their
+// content/buttons) to shrink below a usable size on narrow/tablet screens,
+// leading to truncated text and overlapping Edit/Delete buttons. The fix:
+// give the table itself a min-width (sum of all columns' own min-widths),
+// and rely on the existing <div style="overflow-x:auto;"> wrapper already
+// present around each table in the HTML to let the user scroll horizontally
+// once the viewport is narrower than that minimum — rather than letting
+// columns/content compress indefinitely.
+//
+// IMPORTANT: max-width is NOT part of the CSS fixed-table-layout
+// column-sizing algorithm (confirmed via devtools testing), but min-width
+// combined with a min-width on the TABLE itself (not just percentages) is
+// respected — the percentage widths still govern proportional sizing above
+// the minimum, and below it the table simply becomes wider than its
+// container, triggering the scroll wrapper instead of compressing further.
+.contribTbl,
+#dmpOrganizations,
+table.mat-elevation-z8 {
+  table-layout: fixed;
+  width: 100%;
+  // Sum of all per-column min-widths below for whichever table is widest
+  // (Contributors, at 10 columns). Organizations/Instruments have fewer
+  // columns and so a smaller natural minimum, but sharing one table-wide
+  // min-width is harmless — it just means those tables also won't compress
+  // below a comfortable size, which is fine.
+  min-width: 900px;
+}
+
+// --- Shared columns across all three tables ---
+// isSelected/isEdit use FIXED pixel widths (not percentages), unlike every
+// other column below. Under table-layout: fixed, a column with an explicit
+// absolute width is taken at face value by the column-sizing algorithm and
+// is NOT subject to the proportional redistribution that affects
+// percentage/relative-width columns — this is why percentages caused
+// isEdit to render inconsistently between tables with different column
+// counts (Contributors: 10 columns vs Instruments: 4 columns), even with
+// width and min-width set identically. Fixed pixels sidestep that
+// difference entirely: isSelected/isEdit now render at the exact same
+// pixel width in every table, regardless of how many other columns exist
+// or what percentage they claim.
+.mat-column-isSelected {
+  width: 48px;
+}
+.mat-column-isEdit {
+  width: 80px;
+}
+
+// --- Contributors table (personnel.component - CONTRIB_COL_SCHEMA) ---
+// isSelected/isEdit above are now fixed pixels (188px combined), so these 8
+// columns' percentages apply to the table's REMAINING width, not its full
+// width. Percentages below are relative proportions among themselves and
+// don't need to sum to 100 anymore, but keeping them roughly consistent
+// with their prior relative sizing preserves the existing visual balance.
+.mat-column-firstName {
+  width: 11%;
+  min-width: 90px;
+}
+.mat-column-lastName {
+  width: 11%;
+  min-width: 90px;
+}
+.mat-column-primary_contact {
+  width: 10%;
+  min-width: 80px;
+}
+.mat-column-institution {
+  width: 10%;
+  min-width: 80px;
+}
+.mat-column-groupNumber {
+  width: 9%;
+  min-width: 70px;
+}
+.mat-column-role {
+  width: 11%;
+  min-width: 90px;
+}
+.mat-column-emailAddress {
+  width: 16%;
+  min-width: 140px;
+}
+.mat-column-orcid {
+  width: 15%;
+  min-width: 120px;
+}
+
+// --- Organizations table (personnel.component - ORG_COL_SCHEMA) ---
+// Note: groupName/divisionName/ouName keys are also used elsewhere; these
+// rules only ever apply within this table's own column set. Percentages
+// apply to the table's width remaining after isSelected/isEdit's fixed
+// 188px.
+.mat-column-groupName {
+  width: 31%;
+  min-width: 160px;
+}
+.mat-column-divisionName {
+  width: 31%;
+  min-width: 160px;
+}
+.mat-column-ouName {
+  width: 31%;
+  min-width: 160px;
+}
+
+// --- Instruments table (technical-requirements.component - INSTR_COL_SCHEMA) ---
+// Percentages apply to the table's width remaining after isSelected/isEdit's
+// fixed 188px.
+.mat-column-name {
+  width: 26%;
+  min-width: 160px;
+}
+.mat-column-description_url {
+  width: 68%;
+  min-width: 220px;
+}
+
+// =============================
+// Edit/Delete button layout within the isEdit column
+// =============================
+// This app needs to support tablet/touch devices, so button touch-target
+// padding (.mat-mdc-button-touch-target) is left at Material's default
+// accessible size. Only the button's internal label padding/min-width is
+// trimmed so Edit + Delete can sit compactly side by side without wrapping
+// or overlapping, now that the column itself has a guaranteed min-width.
+.btn-edit {
+  text-align: left;
+  display: flex;
+  flex-direction: column;  // stack Edit/Delete vertically instead of side by side
+  justify-content: flex-start;
+  align-items: flex-start; // keep each button at its natural width, left-aligned
+  gap: 0px;
+  width: 100%;
+
+  // Scoped override: only buttons inside .btn-edit (Edit/Delete/Done) pick
+  // up the shorter height. CSS custom properties cascade, so setting this
+  // here doesn't touch --mdc-text-button-container-height anywhere else in
+  // the app.
+  --mdc-text-button-container-height: 28px;
+}
+
+::ng-deep .btn-edit button.mat-mdc-button {
+  min-width: 0 !important;
+  padding: 0 8px !important;
+  white-space: nowrap; // prevent "Edit"/"Delete" label text itself from wrapping
+}
+
+::ng-deep .btn-edit button.button-remove {
+  color: $button_red !important;
 }

@@ -16,6 +16,12 @@ export class DataDescriptionComponent implements OnInit {
   pyramid: string = 'assets/images/pyramid.png'
   alttext: string = "Pyramid View of Data Categories"
 
+  // Shown via the info icon next to the section header.
+  sectionInfo: string =
+    "Describe the type of data this project will generate, and select which " +
+    "category (or categories) it falls into. This determines the recommended " +
+    "storage tier shown in the NIST Resources panel.";
+
   // WARNING: the template (data-description.component.html) binds each checkbox
   // by fixed array position — availableCategories[0]..[3] — not by `id`. The
   // order and length of this array are therefore load-bearing: reordering,

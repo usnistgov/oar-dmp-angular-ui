@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { of, Subject, throwError } from 'rxjs';
+import { of, Subject, BehaviorSubject, throwError } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 import { AppComponent } from './app.component';
-import { AuthenticationService, StaffDirectoryService } from 'oarng';
-import { SubmitDmpService } from './shared/submit-dmp.service';
-import { DropDownSelectService } from './shared/drop-down-select.service';
+import { AuthenticationService, StaffDirectoryService, ConfigurationService } from 'oarng';
+import { SubmitDmpService, DmpButtonAction } from './shared/submit-dmp.service';
 import { FormChangedService } from './shared/form-changed.service';
 
 describe('AppComponent', () => {
@@ -21,23 +21,22 @@ describe('AppComponent', () => {
   };
 
   let submitDmpServiceMock: {
-    setexportFormat: jest.Mock;
-    exportFormatSubject$: { next: jest.Mock };
     setButtonMessage: jest.Mock;
     buttonSubject$: { next: jest.Mock };
   };
 
-  let dropDownSelectServiceMock: {
-    getDropDownText: jest.Mock;
-  };
-
   let disableSaveBtnSubject: Subject<boolean>;
   let hasUnsavedChangesSubject: Subject<boolean>;
+  let currentDmpIdSubject: BehaviorSubject<string | null>;
 
   let formChangedServiceMock: {
     disableSaveBtn$: Subject<boolean>;
     hasUnsavedChanges$: Subject<boolean>;
+    currentDmpId$: BehaviorSubject<string | null>;
   };
+
+  let dialogMock: { open: jest.Mock };
+  let configServiceMock: { getConfig: jest.Mock };
 
   beforeEach(async () => {
     authServiceMock = {
@@ -49,22 +48,23 @@ describe('AppComponent', () => {
     };
 
     submitDmpServiceMock = {
-      setexportFormat: jest.fn(),
-      exportFormatSubject$: { next: jest.fn() },
       setButtonMessage: jest.fn(),
       buttonSubject$: { next: jest.fn() }
     };
 
-    dropDownSelectServiceMock = {
-      getDropDownText: jest.fn()
-    };
-
     disableSaveBtnSubject = new Subject<boolean>();
     hasUnsavedChangesSubject = new Subject<boolean>();
+    currentDmpIdSubject = new BehaviorSubject<string | null>(null);
 
     formChangedServiceMock = {
       disableSaveBtn$: disableSaveBtnSubject,
-      hasUnsavedChanges$: hasUnsavedChangesSubject
+      hasUnsavedChanges$: hasUnsavedChangesSubject,
+      currentDmpId$: currentDmpIdSubject
+    };
+
+    dialogMock = { open: jest.fn() };
+    configServiceMock = {
+      getConfig: jest.fn().mockReturnValue({ PDRDMP: 'http://localhost:9091/midas/dmp/mdm1' })
     };
 
     authServiceMock.getCredentials.mockReturnValue(
@@ -81,8 +81,9 @@ describe('AppComponent', () => {
         { provide: AuthenticationService, useValue: authServiceMock },
         { provide: StaffDirectoryService, useValue: staffDirectoryServiceMock },
         { provide: SubmitDmpService, useValue: submitDmpServiceMock },
-        { provide: DropDownSelectService, useValue: dropDownSelectServiceMock },
-        { provide: FormChangedService, useValue: formChangedServiceMock }
+        { provide: FormChangedService, useValue: formChangedServiceMock },
+        { provide: MatDialog, useValue: dialogMock },
+        { provide: ConfigurationService, useValue: configServiceMock }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -97,6 +98,25 @@ describe('AppComponent', () => {
 
   it('should have title dmp_ui2', () => {
     expect(component.title).toBe('dmp_ui2');
+  });
+
+  // -------------------------------------------------------------------------
+  // Header title fields — passed to <app-header> via titleLn1/titleLn2.
+  // Without these, oarng's HeaderComponent falls back to its own default
+  // ("MIDAS DATA PUBLISHING"), which is wrong for this app.
+  // -------------------------------------------------------------------------
+  describe('header title fields', () => {
+    it('sets appVersion to "1.0"', () => {
+      expect(component.appVersion).toBe('1.0');
+    });
+
+    it('sets titleLn1 to "MIDAS"', () => {
+      expect(component.titleLn1).toBe('MIDAS');
+    });
+
+    it('sets titleLn2 to "DATA MANAGEMENT"', () => {
+      expect(component.titleLn2).toBe('DATA MANAGEMENT');
+    });
   });
 
   it('should set authenticated user message on init', () => {
@@ -179,36 +199,73 @@ describe('AppComponent', () => {
     expect(component.readyDisplay).toBe(true);
   });
 
-  it('should update export format and enable download button', () => {
-    dropDownSelectServiceMock.getDropDownText.mockReturnValue([
-      { id: '1', format: 'PDF' }
-    ]);
+  // -------------------------------------------------------------------------
+  // dmpButtonClick — dispatch to SubmitDmpService
+  // -------------------------------------------------------------------------
+  describe('dmpButtonClick', () => {
+    it('dispatches a bare Save action', () => {
+      component.dmpButtonClick('Save');
 
-    component.exportType = '1';
-    component.setExportFormat();
+      expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith({ action: 'Save', format: undefined });
+      expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith({ action: 'Save', format: undefined });
+    });
 
-    expect(submitDmpServiceMock.setexportFormat).toHaveBeenCalledWith('PDF');
-    expect(submitDmpServiceMock.exportFormatSubject$.next).toHaveBeenCalledWith('PDF');
-    expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith('Download');
-    expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith('Download');
-    expect(component.disableDownloadBtn).toBe(false);
+    it('dispatches a Download action with the PDF format', () => {
+      component.dmpButtonClick('Download', 'PDF');
+
+      const expected: DmpButtonAction = { action: 'Download', format: 'PDF' };
+      expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith(expected);
+      expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith(expected);
+    });
+
+    it('dispatches a Download action with the Markdown format', () => {
+      component.dmpButtonClick('Download', 'Markdown');
+
+      expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith({ action: 'Download', format: 'Markdown' });
+    });
+
+    it('dispatches a Download action with the JSON format', () => {
+      component.dmpButtonClick('Download', 'JSON');
+
+      expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith({ action: 'Download', format: 'JSON' });
+    });
   });
 
-  it('should not emit when export format lookup returns no match', () => {
-    dropDownSelectServiceMock.getDropDownText.mockReturnValue([]);
+  // -------------------------------------------------------------------------
+  // disableDownloadBtns — derived from currentDmpId + hasUnsavedChanges
+  // -------------------------------------------------------------------------
+  describe('disableDownloadBtns', () => {
+    it('is true when no record has been saved yet (currentDmpId is null)', () => {
+      fixture.detectChanges();
+      expect(component.currentDmpId).toBeNull();
+      expect(component.disableDownloadBtns).toBe(true);
+    });
 
-    component.exportType = 'unknown';
-    component.setExportFormat();
+    it('is true when a record exists but has unsaved changes', () => {
+      fixture.detectChanges();
+      currentDmpIdSubject.next('dmp-abc');
+      hasUnsavedChangesSubject.next(true);
 
-    expect(submitDmpServiceMock.setexportFormat).not.toHaveBeenCalled();
-    expect(component.disableDownloadBtn).toBe(true);
-  });
+      expect(component.disableDownloadBtns).toBe(true);
+    });
 
-  it('should dispatch clicked button action', () => {
-    component.dmpButtonClick('Save');
+    it('is false once a record has been saved and there are no unsaved changes', () => {
+      fixture.detectChanges();
+      currentDmpIdSubject.next('dmp-abc');
+      hasUnsavedChangesSubject.next(false);
 
-    expect(submitDmpServiceMock.setButtonMessage).toHaveBeenCalledWith('Save');
-    expect(submitDmpServiceMock.buttonSubject$.next).toHaveBeenCalledWith('Save');
+      expect(component.disableDownloadBtns).toBe(false);
+    });
+
+    it('flips back to true if changes are made after being saved', () => {
+      fixture.detectChanges();
+      currentDmpIdSubject.next('dmp-abc');
+      hasUnsavedChangesSubject.next(false);
+      expect(component.disableDownloadBtns).toBe(false);
+
+      hasUnsavedChangesSubject.next(true);
+      expect(component.disableDownloadBtns).toBe(true);
+    });
   });
 
   it('should react to save button state changes', () => {
@@ -254,5 +311,53 @@ describe('AppComponent', () => {
 
     expect(component.disableSaveBtn).toBe(false);
     expect(component.hasUnsavedChanges).toBe(false);
+  });
+
+  describe('currentDmpId and Share dialog', () => {
+    it('should track currentDmpId from FormChangedService', () => {
+      fixture.detectChanges();
+      expect(component.currentDmpId).toBeNull();
+
+      currentDmpIdSubject.next('dmp-abc');
+      expect(component.currentDmpId).toBe('dmp-abc');
+
+      currentDmpIdSubject.next(null);
+      expect(component.currentDmpId).toBeNull();
+    });
+
+    it('should open dialog with correct data when currentDmpId is set', () => {
+      fixture.detectChanges();
+      currentDmpIdSubject.next('dmp-abc');
+
+      component.openShareDialog();
+
+      expect(dialogMock.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            record: { id: 'dmp-abc', apiBase: 'http://localhost:9091/midas/dmp/mdm1' },
+            title: 'Share my record'
+          }),
+          maxWidth: '95vw'
+        })
+      );
+    });
+
+    it('should not open dialog when currentDmpId is null', () => {
+      fixture.detectChanges();
+      expect(component.currentDmpId).toBeNull();
+
+      component.openShareDialog();
+
+      expect(dialogMock.open).not.toHaveBeenCalled();
+    });
+
+    it('should stop tracking currentDmpId after destroy', () => {
+      fixture.detectChanges();
+      component.ngOnDestroy();
+
+      currentDmpIdSubject.next('dmp-after-destroy');
+      expect(component.currentDmpId).toBeNull();
+    });
   });
 });
